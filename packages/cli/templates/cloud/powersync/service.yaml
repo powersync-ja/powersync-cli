@@ -1,0 +1,152 @@
+# TODO update this with published schema
+# yaml-language-server: $schema=/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/types/json-schema/powersync-config.json
+#
+# PowerSync Cloud config – example template with all schema options documented.
+# Uncomment one block per type (one connection type + optional client_auth). We recommend secrets as: secret: !env ENV_NAME (see ../../.vscode/settings.json).
+# Docs: https://docs.powersync.com/usage/sync-rules
+#
+# -----------------------------------------------------------------------------
+# TOP LEVEL
+# -----------------------------------------------------------------------------
+
+# region (required): deployment region, e.g. us
+# Note: This cannot be changed after the initial deployment
+region: us
+
+# replication: database connections for sync
+# Note: only a single connection is currently supported
+replication:
+  connections:
+    # -------------------------------------------------------------------------
+    # PostgreSQL – uncomment this entire block to use
+    # -------------------------------------------------------------------------
+    # - type: postgresql
+    #   hostname: example.com
+    #   database: one
+    #   username: postgres
+    #   password:
+    #     secret: !env POWERSYNC_DATABASE_PASSWORD
+    #   port: 5432
+    # name: string
+    # id: string
+    # tag: string
+    # uri: string
+    # Options: verify-full | verify-ca
+    # sslmode: verify-full
+    # cacert: string
+    # client_certificate: string
+    # client_private_key:
+    #   secret: !env POWERSYNC_DATABASE_CLIENT_KEY
+    # vpc_endpoint_hostname: string
+    # debug_api: boolean
+
+    # -------------------------------------------------------------------------
+    # MongoDB – uncomment this entire block to use (comment out PostgreSQL above)
+    # -------------------------------------------------------------------------
+    # - type: mongodb
+    #   uri: mongodb+srv://user:pass@host/db
+    #   name: string
+    #   id: string
+    #   tag: string
+    #   username: string
+    #   password:
+    #     secret: !env POWERSYNC_MONGODB_PASSWORD
+    #   database: string
+    #   # Options: off | auto_configure | read_only
+    #   post_images: off
+    #   vpc_endpoint_hostname: string
+
+    # -------------------------------------------------------------------------
+    # MySQL – uncomment this entire block to use (comment out PostgreSQL above)
+    # -------------------------------------------------------------------------
+    # - type: mysql
+    #   hostname: db.example.com
+    #   port: 3306
+    #   database: mydb
+    #   username: sync
+    #   password:
+    #     secret: !env POWERSYNC_MYSQL_PASSWORD
+    #   name: string
+    #   id: string
+    #   tag: string
+    #   uri: string
+    #   client_certificate: string
+    #   client_private_key:
+    #     secret: !env POWERSYNC_MYSQL_CLIENT_KEY
+    #   debug_api: false
+
+    # -------------------------------------------------------------------------
+    # MSSQL – uncomment this entire block to use (comment out PostgreSQL above)
+    # -------------------------------------------------------------------------
+    # - type: mssql
+    #   hostname: sql.example.com
+    #   port: 1433
+    #   database: mydb
+    #   schema: dbo
+    #   username: sync
+    #   password:
+    #     secret: !env POWERSYNC_MSSQL_PASSWORD
+    #   name: string
+    #   id: string
+    #   tag: string
+    #   uri: string
+    #   # Options: default | azure-active-directory-password | azure-active-directory-service-principal-secret
+    #   authentication:
+    #     type: default
+    #     options:
+    #       password:
+    #         secret: !env POWERSYNC_MSSQL_PASSWORD
+    #   additionalConfig:
+    #     pollingIntervalMs: 5000
+    #     pollingBatchSize: 1000
+    #     trustServerCertificate: false
+    #   debug_api: false
+
+# -----------------------------------------------------------------------------
+# CLIENT AUTH (optional) – uncomment this entire block to enable
+# -----------------------------------------------------------------------------
+# client_auth:
+
+#   # PowerSync will use the same JWT secret as Supabase.
+#   supabase: false
+
+#   # Legacy: If your Supabase project does not use the new JWT signing keys, you must provide your project's legacy JWT secret to use Supabase Auth. Get it from your project's API settings in the Supabase Dashboard.
+#   supabase_jwt_secret:
+#     secret: !env POWERSYNC_SUPABASE_JWT_SECRET
+
+#   # Additional audiences to accept when validating incoming JWT tokens (the instance domain is always accepted)
+#   additional_audiences: []
+
+#   # Enables development tokens to be generated and accepted by the instance
+#   allow_temporary_tokens: false
+
+#   # URL to a JSON Web Key Set (JWKS) endpoint; the instance fetches public keys from this URL to verify JWT signatures from clients.
+#   jwks_uri: https://example.com/jwks.json
+#   # Inline JSON Web Key Set; provide keys directly instead of (or in addition to) jwks_uri to verify JWT signatures.
+#   jwks:
+#     keys:
+#       # HMAC (symmetric) – Options: HS256 | HS384 | HS512
+#       - kty: oct
+#         alg: HS256
+#         kid: example-key
+#         k:
+#           secret: !env POWERSYNC_CLIENT_AUTH_KEY
+#       # RSA – Options for alg: RS256 | RS384 | RS512
+#       - kty: RSA
+#         kid: my-rsa-key
+#         n: "<base64url-modulus>"
+#         e: "<base64url-exponent>"
+#         alg: RS256
+#       # EC – Options for crv: P-256 | P-384 | P-512; alg: ES256 | ES384 | ES512
+#       - kty: EC
+#         kid: my-ec-key
+#         crv: P-256
+#         x: "<base64url-x>"
+#         y: "<base64url-y>"
+#         alg: ES256
+#       # OKP (EdDSA) – Options for crv: Ed25519 | Ed448
+#       - kty: OKP
+#         kid: my-okp-key
+#         crv: Ed25519
+#         x: "<base64url-public-key>"
+#         alg: EdDSA

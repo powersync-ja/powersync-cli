@@ -10,7 +10,8 @@
   "dependencies": {
     "@oclif/core": "^4",
     "@oclif/plugin-help": "^6",
-    "@oclif/plugin-plugins": "^5"
+    "@oclif/plugin-plugins": "^5",
+    "@powersync/management-types": "file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/types"
   },
   "devDependencies": {
     "@eslint/compat": "^1",
