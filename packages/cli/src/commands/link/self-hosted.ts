@@ -1,26 +1,24 @@
-import { Command, Flags } from '@oclif/core';
-import { existsSync, writeFileSync } from 'node:fs';
+import { Flags } from '@oclif/core';
+import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { stringify as stringifyYaml } from 'yaml';
 
-import { commonFlags } from '../../utils/flags.js';
+import { InstanceCommand } from '../../command-types/InstanceCommand.js';
+import { loadLinkDocument } from '../../utils/loadLinkDoc.js';
 
 const LINK_FILENAME = 'link.yaml';
 
-export default class LinkSelfHosted extends Command {
+export default class LinkSelfHosted extends InstanceCommand {
   static description = 'Link this directory to a self-hosted PowerSync instance.';
   static summary = 'Link to self-hosted PowerSync (API URL and token).';
-  static enableStrictArgs = true;
-
   static flags = {
-    ...commonFlags,
+    ...InstanceCommand.flags,
     url: Flags.string({
       description: 'Self-hosted PowerSync API base URL (e.g. https://powersync.example.com).',
       required: true
     }),
     'api-key': Flags.string({
       description: 'API key / token for the self-hosted instance.',
-      required: true
+      default: '!env POWERSYNC_API_KEY'
     })
   };
 
@@ -28,20 +26,14 @@ export default class LinkSelfHosted extends Command {
     const { flags } = await this.parse(LinkSelfHosted);
     const { directory, url, 'api-key': apiKey } = flags;
 
-    const projectDir = join(process.cwd(), directory);
-    if (!existsSync(projectDir)) {
-      this.error(`Directory "${directory}" not found. Run \`powersync init\` first to create the project.`, {
-        exit: 1
-      });
-    }
+    const projectDir = this.ensureProjectDirExists(directory);
 
     const linkPath = join(projectDir, LINK_FILENAME);
-    const config = {
-      type: 'self-hosted' as const,
-      api_url: url,
-      api_key: apiKey
-    };
-    writeFileSync(linkPath, stringifyYaml(config), 'utf8');
+    const doc = loadLinkDocument(linkPath);
+    doc.set('type', 'self-hosted');
+    doc.set('api_url', url);
+    doc.set('api_key', apiKey);
+    writeFileSync(linkPath, doc.toString(), 'utf8');
     this.log(`Updated ${directory}/${LINK_FILENAME} with self-hosted link.`);
   }
 }

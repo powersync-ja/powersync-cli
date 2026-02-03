@@ -1,20 +1,20 @@
-import { Command, Flags } from '@oclif/core';
+import { Flags } from '@oclif/core';
 import { cpSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { commonFlags } from '../utils/flags.js';
+import { InstanceCommand } from '../command-types/InstanceCommand.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /** Absolute path to templates (package root when running from dist/commands/ or src/commands/). */
 const TEMPLATES_DIR = join(__dirname, '..', '..', 'templates');
 
-export default class Init extends Command {
+export default class Init extends InstanceCommand {
   static description =
     'Creates a new PowerSync project in the current directory. Supports --type=cloud or self-hosted.';
   static flags = {
-    ...commonFlags,
+    ...InstanceCommand.flags,
     type: Flags.string({
       default: 'cloud',
       description: 'Type of PowerSync instance to scaffold.',
@@ -27,8 +27,7 @@ export default class Init extends Command {
     const { flags } = await this.parse(Init);
     const { directory, type } = flags;
 
-    const cwd = process.cwd();
-    const targetDir = join(cwd, directory);
+    const targetDir = this.resolveProjectDir(directory);
 
     if (existsSync(targetDir)) {
       this.error(

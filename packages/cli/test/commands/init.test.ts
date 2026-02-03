@@ -71,10 +71,7 @@ describe('init', () => {
   });
 
   it('creates self-hosted project with --type=self-hosted', async () => {
-    const { stdout } = await runCommand(
-      `init --type=self-hosted --directory=${CUSTOM_DIR}`,
-      { root }
-    );
+    const { stdout } = await runCommand(`init --type=self-hosted --directory=${CUSTOM_DIR}`, { root });
     expect(stdout).toContain(`Created PowerSync self-hosted project`);
     const projectDir = join(tmpDir, CUSTOM_DIR);
     const serviceYamlPath = join(projectDir, 'service.yaml');

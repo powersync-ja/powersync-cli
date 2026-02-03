@@ -1,19 +1,20 @@
-import { Command, Flags } from '@oclif/core';
-import { existsSync, writeFileSync } from 'node:fs';
+import { Flags } from '@oclif/core';
+import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { stringify as stringifyYaml } from 'yaml';
 
-import { commonFlags } from '../../utils/flags.js';
+import { InstanceCommand } from '../../command-types/InstanceCommand.js';
+import { loadLinkDocument } from '../../utils/loadLinkDoc.js';
 
 const LINK_FILENAME = 'link.yaml';
 
-export default class LinkCloud extends Command {
+export default class LinkCloud extends InstanceCommand {
   static description = 'Link this directory to a PowerSync Cloud instance.';
   static summary = 'Link to PowerSync Cloud (instance ID, org, project).';
-  static enableStrictArgs = true;
-
   static flags = {
-    ...commonFlags,
+    ...InstanceCommand.flags,
+    /**
+     * TODO, we could default these to the values used after login
+     */
     'instance-id': Flags.string({
       description: 'PowerSync Cloud instance ID.',
       required: true
@@ -32,21 +33,15 @@ export default class LinkCloud extends Command {
     const { flags } = await this.parse(LinkCloud);
     const { directory, 'instance-id': instanceId, 'org-id': orgId, 'project-id': projectId } = flags;
 
-    const projectDir = join(process.cwd(), directory);
-    if (!existsSync(projectDir)) {
-      this.error(`Directory "${directory}" not found. Run \`powersync init\` first to create the project.`, {
-        exit: 1
-      });
-    }
+    const projectDir = this.ensureProjectDirExists(directory);
 
     const linkPath = join(projectDir, LINK_FILENAME);
-    const config = {
-      type: 'cloud' as const,
-      instance_id: instanceId,
-      org_id: orgId,
-      project_id: projectId
-    };
-    writeFileSync(linkPath, stringifyYaml(config), 'utf8');
+    const doc = loadLinkDocument(linkPath);
+    doc.set('type', 'cloud');
+    doc.set('instance_id', instanceId);
+    doc.set('org_id', orgId);
+    doc.set('project_id', projectId);
+    writeFileSync(linkPath, doc.toString(), 'utf8');
     this.log(`Updated ${directory}/${LINK_FILENAME} with Cloud instance link.`);
   }
 }
