@@ -1,4 +1,5 @@
 import { Config } from '@oclif/core'
+
 import { root } from './helpers/root.js'
 
 /**

@@ -11,21 +11,23 @@
     "@oclif/core": "^4",
     "@oclif/plugin-help": "^6",
     "@oclif/plugin-plugins": "^5",
-    "@powersync/management-types": "file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/types"
+    "@powersync/management-types": "file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/types",
+    "ts-codec": "^1.3.0",
+    "yaml": "^2"
   },
   "devDependencies": {
     "@eslint/compat": "^1",
     "@oclif/prettier-config": "^0.2.1",
     "@oclif/test": "^4",
-    "@types/node": "^22",
+    "@types/node": "^18",
     "eslint": "^9",
     "eslint-config-oclif": "^6",
     "eslint-config-prettier": "^10",
-    "vitest": "^4.0.0",
     "oclif": "^4",
     "shx": "^0.3.3",
     "ts-node": "^10",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.0.0"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -33,6 +35,7 @@
   "files": [
     "./bin",
     "./dist",
+    "./templates",
     "./oclif.manifest.json"
   ],
   "homepage": "https://github.com/powersync-ja/cli",
@@ -63,6 +66,7 @@
     "lint": "eslint",
     "postpack": "shx rm -f oclif.manifest.json",
     "posttest": "pnpm run lint",
+    "pretest": "pnpm run build",
     "prepack": "oclif manifest && oclif readme",
     "test": "vitest",
     "version": "oclif readme && git add README.md"

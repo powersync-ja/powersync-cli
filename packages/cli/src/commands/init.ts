@@ -1,11 +1,72 @@
-import {Command} from '@oclif/core'
+import { Command, Flags } from '@oclif/core';
+import { cpSync, existsSync, mkdirSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import { commonFlags } from '../utils/flags.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+/** Absolute path to templates (package root when running from dist/commands/ or src/commands/). */
+const TEMPLATES_DIR = join(__dirname, '..', '..', 'templates');
 
 export default class Init extends Command {
   static description =
-    'Creates a PowerSync project (e.g. powersync folder with service.yaml and sync-streams.yaml). Supports --type=cloud or self-hosted.'
-  static summary = 'Create a new PowerSync project.'
+    'Creates a new PowerSync project in the current directory. Supports --type=cloud or self-hosted.';
+  static flags = {
+    ...commonFlags,
+    type: Flags.string({
+      default: 'cloud',
+      description: 'Type of PowerSync instance to scaffold.',
+      options: ['cloud', 'self-hosted']
+    })
+  };
+  static summary = 'Create a new PowerSync project.';
 
   async run(): Promise<void> {
-    this.log('init: not yet implemented')
+    const { flags } = await this.parse(Init);
+    const { directory, type } = flags;
+
+    const cwd = process.cwd();
+    const targetDir = join(cwd, directory);
+
+    if (existsSync(targetDir)) {
+      this.error(
+        `Directory "${directory}" already exists. Delete the folder to start over, or link existing config to PowerSync Cloud with \`powersync link\`.`,
+        { exit: 1 }
+      );
+    }
+
+    const templateSubdir = type === 'cloud' ? 'cloud' : 'self-hosted/base';
+    const templatePath = join(TEMPLATES_DIR, templateSubdir, 'powersync');
+
+    if (!existsSync(templatePath)) {
+      this.error(`Template not found for type "${type}" at ${templatePath}`, {
+        exit: 1
+      });
+    }
+
+    mkdirSync(targetDir, { recursive: true });
+    cpSync(templatePath, targetDir, { recursive: true });
+
+    const cloudInstructions = `To deploy to PowerSync Cloud, run:
+powersync link
+powersync deploy
+    `.trim();
+
+    const selfHostedInstructions =
+      `Self Hosted projects currently require external configuration for starting and deploying. 
+Please refer to the PowerSync Self-Hosted documentation for more information.
+    `.trim();
+
+    const instructions = type === 'cloud' ? cloudInstructions : selfHostedInstructions;
+    this.log(
+      `Created PowerSync ${type} project!
+Configuration files are located in:
+${targetDir}
+
+${instructions}
+    `.trim()
+    );
   }
 }

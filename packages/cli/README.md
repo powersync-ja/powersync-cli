@@ -7,14 +7,16 @@ CLI for PowerSync
 [![Downloads/week](https://img.shields.io/npm/dw/@powersync/cli.svg)](https://npmjs.org/package/@powersync/cli)
 
 <!-- toc -->
-* [@powersync/cli](#powersynccli)
-* [Usage](#usage)
-* [Commands](#commands)
+
+- [@powersync/cli](#powersynccli)
+- [Usage](#usage)
+- [Commands](#commands)
 <!-- tocstop -->
 
 # Usage
 
 <!-- usage -->
+
 ```sh-session
 $ npm install -g @powersync/cli
 $ powersync COMMAND
@@ -26,37 +28,39 @@ USAGE
   $ powersync COMMAND
 ...
 ```
+
 <!-- usagestop -->
 
 # Commands
 
 <!-- commands -->
-* [`powersync deploy`](#powersync-deploy)
-* [`powersync destroy`](#powersync-destroy)
-* [`powersync fetch`](#powersync-fetch)
-* [`powersync fetch config`](#powersync-fetch-config)
-* [`powersync fetch instances`](#powersync-fetch-instances)
-* [`powersync fetch status`](#powersync-fetch-status)
-* [`powersync generate`](#powersync-generate)
-* [`powersync generate schema`](#powersync-generate-schema)
-* [`powersync generate token`](#powersync-generate-token)
-* [`powersync help [COMMAND]`](#powersync-help-command)
-* [`powersync init`](#powersync-init)
-* [`powersync link`](#powersync-link)
-* [`powersync login`](#powersync-login)
-* [`powersync migrate`](#powersync-migrate)
-* [`powersync plugins`](#powersync-plugins)
-* [`powersync plugins add PLUGIN`](#powersync-plugins-add-plugin)
-* [`powersync plugins:inspect PLUGIN...`](#powersync-pluginsinspect-plugin)
-* [`powersync plugins install PLUGIN`](#powersync-plugins-install-plugin)
-* [`powersync plugins link PATH`](#powersync-plugins-link-path)
-* [`powersync plugins remove [PLUGIN]`](#powersync-plugins-remove-plugin)
-* [`powersync plugins reset`](#powersync-plugins-reset)
-* [`powersync plugins uninstall [PLUGIN]`](#powersync-plugins-uninstall-plugin)
-* [`powersync plugins unlink [PLUGIN]`](#powersync-plugins-unlink-plugin)
-* [`powersync plugins update`](#powersync-plugins-update)
-* [`powersync stop`](#powersync-stop)
-* [`powersync validate`](#powersync-validate)
+
+- [`powersync deploy`](#powersync-deploy)
+- [`powersync destroy`](#powersync-destroy)
+- [`powersync fetch`](#powersync-fetch)
+- [`powersync fetch config`](#powersync-fetch-config)
+- [`powersync fetch instances`](#powersync-fetch-instances)
+- [`powersync fetch status`](#powersync-fetch-status)
+- [`powersync generate`](#powersync-generate)
+- [`powersync generate schema`](#powersync-generate-schema)
+- [`powersync generate token`](#powersync-generate-token)
+- [`powersync help [COMMAND]`](#powersync-help-command)
+- [`powersync init`](#powersync-init)
+- [`powersync link`](#powersync-link)
+- [`powersync login`](#powersync-login)
+- [`powersync migrate`](#powersync-migrate)
+- [`powersync plugins`](#powersync-plugins)
+- [`powersync plugins add PLUGIN`](#powersync-plugins-add-plugin)
+- [`powersync plugins:inspect PLUGIN...`](#powersync-pluginsinspect-plugin)
+- [`powersync plugins install PLUGIN`](#powersync-plugins-install-plugin)
+- [`powersync plugins link PATH`](#powersync-plugins-link-path)
+- [`powersync plugins remove [PLUGIN]`](#powersync-plugins-remove-plugin)
+- [`powersync plugins reset`](#powersync-plugins-reset)
+- [`powersync plugins uninstall [PLUGIN]`](#powersync-plugins-uninstall-plugin)
+- [`powersync plugins unlink [PLUGIN]`](#powersync-plugins-unlink-plugin)
+- [`powersync plugins update`](#powersync-plugins-update)
+- [`powersync stop`](#powersync-stop)
+- [`powersync validate`](#powersync-validate)
 
 ## `powersync deploy`
 
@@ -251,7 +255,7 @@ USAGE
 DESCRIPTION
   Link configuration to a PowerSync instance.
 
-  Associates a cloud instance (or self-hosted) with this directory's config. Optional instance ID, org_id, app_id.
+  Associates a cloud instance (or self-hosted) with this directory's config. Optional instance ID, org_id, project_id.
 ```
 
 _See code: [src/commands/link.ts](https://github.com/powersync-ja/powersync-js/https://github.com/powersync-ja/cli/blob/v0.0.0/src/commands/link.ts)_
@@ -609,4 +613,5 @@ DESCRIPTION
 ```
 
 _See code: [src/commands/validate.ts](https://github.com/powersync-ja/powersync-js/https://github.com/powersync-ja/cli/blob/v0.0.0/src/commands/validate.ts)_
+
 <!-- commandsstop -->

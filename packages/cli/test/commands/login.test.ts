@@ -1,5 +1,6 @@
 import { runCommand } from '@oclif/test'
 import { describe, expect, it } from 'vitest'
+
 import { root } from '../helpers/root.js'
 
 describe('login', () => {
