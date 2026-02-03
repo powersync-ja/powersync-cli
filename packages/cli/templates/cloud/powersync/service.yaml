@@ -1,5 +1,6 @@
 # TODO update this with published schema
-# yaml-language-server: $schema=/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/types/json-schema/powersync-config.json
+# yaml-language-server: $schema=/Users/stevenontong/Documents/platform_code/powersync/new-cli/packages/schemas/json-schema/cli-config.json
+# yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/cli-config.json
 #
 # PowerSync Cloud config – example template with all schema options documented.
 # Uncomment one block per type (one connection type + optional client_auth). We recommend secrets as: secret: !env ENV_NAME (see ../../.vscode/settings.json).
@@ -8,6 +9,8 @@
 # -----------------------------------------------------------------------------
 # TOP LEVEL
 # -----------------------------------------------------------------------------
+
+_type: cloud
 
 # region (required): deployment region, e.g. us
 # Note: This cannot be changed after the initial deployment

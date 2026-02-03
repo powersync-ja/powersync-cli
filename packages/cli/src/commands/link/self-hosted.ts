@@ -2,16 +2,16 @@ import { Flags } from '@oclif/core';
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { InstanceCommand } from '../../command-types/InstanceCommand.js';
+import { SelfHostedInstanceCommand } from '../../command-types/SelfHostedInstanceCommand.js';
 import { loadLinkDocument } from '../../utils/loadLinkDoc.js';
 
 const LINK_FILENAME = 'link.yaml';
 
-export default class LinkSelfHosted extends InstanceCommand {
+export default class LinkSelfHosted extends SelfHostedInstanceCommand {
   static description = 'Link this directory to a self-hosted PowerSync instance.';
   static summary = 'Link to self-hosted PowerSync (API URL and token).';
   static flags = {
-    ...InstanceCommand.flags,
+    ...SelfHostedInstanceCommand.flags,
     url: Flags.string({
       description: 'Self-hosted PowerSync API base URL (e.g. https://powersync.example.com).',
       required: true
@@ -26,7 +26,7 @@ export default class LinkSelfHosted extends InstanceCommand {
     const { flags } = await this.parse(LinkSelfHosted);
     const { directory, url, 'api-key': apiKey } = flags;
 
-    const projectDir = this.ensureProjectDirExists(directory);
+    const projectDir = this.ensureConfigType(directory);
 
     const linkPath = join(projectDir, LINK_FILENAME);
     const doc = loadLinkDocument(linkPath);

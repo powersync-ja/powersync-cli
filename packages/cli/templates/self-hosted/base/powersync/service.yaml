@@ -1,15 +1,19 @@
-# yaml-language-server: $schema=https://unpkg.com/@powersync/service-schema@latest/json-schema/powersync-config.json
+# TODO update this with published schema
+# yaml-language-server: $schema=/Users/stevenontong/Documents/platform_code/powersync/new-cli/packages/schemas/json-schema/cli-config.json
+# yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/cli-config.json
 #
 # PowerSync self-hosted config – example template with all schema options documented.
 # Uncomment one block per type where applicable. We recommend secrets via !env ENV_NAME.
 # Docs: https://docs.powersync.com/self-hosting
-#
+
+_type: self-hosted
+
 # -----------------------------------------------------------------------------
 # TELEMETRY – configuration for service telemetry and monitoring
 # -----------------------------------------------------------------------------
 # See https://docs.powersync.com/self-hosting/telemetry
 telemetry:
-#   When true, disables sharing of anonymized telemetry data
+  #   When true, disables sharing of anonymized telemetry data
   disable_telemetry_sharing: false
 #   Port on which Prometheus metrics will be exposed. When set, metrics will be available on this port for scraping.
 
@@ -129,7 +133,7 @@ port: !env PS_PORT
 # -----------------------------------------------------------------------------
 # One of path or content is supported. path is used in this example.
 sync_rules:
-#   Path to the sync rules YAML file.
+  #   Path to the sync rules YAML file.
   path: sync_rules.yaml
 #   Inline sync rules content as a string (use this or path, not both).
 #   content: string
@@ -184,7 +188,7 @@ sync_rules:
 # API – API service configuration and parameters
 # -----------------------------------------------------------------------------
 api:
-#   API access tokens for administrative operations.
+  #   API access tokens for administrative operations.
   tokens:
     - use_a_better_token_in_production
 #   Performance and safety parameters for the API service.

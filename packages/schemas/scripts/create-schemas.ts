@@ -1,7 +1,9 @@
+import { configFile } from '@powersync/service-types';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as t from 'ts-codec';
+import { CLIConfig } from '../src/CLIConfig.js';
 import { LinkConfig } from '../src/LinkConfig.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -11,3 +13,6 @@ mkdirSync(schemaDir, { recursive: true });
 
 const linkConfigSchema = t.generateJSONSchema(LinkConfig);
 writeFileSync(join(schemaDir, 'link-config.json'), JSON.stringify(linkConfigSchema, null, 2));
+
+const cliConfigSchema = t.generateJSONSchema(CLIConfig, { parsers: [configFile.portParser] });
+writeFileSync(join(schemaDir, 'cli-config.json'), JSON.stringify(cliConfigSchema, null, 2));

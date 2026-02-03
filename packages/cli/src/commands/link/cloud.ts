@@ -2,16 +2,16 @@ import { Flags } from '@oclif/core';
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { InstanceCommand } from '../../command-types/InstanceCommand.js';
+import { CloudInstanceCommand } from '../../command-types/CloudInstanceCommand.js';
 import { loadLinkDocument } from '../../utils/loadLinkDoc.js';
 
 const LINK_FILENAME = 'link.yaml';
 
-export default class LinkCloud extends InstanceCommand {
+export default class LinkCloud extends CloudInstanceCommand {
   static description = 'Link this directory to a PowerSync Cloud instance.';
   static summary = 'Link to PowerSync Cloud (instance ID, org, project).';
   static flags = {
-    ...InstanceCommand.flags,
+    ...CloudInstanceCommand.flags,
     /**
      * TODO, we could default these to the values used after login
      */
@@ -33,7 +33,7 @@ export default class LinkCloud extends InstanceCommand {
     const { flags } = await this.parse(LinkCloud);
     const { directory, 'instance-id': instanceId, 'org-id': orgId, 'project-id': projectId } = flags;
 
-    const projectDir = this.ensureProjectDirExists(directory);
+    const projectDir = this.ensureConfigType(directory);
 
     const linkPath = join(projectDir, LINK_FILENAME);
     const doc = loadLinkDocument(linkPath);

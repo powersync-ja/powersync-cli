@@ -9,6 +9,11 @@ import { root } from '../helpers/root.js';
 
 const LINK_FILENAME = 'link.yaml';
 const PROJECT_DIR = 'powersync';
+const SERVICE_FILENAME = 'service.yaml';
+
+function writeServiceYaml(projectDir: string, type: 'cloud' | 'self-hosted') {
+  writeFileSync(join(projectDir, SERVICE_FILENAME), `_type: ${type}\n`, 'utf8');
+}
 
 describe('link', () => {
   describe('cloud', () => {
@@ -34,8 +39,28 @@ describe('link', () => {
       expect(result.error?.oclif?.exit).toBe(1);
     });
 
-    it('creates link.yaml with cloud config when directory exists', async () => {
+    it('errors when service.yaml is missing', async () => {
       mkdirSync(join(tmpDir, PROJECT_DIR), { recursive: true });
+      const result = await runCommand('link cloud --instance-id=inst --org-id=o --project-id=p', { root });
+      expect(result.error?.message).toMatch(
+        new RegExp(`No ${SERVICE_FILENAME} found in "${PROJECT_DIR}". Run \`powersync init\` first`)
+      );
+      expect(result.error?.oclif?.exit).toBe(1);
+    });
+
+    it('errors when service.yaml _type does not match (self-hosted)', async () => {
+      const projectDir = join(tmpDir, PROJECT_DIR);
+      mkdirSync(projectDir, { recursive: true });
+      writeServiceYaml(projectDir, 'self-hosted');
+      const result = await runCommand('link cloud --instance-id=inst --org-id=o --project-id=p', { root });
+      expect(result.error?.message).toMatch(/has `_type: self-hosted` but you are running `link cloud`/);
+      expect(result.error?.oclif?.exit).toBe(1);
+    });
+
+    it('creates link.yaml with cloud config when directory exists and service _type is cloud', async () => {
+      const projectDir = join(tmpDir, PROJECT_DIR);
+      mkdirSync(projectDir, { recursive: true });
+      writeServiceYaml(projectDir, 'cloud');
       const { stdout } = await runCommand('link cloud --instance-id=inst-1 --org-id=org-1 --project-id=proj-1', {
         root
       });
@@ -52,6 +77,7 @@ describe('link', () => {
     it('updates existing link.yaml and preserves comments', async () => {
       const projectDir = join(tmpDir, PROJECT_DIR);
       mkdirSync(projectDir, { recursive: true });
+      writeServiceYaml(projectDir, 'cloud');
       const linkPath = join(projectDir, LINK_FILENAME);
       const withComments = `# Managed by PowerSync CLI
 # Run powersync link --help for info
@@ -72,6 +98,7 @@ type: cloud
     it('respects --directory flag', async () => {
       const customDir = 'my-powersync';
       mkdirSync(join(tmpDir, customDir), { recursive: true });
+      writeServiceYaml(join(tmpDir, customDir), 'cloud');
       const { stdout } = await runCommand(
         `link cloud --directory=${customDir} --instance-id=i --org-id=o --project-id=p`,
         { root }
@@ -106,8 +133,28 @@ type: cloud
       expect(result.error?.oclif?.exit).toBe(1);
     });
 
-    it('creates link.yaml with self-hosted config when directory exists', async () => {
+    it('errors when service.yaml is missing', async () => {
       mkdirSync(join(tmpDir, PROJECT_DIR), { recursive: true });
+      const result = await runCommand('link self-hosted --url=https://x.com --api-key=k', { root });
+      expect(result.error?.message).toMatch(
+        new RegExp(`No ${SERVICE_FILENAME} found in "${PROJECT_DIR}". Run \`powersync init\` first`)
+      );
+      expect(result.error?.oclif?.exit).toBe(1);
+    });
+
+    it('errors when service.yaml _type does not match (cloud)', async () => {
+      const projectDir = join(tmpDir, PROJECT_DIR);
+      mkdirSync(projectDir, { recursive: true });
+      writeServiceYaml(projectDir, 'cloud');
+      const result = await runCommand('link self-hosted --url=https://x.com --api-key=k', { root });
+      expect(result.error?.message).toMatch(/has `_type: cloud` but you are running `link self-hosted`/);
+      expect(result.error?.oclif?.exit).toBe(1);
+    });
+
+    it('creates link.yaml with self-hosted config when directory exists and service _type is self-hosted', async () => {
+      const projectDir = join(tmpDir, PROJECT_DIR);
+      mkdirSync(projectDir, { recursive: true });
+      writeServiceYaml(projectDir, 'self-hosted');
       const { stdout } = await runCommand('link self-hosted --url=https://sync.example.com --api-key=my-token', {
         root
       });
@@ -123,6 +170,7 @@ type: cloud
     it('updates existing link.yaml and preserves comments', async () => {
       const projectDir = join(tmpDir, PROJECT_DIR);
       mkdirSync(projectDir, { recursive: true });
+      writeServiceYaml(projectDir, 'self-hosted');
       const linkPath = join(projectDir, LINK_FILENAME);
       const withComments = `# Self-hosted config
 type: self-hosted
@@ -140,6 +188,7 @@ type: self-hosted
     it('respects --directory flag', async () => {
       const customDir = 'my-powersync';
       mkdirSync(join(tmpDir, customDir), { recursive: true });
+      writeServiceYaml(join(tmpDir, customDir), 'self-hosted');
       const { stdout } = await runCommand(
         `link self-hosted --directory=${customDir} --url=https://example.com --api-key=k`,
         {
