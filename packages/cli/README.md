@@ -593,7 +593,7 @@ USAGE
 DESCRIPTION
   Stop a PowerSync instance.
 
-  Stops the linked PowerSync Cloud instance. Cloud only.
+  Stops the linked PowerSync Cloud instance. Cloud only. The instance can be started again by running `powersync deploy`.
 ```
 
 _See code: [src/commands/stop.ts](https://github.com/powersync-ja/powersync-js/https://github.com/powersync-ja/cli/blob/v0.0.0/src/commands/stop.ts)_
