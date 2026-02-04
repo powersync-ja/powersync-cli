@@ -3,9 +3,8 @@ import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { CloudInstanceCommand } from '../../command-types/CloudInstanceCommand.js';
-import { loadLinkDocument } from '../../utils/loadLinkDoc.js';
-
-const LINK_FILENAME = 'link.yaml';
+import { ensureServiceTypeMatches } from '../../utils/ensureServiceType.js';
+import { LINK_FILENAME, loadLinkDocument } from '../../utils/project-config.js';
 
 export default class LinkCloud extends CloudInstanceCommand {
   static description = 'Link this directory to a PowerSync Cloud instance.';
@@ -33,7 +32,9 @@ export default class LinkCloud extends CloudInstanceCommand {
     const { flags } = await this.parse(LinkCloud);
     const { directory, 'instance-id': instanceId, 'org-id': orgId, 'project-id': projectId } = flags;
 
-    const projectDir = this.ensureConfigType(directory);
+    // We don't require having the cloud condig in service.yaml for all commands
+    const projectDir = this.ensureProjectDirExists({ directory });
+    ensureServiceTypeMatches(this, projectDir, 'cloud', directory, false);
 
     const linkPath = join(projectDir, LINK_FILENAME);
     const doc = loadLinkDocument(linkPath);

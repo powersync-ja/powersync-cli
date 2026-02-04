@@ -9,7 +9,9 @@
     "moduleResolution": "node16",
     "composite": true
   },
+  "skipLibCheck": true,
   "include": ["./src/**/*"],
+  "references": [{ "path": "../schemas" }],
   "ts-node": {
     "esm": true
   }

@@ -39,21 +39,12 @@ describe('link', () => {
       expect(result.error?.oclif?.exit).toBe(1);
     });
 
-    it('errors when service.yaml is missing', async () => {
-      mkdirSync(join(tmpDir, PROJECT_DIR), { recursive: true });
-      const result = await runCommand('link cloud --instance-id=inst --org-id=o --project-id=p', { root });
-      expect(result.error?.message).toMatch(
-        new RegExp(`No ${SERVICE_FILENAME} found in "${PROJECT_DIR}". Run \`powersync init\` first`)
-      );
-      expect(result.error?.oclif?.exit).toBe(1);
-    });
-
     it('errors when service.yaml _type does not match (self-hosted)', async () => {
       const projectDir = join(tmpDir, PROJECT_DIR);
       mkdirSync(projectDir, { recursive: true });
       writeServiceYaml(projectDir, 'self-hosted');
       const result = await runCommand('link cloud --instance-id=inst --org-id=o --project-id=p', { root });
-      expect(result.error?.message).toMatch(/has `_type: self-hosted` but you are running `link cloud`/);
+      expect(result.error?.message).toMatch(/has `_type: self-hosted` but this command requires `_type: cloud`/);
       expect(result.error?.oclif?.exit).toBe(1);
     });
 
@@ -133,21 +124,12 @@ type: cloud
       expect(result.error?.oclif?.exit).toBe(1);
     });
 
-    it('errors when service.yaml is missing', async () => {
-      mkdirSync(join(tmpDir, PROJECT_DIR), { recursive: true });
-      const result = await runCommand('link self-hosted --url=https://x.com --api-key=k', { root });
-      expect(result.error?.message).toMatch(
-        new RegExp(`No ${SERVICE_FILENAME} found in "${PROJECT_DIR}". Run \`powersync init\` first`)
-      );
-      expect(result.error?.oclif?.exit).toBe(1);
-    });
-
     it('errors when service.yaml _type does not match (cloud)', async () => {
       const projectDir = join(tmpDir, PROJECT_DIR);
       mkdirSync(projectDir, { recursive: true });
       writeServiceYaml(projectDir, 'cloud');
       const result = await runCommand('link self-hosted --url=https://x.com --api-key=k', { root });
-      expect(result.error?.message).toMatch(/has `_type: cloud` but you are running `link self-hosted`/);
+      expect(result.error?.message).toMatch(/has `_type: cloud` but this command requires `_type: self-hosted`/);
       expect(result.error?.oclif?.exit).toBe(1);
     });
 

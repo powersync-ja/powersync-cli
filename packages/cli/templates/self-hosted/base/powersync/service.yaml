@@ -86,9 +86,9 @@ telemetry:
 # -----------------------------------------------------------------------------
 # STORAGE – configuration for the storage backend (sync bucket storage)
 # -----------------------------------------------------------------------------
-storage:
-  type: mongodb
-  uri: !env PS_MONGO_URI
+# storage:
+#   type: mongodb
+#   uri: !env PS_MONGO_URI
 #   database: string
 #   username: string
 #   password: !env PS_MONGO_PASSWORD
@@ -126,7 +126,7 @@ storage:
 # -----------------------------------------------------------------------------
 # PORT – the port on which the service will listen for connections (number or string)
 # -----------------------------------------------------------------------------
-port: !env PS_PORT
+# port: !env PS_PORT
 
 # -----------------------------------------------------------------------------
 # SYNC RULES – configuration for synchronization rules that define data access patterns
@@ -134,7 +134,7 @@ port: !env PS_PORT
 # One of path or content is supported. path is used in this example.
 sync_rules:
   #   Path to the sync rules YAML file.
-  path: sync_rules.yaml
+  path: sync.yaml
 #   Inline sync rules content as a string (use this or path, not both).
 #   content: string
 #   Whether to exit the process if there is an error parsing sync rules.

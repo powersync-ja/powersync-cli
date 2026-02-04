@@ -3,9 +3,8 @@ import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { SelfHostedInstanceCommand } from '../../command-types/SelfHostedInstanceCommand.js';
-import { loadLinkDocument } from '../../utils/loadLinkDoc.js';
-
-const LINK_FILENAME = 'link.yaml';
+import { ensureServiceTypeMatches } from '../../utils/ensureServiceType.js';
+import { LINK_FILENAME, loadLinkDocument } from '../../utils/project-config.js';
 
 export default class LinkSelfHosted extends SelfHostedInstanceCommand {
   static description = 'Link this directory to a self-hosted PowerSync instance.';
@@ -26,7 +25,8 @@ export default class LinkSelfHosted extends SelfHostedInstanceCommand {
     const { flags } = await this.parse(LinkSelfHosted);
     const { directory, url, 'api-key': apiKey } = flags;
 
-    const projectDir = this.ensureConfigType(directory);
+    const projectDir = this.ensureProjectDirExists(flags);
+    ensureServiceTypeMatches(this, projectDir, 'self-hosted', directory, false);
 
     const linkPath = join(projectDir, LINK_FILENAME);
     const doc = loadLinkDocument(linkPath);

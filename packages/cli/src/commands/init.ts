@@ -4,13 +4,14 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { InstanceCommand } from '../command-types/InstanceCommand.js';
+import { PowerSyncCommand } from '../command-types/PowerSyncCommand.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /** Absolute path to templates (package root when running from dist/commands/ or src/commands/). */
 const TEMPLATES_DIR = join(__dirname, '..', '..', 'templates');
 
-export default class Init extends InstanceCommand {
+export default class Init extends PowerSyncCommand {
   static description =
     'Creates a new PowerSync project in the current directory. Supports --type=cloud or self-hosted.';
   static flags = {
@@ -27,7 +28,7 @@ export default class Init extends InstanceCommand {
     const { flags } = await this.parse(Init);
     const { directory, type } = flags;
 
-    const targetDir = this.resolveProjectDir(directory);
+    const targetDir = this.resolveProjectDir(flags);
 
     if (existsSync(targetDir)) {
       this.error(

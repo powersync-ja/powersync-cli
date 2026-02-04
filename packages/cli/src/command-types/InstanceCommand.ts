@@ -1,10 +1,24 @@
-import { Command, Flags } from '@oclif/core';
+import { Flags } from '@oclif/core';
 import { existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { PowerSyncCommand } from './PowerSyncCommand.js';
+
+export type EnsureConfigOptions = {
+  /**
+   * If the service.yaml file is required to be present in the project directory.
+   */
+  configFileRequired: boolean;
+
+  /**
+   * If true, when link.yaml is missing show a "Linking is required" message with example command.
+   * If false or omitted, missing or invalid link.yaml results in a parse error.
+   */
+  linkingIsRequired?: boolean;
+};
 
 /** Base command for operations that target a PowerSync project directory (e.g. link, init). */
-export abstract class InstanceCommand extends Command {
+export abstract class InstanceCommand extends PowerSyncCommand {
   static flags = {
+    ...PowerSyncCommand.flags,
     directory: Flags.string({
       default: 'powersync',
       description: 'Directory containing PowerSync config (default: powersync).'
@@ -16,8 +30,9 @@ export abstract class InstanceCommand extends Command {
    * Calls this.error and exits if the directory is missing.
    * @returns The resolved absolute path to the project directory.
    */
-  ensureProjectDirExists(directory: string): string {
-    const projectDir = this.resolveProjectDir(directory);
+  ensureProjectDirExists(flags: { directory: string }): string {
+    const { directory } = flags;
+    const projectDir = this.resolveProjectDir(flags);
 
     if (!existsSync(projectDir)) {
       this.error(`Directory "${directory}" not found. Run \`powersync init\` first to create the project.`, {
@@ -26,10 +41,5 @@ export abstract class InstanceCommand extends Command {
     }
 
     return projectDir;
-  }
-
-  /** Resolves the project directory path from the --directory flag (relative to cwd). */
-  resolveProjectDir(directory: string): string {
-    return join(process.cwd(), directory);
   }
 }
