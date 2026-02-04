@@ -18,8 +18,13 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
   loadProject(flags: { directory: string }, options?: EnsureConfigOptions): SelfHostedProject {
     const projectDir = this.ensureProjectDirExists(flags);
 
-    // Check if the service.yaml file is present and has _type: cloud
-    ensureServiceTypeMatches(this, projectDir, 'cloud', flags.directory, options?.configFileRequired ?? false);
+    ensureServiceTypeMatches({
+      command: this,
+      configRequired: options?.configFileRequired ?? false,
+      directoryLabel: flags.directory,
+      expectedType: 'self-hosted',
+      projectDir
+    });
 
     const linkPath = join(projectDir, LINK_FILENAME);
     const doc = loadLinkDocument(linkPath);

@@ -36,7 +36,13 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
     const projectDir = this.ensureProjectDirExists(flags);
 
     // Check if the service.yaml file is present and has _type: cloud
-    ensureServiceTypeMatches(this, projectDir, 'cloud', flags.directory, options?.configFileRequired ?? false);
+    ensureServiceTypeMatches({
+      command: this,
+      configRequired: options?.configFileRequired ?? false,
+      directoryLabel: flags.directory,
+      expectedType: 'cloud',
+      projectDir
+    });
 
     const linkPath = join(projectDir, LINK_FILENAME);
     if (options?.linkingIsRequired && !existsSync(linkPath)) {

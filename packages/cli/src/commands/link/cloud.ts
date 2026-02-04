@@ -1,10 +1,9 @@
 import { Flags } from '@oclif/core';
-import { writeFileSync } from 'node:fs';
-import { join } from 'node:path';
 
+import { writeCloudLink } from '../../api/write-cloud-link.js';
 import { CloudInstanceCommand } from '../../command-types/CloudInstanceCommand.js';
 import { ensureServiceTypeMatches } from '../../utils/ensureServiceType.js';
-import { LINK_FILENAME, loadLinkDocument } from '../../utils/project-config.js';
+import { LINK_FILENAME } from '../../utils/project-config.js';
 
 export default class LinkCloud extends CloudInstanceCommand {
   static description = 'Link this directory to a PowerSync Cloud instance.';
@@ -12,7 +11,7 @@ export default class LinkCloud extends CloudInstanceCommand {
   static flags = {
     ...CloudInstanceCommand.flags,
     /**
-     * TODO, we could default these to the values used after login
+     * TODO, we could default some of these to the values used after login
      */
     'instance-id': Flags.string({
       description: 'PowerSync Cloud instance ID.',
@@ -32,17 +31,16 @@ export default class LinkCloud extends CloudInstanceCommand {
     const { flags } = await this.parse(LinkCloud);
     const { directory, 'instance-id': instanceId, 'org-id': orgId, 'project-id': projectId } = flags;
 
-    // We don't require having the cloud condig in service.yaml for all commands
     const projectDir = this.ensureProjectDirExists({ directory });
-    ensureServiceTypeMatches(this, projectDir, 'cloud', directory, false);
+    ensureServiceTypeMatches({
+      command: this,
+      configRequired: false,
+      directoryLabel: directory,
+      expectedType: 'cloud',
+      projectDir
+    });
 
-    const linkPath = join(projectDir, LINK_FILENAME);
-    const doc = loadLinkDocument(linkPath);
-    doc.set('type', 'cloud');
-    doc.set('instance_id', instanceId);
-    doc.set('org_id', orgId);
-    doc.set('project_id', projectId);
-    writeFileSync(linkPath, doc.toString(), 'utf8');
+    writeCloudLink(projectDir, { instanceId, orgId, projectId });
     this.log(`Updated ${directory}/${LINK_FILENAME} with Cloud instance link.`);
   }
 }

@@ -26,7 +26,13 @@ export default class LinkSelfHosted extends SelfHostedInstanceCommand {
     const { directory, url, 'api-key': apiKey } = flags;
 
     const projectDir = this.ensureProjectDirExists(flags);
-    ensureServiceTypeMatches(this, projectDir, 'self-hosted', directory, false);
+    ensureServiceTypeMatches({
+      command: this,
+      configRequired: false,
+      directoryLabel: directory,
+      expectedType: 'self-hosted',
+      projectDir
+    });
 
     const linkPath = join(projectDir, LINK_FILENAME);
     const doc = loadLinkDocument(linkPath);

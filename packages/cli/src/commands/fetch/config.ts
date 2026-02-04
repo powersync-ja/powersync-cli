@@ -1,11 +1,44 @@
-import {Command} from '@oclif/core'
+import { Flags } from '@oclif/core';
+import { Document } from 'yaml';
 
-export default class FetchConfig extends Command {
-  static description =
-    'Pulls the current instance config from PowerSync Cloud and writes to local powersync folder. Cloud only.'
-  static summary = 'Update local configuration with cloud state.'
+import { fetchCloudConfig } from '../../api/fetch-cloud-config.js';
+import { CloudInstanceCommand } from '../../command-types/CloudInstanceCommand.js';
+
+export default class FetchConfig extends CloudInstanceCommand {
+  static description = 'Fetches instance config from PowerSync Cloud. Requires a linked project. Cloud only.';
+  static summary = 'Fetch config from cloud (output as yaml or json).';
+
+  static flags = {
+    ...CloudInstanceCommand.flags,
+    output: Flags.string({
+      default: 'yaml',
+      description: 'Output format: yaml or json.',
+      options: ['json', 'yaml']
+    })
+  };
 
   async run(): Promise<void> {
-    this.log('fetch config: not yet implemented')
+    const { flags } = await this.parse(FetchConfig);
+
+    const { linked } = this.loadProject(flags, {
+      configFileRequired: false,
+      linkingIsRequired: true
+    });
+
+    const client = this.getClient();
+
+    const fetched = await fetchCloudConfig(client, linked).catch((error) => {
+      this.error(
+        `Failed to fetch config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}: ${error}`,
+        { exit: 1 }
+      );
+    });
+
+    if (flags.output === 'yaml') {
+      this.log(new Document(fetched).toString());
+      return;
+    }
+
+    this.log(JSON.stringify(fetched, null, 2));
   }
 }

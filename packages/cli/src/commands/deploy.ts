@@ -15,6 +15,7 @@ export default class Deploy extends CloudInstanceCommand {
       configFileRequired: true,
       linkingIsRequired: true
     });
+
     const config = this.parseConfig(projectDirectory);
     const client = this.getClient();
 
@@ -23,11 +24,18 @@ export default class Deploy extends CloudInstanceCommand {
     );
 
     try {
-      const existingConfig = await client.getInstanceConfig({
-        app_id: linked.project_id,
-        org_id: linked.org_id,
-        id: linked.instance_id
-      });
+      const existingConfig = await client
+        .getInstanceConfig({
+          app_id: linked.project_id,
+          org_id: linked.org_id,
+          id: linked.instance_id
+        })
+        .catch((error) => {
+          this.error(
+            `Failed to get existing config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}: ${error}`,
+            { exit: 1 }
+          );
+        });
 
       await client.deployInstance({
         // Spread the existing config like name, and program version contraints.

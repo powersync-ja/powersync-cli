@@ -9,7 +9,13 @@ export const LINK_FILENAME = 'link.yaml';
 
 export const SERVICE_FILENAME = 'service.yaml';
 
+/** Written by `fetch config` when service.yaml already exists; user should manually merge into service.yaml. */
+export const SERVICE_FETCHED_FILENAME = 'service-fetched.yaml';
+
 export const SYNC_FILENAME = 'sync.yaml';
+
+/** Written by `fetch config` when sync.yaml already exists; user should manually merge into sync.yaml. */
+export const SYNC_FETCHED_FILENAME = 'sync-fetched.yaml';
 
 /**
  * Loads link.yaml as a YAML Document so it can be updated in place (preserving comments).

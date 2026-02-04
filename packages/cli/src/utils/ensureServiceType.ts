@@ -6,18 +6,21 @@ const SERVICE_FILENAME = 'service.yaml';
 
 export type ServiceType = 'cloud' | 'self-hosted';
 
+export type EnsureServiceTypeMatchesOptions = {
+  command: { error: (message: string, options: { exit: number }) => never };
+  configRequired: boolean;
+  directoryLabel: string;
+  expectedType: ServiceType;
+  projectDir: string;
+};
+
 /**
  * Ensures, if it exists, that service.yaml in the project dir has _type matching the expected service type.
  * Calls command.error and exits if the file is missing, or _type is missing or mismatched.
  * Used by link, deploy, and other commands that require a specific project type (cloud or self-hosted).
  */
-export function ensureServiceTypeMatches(
-  command: { error: (message: string, options: { exit: number }) => never },
-  projectDir: string,
-  expectedType: ServiceType,
-  directoryLabel: string,
-  configRequired: boolean
-): void {
+export function ensureServiceTypeMatches(options: EnsureServiceTypeMatchesOptions): void {
+  const { command, configRequired, directoryLabel, expectedType, projectDir } = options;
   const servicePath = join(projectDir, SERVICE_FILENAME);
 
   if (!existsSync(servicePath)) {

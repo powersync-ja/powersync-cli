@@ -1,10 +1,29 @@
-import { runCommand } from '@oclif/test';
+import { Config } from '@oclif/core';
+import { captureOutput, runCommand } from '@oclif/test';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { root } from '../helpers/root.js';
+
+import * as CloudClient from '../../src/clients/CloudClient.js';
+import * as DeployCommand from '../../src/commands/deploy.js';
+
+const mockGetInstanceConfig = vi.fn();
+const mockDeployInstance = vi.fn();
+vi.spyOn(CloudClient, 'createCloudClient').mockReturnValue({
+  deployInstance: mockDeployInstance,
+  getInstanceConfig: mockGetInstanceConfig
+} as unknown as ReturnType<typeof CloudClient.createCloudClient>);
+
+/** Run deploy by instantiating the command and calling .run() so the spy on createCloudClient applies. */
+async function runDeployDirect(opts?: { directory?: string }) {
+  const directory = opts?.directory ?? PROJECT_DIR;
+  const config = await Config.load({ root });
+  const Deploy = DeployCommand.default;
+  const cmd = new Deploy(['--directory', directory], config);
+  return captureOutput(() => cmd.run());
+}
 
 const LINK_FILENAME = 'link.yaml';
 const PROJECT_DIR = 'powersync';
@@ -27,6 +46,9 @@ describe('deploy', () => {
     origCwd = process.cwd();
     tmpDir = mkdtempSync(join(tmpdir(), 'deploy-test-'));
     process.chdir(tmpDir);
+    mockGetInstanceConfig.mockReset();
+    mockDeployInstance.mockReset();
+    mockGetInstanceConfig.mockRejectedValue(new Error('network error'));
   });
 
   afterEach(() => {
@@ -93,7 +115,7 @@ describe('deploy', () => {
     });
 
     it('attempts deploy and errors with exit 1 when client fails', async () => {
-      const result = await runCommand('deploy', { root });
+      const result = await runDeployDirect();
       expect(result.error?.oclif?.exit).toBe(1);
       expect(result.error?.message).toMatch(
         /Failed to deploy changes to instance inst-1 in project proj-1 in org org-1/
