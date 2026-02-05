@@ -18,7 +18,7 @@ export async function fetchCloudConfig(
     org_id: linked.org_id,
     id: linked.instance_id
   });
-  const configFromCloud = instanceConfig.config ?? {};
+  const configFromCloud = { _type: 'cloud', ...(instanceConfig.config ?? {}) };
   const config = CLICloudConfig.decode(configFromCloud as any);
   return { config, syncRules: instanceConfig.sync_rules };
 }

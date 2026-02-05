@@ -25,7 +25,7 @@ export default class Destroy extends CloudInstanceCommand {
       configFileRequired: false,
       linkingIsRequired: true
     });
-    const client = this.getClient();
+    const client = await this.getClient();
 
     this.log(`Destroying instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`);
 

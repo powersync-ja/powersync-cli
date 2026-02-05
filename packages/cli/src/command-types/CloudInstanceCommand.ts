@@ -26,9 +26,9 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
   };
 
   /**
-   * @returns A PowerSync Management Client for the Cloud.
+   * @returns A PowerSync Management Client for the Cloud (uses token from login).
    */
-  getClient(): PowerSyncManagementClient {
+  async getClient(): Promise<PowerSyncManagementClient> {
     return createCloudClient();
   }
 
@@ -52,9 +52,9 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
       );
     }
 
-    const doc = loadLinkDocument(linkPath);
     let linked: RequiredCloudLinkConfig;
     try {
+      const doc = loadLinkDocument(linkPath);
       linked = RequiredCloudLinkConfig.decode(doc.contents?.toJSON());
     } catch (error) {
       this.error(`Failed to parse ${LINK_FILENAME} as CloudLinkConfig: ${error}`, { exit: 1 });

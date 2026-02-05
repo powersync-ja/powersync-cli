@@ -11,7 +11,7 @@
     "json-schema"
   ],
   "scripts": {
-    "build": "shx rm -rf dist && tsc -b && tsx scripts/create-schemas.ts"
+    "build": "tsc -b && tsx scripts/create-schemas.ts"
   },
   "dependencies": {
     "ts-codec": "^1.3.0",

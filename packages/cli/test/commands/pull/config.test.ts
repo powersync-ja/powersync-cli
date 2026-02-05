@@ -12,7 +12,7 @@ const PROJECT_DIR = 'powersync';
 const SERVICE_FILENAME = 'service.yaml';
 
 /** Minimal valid cloud config decodable by CLICloudConfig. */
-const MOCK_CONFIG = { _type: 'cloud' as const, region: 'us' };
+const MOCK_CONFIG = { region: 'us' };
 
 const mockCloudClient = {
   deployInstance: vi.fn(),

@@ -25,7 +25,7 @@ export default class FetchConfig extends CloudInstanceCommand {
       linkingIsRequired: true
     });
 
-    const client = this.getClient();
+    const client = await this.getClient();
 
     const fetched = await fetchCloudConfig(client, linked).catch((error) => {
       this.error(

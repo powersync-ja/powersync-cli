@@ -1,21 +1,24 @@
 import * as sdk from '@journeyapps-labs/common-sdk';
 import { PowerSyncManagementClient } from '@powersync/management-client';
+import { getSecureStorage } from '../services/SecureStorage.js';
 import { env } from '../utils/env.js';
 
 /**
  * Creates a PowerSync Management Client for the Cloud.
- * Uses the credentials from the login command.
+ * Uses the token stored by the login command (secure storage, e.g. macOS Keychain).
  */
-export function createCloudClient(): PowerSyncManagementClient {
-  const getToken = () => {
-    // TODO: get from secure store
-    return 'TODO';
-  };
-
+export async function createCloudClient(): Promise<PowerSyncManagementClient> {
+  const storage = getSecureStorage();
+  const token = env.PS_TOKEN || (await storage.getToken());
+  if (!token) {
+    throw new Error(
+      'Not logged in. Run `powersync login --token=<your-token>` to authenticate. Login is supported on macOS (other platforms coming soon).'
+    );
+  }
   return new PowerSyncManagementClient({
     client: sdk.createNodeNetworkClient({
       headers: () => ({
-        Authorization: `Bearer ${getToken()}`
+        Authorization: `Bearer ${token}`
       })
     }),
     endpoint: env._PS_MANAGEMENT_SERVICE_URL
