@@ -123,7 +123,10 @@ export default class PullConfig extends CloudInstanceCommand {
     if (!existsSync(linkPath)) {
       if (!instanceId || !orgId || !projectId) {
         this.error(
-          `Linking is required. Either run \`powersync link cloud --instance-id=<id> --org-id=<id> --project-id=<id>\` first, or pass --instance-id, --org-id, and --project-id to this command.`,
+          [
+            'Linking is required. Either run `powersync link cloud --instance-id=<id> --org-id=<id> --project-id=<id>` first,',
+            'or pass --instance-id, --org-id, and --project-id to this command.'
+          ].join('\n'),
           { exit: 1 }
         );
       }
@@ -152,12 +155,18 @@ export default class PullConfig extends CloudInstanceCommand {
     const syncExists = existsSync(join(projectDir, SYNC_FILENAME));
     if (serviceExists) {
       this.warn(
-        `${SERVICE_FILENAME} already exists. Writing to service-fetched.yaml instead. Manually merge the settings into ${SERVICE_FILENAME} as needed.`
+        [
+          `${SERVICE_FILENAME} already exists. Writing to service-fetched.yaml instead.`,
+          `Manually merge the settings into ${SERVICE_FILENAME} as needed.`
+        ].join('\n')
       );
     }
     if (syncExists && fetched.syncRules) {
       this.warn(
-        `${SYNC_FILENAME} already exists. Writing to sync-fetched.yaml instead. Manually merge the sync rules into ${SYNC_FILENAME} as needed.`
+        [
+          `${SYNC_FILENAME} already exists. Writing to sync-fetched.yaml instead.`,
+          `Manually merge the sync rules into ${SYNC_FILENAME} as needed.`
+        ].join('\n')
       );
     }
     const serviceYaml = formatServiceYamlWithComments(fetched.config);

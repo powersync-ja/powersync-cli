@@ -49,24 +49,18 @@ export default class Init extends PowerSyncCommand {
     mkdirSync(targetDir, { recursive: true });
     cpSync(templatePath, targetDir, { recursive: true });
 
-    const cloudInstructions = `To deploy to PowerSync Cloud, run:
-powersync link
-powersync deploy
-    `.trim();
+    const cloudInstructions = ['To deploy to PowerSync Cloud, run:', 'powersync link', 'powersync deploy'].join('\n');
 
-    const selfHostedInstructions =
-      `Self Hosted projects currently require external configuration for starting and deploying. 
-Please refer to the PowerSync Self-Hosted documentation for more information.
-    `.trim();
+    const selfHostedInstructions = [
+      'Self Hosted projects currently require external configuration for starting and deploying.',
+      'Please refer to the PowerSync Self-Hosted documentation for more information.'
+    ].join('\n');
 
     const instructions = type === 'cloud' ? cloudInstructions : selfHostedInstructions;
     this.log(
-      `Created PowerSync ${type} project!
-Configuration files are located in:
-${targetDir}
-
-${instructions}
-    `.trim()
+      [`Created PowerSync ${type} project!`, 'Configuration files are located in:', targetDir, '', instructions].join(
+        '\n'
+      )
     );
   }
 }

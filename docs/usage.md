@@ -12,6 +12,36 @@ powersync pull config --org-id=5cc84a3ccudjfhgytw0c08b --project-id=6703fd8a3cfe
 powersync deploy
 ```
 
+# Authentication (Tokens)
+
+Cloud commands need an auth token (e.g. a PowerSync PAT). You can supply it in two ways; the CLI uses the first that is available:
+
+1. **Environment variable** — `PS_TOKEN`
+2. **Stored via login** — token saved by `powersync login` (secure storage, e.g. macOS Keychain)
+
+**Environment variable** — useful for CI, scripts, or one-off runs:
+
+```bash
+export PS_TOKEN=your-token-here
+powersync stop --confirm=yes
+```
+
+Inline:
+
+```bash
+PS_TOKEN=your-token-here powersync fetch config --output=json
+```
+
+**Stored via login** — convenient for local use; token is stored securely and reused:
+
+```bash
+powersync login --token=your-token-here
+# Later commands use the stored token
+powersync fetch config
+```
+
+Login is supported on macOS (other platforms coming soon). If you use another platform or prefer not to store the token, set `PS_TOKEN` in the environment instead.
+
 # Supplying Linking Information for Cloud Commands
 
 Cloud commands (`deploy`, `destroy`, `stop`, `fetch config`, `pull config`) need instance, org, and project IDs. You can supply them in three ways; the CLI uses the first that is available:

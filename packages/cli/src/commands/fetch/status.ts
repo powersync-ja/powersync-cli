@@ -1,11 +1,157 @@
-import {Command} from '@oclif/core'
+import { Flags } from '@oclif/core';
+import { routes } from '@powersync/management-types';
+import { Document } from 'yaml';
 
-export default class FetchStatus extends Command {
+import { CloudInstanceCommand } from '../../command-types/CloudInstanceCommand.js';
+
+type DiagnosticsResponse = routes.InstanceDiagnosticsResponse;
+type SyncRulesSection = NonNullable<DiagnosticsResponse['active_sync_rules']>;
+
+const INDENT = '  ';
+const BULLET = '•';
+
+function pad(level: number): string {
+  return INDENT.repeat(level);
+}
+
+/** Format a date value as "ISO (local)" for human output. Returns raw value if not parseable. */
+function formatDate(value: string | number | undefined | null): string {
+  if (value === undefined || value === null) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return `${date.toISOString()} (${date.toLocaleString()})`;
+}
+
+function formatErrors(errors: Array<{ level: string; message: string; ts?: string }>, indentLevel: number): string {
+  if (!errors?.length) return '';
+  const p = pad(indentLevel);
+  return errors.map((e) => `${p}${BULLET} [${e.level}] ${e.message}${e.ts ? ` (${e.ts})` : ''}`).join('\n');
+}
+
+function formatConnectionsSection(connections: DiagnosticsResponse['connections'], indentLevel: number): string {
+  if (!connections?.length) return `${pad(indentLevel)}(no connections)\n`;
+  const p = pad(indentLevel);
+  const lines: string[] = [];
+  for (const conn of connections) {
+    const status = conn.connected ? 'connected' : 'disconnected';
+    lines.push(`${p}${BULLET} ${conn.id}`);
+    lines.push(`${p}  Postgres URI: ${conn.postgres_uri ?? '—'}`);
+    lines.push(`${p}  Status: ${status}`);
+    if (conn.errors?.length) {
+      lines.push(`${p}  Errors:`);
+      lines.push(formatErrors(conn.errors, indentLevel + 2));
+    }
+    lines.push('');
+  }
+  return lines.join('\n').trimEnd() + '\n';
+}
+
+function formatSyncRulesSection(section: SyncRulesSection, indentLevel: number): string {
+  const p = pad(indentLevel);
+  const lines: string[] = [];
+
+  if (section.errors?.length) {
+    lines.push(`${p}Errors:`);
+    lines.push(formatErrors(section.errors, indentLevel + 1));
+    lines.push('');
+  }
+
+  if (section.connections?.length) {
+    lines.push(`${p}Connections:`);
+    for (const conn of section.connections) {
+      lines.push(`${p}  ${BULLET} ${conn.tag ?? conn.id} (slot: ${conn.slot_name ?? '—'})`);
+      lines.push(`${p}    Initial replication done: ${conn.initial_replication_done}`);
+      if (conn.last_lsn != null) lines.push(`${p}    Last LSN: ${conn.last_lsn}`);
+      if (conn.last_keepalive_ts != null) lines.push(`${p}    Last keepalive: ${formatDate(conn.last_keepalive_ts)}`);
+      if (conn.last_checkpoint_ts != null)
+        lines.push(`${p}    Last checkpoint: ${formatDate(conn.last_checkpoint_ts)}`);
+      if (conn.replication_lag_bytes != null)
+        lines.push(`${p}    Replication lag: ${conn.replication_lag_bytes} bytes`);
+      if (conn.tables?.length) {
+        lines.push(`${p}    Tables:`);
+        for (const table of conn.tables) {
+          const name = `${table.schema}.${table.name}`;
+          const repl = table.replication_id?.length ? table.replication_id.join(', ') : '—';
+          lines.push(`${p}      - ${name} (replication_id: ${repl})`);
+          if (table.data_queries != null) lines.push(`${p}        data_queries: ${table.data_queries}`);
+          if (table.parameter_queries != null) lines.push(`${p}        parameter_queries: ${table.parameter_queries}`);
+          if (table.errors?.length) lines.push(formatErrors(table.errors, indentLevel + 3));
+        }
+      }
+    }
+    lines.push('');
+  }
+
+  if (section.content != null && section.content !== '') {
+    lines.push(`${p}Content:`);
+    lines.push(`${p}  ${section.content.split('\n').join(`\n${p}  `)}`);
+  }
+
+  return lines.join('\n').trimEnd() || `${p}(no data)\n`;
+}
+
+function formatDiagnosticsHuman(diagnostics: DiagnosticsResponse): string {
+  const sections: string[] = [];
+
+  sections.push('═══ Connections ═══');
+  sections.push(formatConnectionsSection(diagnostics.connections ?? [], 0));
+
+  if (diagnostics.active_sync_rules != null) {
+    sections.push('═══ Active Sync Rules ═══');
+    sections.push(formatSyncRulesSection(diagnostics.active_sync_rules, 0));
+  }
+
+  if (diagnostics.deploying_sync_rules != null) {
+    sections.push('═══ Deploying Sync Rules ═══');
+    sections.push(formatSyncRulesSection(diagnostics.deploying_sync_rules, 0));
+  }
+
+  return sections.join('\n').trimEnd();
+}
+
+// TODO self hosted support
+export default class FetchStatus extends CloudInstanceCommand {
   static description =
-    'Fetches diagnostics (connections, sync rules state, etc.). Routes to Management service (Cloud) or linked instance (self-hosted).'
-  static summary = 'Fetch diagnostics status for an instance.'
+    'Fetches diagnostics (connections, sync rules state, etc.). Routes to Management service (Cloud) or linked instance (self-hosted).';
+  static summary = 'Fetch diagnostics status for an instance.';
+
+  static flags = {
+    ...CloudInstanceCommand.flags,
+    output: Flags.string({
+      default: 'human',
+      description: 'Output format: human-readable, json, or yaml.',
+      options: ['human', 'json', 'yaml']
+    })
+  };
 
   async run(): Promise<void> {
-    this.log('fetch status: not yet implemented')
+    const { flags } = await this.parse(FetchStatus);
+
+    const { linked } = this.loadProject(flags, {
+      configFileRequired: false,
+      linkingIsRequired: true
+    });
+
+    const client = await this.getClient();
+
+    const diagnostics = await client
+      .getInstanceDiagnostics({
+        app_id: linked.project_id,
+        org_id: linked.org_id,
+        id: linked.instance_id
+      })
+      .catch((error) => {
+        this.error(`Failed to fetch diagnostics for instance ${linked.instance_id}: ${error}`, { exit: 1 });
+      });
+
+    if (flags.output === 'json') {
+      this.log(JSON.stringify(diagnostics, null, 2));
+      return;
+    } else if (flags.output === 'yaml') {
+      this.log(new Document(diagnostics).toString());
+      return;
+    } else {
+      this.log(formatDiagnosticsHuman(diagnostics));
+    }
   }
 }

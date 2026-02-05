@@ -11,9 +11,11 @@ import * as DeployCommand from '../../src/commands/deploy.js';
 
 const mockGetInstanceConfig = vi.fn();
 const mockDeployInstance = vi.fn();
+const mockGetInstanceStatus = vi.fn();
 vi.spyOn(CloudClient, 'createCloudClient').mockReturnValue({
   deployInstance: mockDeployInstance,
-  getInstanceConfig: mockGetInstanceConfig
+  getInstanceConfig: mockGetInstanceConfig,
+  getInstanceStatus: mockGetInstanceStatus
 } as unknown as ReturnType<typeof CloudClient.createCloudClient>);
 
 /** Run deploy by instantiating the command and calling .run() so the spy on createCloudClient applies. */
@@ -48,6 +50,7 @@ describe('deploy', () => {
     process.chdir(tmpDir);
     mockGetInstanceConfig.mockReset();
     mockDeployInstance.mockReset();
+    mockGetInstanceStatus.mockReset();
     mockGetInstanceConfig.mockRejectedValue(new Error('network error'));
   });
 

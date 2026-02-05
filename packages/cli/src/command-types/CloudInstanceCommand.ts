@@ -122,7 +122,10 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
 
     if (!linked && options?.linkingIsRequired) {
       this.error(
-        `Linking is required before using this command. No linking information was found in the current context.`,
+        [
+          'Linking is required before using this command.',
+          'No linking information was found in the current context.'
+        ].join('\n'),
         { exit: 1 }
       );
     }
