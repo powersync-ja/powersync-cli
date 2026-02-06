@@ -8,14 +8,8 @@
     "target": "es2022",
     "moduleResolution": "node16",
     "composite": true,
-    "paths": {
-      "@syncpoint/wkx": ["./src/syncpoint-wkx.d.ts"]
-    }
+    "skipLibCheck": true
   },
-  "skipLibCheck": true,
   "include": ["./src/**/*"],
-  "references": [{ "path": "../cli-core" }, { "path": "../schemas" }],
-  "ts-node": {
-    "esm": true
-  }
+  "references": [{ "path": "../schemas" }]
 }

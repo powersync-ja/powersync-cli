@@ -8,6 +8,8 @@
   },
   "bugs": "https://github.com/powersync-ja/cli/issues",
   "dependencies": {
+    "@powersync/cli-core": "workspace:*",
+    "@powersync/plugin-docker": "workspace:*",
     "@inquirer/prompts": "^7.2.0",
     "@journeyapps-labs/common-sdk": "1.0.2",
     "@oclif/core": "^4",
@@ -57,13 +59,21 @@
   "license": "Apache-2.0",
   "main": "dist/index.js",
   "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "oclif": {
     "bin": "powersync",
     "dirname": "powersync",
     "commands": "./dist/commands",
     "plugins": [
       "@oclif/plugin-help",
-      "@oclif/plugin-plugins"
+      "@oclif/plugin-plugins",
+      "@powersync/plugin-docker"
     ],
     "topicSeparator": " ",
     "topics": {

@@ -1,0 +1,41 @@
+{
+  "name": "@powersync/plugin-docker",
+  "description": "PowerSync CLI plugin: deploy, start, and stop self-hosted instances using Docker Compose",
+  "version": "0.0.0",
+  "author": "POWERSYNC",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "templates",
+    "oclif.manifest.json"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "lint": "eslint .",
+    "prepack": "oclif manifest"
+  },
+  "dependencies": {
+    "@oclif/core": "^4",
+    "@powersync/cli-core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "eslint": "^9",
+    "oclif": "^4",
+    "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "oclif": {
+    "commands": "./dist/commands",
+    "topicSeparator": " ",
+    "topics": {
+      "docker": {
+        "description": "Manage self-hosted PowerSync with Docker Compose (init, deploy, start, stop)"
+      }
+    }
+  }
+}

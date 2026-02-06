@@ -9,9 +9,10 @@ Monorepo for the PowerSync CLI and related tooling. Built with [pnpm](https://pn
 
 ## Packages
 
-| Package                              | Description                                                    |
-| ------------------------------------ | -------------------------------------------------------------- |
-| [**@powersync/cli**](./packages/cli) | PowerSync CLI — manage instances, config, sync rules, and more |
+| Package                                                  | Description                                                                            |
+| -------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| [**@powersync/cli**](./packages/cli)                     | PowerSync CLI — manage instances, config, sync rules, and more                         |
+| [**@powersync/plugin-docker**](./packages/plugin-docker) | CLI plugin — run self-hosted PowerSync with Docker Compose (init, deploy, start, stop) |
 
 ## Getting started
 
@@ -27,6 +28,17 @@ Run the CLI from the repo root:
 pnpm powersync -- --help
 pnpm exec powersync --help   # if @powersync/cli is a workspace dependency
 ```
+
+### Self-hosted with Docker
+
+From the repo root, scaffold and run a self-hosted PowerSync stack with Docker Compose:
+
+```bash
+pnpm powersync docker init --database postgres --storage postgres
+pnpm powersync docker deploy
+```
+
+See [@powersync/plugin-docker](./packages/plugin-docker/README.md) for details.
 
 ## Links
 

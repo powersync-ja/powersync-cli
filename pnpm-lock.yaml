@@ -37,6 +37,9 @@ importers:
       '@oclif/plugin-plugins':
         specifier: ^5
         version: 5.4.55
+      '@powersync/cli-core':
+        specifier: workspace:*
+        version: link:../cli-core
       '@powersync/cli-schemas':
         specifier: workspace:*
         version: link:../schemas
@@ -46,6 +49,9 @@ importers:
       '@powersync/management-types':
         specifier: file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/types/powersync-management-types-0.0.1.tgz
         version: file:../service/powersync-hosted/public-packages/types/powersync-management-types-0.0.1.tgz(tsx@4.21.0)(yaml@2.8.2)
+      '@powersync/plugin-docker':
+        specifier: workspace:*
+        version: link:../plugin-docker
       '@powersync/service-client':
         specifier: file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-service/packages/service-client/powersync-service-client-1.18.2.tgz
         version: file:../service/powersync-service/packages/service-client/powersync-service-client-1.18.2.tgz(@types/json-schema@7.0.15)(tsx@4.21.0)(yaml@2.8.2)
@@ -113,6 +119,47 @@ importers:
       vitest:
         specifier: ^4.0.0
         version: 4.0.18(@opentelemetry/api@1.9.0)(@types/node@24.10.10)(tsx@4.21.0)(yaml@2.8.2)
+
+  packages/cli-core:
+    dependencies:
+      '@oclif/core':
+        specifier: ^4
+        version: 4.8.0
+      '@powersync/cli-schemas':
+        specifier: workspace:*
+        version: link:../schemas
+      yaml:
+        specifier: ^2
+        version: 2.8.2
+    devDependencies:
+      '@types/node':
+        specifier: ^24
+        version: 24.10.10
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
+  packages/plugin-docker:
+    dependencies:
+      '@oclif/core':
+        specifier: ^4
+        version: 4.8.0
+      '@powersync/cli-core':
+        specifier: workspace:*
+        version: link:../cli-core
+    devDependencies:
+      '@types/node':
+        specifier: ^24
+        version: 24.10.10
+      eslint:
+        specifier: ^9
+        version: 9.39.2
+      oclif:
+        specifier: ^4
+        version: 4.22.73(@types/node@24.10.10)
+      typescript:
+        specifier: ^5
+        version: 5.9.3
 
   packages/schemas:
     dependencies:

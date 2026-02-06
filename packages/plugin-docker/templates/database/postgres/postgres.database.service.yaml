@@ -1,0 +1,9 @@
+# Snippet to merge into project service.yaml (replication connection for Docker stack).
+# Used by: powersync docker init --database postgres
+# Env: PS_DATA_SOURCE_URI (e.g. postgres://user:pass@pg-db:5432/dbname)
+
+replication:
+  connections:
+    - type: postgresql
+      uri: !env PS_DATA_SOURCE_URI
+      sslmode: disable
