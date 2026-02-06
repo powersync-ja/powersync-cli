@@ -15,12 +15,12 @@ importers:
     devDependencies:
       '@powersync/cli':
         specifier: workspace:*
-        version: link:packages/cli
+        version: link:cli
       prettier:
         specifier: ^3.0.0
         version: 3.8.1
 
-  packages/cli:
+  cli:
     dependencies:
       '@inquirer/prompts':
         specifier: ^7.2.0
@@ -39,10 +39,10 @@ importers:
         version: 5.4.55
       '@powersync/cli-core':
         specifier: workspace:*
-        version: link:../cli-core
+        version: link:../packages/cli-core
       '@powersync/cli-schemas':
         specifier: workspace:*
-        version: link:../schemas
+        version: link:../packages/schemas
       '@powersync/management-client':
         specifier: file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz
         version: file:../service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz(@types/json-schema@7.0.15)(tsx@4.21.0)(yaml@2.8.2)
@@ -51,7 +51,7 @@ importers:
         version: file:../service/powersync-hosted/public-packages/types/powersync-management-types-0.0.1.tgz(tsx@4.21.0)(yaml@2.8.2)
       '@powersync/plugin-docker':
         specifier: workspace:*
-        version: link:../plugin-docker
+        version: link:../packages/plugin-docker
       '@powersync/service-client':
         specifier: file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-service/packages/service-client/powersync-service-client-1.18.2.tgz
         version: file:../service/powersync-service/packages/service-client/powersync-service-client-1.18.2.tgz(@types/json-schema@7.0.15)(tsx@4.21.0)(yaml@2.8.2)
@@ -8009,7 +8009,7 @@ snapshots:
       eslint-config-xo: 0.49.0(eslint@9.39.2)
       eslint-config-xo-space: 0.35.0(eslint@9.39.2)
       eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.54.0(eslint@9.39.2)(typescript@5.9.3))(eslint@9.39.2))(eslint@9.39.2)
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.54.0(eslint@9.39.2)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.54.0(eslint@9.39.2)(typescript@5.9.3))(eslint@9.39.2))(eslint@9.39.2))(eslint@9.39.2)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.54.0(eslint@9.39.2)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.2)
       eslint-plugin-jsdoc: 50.8.0(eslint@9.39.2)
       eslint-plugin-mocha: 10.5.0(eslint@9.39.2)
       eslint-plugin-n: 17.23.2(eslint@9.39.2)(typescript@5.9.3)
@@ -8065,7 +8065,7 @@ snapshots:
       tinyglobby: 0.2.15
       unrs-resolver: 1.11.1
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.54.0(eslint@9.39.2)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.54.0(eslint@9.39.2)(typescript@5.9.3))(eslint@9.39.2))(eslint@9.39.2))(eslint@9.39.2)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.54.0(eslint@9.39.2)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -8093,7 +8093,7 @@ snapshots:
       eslint-utils: 2.1.0
       regexpp: 3.2.0
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.54.0(eslint@9.39.2)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.54.0(eslint@9.39.2)(typescript@5.9.3))(eslint@9.39.2))(eslint@9.39.2))(eslint@9.39.2):
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.54.0(eslint@9.39.2)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.2):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9

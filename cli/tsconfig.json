@@ -14,7 +14,7 @@
   },
   "skipLibCheck": true,
   "include": ["./src/**/*"],
-  "references": [{ "path": "../cli-core" }, { "path": "../schemas" }],
+  "references": [{ "path": "../packages/cli-core" }, { "path": "../packages/schemas" }],
   "ts-node": {
     "esm": true
   }
