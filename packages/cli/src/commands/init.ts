@@ -13,16 +13,16 @@ const TEMPLATES_DIR = join(__dirname, '..', '..', 'templates');
 
 export default class Init extends PowerSyncCommand {
   static description =
-    'Creates a new PowerSync project in the current directory. Supports --type=cloud or self-hosted.';
+    'Copy a template into a config directory (default powersync/). Use --type=cloud or --type=self-hosted. For Cloud, edit service.yaml then run link cloud and deploy.';
   static flags = {
     type: Flags.string({
       default: 'cloud',
-      description: 'Type of PowerSync instance to scaffold.',
+      description: 'Type of PowerSync instance to scaffold (cloud or self-hosted).',
       options: ['cloud', 'self-hosted']
     }),
     ...InstanceCommand.flags
   };
-  static summary = 'Create a new PowerSync project.';
+  static summary = 'Scaffold a PowerSync config directory from a template.';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(Init);

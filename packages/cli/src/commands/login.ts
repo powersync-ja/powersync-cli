@@ -4,8 +4,9 @@ import { Command } from '@oclif/core';
 import { getSecureStorage } from '../services/SecureStorage.js';
 
 export default class Login extends Command {
-  static description = 'Authenticate the CLI with PowerSync (e.g. PAT token).';
-  static summary = 'Authenticate the CLI with PowerSync (e.g. PAT token).';
+  static description =
+    'Store a PowerSync auth token (PAT) in secure storage so later Cloud commands run without passing a token. Use PS_TOKEN env var for CI or scripts instead.';
+  static summary = 'Store auth token in secure storage for Cloud commands.';
 
   async run(): Promise<void> {
     const token = await password({

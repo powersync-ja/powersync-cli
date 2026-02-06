@@ -13,8 +13,8 @@ type TokenConfig = {
 
 export default class GenerateToken extends SharedInstanceCommand {
   static description =
-    'Generates a development token for connecting clients. Cloud and self-hosted (when shared secret is in config).';
-  static summary = 'Create a client token for the PowerSync service.';
+    'Generate a JWT for development clients to connect to PowerSync. Cloud: uses instance dev-token API (allow_temporary_tokens must be enabled). Self-hosted: signs with shared secret from config. Requires --subject; optional --expires-in-seconds.';
+  static summary = 'Generate a development JWT for client connections.';
 
   static flags = {
     subject: Flags.string({

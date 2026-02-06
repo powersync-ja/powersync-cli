@@ -12,8 +12,8 @@ import { SharedInstanceCommand } from '../../command-types/SharedInstanceCommand
 
 export default class GenerateSchema extends SharedInstanceCommand {
   static description =
-    'Generates client-side schema from instance schema and sync rules. Supported for Cloud and self-hosted.';
-  static summary = 'Create client-side schemas.';
+    'Generate a client-side schema file from the instance database schema and sync rules. Supports multiple output types (e.g. type, dart). Requires a linked instance. Cloud and self-hosted.';
+  static summary = 'Generate client schema file from instance schema and sync rules.';
 
   static flags = {
     output: Flags.string({

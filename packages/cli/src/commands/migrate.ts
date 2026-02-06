@@ -1,8 +1,9 @@
 import { SelfHostedInstanceCommand } from '../command-types/SelfHostedInstanceCommand.js';
 
 export default class Migrate extends SelfHostedInstanceCommand {
-  static description = 'Migrates a self-hosted instance configuration to PowerSync Cloud format. Self-hosted only.';
-  static summary = 'Migrate a self-hosted config to a cloud config.';
+  static description =
+    'Convert a self-hosted service.yaml to PowerSync Cloud format. Self-hosted only. (Not yet implemented.)';
+  static summary = 'Convert self-hosted config to Cloud format (not yet implemented).';
 
   async run(): Promise<void> {
     this.log('migrate: not yet implemented');

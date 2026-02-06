@@ -9,8 +9,9 @@ import { ensureServiceTypeMatches } from '../../utils/ensureServiceType.js';
 import { LINK_FILENAME, loadLinkDocument } from '../../utils/project-config.js';
 
 export default class LinkSelfHosted extends SelfHostedInstanceCommand {
-  static description = 'Link this directory to a self-hosted PowerSync instance.';
-  static summary = 'Link to self-hosted PowerSync (API URL; API key from PS_TOKEN env).';
+  static description =
+    'Write or update link.yaml with a self-hosted instance (API URL). You will be prompted for API key; use !env PS_TOKEN so commands read the key from the environment.';
+  static summary = 'Link to a self-hosted PowerSync instance by API URL.';
   static flags = {
     'api-url': Flags.string({
       description: 'Self-hosted PowerSync API base URL (e.g. https://powersync.example.com).',

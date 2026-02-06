@@ -2,8 +2,8 @@ import { Command } from '@oclif/core';
 
 export default class Link extends Command {
   static description =
-    "Associates a PowerSync instance with this directory's config. Use a subcommand for cloud or self-hosted.";
-  static summary = 'Link configuration to a PowerSync instance.';
+    "Write link.yaml so this directory's config is bound to a PowerSync instance. Once linked, commands use that instance without passing IDs. Use link cloud or link self-hosted.";
+  static summary = 'Bind this directory to a Cloud or self-hosted instance (writes link.yaml).';
   async run(): Promise<void> {
     await this.parse(Link);
     this.log('Use a subcommand: link cloud | link self-hosted');

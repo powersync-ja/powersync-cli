@@ -31,8 +31,9 @@ async function waitForStatusChange(
 }
 
 export default class Deploy extends CloudInstanceCommand {
-  static description = 'Deploys changes to the PowerSync management service. Cloud only.';
-  static summary = 'Deploy sync rules and configuration changes.';
+  static description =
+    'Push local config (service.yaml, sync rules) to the linked PowerSync Cloud instance. Tests connections and sync rules first; requires a linked project. Cloud only.';
+  static summary = 'Push local config to the linked Cloud instance (connections + sync rules).';
 
   static flags = {
     ...CloudInstanceCommand.flags

@@ -160,8 +160,9 @@ async function runSyncRulesTestSelfHosted(project: SelfHostedProject): Promise<V
 }
 
 export default class Validate extends SharedInstanceCommand {
-  static description = 'Validates configuration. Supported for both Cloud and self-hosted.';
-  static summary = 'Validate configuration (sync rules, connection, etc.).';
+  static description =
+    'Run validation checks on local config: config schema, database connections, and sync rules. Requires a linked instance. Works with Cloud and self-hosted.';
+  static summary = 'Validate config schema, connections, and sync rules before deploy.';
 
   static flags = {
     output: Flags.string({

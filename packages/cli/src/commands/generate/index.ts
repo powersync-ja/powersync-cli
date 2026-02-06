@@ -1,11 +1,12 @@
-import {Command} from '@oclif/core'
+import { Command } from '@oclif/core';
 
 export default class Generate extends Command {
-  static description = 'Commands to generate client-side schema or development tokens.'
-  static summary = 'Generate artifacts (schema, token).'
+  static description =
+    'Generate client artifacts: schema (from instance schema + sync rules) or a development token for connecting clients. Cloud and self-hosted where supported.';
+  static summary = 'Generate client schema or development token.';
 
   async run(): Promise<void> {
-    await this.parse(Generate)
-    this.log('Use a subcommand: generate schema | generate token')
+    await this.parse(Generate);
+    this.log('Use a subcommand: generate schema | generate token');
   }
 }

@@ -79,8 +79,8 @@ function formatServiceYamlWithComments(config: t.Decoded<typeof CLICloudConfig>)
 
 export default class PullConfig extends CloudInstanceCommand {
   static description =
-    'Pulls instance config from PowerSync Cloud and writes to local files. If not already linked, use --instance-id, --org-id, --project-id to link first. Cloud only.';
-  static summary = 'Pull config from cloud (link first if needed).';
+    'Fetch instance config and sync rules from PowerSync Cloud and write to service.yaml and sync.yaml in the config directory. Writes link.yaml if you pass --instance-id, --org-id, --project-id. Cloud only.';
+  static summary = 'Download Cloud config and sync rules into local service.yaml and sync.yaml.';
 
   static flags = {
     ...CloudInstanceCommand.flags

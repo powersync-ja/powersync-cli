@@ -1,10 +1,11 @@
-import {Command} from '@oclif/core'
+import { Command } from '@oclif/core';
 
 export default class FetchInstances extends Command {
-  static description = 'Lists instances in the current org/project. Cloud only.'
-  static summary = 'List PowerSync Cloud instances.'
+  static description =
+    'List PowerSync Cloud instances in the current org and project. Use with a linked directory or pass --org-id and --project-id. Cloud only.';
+  static summary = 'List Cloud instances in the current org/project.';
 
   async run(): Promise<void> {
-    this.log('fetch instances: not yet implemented')
+    this.log('fetch instances: not yet implemented');
   }
 }

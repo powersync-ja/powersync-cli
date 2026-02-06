@@ -115,8 +115,8 @@ function formatDiagnosticsHuman(diagnostics: DiagnosticsResponse): string {
 
 export default class FetchStatus extends SharedInstanceCommand {
   static description =
-    'Fetches diagnostics (connections, sync rules state, etc.). Routes to Management service (Cloud) or linked instance (self-hosted).';
-  static summary = 'Fetch diagnostics status for an instance.';
+    'Fetch instance diagnostics: connection status, active and deploying sync rules, replication state. Output as human-readable, JSON, or YAML. Cloud and self-hosted.';
+  static summary = 'Show instance diagnostics (connections, sync rules, replication).';
 
   static flags = {
     output: Flags.string({

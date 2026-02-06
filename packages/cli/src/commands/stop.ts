@@ -4,8 +4,8 @@ import { CloudInstanceCommand } from '../command-types/CloudInstanceCommand.js';
 
 export default class Stop extends CloudInstanceCommand {
   static description =
-    'Stops the linked PowerSync Cloud instance. Cloud only. The instance can be started again by running `powersync deploy`.';
-  static summary = 'Stop a PowerSync instance.';
+    'Deactivate the linked PowerSync Cloud instance. Requires --confirm=yes. Restart later with powersync deploy. Cloud only.';
+  static summary = 'Stop the linked Cloud instance (restart with deploy).';
 
   static flags = {
     confirm: Flags.string({

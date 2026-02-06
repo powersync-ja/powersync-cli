@@ -9,8 +9,9 @@ import { env } from '../../utils/env.js';
 import { LINK_FILENAME } from '../../utils/project-config.js';
 
 export default class LinkCloud extends CloudInstanceCommand {
-  static description = 'Link this directory to a PowerSync Cloud instance.';
-  static summary = 'Link to PowerSync Cloud (instance ID, org, project).';
+  static description =
+    'Write or update link.yaml with a Cloud instance (instance-id, org-id, project-id). Use --create to create a new instance from service.yaml name/region and link it; omit --instance-id when using --create.';
+  static summary = 'Link to a PowerSync Cloud instance (or create one with --create).';
   static flags = {
     create: Flags.boolean({
       description:
@@ -18,17 +19,17 @@ export default class LinkCloud extends CloudInstanceCommand {
       default: false
     }),
     'instance-id': Flags.string({
-      description: 'PowerSync Cloud instance ID. Omit when using --create.',
+      description: 'PowerSync Cloud instance ID. Omit when using --create. Resolved: flag → INSTANCE_ID → link.yaml.',
       default: env.INSTANCE_ID,
       required: false
     }),
     'org-id': Flags.string({
-      description: 'Organization ID.',
+      description: 'Organization ID. Resolved: flag → ORG_ID → link.yaml.',
       default: env.ORG_ID,
       required: true
     }),
     'project-id': Flags.string({
-      description: 'Project ID.',
+      description: 'Project ID. Resolved: flag → PROJECT_ID → link.yaml.',
       default: env.PROJECT_ID,
       required: true
     }),

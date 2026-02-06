@@ -3,8 +3,9 @@ import { Flags } from '@oclif/core';
 import { CloudInstanceCommand } from '../command-types/CloudInstanceCommand.js';
 
 export default class Destroy extends CloudInstanceCommand {
-  static description = 'Destroys the linked PowerSync Cloud instance. Cloud only.';
-  static summary = 'Destroy a PowerSync instance.';
+  static description =
+    'Permanently delete the linked PowerSync Cloud instance and its data. Requires --confirm=yes. Cloud only.';
+  static summary = 'Permanently destroy the linked Cloud instance.';
 
   static flags = {
     confirm: Flags.string({
