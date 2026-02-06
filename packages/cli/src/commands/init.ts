@@ -49,7 +49,9 @@ export default class Init extends PowerSyncCommand {
     mkdirSync(targetDir, { recursive: true });
     cpSync(templatePath, targetDir, { recursive: true });
 
-    const cloudInstructions = ['To deploy to PowerSync Cloud, run:', 'powersync link', 'powersync deploy'].join('\n');
+    const cloudInstructions = ['To deploy to PowerSync Cloud, run:', 'powersync link cloud', 'powersync deploy'].join(
+      '\n'
+    );
 
     const selfHostedInstructions = [
       'Self Hosted projects currently require external configuration for starting and deploying.',

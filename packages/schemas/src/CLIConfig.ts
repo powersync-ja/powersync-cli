@@ -4,7 +4,9 @@ import * as t from 'ts-codec';
 
 export const CLICloudConfig = t
   .object({
-    _type: t.literal('cloud')
+    _type: t.literal('cloud'),
+    /** The instance name */
+    name: t.string
   })
   .and(BasePowerSyncHostedConfig);
 export type CLICloudConfig = t.Encoded<typeof CLICloudConfig>;

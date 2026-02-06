@@ -125,6 +125,8 @@ export default class Deploy extends CloudInstanceCommand {
           // Spread the existing config like name, and program version contraints.
           // Should we allow specifying these in the config file?
           ...existingConfig,
+          // Allow updating the instance name
+          name: config.name,
           app_id: linked.project_id,
           config,
           sync_rules: syncRulesContent

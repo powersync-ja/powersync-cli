@@ -125,17 +125,20 @@ powersync deploy
 
 ## 3. Creating a new instance from the CLI
 
-Use `powersync init` to copy a template config into your project. Edit the generated YAML files, then link, validate, and deploy.
+Use `powersync init` to copy a template config into your project. To **create a new Cloud instance** and link it, use `powersync link cloud --create` with `--org-id` and `--project-id` (do not pass `--instance-id`). The CLI creates the instance and writes the link file.
+
+The instance **name** and **region** are taken from your local config (`powersync/service.yaml`). Set or edit the `name` and `region` fields there before running `link cloud --create` if you want a specific display name and region.
 
 ```bash
+powersync login
 powersync init --type=cloud
-# Edit powersync/*.yaml as needed
-powersync link cloud --instance-id=<id> --org-id=<id> --project-id=<id>
+# Edit powersync/service.yaml (name, region, connections, etc.) and other YAML as needed
+powersync link cloud --create --org-id=<org-id> --project-id=<project-id>
 powersync validate
 powersync deploy
 ```
 
-> **TODO:** Instances still need to be created in the PowerSync Dashboard before you can link and deploy to them. Creating an instance from the CLI is planned for a future release.
+To link to an **existing** instance instead, omit `--create` and supply `--instance-id` together with `--org-id` and `--project-id`.
 
 ---
 

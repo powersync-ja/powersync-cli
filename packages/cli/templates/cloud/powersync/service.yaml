@@ -11,6 +11,7 @@
 # -----------------------------------------------------------------------------
 
 _type: cloud
+name: My instance
 
 # region (required): deployment region, e.g. us
 # Note: This cannot be changed after the initial deployment

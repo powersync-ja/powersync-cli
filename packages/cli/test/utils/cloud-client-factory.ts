@@ -5,7 +5,8 @@ import { vi } from 'vitest';
 const stub: PowerSyncManagementClient = {
   getInstanceConfig: vi.fn(),
   getInstanceDiagnostics: vi.fn(),
-  getInstanceStatus: vi.fn()
+  getInstanceStatus: vi.fn(),
+  createInstance: vi.fn()
 } as unknown as PowerSyncManagementClient;
 
 /**
