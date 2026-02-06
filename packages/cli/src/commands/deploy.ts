@@ -2,6 +2,7 @@ import type { RequiredCloudLinkConfig } from '@powersync/cli-schemas';
 import { PowerSyncManagementClient } from '@powersync/management-client';
 import { routes } from '@powersync/management-types';
 import ora from 'ora';
+import { formatTestConnectionFailure, testCloudConnections } from '../api/cloud/test-connection.js';
 import { CloudInstanceCommand } from '../command-types/CloudInstanceCommand.js';
 
 const STATUS_POLL_INTERVAL_MS = 5000;
@@ -27,22 +28,6 @@ async function waitForStatusChange(
     }
     await new Promise((resolve) => setTimeout(resolve, STATUS_POLL_INTERVAL_MS));
   }
-}
-
-/** Pretty-print test connection response for error output. Uses types from @powersync/management-types (BaseTestConnectionResponse). */
-function formatTestConnectionFailure(response: routes.TestConnectionResponse, connectionName: string): string {
-  const lines: string[] = [
-    `Failed to test connection for connection "${connectionName}":`,
-    '',
-    '  Overall success: ' + String(response.success),
-    '  Error: ' + (response.error ?? '(none)'),
-    '',
-    '  Checks:',
-    '    • connection.success: ' + String(response.connection?.success ?? '—'),
-    '    • connection.reachable: ' + String(response.connection?.reachable ?? '—'),
-    '    • configuration.success: ' + String(response.configuration?.success ?? '—')
-  ];
-  return lines.join('\n');
 }
 
 export default class Deploy extends CloudInstanceCommand {
@@ -114,22 +99,14 @@ export default class Deploy extends CloudInstanceCommand {
         { exit: 1 }
       );
     }
-    for (const connection of config.replication?.connections ?? []) {
-      const response = await client
-        .testConnection(
-          routes.TestConnectionRequest.encode({
-            // The instance ID allows secret_refs to be used
-            id: linked.instance_id,
-            org_id: linked.org_id,
-            app_id: linked.project_id,
-            connection
-          })
-        )
-        .catch((error) => {
-          this.error(`Failed to test connection for connection ${connection.name}: ${error}`, { exit: 1 });
-        });
+    const connectionResults = await testCloudConnections(client, linked, config.replication?.connections ?? []).catch(
+      (error) => {
+        this.error(`Failed to test connections: ${error}`, { exit: 1 });
+      }
+    );
+    for (const { connectionName, response } of connectionResults) {
       if (response.success !== true) {
-        this.error(formatTestConnectionFailure(response, connection.name ?? 'unnamed'), { exit: 1 });
+        this.error(formatTestConnectionFailure(response, connectionName), { exit: 1 });
       }
     }
     this.log('Connection test successful.');
