@@ -12,12 +12,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ensureServiceTypeMatches } from '../utils/ensureServiceType.js';
 import { env } from '../utils/env.js';
-import {
-  LINK_FILENAME,
-  loadServiceDocument,
-  SERVICE_FILENAME,
-  SYNC_FILENAME
-} from '../utils/project-config.js';
+import { LINK_FILENAME, loadServiceDocument, SERVICE_FILENAME, SYNC_FILENAME } from '../utils/project-config.js';
 import { parseYamlFile } from '../utils/yaml.js';
 import { CloudProject } from './CloudInstanceCommand.js';
 import { HelpGroup } from './HelpGroup.js';
@@ -57,13 +52,16 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
       description:
         '[Self-hosted] PowerSync API URL. When set, context is treated as self-hosted (exclusive with --instance-id). Resolved: flag → API_URL → link.yaml.',
       required: false,
-      helpGroup: HelpGroup.SELF_HOSTED_PROJECT
+      helpGroup: HelpGroup.SELF_HOSTED_PROJECT,
+      // Can't use this flag with cloud flags
+      exclusive: ['instance-id', 'org-id', 'project-id']
     }),
     'instance-id': Flags.string({
       description:
         '[Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud (exclusive with --api-url). Resolved: flag → INSTANCE_ID → link.yaml.',
       required: false,
-      helpGroup: HelpGroup.CLOUD_PROJECT
+      helpGroup: HelpGroup.CLOUD_PROJECT,
+      dependsOn: ['org-id', 'project-id']
     }),
     'org-id': Flags.string({
       description: '[Cloud] Organization ID. Resolved: flag → ORG_ID → link.yaml.',

@@ -55,6 +55,7 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
     'instance-id': Flags.string({
       description: 'PowerSync Cloud instance ID. Manually passed if the current context has not been linked.',
       required: false,
+      dependsOn: ['org-id', 'project-id'],
       helpGroup: HelpGroup.CLOUD_PROJECT
     }),
     'org-id': Flags.string({
