@@ -20,6 +20,7 @@ import {
   SYNC_FILENAME
 } from '../utils/project-config.js';
 import { CloudProject } from './CloudInstanceCommand.js';
+import { HelpGroup } from './HelpGroup.js';
 import { EnsureConfigOptions, InstanceCommand } from './InstanceCommand.js';
 import { SelfHostedProject } from './SelfHostedInstanceCommand.js';
 
@@ -27,38 +28,64 @@ export type SharedInstanceCommandFlags = Interfaces.InferredFlags<
   typeof SharedInstanceCommand.flags & typeof SharedInstanceCommand.baseFlags
 >;
 
+/**
+ * Base command for operations that work with either a Cloud or self-hosted PowerSync instance.
+ *
+ * Resolution order:
+ *
+ * 1. **Context (cloud vs self-hosted)** — Cannot mix both.
+ *    - Cloud: if any of --instance-id, INSTANCE_ID, --org-id, --project-id are set.
+ *    - Self-hosted: if --api-url or API_URL is set.
+ *    - If neither set: type is taken from link.yaml (if present).
+ *
+ * 2. **Per-field values** (instance_id, org_id, project_id for cloud; api_url, api_key for self-hosted):
+ *    - Flags (e.g. --instance-id, --api-url) → environment variables (INSTANCE_ID, API_URL, etc.) → link.yaml.
+ *
+ * @example
+ * # Use linked project (link.yaml determines cloud vs self-hosted)
+ * pnpm exec powersync some-shared-cmd
+ * # Force cloud with env
+ * INSTANCE_ID=... ORG_ID=... PROJECT_ID=... pnpm exec powersync some-shared-cmd
+ * # Force self-hosted with flag
+ * pnpm exec powersync some-shared-cmd --api-url=https://...
+ * # Force cloud with flags
+ * pnpm exec powersync some-shared-cmd --instance-id=... --org-id=... --project-id=...
+ */
 export abstract class SharedInstanceCommand extends InstanceCommand {
   static flags = {
-    ...InstanceCommand.flags,
     'api-url': Flags.string({
       description:
-        '[Self-hosted] PowerSync API URL. When set, context is treated as self-hosted (exclusive with --instance-id).',
-      required: false
+        '[Self-hosted] PowerSync API URL. When set, context is treated as self-hosted (exclusive with --instance-id). Resolved: flag → API_URL → link.yaml.',
+      required: false,
+      helpGroup: HelpGroup.SELF_HOSTED_PROJECT
     }),
     'instance-id': Flags.string({
       description:
-        '[Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud (exclusive with --api-url).',
-      required: false
+        '[Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud (exclusive with --api-url). Resolved: flag → INSTANCE_ID → link.yaml.',
+      required: false,
+      helpGroup: HelpGroup.CLOUD_PROJECT
     }),
     'org-id': Flags.string({
-      description: '[Cloud] Organization ID. Manually passed if the current context has not been linked.',
-      required: false
+      description: '[Cloud] Organization ID. Resolved: flag → ORG_ID → link.yaml.',
+      required: false,
+      helpGroup: HelpGroup.CLOUD_PROJECT
     }),
     'project-id': Flags.string({
-      description: '[Cloud] Project ID. Manually passed if the current context has not been linked.',
-      required: false
-    })
+      description: '[Cloud] Project ID. Resolved: flag → PROJECT_ID → link.yaml.',
+      required: false,
+      helpGroup: HelpGroup.CLOUD_PROJECT
+    }),
+    ...InstanceCommand.flags
   };
 
   loadProject(flags: SharedInstanceCommandFlags, options?: EnsureConfigOptions): CloudProject | SelfHostedProject {
     const projectDir = this.ensureProjectDirExists(flags);
     const linkPath = join(projectDir, LINK_FILENAME);
 
-    // Start to attempt to detect cloud or self-hosted inputs
+    // 1) Context type: from flags/env first, then link file (see class JSDoc for resolution order).
     const hasCloudInstanceInputs = flags['instance-id'] || env.INSTANCE_ID || flags['org-id'] || flags['project-id'];
     const hasSelfHostedInputs = flags['api-url'] || env.API_URL;
 
-    // There can be only one
     if (hasCloudInstanceInputs && hasSelfHostedInputs) {
       this.error(['Cannot use both cloud and self-hosted inputs. Use one or the other.'].join('\n'), { exit: 1 });
     }
@@ -69,7 +96,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
         ? 'cloud'
         : null;
 
-    // Try and set the type from the link file (if it exists)
+    // If type not set by flags/env, use link file type (if present).
     let rawLinkConfig: LinkConfig | null = null;
     // check if the link file exists
     if (existsSync(linkPath)) {
@@ -92,7 +119,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
       this.error(linkMissingErrorMessage, { exit: 1 });
     }
 
-    // Resolve the link config from the flags and the link file
+    // 2) Per-field: flags → env → link file (see class JSDoc).
     let linkConfig: RequiredCloudLinkConfig | RequiredSelfHostedLinkConfig | null = null;
     if (projectType === 'self-hosted') {
       const _rawSelfHostedLinkConfig = (rawLinkConfig as SelfHostedLinkConfig) ?? { type: 'self-hosted' };

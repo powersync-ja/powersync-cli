@@ -13,6 +13,7 @@ import {
   SERVICE_FILENAME,
   SYNC_FILENAME
 } from '../utils/project-config.js';
+import { HelpGroup } from './HelpGroup.js';
 import { EnsureConfigOptions, InstanceCommand } from './InstanceCommand.js';
 
 export type CloudProject = {
@@ -29,29 +30,42 @@ export type CloudInstanceCommandFlags = Interfaces.InferredFlags<
   typeof CloudInstanceCommand.flags & typeof CloudInstanceCommand.baseFlags
 >;
 
-/** Base command for operations that require a Cloud-type PowerSync project (service.yaml _type: cloud). */
+/**
+ * Base command for operations that require a Cloud-type PowerSync project (service.yaml _type: cloud).
+ *
+ * Instance context (instance_id, org_id, project_id) is resolved in this order:
+ * 1. Command-line flags (--instance-id, --org-id, --project-id)
+ * 2. Environment variables (INSTANCE_ID, ORG_ID, PROJECT_ID)
+ * 3. Linked config from link.yaml
+ *
+ * @example
+ * # Use linked project (link.yaml)
+ * pnpm exec powersync some-cloud-cmd
+ * # Override with env
+ * INSTANCE_ID=... ORG_ID=... PROJECT_ID=... pnpm exec powersync some-cloud-cmd
+ * # Override with flags
+ * pnpm exec powersync some-cloud-cmd --instance-id=... --org-id=... --project-id=...
+ */
 export abstract class CloudInstanceCommand extends InstanceCommand {
   static flags = {
     /**
-     * All Cloud instance Commands support manually providing the instance ID, org ID, and project ID.
-     * This can be useful for quickly performing an operation on a specific instance.
-     * The order of precedence is:
-     * 1. Flags passed to the command (explicitly provided)
-     * 2. Link.yaml file (due to the current context)
-     * 3. Environment variables (used if none of the above are provided)
+     * Instance ID, org ID, and project ID are resolved in order: flags → env (INSTANCE_ID, ORG_ID, PROJECT_ID) → link.yaml.
      */
     ...InstanceCommand.flags,
     'instance-id': Flags.string({
       description: 'PowerSync Cloud instance ID. Manually passed if the current context has not been linked.',
-      required: false
+      required: false,
+      helpGroup: HelpGroup.CLOUD_PROJECT
     }),
     'org-id': Flags.string({
       description: 'Organization ID. Manually passed if the current context has not been linked.',
-      required: false
+      required: false,
+      helpGroup: HelpGroup.CLOUD_PROJECT
     }),
     'project-id': Flags.string({
       description: 'Project ID. Manually passed if the current context has not been linked.',
-      required: false
+      required: false,
+      helpGroup: HelpGroup.CLOUD_PROJECT
     })
   };
 
@@ -95,16 +109,6 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
           );
         }
       }
-    } else if (existsSync(linkPath)) {
-      try {
-        const linkPath = join(projectDir, LINK_FILENAME);
-        const doc = loadLinkDocument(linkPath);
-        linked = RequiredCloudLinkConfig.decode(doc.contents?.toJSON());
-      } catch (error) {
-        if (options?.linkingIsRequired) {
-          this.error(`Failed to parse ${LINK_FILENAME} as CloudLinkConfig: ${error}`, { exit: 1 });
-        }
-      }
     } else if (env.INSTANCE_ID) {
       try {
         linked = RequiredCloudLinkConfig.decode({
@@ -116,6 +120,16 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
       } catch (error) {
         if (options?.linkingIsRequired) {
           this.error(`Failed to parse environment variables as CloudLinkConfig: ${error}`, { exit: 1 });
+        }
+      }
+    } else if (existsSync(linkPath)) {
+      try {
+        const linkPath = join(projectDir, LINK_FILENAME);
+        const doc = loadLinkDocument(linkPath);
+        linked = RequiredCloudLinkConfig.decode(doc.contents?.toJSON());
+      } catch (error) {
+        if (options?.linkingIsRequired) {
+          this.error(`Failed to parse ${LINK_FILENAME} as CloudLinkConfig: ${error}`, { exit: 1 });
         }
       }
     }

@@ -1,7 +1,7 @@
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { LINK_FILENAME, loadLinkDocument } from '../utils/project-config.js';
+import { LINK_FILENAME, loadLinkDocument } from '../../utils/project-config.js';
 
 export type WriteCloudLinkOptions = {
   instanceId: string;

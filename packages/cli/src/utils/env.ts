@@ -5,9 +5,9 @@ export type ENV = {
   PS_TOKEN?: string;
 
   /**
-   * Environment variables for manually providing the instance ID, org ID, and project ID (cloud).
-   * Or API URL for self-hosted.
-   * Order of precedence: flags → link.yaml → environment variables.
+   * Environment variables for manually providing the instance ID, org ID, and project ID (cloud),
+   * or API URL for self-hosted (SharedInstanceCommand only).
+   * Order of precedence in commands: flags → environment variables → link file (link.yaml).
    */
   INSTANCE_ID?: string;
   ORG_ID?: string;

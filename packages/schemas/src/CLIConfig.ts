@@ -1,5 +1,5 @@
 import { BasePowerSyncHostedConfig } from '@powersync/management-types';
-import { configFile } from '@powersync/service-types';
+import { MergedServiceConfig } from '@powersync/service-schema';
 import * as t from 'ts-codec';
 
 export const CLICloudConfig = t
@@ -14,7 +14,7 @@ export const CLISelfHostedConfig = t
   .object({
     _type: t.literal('self-hosted')
   })
-  .and(configFile.powerSyncConfig);
+  .and(MergedServiceConfig);
 
 export type CLISelfHostedConfig = t.Encoded<typeof CLISelfHostedConfig>;
 export type CLISelfHostedConfigDecoded = t.Decoded<typeof CLISelfHostedConfig>;

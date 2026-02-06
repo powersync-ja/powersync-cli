@@ -81,6 +81,6 @@ export default class GenerateSchema extends SharedInstanceCommand {
     );
 
     writeFileSync(flags['output-path'], schema, 'utf8');
-    this.log(`Generated schema written to ${flags.outputPath}`);
+    this.log(`Generated schema written to ${flags['output-path']}`);
   }
 }

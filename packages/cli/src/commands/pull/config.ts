@@ -5,7 +5,7 @@ import * as t from 'ts-codec';
 import { Document } from 'yaml';
 
 import { fetchCloudConfig } from '../../api/cloud/fetch-cloud-config.js';
-import { writeCloudLink } from '../../api/write-cloud-link.js';
+import { writeCloudLink } from '../../api/cloud/write-cloud-link.js';
 import { CloudInstanceCommand } from '../../command-types/CloudInstanceCommand.js';
 import { ensureServiceTypeMatches } from '../../utils/ensureServiceType.js';
 import {

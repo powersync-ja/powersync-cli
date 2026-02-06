@@ -1,5 +1,6 @@
 import { Flags } from '@oclif/core';
 import { existsSync } from 'node:fs';
+import { HelpGroup } from './HelpGroup.js';
 import { PowerSyncCommand } from './PowerSyncCommand.js';
 
 export type EnsureConfigOptions = {
@@ -21,7 +22,8 @@ export abstract class InstanceCommand extends PowerSyncCommand {
     ...PowerSyncCommand.flags,
     directory: Flags.string({
       default: 'powersync',
-      description: 'Directory containing PowerSync config (default: powersync).'
+      description: 'Directory containing PowerSync config (default: powersync).',
+      helpGroup: HelpGroup.PROJECT
     })
   };
 

@@ -93,8 +93,6 @@ telemetry:
 #   username: string
 #   password: !env PS_MONGO_PASSWORD
 #   reject_ip_ranges: []
-#   Maximum number of connections to the storage database, per process. Defaults to 8.
-#   max_pool_size: 8
 
 # -----------------------------------------------------------------------------
 # PostgreSQL storage – uncomment this block and comment out the MongoDB storage block above to use PostgreSQL
