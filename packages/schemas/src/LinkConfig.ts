@@ -7,6 +7,8 @@ export const CloudLinkConfig = t.object({
   project_id: t.string.optional()
 });
 
+export type CloudLinkConfig = t.Encoded<typeof CloudLinkConfig>;
+
 export const RequiredCloudLinkConfig = t.object({
   type: t.literal('cloud'),
   instance_id: t.string,
@@ -21,6 +23,8 @@ export const SelfHostedLinkConfig = t.object({
   api_url: t.string.optional(),
   api_key: t.string.optional()
 });
+
+export type SelfHostedLinkConfig = t.Encoded<typeof SelfHostedLinkConfig>;
 
 export const RequiredSelfHostedLinkConfig = t.object({
   type: t.literal('self-hosted'),

@@ -7,11 +7,11 @@ export default class Destroy extends CloudInstanceCommand {
   static summary = 'Destroy a PowerSync instance.';
 
   static flags = {
-    ...CloudInstanceCommand.flags,
     confirm: Flags.string({
       description: 'Set to "yes" to confirm destruction of the instance.',
       options: ['yes']
-    })
+    }),
+    ...CloudInstanceCommand.flags
   };
 
   async run(): Promise<void> {

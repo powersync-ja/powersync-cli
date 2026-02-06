@@ -8,11 +8,11 @@ export default class Stop extends CloudInstanceCommand {
   static summary = 'Stop a PowerSync instance.';
 
   static flags = {
-    ...CloudInstanceCommand.flags,
     confirm: Flags.string({
       description: 'Set to "yes" to confirm stopping the instance.',
       options: ['yes']
-    })
+    }),
+    ...CloudInstanceCommand.flags
   };
 
   async run(): Promise<void> {

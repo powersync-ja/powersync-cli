@@ -15,12 +15,12 @@ export default class Init extends PowerSyncCommand {
   static description =
     'Creates a new PowerSync project in the current directory. Supports --type=cloud or self-hosted.';
   static flags = {
-    ...InstanceCommand.flags,
     type: Flags.string({
       default: 'cloud',
       description: 'Type of PowerSync instance to scaffold.',
       options: ['cloud', 'self-hosted']
-    })
+    }),
+    ...InstanceCommand.flags
   };
   static summary = 'Create a new PowerSync project.';
 

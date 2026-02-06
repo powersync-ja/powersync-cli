@@ -1,0 +1,33 @@
+import { existsSync, readFileSync } from 'fs';
+import { join } from 'path';
+import { createSelfHostedClient } from '../../clients/SelfHostedClient.js';
+import { SelfHostedProject } from '../../command-types/SelfHostedInstanceCommand.js';
+import { SYNC_FILENAME } from '../../utils/project-config.js';
+
+/**
+ * Fetches the sync rules content for a self-hosted project.
+ * @param project - The project to fetch the sync rules content for.
+ * @returns The sync rules content.
+ */
+export async function fetchSelfHostedSyncRulesContent(project: SelfHostedProject): Promise<string> {
+  const { linked } = project;
+  const client = createSelfHostedClient({
+    apiUrl: linked.api_url,
+    apiKey: linked.api_key
+  });
+
+  // First try and use the local file
+  if (existsSync(join(project.projectDirectory, SYNC_FILENAME))) {
+    return readFileSync(join(project.projectDirectory, SYNC_FILENAME), 'utf8');
+  }
+
+  // Try and fetch from the cloud config
+  const instanceConfig = await client.diagnostics({});
+  const content = instanceConfig.active_sync_rules?.content;
+
+  if (!content) {
+    throw new Error('No active sync rules found');
+  }
+
+  return content;
+}

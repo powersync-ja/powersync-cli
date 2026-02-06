@@ -2,6 +2,7 @@ import { Flags } from '@oclif/core';
 
 import { writeCloudLink } from '../../api/write-cloud-link.js';
 import { CloudInstanceCommand } from '../../command-types/CloudInstanceCommand.js';
+import { InstanceCommand } from '../../command-types/InstanceCommand.js';
 import { ensureServiceTypeMatches } from '../../utils/ensureServiceType.js';
 import { LINK_FILENAME } from '../../utils/project-config.js';
 
@@ -9,7 +10,6 @@ export default class LinkCloud extends CloudInstanceCommand {
   static description = 'Link this directory to a PowerSync Cloud instance.';
   static summary = 'Link to PowerSync Cloud (instance ID, org, project).';
   static flags = {
-    ...CloudInstanceCommand.flags,
     /**
      * TODO, we could default some of these to the values used after login
      */
@@ -24,7 +24,8 @@ export default class LinkCloud extends CloudInstanceCommand {
     'project-id': Flags.string({
       description: 'Project ID.',
       required: true
-    })
+    }),
+    ...InstanceCommand.flags
   };
 
   async run(): Promise<void> {

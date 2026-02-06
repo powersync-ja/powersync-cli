@@ -17,6 +17,7 @@
     "@powersync/management-types": "0.0.1",
     "@powersync/service-client": "0.0.1",
     "@powersync/service-sync-rules": "^0.30.0",
+    "@powersync/service-types": "^0.13.3",
     "keychain": "^1.5.0",
     "ora": "^9.0.0",
     "ts-codec": "^1.3.0",

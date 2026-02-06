@@ -1,11 +1,10 @@
-import { Flags } from '@oclif/core';
 import { CLICloudConfig } from '@powersync/cli-schemas';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import * as t from 'ts-codec';
 import { Document } from 'yaml';
 
-import { fetchCloudConfig } from '../../api/fetch-cloud-config.js';
+import { fetchCloudConfig } from '../../api/cloud/fetch-cloud-config.js';
 import { writeCloudLink } from '../../api/write-cloud-link.js';
 import { CloudInstanceCommand } from '../../command-types/CloudInstanceCommand.js';
 import { ensureServiceTypeMatches } from '../../utils/ensureServiceType.js';
@@ -84,16 +83,7 @@ export default class PullConfig extends CloudInstanceCommand {
   static summary = 'Pull config from cloud (link first if needed).';
 
   static flags = {
-    ...CloudInstanceCommand.flags,
-    'instance-id': Flags.string({
-      description: 'PowerSync Cloud instance ID (required when link.yaml is missing).'
-    }),
-    'org-id': Flags.string({
-      description: 'Organization ID (required when link.yaml is missing).'
-    }),
-    'project-id': Flags.string({
-      description: 'Project ID (required when link.yaml is missing).'
-    })
+    ...CloudInstanceCommand.flags
   };
 
   async run(): Promise<void> {

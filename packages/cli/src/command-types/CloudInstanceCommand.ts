@@ -142,7 +142,7 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
     };
   }
 
-  parseConfig(projectDirectory: string) {
+  parseConfig(projectDirectory: string): CLICloudConfig {
     const servicePath = join(projectDirectory, SERVICE_FILENAME);
     const doc = loadServiceDocument(servicePath);
     return CLICloudConfig.decode(doc.contents?.toJSON());

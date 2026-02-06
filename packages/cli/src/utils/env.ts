@@ -5,16 +5,15 @@ export type ENV = {
   PS_TOKEN?: string;
 
   /**
-   * Environment variables for manually providing the instance ID, org ID, and project ID.
-   * This can be useful for quickly performing an operation on a specific instance.
-   * The order of precedence is:
-   * 1. Flags passed to the command
-   * 2. Link.yaml file
-   * 3. Environment variables
+   * Environment variables for manually providing the instance ID, org ID, and project ID (cloud).
+   * Or API URL for self-hosted.
+   * Order of precedence: flags → link.yaml → environment variables.
    */
   INSTANCE_ID?: string;
   ORG_ID?: string;
   PROJECT_ID?: string;
+  /** [Self-hosted] PowerSync API URL. */
+  API_URL?: string;
 };
 
 export const env: ENV = {
@@ -22,5 +21,6 @@ export const env: ENV = {
   PS_TOKEN: process.env.PS_TOKEN,
   INSTANCE_ID: process.env.INSTANCE_ID,
   ORG_ID: process.env.ORG_ID,
-  PROJECT_ID: process.env.PROJECT_ID
+  PROJECT_ID: process.env.PROJECT_ID,
+  API_URL: process.env.API_URL
 };

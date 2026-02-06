@@ -7,7 +7,6 @@ export default class GenerateToken extends CloudInstanceCommand {
   static summary = 'Create a client token for the PowerSync service.';
 
   static flags = {
-    ...CloudInstanceCommand.flags,
     subject: Flags.string({
       description: 'Subject of the token.',
       required: true
@@ -16,7 +15,8 @@ export default class GenerateToken extends CloudInstanceCommand {
       description: 'Expiration time in seconds. Default is 43,200 (12 hours).',
       required: false,
       default: 43_200
-    })
+    }),
+    ...CloudInstanceCommand.flags
   };
 
   async run(): Promise<void> {

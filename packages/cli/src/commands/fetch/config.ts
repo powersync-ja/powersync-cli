@@ -1,7 +1,7 @@
 import { Flags } from '@oclif/core';
 import { Document } from 'yaml';
 
-import { fetchCloudConfig } from '../../api/fetch-cloud-config.js';
+import { fetchCloudConfig } from '../../api/cloud/fetch-cloud-config.js';
 import { CloudInstanceCommand } from '../../command-types/CloudInstanceCommand.js';
 
 export default class FetchConfig extends CloudInstanceCommand {
@@ -9,12 +9,12 @@ export default class FetchConfig extends CloudInstanceCommand {
   static summary = 'Fetch config from cloud (output as yaml or json).';
 
   static flags = {
-    ...CloudInstanceCommand.flags,
     output: Flags.string({
       default: 'yaml',
       description: 'Output format: yaml or json.',
       options: ['json', 'yaml']
-    })
+    }),
+    ...CloudInstanceCommand.flags
   };
 
   async run(): Promise<void> {

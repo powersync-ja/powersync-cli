@@ -49,6 +49,9 @@ importers:
       '@powersync/service-sync-rules':
         specifier: ^0.30.0
         version: 0.30.0
+      '@powersync/service-types':
+        specifier: ^0.13.3
+        version: 0.13.3
       keychain:
         specifier: ^1.5.0
         version: 1.5.0

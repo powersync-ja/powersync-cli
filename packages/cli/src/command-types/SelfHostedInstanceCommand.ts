@@ -1,3 +1,4 @@
+import { Flags } from '@oclif/core';
 import { CLISelfHostedConfig, RequiredSelfHostedLinkConfig } from '@powersync/cli-schemas';
 import { join } from 'node:path';
 import { ensureServiceTypeMatches } from '../utils/ensureServiceType.js';
@@ -12,7 +13,20 @@ export type SelfHostedProject = {
 /** Base command for operations that require a self-hosted PowerSync project (service.yaml _type: self-hosted). */
 export abstract class SelfHostedInstanceCommand extends InstanceCommand {
   static flags = {
-    ...InstanceCommand.flags
+    ...InstanceCommand.flags,
+    /**
+     * All SelfHosted instance Commands support manually providing the API URL.
+     * This can be useful for quickly performing an operation on a specific instance.
+     * The order of precedence is:
+     * 1. Flags passed to the command (explicitly provided)
+     * 2. Link.yaml file (due to the current context)
+     * 3. Environment variables (used if none of the above are provided)
+     */
+    ...InstanceCommand.flags,
+    'api-url': Flags.string({
+      description: 'PowerSync API URL. When set, context is treated as self-hosted (exclusive with --instance-id).',
+      required: false
+    })
   };
 
   loadProject(flags: { directory: string }, options?: EnsureConfigOptions): SelfHostedProject {

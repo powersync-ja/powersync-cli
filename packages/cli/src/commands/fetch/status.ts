@@ -2,7 +2,11 @@ import { Flags } from '@oclif/core';
 import { routes } from '@powersync/management-types';
 import { Document } from 'yaml';
 
-import { CloudInstanceCommand } from '../../command-types/CloudInstanceCommand.js';
+import { createCloudClient } from '../../clients/CloudClient.js';
+import { createSelfHostedClient } from '../../clients/SelfHostedClient.js';
+import { CloudProject } from '../../command-types/CloudInstanceCommand.js';
+import { SelfHostedProject } from '../../command-types/SelfHostedInstanceCommand.js';
+import { SharedInstanceCommand } from '../../command-types/SharedInstanceCommand.js';
 
 type DiagnosticsResponse = routes.InstanceDiagnosticsResponse;
 type SyncRulesSection = NonNullable<DiagnosticsResponse['active_sync_rules']>;
@@ -109,40 +113,50 @@ function formatDiagnosticsHuman(diagnostics: DiagnosticsResponse): string {
   return sections.join('\n').trimEnd();
 }
 
-// TODO self hosted support
-export default class FetchStatus extends CloudInstanceCommand {
+export default class FetchStatus extends SharedInstanceCommand {
   static description =
     'Fetches diagnostics (connections, sync rules state, etc.). Routes to Management service (Cloud) or linked instance (self-hosted).';
   static summary = 'Fetch diagnostics status for an instance.';
 
   static flags = {
-    ...CloudInstanceCommand.flags,
     output: Flags.string({
       default: 'human',
       description: 'Output format: human-readable, json, or yaml.',
       options: ['human', 'json', 'yaml']
-    })
+    }),
+    ...SharedInstanceCommand.flags
   };
+
+  async getCloudStatus(project: CloudProject): Promise<DiagnosticsResponse> {
+    const { linked } = project;
+    const client = await createCloudClient();
+    return client.getInstanceDiagnostics({
+      app_id: linked.project_id,
+      org_id: linked.org_id,
+      id: linked.instance_id
+    });
+  }
+
+  async getSelfHostedStatus(project: SelfHostedProject): Promise<DiagnosticsResponse> {
+    const { linked } = project;
+    const client = createSelfHostedClient({
+      apiUrl: linked.api_url,
+      apiKey: linked.api_key
+    });
+    return client.diagnostics({});
+  }
 
   async run(): Promise<void> {
     const { flags } = await this.parse(FetchStatus);
 
-    const { linked } = this.loadProject(flags, {
+    const project = this.loadProject(flags, {
       configFileRequired: false,
       linkingIsRequired: true
     });
 
-    const client = await this.getClient();
-
-    const diagnostics = await client
-      .getInstanceDiagnostics({
-        app_id: linked.project_id,
-        org_id: linked.org_id,
-        id: linked.instance_id
-      })
-      .catch((error) => {
-        this.error(`Failed to fetch diagnostics for instance ${linked.instance_id}: ${error}`, { exit: 1 });
-      });
+    const diagnostics = await (project.linked.type === 'cloud'
+      ? this.getCloudStatus(project as CloudProject)
+      : this.getSelfHostedStatus(project as SelfHostedProject));
 
     if (flags.output === 'json') {
       this.log(JSON.stringify(diagnostics, null, 2));
