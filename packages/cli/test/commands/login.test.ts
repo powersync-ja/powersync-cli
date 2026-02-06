@@ -1,11 +1,23 @@
-import { runCommand } from '@oclif/test'
-import { describe, expect, it } from 'vitest'
+import { runCommand } from '@oclif/test';
+import { describe, expect, it, vi } from 'vitest';
 
-import { root } from '../helpers/root.js'
+import { root } from '../helpers/root.js';
+
+vi.mock('@inquirer/prompts', () => ({
+  password: vi.fn(() => Promise.resolve('test-token'))
+}));
+
+vi.mock('../../src/services/SecureStorage.js', () => ({
+  getSecureStorage: () => ({
+    getToken: () => Promise.resolve(null),
+    setToken: () => Promise.resolve(),
+    deleteToken: () => Promise.resolve()
+  })
+}));
 
 describe('login', () => {
-  it('runs login cmd', async () => {
-    const { stdout } = await runCommand('login', { root })
-    expect(stdout).toContain('login: not yet implemented')
-  })
-})
+  it('prompts for token and stores it', async () => {
+    const { stdout } = await runCommand('login', { root });
+    expect(stdout).toContain('Token stored successfully.');
+  });
+});

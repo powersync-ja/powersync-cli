@@ -104,20 +104,25 @@ type: cloud
   describe('self-hosted', () => {
     let tmpDir: string;
     let origCwd: string;
+    let origPsToken: string | undefined;
 
     beforeEach(() => {
       origCwd = process.cwd();
+      origPsToken = process.env.PS_TOKEN;
       tmpDir = mkdtempSync(join(tmpdir(), 'link-test-'));
       process.chdir(tmpDir);
     });
 
     afterEach(() => {
       process.chdir(origCwd);
+      if (origPsToken !== undefined) process.env.PS_TOKEN = origPsToken;
+      else delete process.env.PS_TOKEN;
       if (tmpDir && existsSync(tmpDir)) rmSync(tmpDir, { recursive: true });
     });
 
     it('errors when directory does not exist', async () => {
-      const result = await runCommand('link self-hosted --url=https://ps.example.com --api-key=secret', { root });
+      process.env.PS_TOKEN = 'secret';
+      const result = await runCommand('link self-hosted --api-url=https://ps.example.com', { root });
       expect(result.error?.message).toMatch(
         new RegExp(`Directory "${PROJECT_DIR}" not found. Run \`powersync init\` first to create the project.`)
       );
@@ -128,7 +133,8 @@ type: cloud
       const projectDir = join(tmpDir, PROJECT_DIR);
       mkdirSync(projectDir, { recursive: true });
       writeServiceYaml(projectDir, 'cloud');
-      const result = await runCommand('link self-hosted --url=https://x.com --api-key=k', { root });
+      process.env.PS_TOKEN = 'k';
+      const result = await runCommand('link self-hosted --api-url=https://x.com', { root });
       expect(result.error?.message).toMatch(/has `_type: cloud` but this command requires `_type: self-hosted`/);
       expect(result.error?.oclif?.exit).toBe(1);
     });
@@ -137,16 +143,15 @@ type: cloud
       const projectDir = join(tmpDir, PROJECT_DIR);
       mkdirSync(projectDir, { recursive: true });
       writeServiceYaml(projectDir, 'self-hosted');
-      const { stdout } = await runCommand('link self-hosted --url=https://sync.example.com --api-key=my-token', {
-        root
-      });
+      process.env.PS_TOKEN = 'my-token';
+      const { stdout } = await runCommand('link self-hosted --api-url=https://sync.example.com', { root });
       expect(stdout).toContain(`Updated ${PROJECT_DIR}/${LINK_FILENAME} with self-hosted link.`);
       const linkPath = join(tmpDir, PROJECT_DIR, LINK_FILENAME);
       expect(existsSync(linkPath)).toBe(true);
       const linkYaml = parseYaml(readFileSync(linkPath, 'utf8'));
       expect(linkYaml.type).toBe('self-hosted');
       expect(linkYaml.api_url).toBe('https://sync.example.com');
-      expect(linkYaml.api_key).toBe('my-token');
+      expect(linkYaml.api_key).toBe('!env PS_TOKEN');
     });
 
     it('updates existing link.yaml and preserves comments', async () => {
@@ -158,24 +163,24 @@ type: cloud
 type: self-hosted
 `;
       writeFileSync(linkPath, withComments, 'utf8');
-      await runCommand('link self-hosted --url=https://new.example.com --api-key=new-key', { root });
+      process.env.PS_TOKEN = 'new-key';
+      await runCommand('link self-hosted --api-url=https://new.example.com', { root });
       const content = readFileSync(linkPath, 'utf8');
       expect(content).toContain('# Self-hosted config');
       const linkYaml = parseYaml(content);
       expect(linkYaml.type).toBe('self-hosted');
       expect(linkYaml.api_url).toBe('https://new.example.com');
-      expect(linkYaml.api_key).toBe('new-key');
+      expect(linkYaml.api_key).toBe('!env PS_TOKEN');
     });
 
     it('respects --directory flag', async () => {
       const customDir = 'my-powersync';
       mkdirSync(join(tmpDir, customDir), { recursive: true });
       writeServiceYaml(join(tmpDir, customDir), 'self-hosted');
+      process.env.PS_TOKEN = 'k';
       const { stdout } = await runCommand(
-        `link self-hosted --directory=${customDir} --url=https://example.com --api-key=k`,
-        {
-          root
-        }
+        `link self-hosted --directory=${customDir} --api-url=https://example.com`,
+        { root }
       );
       expect(stdout).toContain(`Updated ${customDir}/${LINK_FILENAME}`);
       const linkYaml = parseYaml(readFileSync(join(tmpDir, customDir, LINK_FILENAME), 'utf8'));

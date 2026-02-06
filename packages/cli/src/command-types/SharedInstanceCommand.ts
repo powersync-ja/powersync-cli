@@ -14,11 +14,11 @@ import { ensureServiceTypeMatches } from '../utils/ensureServiceType.js';
 import { env } from '../utils/env.js';
 import {
   LINK_FILENAME,
-  loadLinkDocument,
   loadServiceDocument,
   SERVICE_FILENAME,
   SYNC_FILENAME
 } from '../utils/project-config.js';
+import { parseYamlFile } from '../utils/yaml.js';
 import { CloudProject } from './CloudInstanceCommand.js';
 import { HelpGroup } from './HelpGroup.js';
 import { EnsureConfigOptions, InstanceCommand } from './InstanceCommand.js';
@@ -39,7 +39,7 @@ export type SharedInstanceCommandFlags = Interfaces.InferredFlags<
  *    - If neither set: type is taken from link.yaml (if present).
  *
  * 2. **Per-field values** (instance_id, org_id, project_id for cloud; api_url, api_key for self-hosted):
- *    - Flags (e.g. --instance-id, --api-url) → environment variables (INSTANCE_ID, API_URL, etc.) → link.yaml.
+ *    - Cloud: flags → env → link.yaml. Self-hosted: api_url from flag → env → link.yaml; api_key from env → link.yaml only (no flag).
  *
  * @example
  * # Use linked project (link.yaml determines cloud vs self-hosted)
@@ -98,9 +98,8 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
 
     // If type not set by flags/env, use link file type (if present).
     let rawLinkConfig: LinkConfig | null = null;
-    // check if the link file exists
     if (existsSync(linkPath)) {
-      const doc = loadLinkDocument(linkPath);
+      const doc = parseYamlFile(linkPath);
       rawLinkConfig = LinkConfig.decode(doc.contents?.toJSON());
       if (rawLinkConfig.type === 'self-hosted') {
         projectType = 'self-hosted';
@@ -126,7 +125,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
       try {
         linkConfig = RequiredSelfHostedLinkConfig.decode({
           ..._rawSelfHostedLinkConfig,
-          api_key: flags['api-key'] ?? env.PS_TOKEN ?? _rawSelfHostedLinkConfig.api_key!,
+          api_key: env.PS_TOKEN ?? _rawSelfHostedLinkConfig.api_key!,
           api_url: flags['api-url'] ?? env.API_URL ?? _rawSelfHostedLinkConfig.api_url!
         });
       } catch (error) {

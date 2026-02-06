@@ -8,6 +8,7 @@
   },
   "bugs": "https://github.com/powersync-ja/cli/issues",
   "dependencies": {
+    "@inquirer/prompts": "^7.2.0",
     "@journeyapps-labs/common-sdk": "1.0.2",
     "@oclif/core": "^4",
     "@oclif/plugin-help": "^6",

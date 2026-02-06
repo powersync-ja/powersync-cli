@@ -16,7 +16,7 @@ For commands that don’t require locally stored config (or when you don’t wan
 
 - **Inline as flags**
   - **Cloud:** `--instance-id`, `--org-id`, `--project-id`
-  - **Self-hosted:** `--api-url`, `--api-key`
+  - **Self-hosted:** `--api-url` (API key is not accepted via flags; use link command or `PS_TOKEN` env var)
 - **Environment variables**
   - **Cloud:** `INSTANCE_ID`, `ORG_ID`, `PROJECT_ID`
   - **Self-hosted:** `API_URL`, `PS_TOKEN` (token used as API key)
@@ -151,13 +151,14 @@ For deploying the service (e.g. to Docker or another hosting platform), see the 
 Once your self-hosted instance is deployed and reachable, you can **link** it and run supported commands against it. The **api-url** is the URL that the running PowerSync instance is exposed from; this is configured by your deployment (e.g. Docker, Coolify, or your hosting platform).
 
 ```bash
-powersync link self-hosted --api-url=https://your-powersync.example.com --api-key="!env YOUR_TOKEN_ENV_VAR"
+powersync link self-hosted --api-url=https://your-powersync.example.com
+# You will be prompted for the API key, or set PS_TOKEN so the link file can use !env PS_TOKEN
 powersync generate schema
 powersync generate token
 # ... other supported commands
 ```
 
-Use `--api-url` and `--api-key` (or `API_URL` and `PS_TOKEN`) when you prefer not to link; see [Supplying linking information](#supplying-linking-information-for-cloud-and-self-hosted-commands) below.
+Use `--api-url` with link file or `API_URL` and `PS_TOKEN` when you prefer not to link; see [Supplying linking information](#supplying-linking-information-for-cloud-and-self-hosted-commands) below.
 
 ---
 
@@ -184,7 +185,8 @@ PS_TOKEN=your-token-here powersync fetch config --output=json
 **Stored via login** — convenient for local use; token is stored securely and reused:
 
 ```bash
-powersync login --token=your-token-here
+powersync login
+# You will be prompted for your token (not shown in shell history)
 # Later commands use the stored token
 powersync fetch config
 ```
@@ -197,7 +199,7 @@ Cloud and self-hosted commands (`deploy`, `destroy`, `stop`, `fetch config`, `pu
 
 1. **Flags**
    - **Cloud:** `--instance-id`, `--org-id`, `--project-id`
-   - **Self-hosted:** `--api-url`, `--api-key`
+   - **Self-hosted:** `--api-url` only (API key from env or link file only)
 2. **Environment variables**
    - **Cloud:** `INSTANCE_ID`, `ORG_ID`, `PROJECT_ID`
    - **Self-hosted:** `API_URL`, `PS_TOKEN` (API key)
@@ -221,10 +223,10 @@ powersync stop --confirm=yes \
   --project-id=6703fd8a3cfe3000hrydg463
 ```
 
-**Self-hosted:**
+**Self-hosted:** Set `PS_TOKEN` (or use a linked project with API key in link.yaml), then:
 
 ```bash
-powersync fetch config --api-url=https://powersync.example.com --api-key=your-token
+powersync fetch config --api-url=https://powersync.example.com
 ```
 
 You can use a different project directory with `--directory`:
@@ -233,8 +235,8 @@ You can use a different project directory with `--directory`:
 # Cloud
 powersync stop --confirm=yes --directory=my-powersync --instance-id=... --org-id=... --project-id=...
 
-# Self-hosted
-powersync fetch config --directory=my-powersync --api-url=https://... --api-key=...
+# Self-hosted (API key from PS_TOKEN or link.yaml)
+powersync fetch config --directory=my-powersync --api-url=https://...
 ```
 
 ---

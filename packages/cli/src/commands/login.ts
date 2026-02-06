@@ -1,4 +1,5 @@
-import { Command, Flags } from '@oclif/core';
+import { password } from '@inquirer/prompts';
+import { Command } from '@oclif/core';
 
 import { getSecureStorage } from '../services/SecureStorage.js';
 
@@ -6,17 +7,16 @@ export default class Login extends Command {
   static description = 'Authenticate the CLI with PowerSync (e.g. PAT token).';
   static summary = 'Authenticate the CLI with PowerSync (e.g. PAT token).';
 
-  static flags = {
-    token: Flags.string({
-      description: 'PowerSync auth token (e.g. PAT). Stored securely in the system keychain on macOS.',
-      required: true
-    })
-  };
-
   async run(): Promise<void> {
-    const { flags } = await this.parse(Login);
+    const token = await password({
+      message: 'Enter your API token (https://docs.powersync.com/usage/tools/cli#personal-access-token):',
+      mask: true
+    });
+    if (!token?.trim()) {
+      this.error('Token is required.', { exit: 1 });
+    }
     const storage = getSecureStorage();
-    await storage.setToken(flags.token);
+    await storage.setToken(token.trim());
     this.log('Token stored successfully.');
   }
 }

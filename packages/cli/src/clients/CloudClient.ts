@@ -12,7 +12,7 @@ export async function createCloudClient(): Promise<PowerSyncManagementClient> {
   const token = env.PS_TOKEN || (await storage.getToken());
   if (!token) {
     throw new Error(
-      'Not logged in. Run `powersync login --token=<your-token>` to authenticate. Login is supported on macOS (other platforms coming soon).'
+      'Not logged in. Run `powersync login` to authenticate (you will be prompted for your token). Login is supported on macOS (other platforms coming soon).'
     );
   }
   return new PowerSyncManagementClient({
