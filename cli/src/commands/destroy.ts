@@ -1,4 +1,4 @@
-import { Flags } from '@oclif/core';
+import { Flags, ux } from '@oclif/core';
 
 import { CloudInstanceCommand } from '../command-types/CloudInstanceCommand.js';
 
@@ -28,7 +28,12 @@ export default class Destroy extends CloudInstanceCommand {
     });
     const client = await this.getClient();
 
-    this.log(`Destroying instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`);
+    this.log(
+      ux.colorize(
+        'cyan',
+        `Destroying instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`
+      )
+    );
 
     try {
       await client.destroyInstance({

@@ -1,4 +1,4 @@
-import { Command } from '@oclif/core';
+import { Command, ux } from '@oclif/core';
 
 export default class Pull extends Command {
   static description =
@@ -7,6 +7,6 @@ export default class Pull extends Command {
 
   async run(): Promise<void> {
     await this.parse(Pull);
-    this.log('Use a subcommand: pull config');
+    this.log(ux.colorize('yellow', 'Use a subcommand: pull config'));
   }
 }

@@ -1,4 +1,4 @@
-import { Command } from '@oclif/core';
+import { Command, ux } from '@oclif/core';
 
 /**
  * This cloud only implementation is exported as index.ts
@@ -13,6 +13,6 @@ export default class Fetch extends Command {
 
   async run(): Promise<void> {
     await this.parse(Fetch);
-    this.log('Use a subcommand: fetch instances | fetch config | fetch status');
+    this.log(ux.colorize('yellow', 'Use a subcommand: fetch instances | fetch config | fetch status'));
   }
 }

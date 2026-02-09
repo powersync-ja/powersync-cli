@@ -1,5 +1,5 @@
 import { input } from '@inquirer/prompts';
-import { Flags } from '@oclif/core';
+import { Flags, ux } from '@oclif/core';
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -44,6 +44,6 @@ export default class LinkSelfHosted extends SelfHostedInstanceCommand {
     doc.set('api_url', apiUrl);
     doc.set('api_key', apiKey.trim() || '!env PS_TOKEN');
     writeFileSync(linkPath, doc.toString(), 'utf8');
-    this.log(`Updated ${directory}/${LINK_FILENAME} with self-hosted link.`);
+    this.log(ux.colorize('green', `Updated ${directory}/${LINK_FILENAME} with self-hosted link.`));
   }
 }

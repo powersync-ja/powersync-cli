@@ -1,4 +1,4 @@
-import { Flags } from '@oclif/core';
+import { Flags, ux } from '@oclif/core';
 import { routes } from '@powersync/management-types';
 import { schemaGenerators, SqlSyncRules, StaticSchema } from '@powersync/service-sync-rules';
 import { writeFileSync } from 'fs';
@@ -81,6 +81,6 @@ export default class GenerateSchema extends SharedInstanceCommand {
     );
 
     writeFileSync(flags['output-path'], schema, 'utf8');
-    this.log(`Generated schema written to ${flags['output-path']}`);
+    this.log(ux.colorize('green', `Generated schema written to ${flags['output-path']}`));
   }
 }

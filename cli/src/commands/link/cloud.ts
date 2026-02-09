@@ -1,4 +1,4 @@
-import { Flags } from '@oclif/core';
+import { Flags, ux } from '@oclif/core';
 
 import { createCloudInstance } from '../../api/cloud/create-cloud-instance.js';
 import { writeCloudLink } from '../../api/cloud/write-cloud-link.js';
@@ -70,7 +70,9 @@ export default class LinkCloud extends CloudInstanceCommand {
         projectDir
       });
       writeCloudLink(projectDir, { instanceId: newInstanceId, orgId, projectId });
-      this.log(`Created Cloud instance ${newInstanceId} and updated ${directory}/${LINK_FILENAME}.`);
+      this.log(
+        ux.colorize('green', `Created Cloud instance ${newInstanceId} and updated ${directory}/${LINK_FILENAME}.`)
+      );
       return;
     }
 
@@ -91,6 +93,6 @@ export default class LinkCloud extends CloudInstanceCommand {
     });
 
     writeCloudLink(projectDir, { instanceId, orgId, projectId });
-    this.log(`Updated ${directory}/${LINK_FILENAME} with Cloud instance link.`);
+    this.log(ux.colorize('green', `Updated ${directory}/${LINK_FILENAME} with Cloud instance link.`));
   }
 }

@@ -1,3 +1,4 @@
+import { ux } from '@oclif/core';
 import type { RequiredCloudLinkConfig } from '@powersync/cli-schemas';
 import { PowerSyncManagementClient } from '@powersync/management-client';
 import { routes } from '@powersync/management-types';
@@ -93,7 +94,7 @@ export default class Deploy extends CloudInstanceCommand {
       );
     }
 
-    this.log('Testing connection before deploy...');
+    this.log(ux.colorize('cyan', 'Testing connection before deploy...'));
     if ((config.replication?.connections?.length ?? 0) <= 0) {
       this.error(
         'No connection found in config. Please add a connection to the config in replication->connections before deploying.',
@@ -110,7 +111,7 @@ export default class Deploy extends CloudInstanceCommand {
         this.error(formatTestConnectionFailure(response, connectionName), { exit: 1 });
       }
     }
-    this.log('Connection test successful.');
+    this.log(ux.colorize('green', 'Connection test successful.'));
 
     const spinner = ora({
       prefixText: 'Deploying instance.\n',

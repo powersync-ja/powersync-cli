@@ -1,5 +1,5 @@
 import { password } from '@inquirer/prompts';
-import { Command } from '@oclif/core';
+import { Command, ux } from '@oclif/core';
 
 import { getSecureStorage } from '../services/SecureStorage.js';
 
@@ -18,6 +18,6 @@ export default class Login extends Command {
     }
     const storage = getSecureStorage();
     await storage.setToken(token.trim());
-    this.log('Token stored successfully.');
+    this.log(ux.colorize('green', 'Token stored successfully.'));
   }
 }

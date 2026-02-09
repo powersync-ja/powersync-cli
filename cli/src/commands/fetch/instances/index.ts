@@ -1,4 +1,4 @@
-import { Command } from '@oclif/core';
+import { Command, ux } from '@oclif/core';
 
 export default class FetchInstances extends Command {
   static description =
@@ -6,6 +6,6 @@ export default class FetchInstances extends Command {
   static summary = 'List Cloud instances in the current org/project.';
 
   async run(): Promise<void> {
-    this.log('fetch instances: not yet implemented');
+    this.log(ux.colorize('dim', 'fetch instances: not yet implemented'));
   }
 }

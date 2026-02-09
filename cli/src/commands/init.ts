@@ -1,4 +1,4 @@
-import { Flags } from '@oclif/core';
+import { Flags, ux } from '@oclif/core';
 import { cpSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -60,9 +60,13 @@ export default class Init extends PowerSyncCommand {
 
     const instructions = type === 'cloud' ? cloudInstructions : selfHostedInstructions;
     this.log(
-      [`Created PowerSync ${type} project!`, 'Configuration files are located in:', targetDir, '', instructions].join(
-        '\n'
-      )
+      [
+        ux.colorize('green', `Created PowerSync ${type} project!`),
+        ux.colorize('dim', 'Configuration files are located in:'),
+        ux.colorize('cyan', targetDir),
+        '',
+        ux.colorize('dim', instructions)
+      ].join('\n')
     );
   }
 }

@@ -1,3 +1,4 @@
+import { ux } from '@oclif/core';
 import { CLICloudConfig } from '@powersync/cli-schemas';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -121,7 +122,7 @@ export default class PullConfig extends CloudInstanceCommand {
         );
       }
       writeCloudLink(projectDir, { instanceId, orgId, projectId });
-      this.log(`Created ${directory}/${LINK_FILENAME} with Cloud instance link.`);
+      this.log(ux.colorize('green', `Created ${directory}/${LINK_FILENAME} with Cloud instance link.`));
     }
 
     const { linked } = this.loadProject(flags, {
@@ -131,7 +132,10 @@ export default class PullConfig extends CloudInstanceCommand {
     const client = await this.getClient();
 
     this.log(
-      `Fetching config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`
+      ux.colorize(
+        'cyan',
+        `Fetching config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`
+      )
     );
 
     const fetched = await fetchCloudConfig(client, linked).catch((error) => {
@@ -163,13 +167,13 @@ export default class PullConfig extends CloudInstanceCommand {
     const serviceOutputName = serviceExists ? SERVICE_FETCHED_FILENAME : SERVICE_FILENAME;
     const serviceOutputPath = join(projectDir, serviceOutputName);
     writeFileSync(serviceOutputPath, serviceYaml, 'utf8');
-    this.log(`Wrote ${serviceOutputName} with config from the cloud.`);
+    this.log(ux.colorize('green', `Wrote ${serviceOutputName} with config from the cloud.`));
 
     if (typeof fetched.syncRules === 'string') {
       const syncOutputName = syncExists ? SYNC_FETCHED_FILENAME : SYNC_FILENAME;
       const syncOutputPath = join(projectDir, syncOutputName);
       writeFileSync(syncOutputPath, fetched.syncRules, 'utf8');
-      this.log(`Wrote ${syncOutputName} with sync rules from the cloud.`);
+      this.log(ux.colorize('green', `Wrote ${syncOutputName} with sync rules from the cloud.`));
     }
   }
 }

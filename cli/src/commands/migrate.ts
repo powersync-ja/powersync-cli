@@ -1,3 +1,5 @@
+import { ux } from '@oclif/core';
+
 import { SelfHostedInstanceCommand } from '../command-types/SelfHostedInstanceCommand.js';
 
 export default class Migrate extends SelfHostedInstanceCommand {
@@ -6,6 +8,6 @@ export default class Migrate extends SelfHostedInstanceCommand {
   static summary = 'Convert self-hosted config to Cloud format (not yet implemented).';
 
   async run(): Promise<void> {
-    this.log('migrate: not yet implemented');
+    this.log(ux.colorize('dim', 'migrate: not yet implemented'));
   }
 }
