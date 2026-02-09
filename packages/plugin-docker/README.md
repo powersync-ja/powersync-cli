@@ -1,15 +1,15 @@
 # @powersync/cli-plugin-docker
 
-PowerSync CLI plugin that adds a **docker** topic for self-hosted instances: **init**, **deploy**, **start**, and **stop** using Docker Compose.
+PowerSync CLI plugin that adds a **docker** topic for self-hosted instances: **configure**, **reset**, **start**, and **stop** using Docker Compose.
 
 ## Commands
 
 All commands live under **`powersync docker`**:
 
-- **`powersync docker init`** – Create **powersync/docker/** with database and storage modules (see **Templates** below). Requires **`--database`** and **`--storage`**. Creates **docker-compose.yaml**, **.env** (with defaults), and merges service snippets into **service.yaml** (preserving `!env` so the container resolves vars from **.env**). Writes **link.yaml** with `plugins.docker.project_name` for deploy/start/stop.
-- **`powersync docker deploy`** – Start or recreate containers (`docker compose up -d --force-recreate`). Images are pulled if missing.
-- **`powersync docker start`** – Start the stack (`docker compose up -d`).
-- **`powersync docker stop`** – Stop the stack (`docker compose down`).
+- **`powersync docker configure`** – Create **powersync/docker/** with database and storage modules (see **Templates** below). Requires **`--database`** and **`--storage`**. Creates **docker-compose.yaml**, **.env** (with defaults), and merges service snippets into **service.yaml** (preserving `!env` so the container resolves vars from **.env**). Writes **link.yaml** with `plugins.docker.project_name` for reset/start/stop.
+- **`powersync docker start`** – Start the stack (`docker compose up -d --wait`). **Use this after configure** to bring up the stack.
+- **`powersync docker reset`** – Start from a clean state: stop and remove containers (`docker compose down`), then start (`docker compose up -d --wait`). Use **only when you need a clean state** (e.g. after config changes).
+- **`powersync docker stop`** – Stop the stack (`docker compose stop` by default; use `--remove` for `down`, `--remove-volumes` for `down -v`).
 
 Run **`powersync docker`** with no subcommand to see help.
 
@@ -29,12 +29,12 @@ Each implementation provides:
 - A **service snippet** **`<impl>.<category>.service.yaml`** – YAML merged into the project **service.yaml** (replication and storage sections). Snippets use the **`!env`** custom tag (e.g. `uri: !env PS_DATA_SOURCE_URI`) so the PowerSync container resolves values from **docker/.env** at runtime.
 - **`template.env`** – Env vars for that module. Init merges these into **powersync/docker/.env**.
 
-**`powersync docker init`** copies the selected modules into **powersync/docker/modules/**, generates **docker-compose.yaml** (include of both partials + PowerSync service with **env_file: .env**), writes **.env** (merged from template.env snippets + PowerSync vars), and merges the service snippets into **service.yaml** (preserving `!env` tags).
+**`powersync docker configure`** copies the selected modules into **powersync/docker/modules/**, generates **docker-compose.yaml** (include of both partials + PowerSync service with **env_file: .env**), writes **.env** (merged from template.env snippets + PowerSync vars), and merges the service snippets into **service.yaml** (preserving `!env` tags).
 
 ### Example
 
 ```bash
-powersync docker init --database postgres --storage postgres
+powersync docker configure --database postgres --storage postgres
 ```
 
 Creates **powersync/docker/** with:
@@ -48,17 +48,17 @@ Also merges the database and storage snippets into **powersync/service.yaml** (r
 
 ## Usage
 
-1. From the repo root, run **`powersync docker init --database postgres --storage postgres`** to create **powersync/docker/**.
-2. Run **`powersync docker deploy`** to start the stack (or **`powersync docker start`** / **`powersync docker stop`** later).
+1. From the repo root, run **`powersync docker configure --database postgres --storage postgres`** to create **powersync/docker/**.
+2. Run **`powersync docker start`** to bring up the stack. Use **`powersync docker reset`** only when you need to start from a clean state. Use **`powersync docker stop`** to stop.
 
 No need to edit **.env** for default setups; the PowerSync service reads **docker/.env** via **env_file** and resolves **!env** in **service.yaml** at runtime.
 
 ## Flags
 
 - **`--directory`** – Config directory (default: `powersync`).
-- **`--database`** – Database module for **docker init** (e.g. `postgres`). Required for init.
-- **`--storage`** – Storage module for **docker init** (e.g. `postgres`). Required for init.
-- **`--project-name`** – Docker Compose project name for init (default: derived from config directory name).
+- **`--database`** – Database module for **docker configure** (e.g. `postgres`). Required for configure.
+- **`--storage`** – Storage module for **docker configure** (e.g. `postgres`). Required for configure.
+- **`--project-name`** – Docker Compose project name for configure (default: derived from config directory name).
 - **`--api-url`** – PowerSync API URL (optional; for consistency with other self-hosted commands).
 
 ## Building blocks

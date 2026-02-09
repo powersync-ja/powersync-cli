@@ -11,12 +11,12 @@ Monorepo for the PowerSync CLI and related tooling. Built with [pnpm](https://pn
 
 The workspace is split into the main CLI, shared **packages**, and optional **plugins**:
 
-| Package                                              | Path                 | Description                                                                         |
-| ---------------------------------------------------- | -------------------- | ----------------------------------------------------------------------------------- |
-| [**@powersync/cli**](./cli)                          | `cli/`               | Main CLI — manage instances, config, sync rules, cloud and self-hosted              |
-| [**@powersync/cli-core**](./packages/cli-core)       | `packages/cli-core/` | Core types and base commands shared by the CLI and plugins                          |
-| [**@powersync/cli-schemas**](./packages/schemas)     | `packages/schemas/`  | Shared config schemas (link.yaml, service.yaml, etc.)                               |
-| [**@powersync/cli-plugin-docker**](./plugins/docker) | `plugins/docker/`    | Docker plugin — self-hosted PowerSync with Compose (configure, deploy, start, stop) |
+| Package                                              | Path                 | Description                                                                        |
+| ---------------------------------------------------- | -------------------- | ---------------------------------------------------------------------------------- |
+| [**@powersync/cli**](./cli)                          | `cli/`               | Main CLI — manage instances, config, sync rules, cloud and self-hosted             |
+| [**@powersync/cli-core**](./packages/cli-core)       | `packages/cli-core/` | Core types and base commands shared by the CLI and plugins                         |
+| [**@powersync/cli-schemas**](./packages/schemas)     | `packages/schemas/`  | Shared config schemas (link.yaml, service.yaml, etc.)                              |
+| [**@powersync/cli-plugin-docker**](./plugins/docker) | `plugins/docker/`    | Docker plugin — self-hosted PowerSync with Compose (configure, reset, start, stop) |
 
 ```
 ├── cli/                    # @powersync/cli — main CLI (commands, cloud/self-hosted, templates)
@@ -24,10 +24,10 @@ The workspace is split into the main CLI, shared **packages**, and optional **pl
 │   ├── cli-core/           # @powersync/cli-core — base commands & YAML utils (used by CLI + plugins)
 │   └── schemas/            # @powersync/cli-schemas — config validation (LinkConfig, CLIConfig)
 ├── plugins/
-│   └── docker/             # @powersync/cli-plugin-docker — docker configure, deploy, start, stop
+│   └── docker/             # @powersync/cli-plugin-docker — docker configure, reset, start, stop
 └── docs/
     ├── usage.md            # General CLI usage (Cloud, self-hosted, linking, auth)
-    └── usage-docker.md     # Docker plugin (configure, deploy, start, stop, templates)
+    └── usage-docker.md     # Docker plugin (configure, reset, start, stop, templates)
 ```
 
 - **cli** depends on **cli-core**, **cli-schemas**, and **@powersync/cli-plugin-docker**. It loads the docker plugin and re-exports base command types from cli-core.
@@ -57,7 +57,7 @@ From the repo root, create the Docker layout and run the stack:
 
 ```bash
 pnpm powersync docker configure --database postgres --storage postgres
-pnpm powersync docker deploy
+pnpm powersync docker start
 ```
 
 See [plugins/docker](./plugins/docker/README.md) and [docs/usage-docker.md](./docs/usage-docker.md) for details.
@@ -65,5 +65,5 @@ See [plugins/docker](./plugins/docker/README.md) and [docs/usage-docker.md](./do
 ## Documentation
 
 - [**Usage**](./docs/usage.md) — How the CLI works: Cloud and self-hosted, linking, auth, supplying instance info
-- [**Usage (Docker)**](./docs/usage-docker.md) — Docker plugin: configure, deploy, start, stop, templates, flags
+- [**Usage (Docker)**](./docs/usage-docker.md) — Docker plugin: configure, reset, start, stop, templates, flags
 - [CLI package README](./cli/README.md) — Install, usage, and command reference

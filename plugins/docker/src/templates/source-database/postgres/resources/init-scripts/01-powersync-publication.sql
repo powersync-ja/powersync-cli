@@ -10,6 +10,6 @@
 -- Note: Init scripts run only when the Postgres data directory is empty (first
 -- container start). If you see "Publication 'powersync' does not exist", remove
 -- the database volume and redeploy so init runs again, e.g.:
---   powersync docker stop --remove --remove-volumes && powersync docker deploy
+--   powersync docker stop --remove --remove-volumes && powersync docker reset
 
 CREATE PUBLICATION powersync FOR ALL TABLES;

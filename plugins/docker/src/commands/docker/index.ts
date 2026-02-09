@@ -1,9 +1,9 @@
 import { SelfHostedInstanceCommand } from '@powersync/cli-core';
 
 export default class Docker extends SelfHostedInstanceCommand {
-  static summary = 'Manage self-hosted PowerSync with Docker Compose (init, deploy, start, stop).';
+  static summary = 'Manage self-hosted PowerSync with Docker Compose (configure, reset, start, stop).';
   static description =
-    'Scaffold and run a self-hosted PowerSync stack via Docker. Use `docker init` to copy a template into powersync/docker/, then `docker deploy`, `docker start`, `docker stop`.';
+    'Scaffold and run a self-hosted PowerSync stack via Docker. Use `docker configure` to create powersync/docker/, then `docker reset` (stop+remove then start) or `docker start` / `docker stop`.';
 
   static flags = {
     ...SelfHostedInstanceCommand.flags

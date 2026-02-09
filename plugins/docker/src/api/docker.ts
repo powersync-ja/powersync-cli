@@ -55,7 +55,7 @@ export function listPowersyncProjectNames(): string[] {
 }
 
 /**
- * Log active PowerSync project names and how to stop them. Use after a failed deploy or start.
+ * Log active PowerSync project names and how to stop them. Use after a failed reset or start.
  * @param excludeProjectName - Current project name to omit from the list (the instance we just tried to use).
  */
 export function logPowersyncProjectsStopHelp(

@@ -15,7 +15,7 @@ CLI for PowerSync
 
 # Usage
 
-For self-hosted instances with Docker, use **`powersync docker init`** then **`powersync docker deploy`**. See the [docker plugin](../plugin-docker/README.md) for details.
+For self-hosted instances with Docker, use **`powersync docker configure`** then **`powersync docker start`**. Use **`powersync docker reset`** only when you need to start from a clean state (stop and remove, then start). See the [docker plugin](../plugins/docker/README.md) for details.
 
 <!-- usage -->
 
@@ -41,7 +41,7 @@ USAGE
 - [`powersync destroy`](#powersync-destroy)
 - [`powersync docker`](#powersync-docker)
 - [`powersync docker configure`](#powersync-docker-configure)
-- [`powersync docker deploy`](#powersync-docker-deploy)
+- [`powersync docker reset`](#powersync-docker-reset)
 - [`powersync docker start`](#powersync-docker-start)
 - [`powersync docker stop`](#powersync-docker-stop)
 - [`powersync fetch`](#powersync-fetch)
@@ -128,7 +128,7 @@ _See code: [src/commands/destroy/index.ts](https://github.com/powersync-ja/power
 
 ## `powersync docker`
 
-Manage self-hosted PowerSync with Docker Compose (init, deploy, start, stop).
+Manage self-hosted PowerSync with Docker Compose (configure, reset, start, stop).
 
 ```
 USAGE
@@ -141,10 +141,10 @@ PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config (default: powersync).
 
 DESCRIPTION
-  Manage self-hosted PowerSync with Docker Compose (init, deploy, start, stop).
+  Manage self-hosted PowerSync with Docker Compose (configure, reset, start, stop).
 
-  Scaffold and run a self-hosted PowerSync stack via Docker. Use `docker init` to copy a template into
-  powersync/docker/, then `docker deploy`, `docker start`, `docker stop`.
+  Scaffold and run a self-hosted PowerSync stack via Docker. Use `docker configure` to create powersync/docker/,
+  then `docker start` to bring up the stack. Use `docker reset` only when you need a clean state (down then up).
 ```
 
 ## `powersync docker configure`
@@ -176,13 +176,13 @@ DESCRIPTION
   --directory powersync.
 ```
 
-## `powersync docker deploy`
+## `powersync docker reset`
 
-Deploy/update self-hosted PowerSync via Docker Compose (up --force-recreate).
+Reset the self-hosted PowerSync stack (stop and remove, then start).
 
 ```
 USAGE
-  $ powersync docker deploy [--directory <value>] [--api-url <value>]
+  $ powersync docker reset [--directory <value>] [--api-url <value>]
 
 SELF_HOSTED_PROJECT FLAGS
   --api-url=<value>  PowerSync API URL. Resolved: flag → API_URL → link.yaml.
@@ -191,10 +191,11 @@ PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config (default: powersync).
 
 DESCRIPTION
-  Deploy/update self-hosted PowerSync via Docker Compose (up --force-recreate).
+  Start the self-hosted PowerSync stack from a clean state (stop and remove, then start).
 
-  Start or recreate containers; waits for services (including PowerSync) to be healthy. Use after `powersync docker
-  init`. Images are pulled if missing. Use `powersync fetch status` to debug running instances.
+  Run `docker compose down` then `docker compose up -d --wait`. Use **only when you need a clean state** (e.g. after
+  config changes or to clear a bad state). After configure, use `powersync docker start` instead. Use `powersync fetch
+  status` to debug running instances.
 ```
 
 ## `powersync docker start`
@@ -214,8 +215,9 @@ PROJECT FLAGS
 DESCRIPTION
   Start the self-hosted PowerSync stack via Docker Compose.
 
-  Run `docker compose up -d --wait` for the project docker/ compose file; waits for services (including PowerSync) to be
-  healthy. Use `powersync fetch status` to debug running instances.
+  Run `docker compose up -d --wait` for the project docker/ compose file. **Use this after `powersync docker configure`**
+  to bring up the stack. Waits for services (including PowerSync) to be healthy. Use `powersync fetch status` to debug
+  running instances.
 ```
 
 ## `powersync docker stop`
@@ -234,7 +236,7 @@ FLAGS
   --remove                Remove containers after stopping (docker compose down). By default only stop (docker compose
                           stop).
   --remove-volumes        Remove named volumes (docker compose down -v). Use to reset database/storage so init scripts
-                          run again on next deploy. Implies --remove.
+                          run again on next reset. Implies --remove.
 
 SELF_HOSTED_PROJECT FLAGS
   --api-url=<value>  PowerSync API URL. Resolved: flag → API_URL → link.yaml.
@@ -246,9 +248,9 @@ DESCRIPTION
   Stop a PowerSync Docker Compose project by name.
 
   Run `docker compose -p <project-name> stop` (containers are not removed by default). Does not require the project
-  directory or a compose file, so you can run it from anywhere (e.g. after a deploy conflict). Use --project-name or run
+  directory or a compose file, so you can run it from anywhere (e.g. after a reset conflict). Use --project-name or run
   from a project with link.yaml to choose which project to stop. Use --remove to also remove the containers. Use
-  --remove-volumes to also remove volumes (e.g. to re-run DB init scripts on next deploy).
+  --remove-volumes to also remove volumes (e.g. to re-run DB init scripts on next reset).
 ```
 
 ## `powersync fetch`

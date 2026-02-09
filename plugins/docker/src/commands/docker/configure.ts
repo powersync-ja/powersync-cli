@@ -140,7 +140,7 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
     this.log('  - .env');
     this.log(`  - Merged config into ${SERVICE_FILENAME}`);
     this.log(`  - ${LINK_FILENAME} (plugins.docker.project_name: ${projectName})`);
-    this.log('Next: run `powersync docker deploy`.');
+    this.log('Next: run `powersync docker start`.');
   }
 }
 
