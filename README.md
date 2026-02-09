@@ -11,12 +11,12 @@ Monorepo for the PowerSync CLI and related tooling. Built with [pnpm](https://pn
 
 The workspace is split into the main CLI, shared **packages**, and optional **plugins**:
 
-| Package                                          | Path                 | Description                                                                         |
-| ------------------------------------------------ | -------------------- | ----------------------------------------------------------------------------------- |
-| [**@powersync/cli**](./cli)                      | `cli/`               | Main CLI — manage instances, config, sync rules, cloud and self-hosted              |
-| [**@powersync/cli-core**](./packages/cli-core)   | `packages/cli-core/` | Core types and base commands shared by the CLI and plugins                          |
-| [**@powersync/cli-schemas**](./packages/schemas) | `packages/schemas/`  | Shared config schemas (link.yaml, service.yaml, etc.)                               |
-| [**@powersync/plugin-docker**](./plugins/docker) | `plugins/docker/`    | Docker plugin — self-hosted PowerSync with Compose (configure, deploy, start, stop) |
+| Package                                              | Path                 | Description                                                                         |
+| ---------------------------------------------------- | -------------------- | ----------------------------------------------------------------------------------- |
+| [**@powersync/cli**](./cli)                          | `cli/`               | Main CLI — manage instances, config, sync rules, cloud and self-hosted              |
+| [**@powersync/cli-core**](./packages/cli-core)       | `packages/cli-core/` | Core types and base commands shared by the CLI and plugins                          |
+| [**@powersync/cli-schemas**](./packages/schemas)     | `packages/schemas/`  | Shared config schemas (link.yaml, service.yaml, etc.)                               |
+| [**@powersync/cli-plugin-docker**](./plugins/docker) | `plugins/docker/`    | Docker plugin — self-hosted PowerSync with Compose (configure, deploy, start, stop) |
 
 ```
 ├── cli/                    # @powersync/cli — main CLI (commands, cloud/self-hosted, templates)
@@ -24,13 +24,13 @@ The workspace is split into the main CLI, shared **packages**, and optional **pl
 │   ├── cli-core/           # @powersync/cli-core — base commands & YAML utils (used by CLI + plugins)
 │   └── schemas/            # @powersync/cli-schemas — config validation (LinkConfig, CLIConfig)
 ├── plugins/
-│   └── docker/             # @powersync/plugin-docker — docker configure, deploy, start, stop
+│   └── docker/             # @powersync/cli-plugin-docker — docker configure, deploy, start, stop
 └── docs/
     ├── usage.md            # General CLI usage (Cloud, self-hosted, linking, auth)
     └── usage-docker.md     # Docker plugin (configure, deploy, start, stop, templates)
 ```
 
-- **cli** depends on **cli-core**, **cli-schemas**, and **@powersync/plugin-docker**. It loads the docker plugin and re-exports base command types from cli-core.
+- **cli** depends on **cli-core**, **cli-schemas**, and **@powersync/cli-plugin-docker**. It loads the docker plugin and re-exports base command types from cli-core.
 - **plugin-docker** (in **plugins/docker**) depends on **cli-core** and **cli-schemas**. No dependency on the CLI package.
 - **cli-core** depends on **schemas**. It provides `SelfHostedInstanceCommand`, YAML helpers (`!env`), and shared types for plugins.
 
