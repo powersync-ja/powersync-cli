@@ -7,10 +7,9 @@ CLI for PowerSync
 [![Downloads/week](https://img.shields.io/npm/dw/@powersync/cli.svg)](https://npmjs.org/package/@powersync/cli)
 
 <!-- toc -->
-
-- [@powersync/cli](#powersynccli)
-- [Usage](#usage)
-- [Commands](#commands)
+* [@powersync/cli](#powersynccli)
+* [Usage](#usage)
+* [Commands](#commands)
 <!-- tocstop -->
 
 # Usage
@@ -18,7 +17,6 @@ CLI for PowerSync
 For self-hosted instances with Docker, use **`powersync docker init`** then **`powersync docker deploy`**. See the [docker plugin](../plugin-docker/README.md) for details.
 
 <!-- usage -->
-
 ```sh-session
 $ npm install -g @powersync/cli
 $ powersync COMMAND
@@ -30,43 +28,46 @@ USAGE
   $ powersync COMMAND
 ...
 ```
-
 <!-- usagestop -->
 
 # Commands
 
 <!-- commands -->
-
-- [`powersync deploy`](#powersync-deploy)
-- [`powersync destroy`](#powersync-destroy)
-- [`powersync fetch`](#powersync-fetch)
-- [`powersync fetch config`](#powersync-fetch-config)
-- [`powersync fetch instances`](#powersync-fetch-instances)
-- [`powersync fetch status`](#powersync-fetch-status)
-- [`powersync generate`](#powersync-generate)
-- [`powersync generate schema`](#powersync-generate-schema)
-- [`powersync generate token`](#powersync-generate-token)
-- [`powersync help [COMMAND]`](#powersync-help-command)
-- [`powersync init`](#powersync-init)
-- [`powersync link`](#powersync-link)
-- [`powersync link cloud`](#powersync-link-cloud)
-- [`powersync link self-hosted`](#powersync-link-self-hosted)
-- [`powersync login`](#powersync-login)
-- [`powersync migrate`](#powersync-migrate)
-- [`powersync plugins`](#powersync-plugins)
-- [`powersync plugins add PLUGIN`](#powersync-plugins-add-plugin)
-- [`powersync plugins:inspect PLUGIN...`](#powersync-pluginsinspect-plugin)
-- [`powersync plugins install PLUGIN`](#powersync-plugins-install-plugin)
-- [`powersync plugins link PATH`](#powersync-plugins-link-path)
-- [`powersync plugins remove [PLUGIN]`](#powersync-plugins-remove-plugin)
-- [`powersync plugins reset`](#powersync-plugins-reset)
-- [`powersync plugins uninstall [PLUGIN]`](#powersync-plugins-uninstall-plugin)
-- [`powersync plugins unlink [PLUGIN]`](#powersync-plugins-unlink-plugin)
-- [`powersync plugins update`](#powersync-plugins-update)
-- [`powersync pull`](#powersync-pull)
-- [`powersync pull config`](#powersync-pull-config)
-- [`powersync stop`](#powersync-stop)
-- [`powersync validate`](#powersync-validate)
+* [`powersync deploy`](#powersync-deploy)
+* [`powersync destroy`](#powersync-destroy)
+* [`powersync docker`](#powersync-docker)
+* [`powersync docker configure`](#powersync-docker-configure)
+* [`powersync docker deploy`](#powersync-docker-deploy)
+* [`powersync docker start`](#powersync-docker-start)
+* [`powersync docker stop`](#powersync-docker-stop)
+* [`powersync fetch`](#powersync-fetch)
+* [`powersync fetch config`](#powersync-fetch-config)
+* [`powersync fetch instances`](#powersync-fetch-instances)
+* [`powersync fetch status`](#powersync-fetch-status)
+* [`powersync generate`](#powersync-generate)
+* [`powersync generate schema`](#powersync-generate-schema)
+* [`powersync generate token`](#powersync-generate-token)
+* [`powersync help [COMMAND]`](#powersync-help-command)
+* [`powersync init`](#powersync-init)
+* [`powersync link`](#powersync-link)
+* [`powersync link cloud`](#powersync-link-cloud)
+* [`powersync link self-hosted`](#powersync-link-self-hosted)
+* [`powersync login`](#powersync-login)
+* [`powersync migrate`](#powersync-migrate)
+* [`powersync plugins`](#powersync-plugins)
+* [`powersync plugins add PLUGIN`](#powersync-plugins-add-plugin)
+* [`powersync plugins:inspect PLUGIN...`](#powersync-pluginsinspect-plugin)
+* [`powersync plugins install PLUGIN`](#powersync-plugins-install-plugin)
+* [`powersync plugins link PATH`](#powersync-plugins-link-path)
+* [`powersync plugins remove [PLUGIN]`](#powersync-plugins-remove-plugin)
+* [`powersync plugins reset`](#powersync-plugins-reset)
+* [`powersync plugins uninstall [PLUGIN]`](#powersync-plugins-uninstall-plugin)
+* [`powersync plugins unlink [PLUGIN]`](#powersync-plugins-unlink-plugin)
+* [`powersync plugins update`](#powersync-plugins-update)
+* [`powersync pull`](#powersync-pull)
+* [`powersync pull config`](#powersync-pull-config)
+* [`powersync stop`](#powersync-stop)
+* [`powersync validate`](#powersync-validate)
 
 ## `powersync deploy`
 
@@ -74,7 +75,7 @@ Deploy sync rules and configuration changes.
 
 ```
 USAGE
-  $ powersync deploy [--directory <value>] [--instance-id <value>] [--org-id <value>] [--project-id <value>]
+  $ powersync deploy [--directory <value>] [--instance-id <value> --org-id <value> --project-id <value>]
 
 PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config (default: powersync).
@@ -90,7 +91,7 @@ DESCRIPTION
   Deploys changes to the PowerSync management service. Cloud only.
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/deploy.ts)_
+_See code: [src/commands/deploy/index.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/deploy/index.ts)_
 
 ## `powersync destroy`
 
@@ -98,8 +99,8 @@ Destroy a PowerSync instance.
 
 ```
 USAGE
-  $ powersync destroy [--confirm yes] [--directory <value>] [--instance-id <value>] [--org-id <value>]
-    [--project-id <value>]
+  $ powersync destroy [--confirm yes] [--directory <value>] [--instance-id <value> --org-id <value>
+    --project-id <value>]
 
 FLAGS
   --confirm=<option>  Set to "yes" to confirm destruction of the instance.
@@ -119,32 +120,158 @@ DESCRIPTION
   Destroys the linked PowerSync Cloud instance. Cloud only.
 ```
 
-_See code: [src/commands/destroy.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/destroy.ts)_
+_See code: [src/commands/destroy/index.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/destroy/index.ts)_
+
+## `powersync docker`
+
+Manage self-hosted PowerSync with Docker Compose (init, deploy, start, stop).
+
+```
+USAGE
+  $ powersync docker [--directory <value>] [--api-url <value>]
+
+SELF_HOSTED_PROJECT FLAGS
+  --api-url=<value>  PowerSync API URL. Resolved: flag → API_URL → link.yaml.
+
+PROJECT FLAGS
+  --directory=<value>  [default: powersync] Directory containing PowerSync config (default: powersync).
+
+DESCRIPTION
+  Manage self-hosted PowerSync with Docker Compose (init, deploy, start, stop).
+
+  Scaffold and run a self-hosted PowerSync stack via Docker. Use `docker init` to copy a template into
+  powersync/docker/, then `docker deploy`, `docker start`, `docker stop`.
+```
+
+## `powersync docker configure`
+
+Compose database and storage modules into powersync/docker/.
+
+```
+USAGE
+  $ powersync docker configure --database postgres|external --storage postgres|external [--directory <value>]
+    [--api-url <value>]
+
+FLAGS
+  --database=<option>  (required) [default: postgres] Database module for replication source.
+                       <options: postgres|external>
+  --storage=<option>   (required) [default: postgres] Storage module for PowerSync bucket metadata.
+                       <options: postgres|external>
+
+SELF_HOSTED_PROJECT FLAGS
+  --api-url=<value>  PowerSync API URL. Resolved: flag → API_URL → link.yaml.
+
+PROJECT FLAGS
+  --directory=<value>  [default: powersync] Directory containing PowerSync config (default: powersync).
+
+DESCRIPTION
+  Compose database and storage modules into powersync/docker/.
+
+  Copy selected database and storage template modules into powersync/docker/modules/, generate a composed
+  docker-compose.yaml and .env, and merge service config snippets into the project service.yaml. Run from repo root with
+  --directory powersync.
+```
+
+## `powersync docker deploy`
+
+Deploy/update self-hosted PowerSync via Docker Compose (up --force-recreate).
+
+```
+USAGE
+  $ powersync docker deploy [--directory <value>] [--api-url <value>]
+
+SELF_HOSTED_PROJECT FLAGS
+  --api-url=<value>  PowerSync API URL. Resolved: flag → API_URL → link.yaml.
+
+PROJECT FLAGS
+  --directory=<value>  [default: powersync] Directory containing PowerSync config (default: powersync).
+
+DESCRIPTION
+  Deploy/update self-hosted PowerSync via Docker Compose (up --force-recreate).
+
+  Start or recreate containers; waits for services (including PowerSync) to be healthy. Use after `powersync docker
+  init`. Images are pulled if missing. Use `powersync fetch status` to debug running instances.
+```
+
+## `powersync docker start`
+
+Start the self-hosted PowerSync stack via Docker Compose.
+
+```
+USAGE
+  $ powersync docker start [--directory <value>] [--api-url <value>]
+
+SELF_HOSTED_PROJECT FLAGS
+  --api-url=<value>  PowerSync API URL. Resolved: flag → API_URL → link.yaml.
+
+PROJECT FLAGS
+  --directory=<value>  [default: powersync] Directory containing PowerSync config (default: powersync).
+
+DESCRIPTION
+  Start the self-hosted PowerSync stack via Docker Compose.
+
+  Run `docker compose up -d --wait` for the project docker/ compose file; waits for services (including PowerSync) to be
+  healthy. Use `powersync fetch status` to debug running instances.
+```
+
+## `powersync docker stop`
+
+Stop a PowerSync Docker Compose project by name.
+
+```
+USAGE
+  $ powersync docker stop [--directory <value>] [--api-url <value>] [--project-name <value>] [--remove]
+    [--remove-volumes]
+
+FLAGS
+  --project-name=<value>  Docker Compose project name to stop (e.g. powersync_myapp). If omitted and run from a project
+                          directory, uses plugins.docker.project_name from link.yaml. Pass this to stop from any
+                          directory without loading the project.
+  --remove                Remove containers after stopping (docker compose down). By default only stop (docker compose
+                          stop).
+  --remove-volumes        Remove named volumes (docker compose down -v). Use to reset database/storage so init scripts
+                          run again on next deploy. Implies --remove.
+
+SELF_HOSTED_PROJECT FLAGS
+  --api-url=<value>  PowerSync API URL. Resolved: flag → API_URL → link.yaml.
+
+PROJECT FLAGS
+  --directory=<value>  [default: powersync] Directory containing PowerSync config (default: powersync).
+
+DESCRIPTION
+  Stop a PowerSync Docker Compose project by name.
+
+  Run `docker compose -p <project-name> stop` (containers are not removed by default). Does not require the project
+  directory or a compose file, so you can run it from anywhere (e.g. after a deploy conflict). Use --project-name or run
+  from a project with link.yaml to choose which project to stop. Use --remove to also remove the containers. Use
+  --remove-volumes to also remove volumes (e.g. to re-run DB init scripts on next deploy).
+```
 
 ## `powersync fetch`
 
-Fetch data from PowerSync (instances, config, status).
+List instances, fetch config, or fetch instance diagnostics.
 
 ```
 USAGE
   $ powersync fetch
 
 DESCRIPTION
-  Fetch data from PowerSync (instances, config, status).
+  List instances, fetch config, or fetch instance diagnostics.
 
-  Commands to list instances, fetch config, or get diagnostics status.
+  Subcommands: list Cloud instances in org/project (fetch instances), print instance config as YAML/JSON (fetch config),
+  or show instance diagnostics (fetch status).
 ```
 
 _See code: [src/commands/fetch/index.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/fetch/index.ts)_
 
 ## `powersync fetch config`
 
-Fetch config from cloud (output as yaml or json).
+Print linked Cloud instance config (YAML or JSON).
 
 ```
 USAGE
-  $ powersync fetch config [--output json|yaml] [--directory <value>] [--instance-id <value>] [--org-id <value>]
-    [--project-id <value>]
+  $ powersync fetch config [--output json|yaml] [--directory <value>] [--instance-id <value> --org-id <value>
+    --project-id <value>]
 
 FLAGS
   --output=<option>  [default: yaml] Output format: yaml or json.
@@ -159,9 +286,10 @@ CLOUD_PROJECT FLAGS
   --project-id=<value>   Project ID. Manually passed if the current context has not been linked.
 
 DESCRIPTION
-  Fetch config from cloud (output as yaml or json).
+  Print linked Cloud instance config (YAML or JSON).
 
-  Fetches instance config from PowerSync Cloud. Requires a linked project. Cloud only.
+  Retrieve the current instance config from PowerSync Cloud and print as YAML or JSON. Uses linked project or
+  --instance-id, --org-id, --project-id. Cloud only.
 ```
 
 _See code: [src/commands/fetch/config.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/fetch/config.ts)_
@@ -180,16 +308,16 @@ DESCRIPTION
   Lists instances in the current org/project. Cloud only.
 ```
 
-_See code: [src/commands/fetch/instances.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/fetch/instances.ts)_
+_See code: [src/commands/fetch/instances/index.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/fetch/instances/index.ts)_
 
 ## `powersync fetch status`
 
-Fetch diagnostics status for an instance.
+Show instance diagnostics (connections, sync rules, replication).
 
 ```
 USAGE
-  $ powersync fetch status [--output human|json|yaml] [--api-url <value>] [--instance-id <value>] [--org-id
-    <value>] [--project-id <value>] [--directory <value>]
+  $ powersync fetch status [--output human|json|yaml] [--api-url <value> | --instance-id <value> | --org-id
+    <value> | --project-id <value>] [--directory <value>]
 
 FLAGS
   --output=<option>  [default: human] Output format: human-readable, json, or yaml.
@@ -209,38 +337,39 @@ CLOUD_PROJECT FLAGS
   --project-id=<value>   [Cloud] Project ID. Resolved: flag → PROJECT_ID → link.yaml.
 
 DESCRIPTION
-  Fetch diagnostics status for an instance.
+  Show instance diagnostics (connections, sync rules, replication).
 
-  Fetches diagnostics (connections, sync rules state, etc.). Routes to Management service (Cloud) or linked instance
-  (self-hosted).
+  Fetch instance diagnostics: connection status, active and deploying sync rules, replication state. Output as
+  human-readable, JSON, or YAML. Cloud and self-hosted.
 ```
 
 _See code: [src/commands/fetch/status.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/fetch/status.ts)_
 
 ## `powersync generate`
 
-Generate artifacts (schema, token).
+Generate client schema or development token.
 
 ```
 USAGE
   $ powersync generate
 
 DESCRIPTION
-  Generate artifacts (schema, token).
+  Generate client schema or development token.
 
-  Commands to generate client-side schema or development tokens.
+  Generate client artifacts: schema (from instance schema + sync rules) or a development token for connecting clients.
+  Cloud and self-hosted where supported.
 ```
 
 _See code: [src/commands/generate/index.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/generate/index.ts)_
 
 ## `powersync generate schema`
 
-Create client-side schemas.
+Generate client schema file from instance schema and sync rules.
 
 ```
 USAGE
   $ powersync generate schema --output dart|dotNet|flutterFlow|js|jsLegacy|kotlin|swift|ts --output-path <value>
-    [--api-url <value>] [--instance-id <value>] [--org-id <value>] [--project-id <value>] [--directory <value>]
+    [--api-url <value> | --instance-id <value> | --org-id <value> | --project-id <value>] [--directory <value>]
 
 FLAGS
   --output=<option>      (required) [default: type] Output type: dart, dotNet, flutterFlow, js, jsLegacy, kotlin, swift,
@@ -262,21 +391,22 @@ CLOUD_PROJECT FLAGS
   --project-id=<value>   [Cloud] Project ID. Resolved: flag → PROJECT_ID → link.yaml.
 
 DESCRIPTION
-  Create client-side schemas.
+  Generate client schema file from instance schema and sync rules.
 
-  Generates client-side schema from instance schema and sync rules. Supported for Cloud and self-hosted.
+  Generate a client-side schema file from the instance database schema and sync rules. Supports multiple output types
+  (e.g. type, dart). Requires a linked instance. Cloud and self-hosted.
 ```
 
 _See code: [src/commands/generate/schema.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/generate/schema.ts)_
 
 ## `powersync generate token`
 
-Create a client token for the PowerSync service.
+Generate a development JWT for client connections.
 
 ```
 USAGE
-  $ powersync generate token --subject <value> [--expires-in-seconds <value>] [--kid <value>] [--api-url <value>]
-    [--instance-id <value>] [--org-id <value>] [--project-id <value>] [--directory <value>]
+  $ powersync generate token --subject <value> [--expires-in-seconds <value>] [--kid <value>] [--api-url <value> |
+    --instance-id <value> | --org-id <value> | --project-id <value>] [--directory <value>]
 
 FLAGS
   --expires-in-seconds=<value>  [default: 43200] Expiration time in seconds. Default is 43,200 (12 hours).
@@ -298,9 +428,11 @@ CLOUD_PROJECT FLAGS
   --project-id=<value>   [Cloud] Project ID. Resolved: flag → PROJECT_ID → link.yaml.
 
 DESCRIPTION
-  Create a client token for the PowerSync service.
+  Generate a development JWT for client connections.
 
-  Generates a development token for connecting clients. Cloud and self-hosted (when shared secret is in config).
+  Generate a JWT for development clients to connect to PowerSync. Cloud: uses instance dev-token API
+  (allow_temporary_tokens must be enabled). Self-hosted: signs with shared secret from config. Requires --subject;
+  optional --expires-in-seconds.
 ```
 
 _See code: [src/commands/generate/token.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/generate/token.ts)_
@@ -327,46 +459,48 @@ _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.2.3
 
 ## `powersync init`
 
-Create a new PowerSync project.
+Scaffold a PowerSync config directory from a template.
 
 ```
 USAGE
   $ powersync init [--type cloud|self-hosted] [--directory <value>]
 
 FLAGS
-  --type=<option>  [default: cloud] Type of PowerSync instance to scaffold.
+  --type=<option>  [default: cloud] Type of PowerSync instance to scaffold (cloud or self-hosted).
                    <options: cloud|self-hosted>
 
 PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config (default: powersync).
 
 DESCRIPTION
-  Create a new PowerSync project.
+  Scaffold a PowerSync config directory from a template.
 
-  Creates a new PowerSync project in the current directory. Supports --type=cloud or self-hosted.
+  Copy a template into a config directory (default powersync/). Use --type=cloud or --type=self-hosted. For Cloud, edit
+  service.yaml then run link cloud and deploy.
 ```
 
 _See code: [src/commands/init.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/init.ts)_
 
 ## `powersync link`
 
-Link configuration to a PowerSync instance.
+Bind this directory to a Cloud or self-hosted instance (writes link.yaml).
 
 ```
 USAGE
   $ powersync link
 
 DESCRIPTION
-  Link configuration to a PowerSync instance.
+  Bind this directory to a Cloud or self-hosted instance (writes link.yaml).
 
-  Associates a PowerSync instance with this directory's config. Use a subcommand for cloud or self-hosted.
+  Write link.yaml so this directory's config is bound to a PowerSync instance. Once linked, commands use that instance
+  without passing IDs. Use link cloud or link self-hosted.
 ```
 
 _See code: [src/commands/link/index.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/link/index.ts)_
 
 ## `powersync link cloud`
 
-Link to PowerSync Cloud (instance ID, org, project).
+Link to a PowerSync Cloud instance (or create one with --create).
 
 ```
 USAGE
@@ -376,24 +510,26 @@ USAGE
 FLAGS
   --create               Create a new Cloud instance in the given org and project, then link. Do not supply
                          --instance-id when using --create.
-  --instance-id=<value>  PowerSync Cloud instance ID. Omit when using --create.
-  --org-id=<value>       (required) Organization ID.
-  --project-id=<value>   (required) Project ID.
+  --instance-id=<value>  PowerSync Cloud instance ID. Omit when using --create. Resolved: flag → INSTANCE_ID →
+                         link.yaml.
+  --org-id=<value>       (required) Organization ID. Resolved: flag → ORG_ID → link.yaml.
+  --project-id=<value>   (required) Project ID. Resolved: flag → PROJECT_ID → link.yaml.
 
 PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config (default: powersync).
 
 DESCRIPTION
-  Link to PowerSync Cloud (instance ID, org, project).
+  Link to a PowerSync Cloud instance (or create one with --create).
 
-  Link this directory to a PowerSync Cloud instance.
+  Write or update link.yaml with a Cloud instance (instance-id, org-id, project-id). Use --create to create a new
+  instance from service.yaml name/region and link it; omit --instance-id when using --create.
 ```
 
 _See code: [src/commands/link/cloud.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/link/cloud.ts)_
 
 ## `powersync link self-hosted`
 
-Link to self-hosted PowerSync (API URL; API key from PS_TOKEN env).
+Link to a self-hosted PowerSync instance by API URL.
 
 ```
 USAGE
@@ -406,32 +542,34 @@ PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config (default: powersync).
 
 DESCRIPTION
-  Link to self-hosted PowerSync (API URL; API key from PS_TOKEN env).
+  Link to a self-hosted PowerSync instance by API URL.
 
-  Link this directory to a self-hosted PowerSync instance.
+  Write or update link.yaml with a self-hosted instance (API URL). You will be prompted for API key; use !env PS_TOKEN
+  so commands read the key from the environment.
 ```
 
 _See code: [src/commands/link/self-hosted.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/link/self-hosted.ts)_
 
 ## `powersync login`
 
-Authenticate the CLI with PowerSync (e.g. PAT token).
+Store auth token in secure storage for Cloud commands.
 
 ```
 USAGE
   $ powersync login
 
 DESCRIPTION
-  Authenticate the CLI with PowerSync (e.g. PAT token).
+  Store auth token in secure storage for Cloud commands.
 
-  Authenticate the CLI with PowerSync (e.g. PAT token).
+  Store a PowerSync auth token (PAT) in secure storage so later Cloud commands run without passing a token. Use PS_TOKEN
+  env var for CI or scripts instead.
 ```
 
 _See code: [src/commands/login.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/login.ts)_
 
 ## `powersync migrate`
 
-Migrate a self-hosted config to a cloud config.
+Convert self-hosted config to Cloud format (not yet implemented).
 
 ```
 USAGE
@@ -444,9 +582,9 @@ PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config (default: powersync).
 
 DESCRIPTION
-  Migrate a self-hosted config to a cloud config.
+  Convert self-hosted config to Cloud format (not yet implemented).
 
-  Migrates a self-hosted instance configuration to PowerSync Cloud format. Self-hosted only.
+  Convert a self-hosted service.yaml to PowerSync Cloud format. Self-hosted only. (Not yet implemented.)
 ```
 
 _See code: [src/commands/migrate.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/migrate.ts)_
@@ -743,27 +881,28 @@ _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/
 
 ## `powersync pull`
 
-Pull config; link if needed.
+Download Cloud config into local service.yaml and sync.yaml.
 
 ```
 USAGE
   $ powersync pull
 
 DESCRIPTION
-  Pull config; link if needed.
+  Download Cloud config into local service.yaml and sync.yaml.
 
-  Pull config from PowerSync Cloud (optionally link first if not already linked).
+  Download current config from PowerSync Cloud into local YAML files. Use pull config; pass --instance-id, --org-id,
+  --project-id to link first if not already linked.
 ```
 
 _See code: [src/commands/pull/index.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/pull/index.ts)_
 
 ## `powersync pull config`
 
-Pull config from cloud (link first if needed).
+Download Cloud config and sync rules into local service.yaml and sync.yaml.
 
 ```
 USAGE
-  $ powersync pull config [--directory <value>] [--instance-id <value>] [--org-id <value>] [--project-id <value>]
+  $ powersync pull config [--directory <value>] [--instance-id <value> --org-id <value> --project-id <value>]
 
 PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config (default: powersync).
@@ -774,10 +913,10 @@ CLOUD_PROJECT FLAGS
   --project-id=<value>   Project ID. Manually passed if the current context has not been linked.
 
 DESCRIPTION
-  Pull config from cloud (link first if needed).
+  Download Cloud config and sync rules into local service.yaml and sync.yaml.
 
-  Pulls instance config from PowerSync Cloud and writes to local files. If not already linked, use --instance-id,
-  --org-id, --project-id to link first. Cloud only.
+  Fetch instance config and sync rules from PowerSync Cloud and write to service.yaml and sync.yaml in the config
+  directory. Writes link.yaml if you pass --instance-id, --org-id, --project-id. Cloud only.
 ```
 
 _See code: [src/commands/pull/config.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/pull/config.ts)_
@@ -788,8 +927,8 @@ Stop a PowerSync instance.
 
 ```
 USAGE
-  $ powersync stop [--confirm yes] [--directory <value>] [--instance-id <value>] [--org-id <value>]
-    [--project-id <value>]
+  $ powersync stop [--confirm yes] [--directory <value>] [--instance-id <value> --org-id <value>
+    --project-id <value>]
 
 FLAGS
   --confirm=<option>  Set to "yes" to confirm stopping the instance.
@@ -810,16 +949,16 @@ DESCRIPTION
   deploy`.
 ```
 
-_See code: [src/commands/stop.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/stop.ts)_
+_See code: [src/commands/stop/index.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/stop/index.ts)_
 
 ## `powersync validate`
 
-Validate configuration (sync rules, connection, etc.).
+Validate config schema, connections, and sync rules before deploy.
 
 ```
 USAGE
-  $ powersync validate [--output human|json|yaml] [--api-url <value>] [--instance-id <value>] [--org-id
-    <value>] [--project-id <value>] [--directory <value>]
+  $ powersync validate [--output human|json|yaml] [--api-url <value> | --instance-id <value> | --org-id
+    <value> | --project-id <value>] [--directory <value>]
 
 FLAGS
   --output=<option>  [default: human] Output format: human-readable, json, or yaml.
@@ -839,11 +978,11 @@ CLOUD_PROJECT FLAGS
   --project-id=<value>   [Cloud] Project ID. Resolved: flag → PROJECT_ID → link.yaml.
 
 DESCRIPTION
-  Validate configuration (sync rules, connection, etc.).
+  Validate config schema, connections, and sync rules before deploy.
 
-  Validates configuration. Supported for both Cloud and self-hosted.
+  Run validation checks on local config: config schema, database connections, and sync rules. Requires a linked
+  instance. Works with Cloud and self-hosted.
 ```
 
 _See code: [src/commands/validate.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/validate.ts)_
-
 <!-- commandsstop -->
