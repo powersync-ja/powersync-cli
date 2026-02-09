@@ -51,7 +51,7 @@ importers:
         version: file:../service/powersync-hosted/public-packages/types/powersync-management-types-0.0.1.tgz(tsx@4.21.0)(yaml@2.8.2)
       '@powersync/plugin-docker':
         specifier: workspace:*
-        version: link:../packages/plugin-docker
+        version: link:../plugins/docker
       '@powersync/service-client':
         specifier: file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-service/packages/service-client/powersync-service-client-1.18.2.tgz
         version: file:../service/powersync-service/packages/service-client/powersync-service-client-1.18.2.tgz(@types/json-schema@7.0.15)(tsx@4.21.0)(yaml@2.8.2)
@@ -139,37 +139,6 @@ importers:
         specifier: ^5
         version: 5.9.3
 
-  packages/plugin-docker:
-    dependencies:
-      '@oclif/core':
-        specifier: ^4
-        version: 4.8.0
-      '@powersync/cli-core':
-        specifier: workspace:*
-        version: link:../cli-core
-      '@powersync/cli-schemas':
-        specifier: workspace:*
-        version: link:../schemas
-      '@powersync/service-schema':
-        specifier: file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-service/packages/schema/powersync-service-schema-1.19.0.tgz
-        version: file:../service/powersync-service/packages/schema/powersync-service-schema-1.19.0.tgz
-      yaml:
-        specifier: ^2
-        version: 2.8.2
-    devDependencies:
-      '@types/node':
-        specifier: ^24
-        version: 24.10.10
-      eslint:
-        specifier: ^9
-        version: 9.39.2
-      oclif:
-        specifier: ^4
-        version: 4.22.73(@types/node@24.10.10)
-      typescript:
-        specifier: ^5
-        version: 5.9.3
-
   packages/schemas:
     dependencies:
       '@powersync/management-types':
@@ -194,6 +163,37 @@ importers:
       tsx:
         specifier: ^4
         version: 4.21.0
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
+  plugins/docker:
+    dependencies:
+      '@oclif/core':
+        specifier: ^4
+        version: 4.8.0
+      '@powersync/cli-core':
+        specifier: workspace:*
+        version: link:../../packages/cli-core
+      '@powersync/cli-schemas':
+        specifier: workspace:*
+        version: link:../../packages/schemas
+      '@powersync/service-schema':
+        specifier: file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-service/packages/schema/powersync-service-schema-1.19.0.tgz
+        version: file:../service/powersync-service/packages/schema/powersync-service-schema-1.19.0.tgz
+      yaml:
+        specifier: ^2
+        version: 2.8.2
+    devDependencies:
+      '@types/node':
+        specifier: ^24
+        version: 24.10.10
+      eslint:
+        specifier: ^9
+        version: 9.39.2
+      oclif:
+        specifier: ^4
+        version: 4.22.73(@types/node@24.10.10)
       typescript:
         specifier: ^5
         version: 5.9.3
@@ -7296,7 +7296,7 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.0.3
 
-  '@vitest/mocker@3.2.4(vite@7.3.1(@types/node@24.10.10)(tsx@4.21.0)(yaml@2.8.2))':
+  '@vitest/mocker@3.2.4(vite@7.3.1(@types/node@24.10.10)(tsx@4.21.0))':
     dependencies:
       '@vitest/spy': 3.2.4
       estree-walker: 3.0.3
@@ -10081,7 +10081,7 @@ snapshots:
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/expect': 3.2.4
-      '@vitest/mocker': 3.2.4(vite@7.3.1(@types/node@24.10.10)(tsx@4.21.0)(yaml@2.8.2))
+      '@vitest/mocker': 3.2.4(vite@7.3.1(@types/node@24.10.10)(tsx@4.21.0))
       '@vitest/pretty-format': 3.2.4
       '@vitest/runner': 3.2.4
       '@vitest/snapshot': 3.2.4

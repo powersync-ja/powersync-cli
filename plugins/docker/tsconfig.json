@@ -10,5 +10,5 @@
     "skipLibCheck": true
   },
   "include": ["./src/**/*"],
-  "references": [{ "path": "../cli-core" }]
+  "references": [{ "path": "../../packages/cli-core" }]
 }
