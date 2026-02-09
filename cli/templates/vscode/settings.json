@@ -1,6 +1,3 @@
 {
-    "yaml.customTags": [
-      "!env scalar"
-    ]
-  }
-  
+  "yaml.customTags": ["!env scalar"]
+}

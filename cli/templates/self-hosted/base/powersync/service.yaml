@@ -143,7 +143,7 @@ sync_rules:
 # -----------------------------------------------------------------------------
 
 client_auth:
-  
+
 #   PowerSync will use the same JWT secret as Supabase.
 #   supabase: false
 #   Legacy: If your Supabase project does not use the new JWT signing keys, you must provide your project's legacy JWT secret to use Supabase Auth. Get it from your project's API settings in the Supabase Dashboard.

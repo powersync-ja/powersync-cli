@@ -178,10 +178,9 @@ type: self-hosted
       mkdirSync(join(tmpDir, customDir), { recursive: true });
       writeServiceYaml(join(tmpDir, customDir), 'self-hosted');
       process.env.PS_TOKEN = 'k';
-      const { stdout } = await runCommand(
-        `link self-hosted --directory=${customDir} --api-url=https://example.com`,
-        { root }
-      );
+      const { stdout } = await runCommand(`link self-hosted --directory=${customDir} --api-url=https://example.com`, {
+        root
+      });
       expect(stdout).toContain(`Updated ${customDir}/${LINK_FILENAME}`);
       const linkYaml = parseYaml(readFileSync(join(tmpDir, customDir, LINK_FILENAME), 'utf8'));
       expect(linkYaml.type).toBe('self-hosted');

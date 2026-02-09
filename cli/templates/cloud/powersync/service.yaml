@@ -20,7 +20,7 @@ region: us
 # replication: database connections for sync
 # Note: only a single connection is currently supported
 replication:
-  connections: 
+  connections:
 #     -------------------------------------------------------------------------
 #     PostgreSQL – uncomment this entire block to use
 #     -------------------------------------------------------------------------
