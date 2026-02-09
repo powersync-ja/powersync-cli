@@ -20,8 +20,8 @@ telemetry:
 # -----------------------------------------------------------------------------
 # REPLICATION – configuration for data replication; array of data source connections
 # -----------------------------------------------------------------------------
-# replication:
-#   connections:
+replication:
+  connections:
 #     -------------------------------------------------------------------------
 #     PostgreSQL – uncomment this entire block to use
 #     -------------------------------------------------------------------------
@@ -97,7 +97,7 @@ telemetry:
 # -----------------------------------------------------------------------------
 # PostgreSQL storage – uncomment this block and comment out the MongoDB storage block above to use PostgreSQL
 # -----------------------------------------------------------------------------
-# storage:
+storage:
 #   type: postgresql
 #   uri: !env PS_STORAGE_URI
 #   id: string
@@ -141,7 +141,9 @@ sync_rules:
 # -----------------------------------------------------------------------------
 # CLIENT AUTH (optional) – configuration for client authentication mechanisms
 # -----------------------------------------------------------------------------
-# client_auth:
+
+client_auth:
+  
 #   PowerSync will use the same JWT secret as Supabase.
 #   supabase: false
 #   Legacy: If your Supabase project does not use the new JWT signing keys, you must provide your project's legacy JWT secret to use Supabase Auth. Get it from your project's API settings in the Supabase Dashboard.

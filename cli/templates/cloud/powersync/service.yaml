@@ -19,8 +19,8 @@ region: us
 
 # replication: database connections for sync
 # Note: only a single connection is currently supported
-# replication:
-#   connections:
+replication:
+  connections: 
 #     -------------------------------------------------------------------------
 #     PostgreSQL – uncomment this entire block to use
 #     -------------------------------------------------------------------------
@@ -30,19 +30,19 @@ region: us
 #       username: postgres
 #       password:
 #         secret: !env POWERSYNC_DATABASE_PASSWORD
+#       uri: string
 #       port: 5432
-#     name: string
-#     id: string
-#     tag: string
-#     uri: string
-#     Options: verify-full | verify-ca
-#     sslmode: verify-full
-#     cacert: string
-#     client_certificate: string
-#     client_private_key:
-#       secret: !env POWERSYNC_DATABASE_CLIENT_KEY
-#     vpc_endpoint_hostname: string
-#     debug_api: boolean
+#       name: string
+#       id: string
+#       tag: string
+#       # Options: verify-full | verify-ca
+#       sslmode: verify-full
+#       cacert: string
+#       client_certificate: string
+#       client_private_key:
+#         secret: !env POWERSYNC_DATABASE_CLIENT_KEY
+#       vpc_endpoint_hostname: string
+#       debug_api: boolean
 
 #     -------------------------------------------------------------------------
 #     MongoDB – uncomment this entire block to use (comment out PostgreSQL above)
@@ -109,7 +109,7 @@ region: us
 # -----------------------------------------------------------------------------
 # CLIENT AUTH (optional) – uncomment this entire block to enable
 # -----------------------------------------------------------------------------
-# client_auth:
+client_auth:
 
 #   PowerSync will use the same JWT secret as Supabase.
 #   supabase: false
