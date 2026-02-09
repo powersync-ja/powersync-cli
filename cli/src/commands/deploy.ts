@@ -2,8 +2,8 @@ import type { RequiredCloudLinkConfig } from '@powersync/cli-schemas';
 import { PowerSyncManagementClient } from '@powersync/management-client';
 import { routes } from '@powersync/management-types';
 import ora from 'ora';
-import { formatTestConnectionFailure, testCloudConnections } from '../../api/cloud/test-connection.js';
-import { CloudInstanceCommand } from '../../command-types/CloudInstanceCommand.js';
+import { formatTestConnectionFailure, testCloudConnections } from '../api/cloud/test-connection.js';
+import { CloudInstanceCommand } from '../command-types/CloudInstanceCommand.js';
 
 const STATUS_POLL_INTERVAL_MS = 5000;
 type DeployStatus = 'pending' | 'running' | 'failed' | 'completed';

@@ -1,6 +1,6 @@
 import { Flags } from '@oclif/core';
 
-import { CloudInstanceCommand } from '../../command-types/CloudInstanceCommand.js';
+import { CloudInstanceCommand } from '../command-types/CloudInstanceCommand.js';
 
 export default class Stop extends CloudInstanceCommand {
   static description =

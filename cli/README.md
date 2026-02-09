@@ -95,7 +95,7 @@ DESCRIPTION
   Deploys changes to the PowerSync management service. Cloud only.
 ```
 
-_See code: [src/commands/deploy/index.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/deploy/index.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/deploy.ts)_
 
 ## `powersync destroy`
 
