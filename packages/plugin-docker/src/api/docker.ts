@@ -20,10 +20,8 @@ export function getDockerProjectName(projectDirectory: string): string | undefin
   if (!existsSync(linkPath)) return undefined;
   try {
     const obj = parseYamlDocumentPreserveTags(readFileSync(linkPath, 'utf8'));
-    const plugins = obj.get('plugins') as Record<string, unknown> | undefined;
-    const docker = plugins?.docker as Record<string, unknown> | undefined;
-    const name = docker?.project_name as string | undefined;
-    return typeof name === 'string' ? name : undefined;
+    const jsonContent = obj.contents?.toJSON();
+    return jsonContent?.plugins?.docker?.project_name;
   } catch {
     return undefined;
   }
@@ -58,12 +56,16 @@ export function listPowersyncProjectNames(): string[] {
 
 /**
  * Log active PowerSync project names and how to stop them. Use after a failed deploy or start.
+ * @param excludeProjectName - Current project name to omit from the list (the instance we just tried to use).
  */
-export function logPowersyncProjectsStopHelp(command: { log: (msg: string) => void }): void {
-  const projectNames = listPowersyncProjectNames();
+export function logPowersyncProjectsStopHelp(
+  command: { log: (msg: string) => void },
+  excludeProjectName?: string
+): void {
+  const projectNames = listPowersyncProjectNames().filter((name) => !excludeProjectName || name !== excludeProjectName);
   if (projectNames.length > 0) {
     command.log('');
-    command.log('PowerSync Docker project(s) that may be running:');
+    command.log('Other PowerSync Docker project(s) that may be running:');
     projectNames.forEach((name) => command.log(`  - ${name}`));
     command.log('');
     command.log('To stop a project: powersync docker stop --project-name=<name>');
@@ -72,11 +74,27 @@ export function logPowersyncProjectsStopHelp(command: { log: (msg: string) => vo
 }
 
 /**
- * Run `docker compose -p <projectName> down`. Does not require a compose file or project directory;
- * use this for stop so it can be run from any directory (e.g. after a deploy conflict).
+ * Run `docker compose -p <projectName> stop`. Stops containers but does not remove them.
+ * Does not require a compose file or project directory.
  */
-export function runDockerComposeDown(projectName: string, execOptions?: { stdio?: 'inherit' | 'pipe' }): void {
-  const cmd = `docker compose -p "${projectName}" down`;
+export function runDockerComposeStop(projectName: string, execOptions?: { stdio?: 'inherit' | 'pipe' }): void {
+  const cmd = `docker compose -p "${projectName}" stop`;
+  execSync(cmd, {
+    stdio: execOptions?.stdio ?? 'inherit',
+    cwd: process.cwd()
+  });
+}
+
+/**
+ * Run `docker compose -p <projectName> down` (optionally with `-v` to remove volumes).
+ * Stops and removes containers and networks. Does not require a compose file or project directory.
+ */
+export function runDockerComposeDown(
+  projectName: string,
+  execOptions?: { stdio?: 'inherit' | 'pipe'; removeVolumes?: boolean }
+): void {
+  const v = execOptions?.removeVolumes ? ' -v' : '';
+  const cmd = `docker compose -p "${projectName}" down${v}`;
   execSync(cmd, {
     stdio: execOptions?.stdio ?? 'inherit',
     cwd: process.cwd()

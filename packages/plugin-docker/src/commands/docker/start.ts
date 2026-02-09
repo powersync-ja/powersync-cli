@@ -1,10 +1,15 @@
 import { SelfHostedInstanceCommand, type SelfHostedInstanceCommandFlags } from '@powersync/cli-core';
-import { getDockerProjectName, logPowersyncProjectsStopHelp, runDockerCompose } from '../../docker.js';
+import {
+  getDockerProjectName,
+  logPowersyncProjectsStopHelp,
+  runDockerCompose,
+  runDockerComposeDown
+} from '../../docker.js';
 
 export default class DockerStart extends SelfHostedInstanceCommand {
   static summary = 'Start the self-hosted PowerSync stack via Docker Compose.';
   static description =
-    'Run `docker compose up -d --wait` for the project docker/ compose file; waits for services (including PowerSync) to be healthy.';
+    'Run `docker compose up -d --wait` for the project docker/ compose file; waits for services (including PowerSync) to be healthy. Use `powersync fetch status` to debug running instances.';
 
   static flags = {
     ...SelfHostedInstanceCommand.flags
@@ -17,17 +22,21 @@ export default class DockerStart extends SelfHostedInstanceCommand {
       linkingIsRequired: false
     });
 
+    const projectName = getDockerProjectName(projectDirectory);
     try {
-      runDockerCompose(
-        {
-          projectDirectory,
-          projectName: getDockerProjectName(projectDirectory)
-        },
-        ['up', '-d', '--wait']
-      );
+      runDockerCompose({ projectDirectory, projectName }, ['up', '-d', '--wait']);
     } catch (err) {
-      logPowersyncProjectsStopHelp(this);
+      if (projectName) {
+        this.log('Tearing down partial stack to free ports...');
+        try {
+          runDockerComposeDown(projectName, { stdio: 'pipe' });
+        } catch {
+          // Ignore; rethrow original error below
+        }
+      }
+      logPowersyncProjectsStopHelp(this, projectName);
       throw err;
     }
+    this.log('\n\nTip: use `powersync fetch status` to debug the running instance.');
   }
 }

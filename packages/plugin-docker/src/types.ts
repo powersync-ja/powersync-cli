@@ -1,3 +1,4 @@
+import type { Command } from '@oclif/core';
 import type { Document } from 'yaml';
 
 export enum DockerModuleType {
@@ -7,16 +8,17 @@ export enum DockerModuleType {
 }
 
 export type DockerModuleContext = {
+  /** Invoking command, for logging and output. */
+  command: Command;
   projectdirectory: string;
   modulesOutputDirectory: string;
+  /** Main docker-compose document (docker/). Modules may add to include and services.powersync.depends_on. */
+  mainComposeDocument: Document;
   serviceConfig: Document;
 };
 
 export type DockerModuleConfigResponse = {
   additionalEnviroment?: Record<string, string>;
-  dockerIncludePaths?: string[];
-  /** Service names from this module's compose (for main compose depends_on). */
-  dockerServiceNames?: string[];
 };
 
 export type DockerModule = {

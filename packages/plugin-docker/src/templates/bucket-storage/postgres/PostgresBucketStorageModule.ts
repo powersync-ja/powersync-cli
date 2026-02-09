@@ -2,7 +2,7 @@ import { MergedServiceConfig } from '@powersync/service-schema';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Scalar } from 'yaml';
+import { isMap, Scalar, YAMLSeq } from 'yaml';
 import { DockerModule, DockerModuleContext, DockerModuleType } from '../../../types.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -12,7 +12,7 @@ const PostgresBucketStorageModule: DockerModule = {
   name: 'postgres',
   type: DockerModuleType.STORAGE,
   apply: async (context: DockerModuleContext) => {
-    const { modulesOutputDirectory, serviceConfig } = context;
+    const { modulesOutputDirectory, serviceConfig, mainComposeDocument } = context;
     const moduleOutputDirectory = path.join(modulesOutputDirectory, 'storage-postgres');
 
     fs.mkdirSync(moduleOutputDirectory, { recursive: true });
@@ -22,13 +22,27 @@ const PostgresBucketStorageModule: DockerModule = {
 
     const initScriptsSrc = path.join(RESOURCES_DIR, 'init-scripts');
     const initScriptsDest = path.join(moduleOutputDirectory, 'init-scripts');
+    fs.mkdirSync(initScriptsDest, { recursive: true });
     if (fs.existsSync(initScriptsSrc)) {
-      fs.mkdirSync(initScriptsDest, { recursive: true });
       fs.cpSync(initScriptsSrc, initScriptsDest, { recursive: true });
     }
 
-    const uri = new Scalar('!env PS_STORAGE_SOURCE_URI');
+    (mainComposeDocument.get('include') as YAMLSeq).add(storageComposeFilePath);
+
+    const servicesNode = mainComposeDocument.get('services');
+    if (isMap(servicesNode)) {
+      const powersyncServiceNode = servicesNode.get('powersync');
+      if (isMap(powersyncServiceNode)) {
+        const dependsOnNode = powersyncServiceNode.get('depends_on');
+        if (isMap(dependsOnNode)) {
+          dependsOnNode.set('pg-storage', { condition: 'service_healthy' });
+        }
+      }
+    }
+
+    const uri = new Scalar('PS_STORAGE_SOURCE_URI');
     uri.type = 'PLAIN';
+    uri.tag = '!env';
 
     const storageConfig: MergedServiceConfig['storage'] = {
       type: 'postgresql',
@@ -47,11 +61,7 @@ const PostgresBucketStorageModule: DockerModule = {
         'postgresql://${PS_STORAGE_USER}:${PS_STORAGE_PASSWORD}@pg-storage:${PS_STORAGE_PORT}/${PS_STORAGE_DATABASE}'
     };
 
-    return {
-      additionalEnviroment,
-      dockerIncludePaths: [storageComposeFilePath],
-      dockerServiceNames: ['pg-storage']
-    };
+    return { additionalEnviroment };
   }
 };
 

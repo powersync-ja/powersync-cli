@@ -4,7 +4,7 @@ import { getDockerProjectName, logPowersyncProjectsStopHelp, runDockerCompose } 
 export default class DockerDeploy extends SelfHostedInstanceCommand {
   static summary = 'Deploy/update self-hosted PowerSync via Docker Compose (up --force-recreate).';
   static description =
-    'Start or recreate containers; waits for services (including PowerSync) to be healthy. Use after `powersync docker init`. Images are pulled if missing.';
+    'Start or recreate containers; waits for services (including PowerSync) to be healthy. Use after `powersync docker init`. Images are pulled if missing. Use `powersync fetch status` to debug running instances.';
 
   static flags = {
     ...SelfHostedInstanceCommand.flags
@@ -22,12 +22,13 @@ export default class DockerDeploy extends SelfHostedInstanceCommand {
       projectName: getDockerProjectName(projectDirectory)
     };
 
-    this.log('Starting containers (recreate if needed)...');
+    this.log('Starting containers...');
     try {
       runDockerCompose(opts, ['up', '-d', '--force-recreate', '--wait']);
     } catch (err) {
-      logPowersyncProjectsStopHelp(this);
+      logPowersyncProjectsStopHelp(this, opts.projectName);
       throw err;
     }
+    this.log('\n\nTip: use `powersync fetch status` to debug the running instance.');
   }
 }

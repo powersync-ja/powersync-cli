@@ -2,7 +2,7 @@ import { MergedServiceConfig } from '@powersync/service-schema';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Scalar } from 'yaml';
+import { isMap, Scalar, YAMLSeq } from 'yaml';
 import { DockerModule, DockerModuleContext, DockerModuleType } from '../../../types.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -12,7 +12,14 @@ const PostgresSourceDatabaseModule: DockerModule = {
   name: 'postgres',
   type: DockerModuleType.SOURCE_DATABASE,
   apply: async (context: DockerModuleContext) => {
-    const { modulesOutputDirectory, serviceConfig } = context;
+    const { modulesOutputDirectory, serviceConfig, mainComposeDocument } = context;
+
+    context.command.log(
+      'Note: the postgres database template is incomplete. Update docker/modules/database-postgres/init-scripts/ with your schema (tables and publication) before deploying.'
+    );
+    context.command.log(
+      'Init scripts run only when the DB volume is empty. If you see "Publication powersync does not exist", run: powersync docker stop --remove --remove-volumes then deploy again.'
+    );
 
     const moduleOutputDirectory = path.join(modulesOutputDirectory, 'database-postgres');
     fs.mkdirSync(moduleOutputDirectory, { recursive: true });
@@ -22,13 +29,27 @@ const PostgresSourceDatabaseModule: DockerModule = {
 
     const initScriptsSrc = path.join(RESOURCES_DIR, 'init-scripts');
     const initScriptsDest = path.join(moduleOutputDirectory, 'init-scripts');
+    fs.mkdirSync(initScriptsDest, { recursive: true });
     if (fs.existsSync(initScriptsSrc)) {
-      fs.mkdirSync(initScriptsDest, { recursive: true });
       fs.cpSync(initScriptsSrc, initScriptsDest, { recursive: true });
     }
 
-    const uri = new Scalar('!env PS_DATA_SOURCE_URI');
+    (mainComposeDocument.get('include') as YAMLSeq).add(databaseComposeFilePath);
+
+    const servicesNode = mainComposeDocument.get('services');
+    if (isMap(servicesNode)) {
+      const powersyncServiceNode = servicesNode.get('powersync');
+      if (isMap(powersyncServiceNode)) {
+        const dependsOnNode = powersyncServiceNode.get('depends_on');
+        if (isMap(dependsOnNode)) {
+          dependsOnNode.set('pg-db', { condition: 'service_healthy' });
+        }
+      }
+    }
+
+    const uri = new Scalar('PS_DATA_SOURCE_URI');
     uri.type = 'PLAIN';
+    uri.tag = '!env';
 
     const replicationConfig: MergedServiceConfig['replication'] = {
       connections: [
@@ -51,11 +72,7 @@ const PostgresSourceDatabaseModule: DockerModule = {
         'postgresql://${PS_DATABASE_USER}:${PS_DATABASE_PASSWORD}@pg-db:${PS_DATABASE_PORT}/${PS_DATABASE_NAME}'
     };
 
-    return {
-      additionalEnviroment,
-      dockerIncludePaths: [databaseComposeFilePath],
-      dockerServiceNames: ['pg-db']
-    };
+    return { additionalEnviroment };
   }
 };
 

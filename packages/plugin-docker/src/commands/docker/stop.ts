@@ -1,17 +1,27 @@
 import { Flags } from '@oclif/core';
 import { SelfHostedInstanceCommand, type SelfHostedInstanceCommandFlags } from '@powersync/cli-core';
-import { getDockerProjectName, runDockerComposeDown } from '../../docker.js';
+import { getDockerProjectName, runDockerComposeDown, runDockerComposeStop } from '../../docker.js';
 
 export default class DockerStop extends SelfHostedInstanceCommand {
   static summary = 'Stop a PowerSync Docker Compose project by name.';
   static description =
-    'Run `docker compose -p <project-name> down`. Does not require the project directory or a compose file, so you can run it from anywhere (e.g. after a deploy conflict). Use --project-name or run from a project with link.yaml to choose which project to stop.';
+    'Run `docker compose -p <project-name> stop` (containers are not removed by default). Does not require the project directory or a compose file, so you can run it from anywhere (e.g. after a deploy conflict). Use --project-name or run from a project with link.yaml to choose which project to stop. Use --remove to also remove the containers. Use --remove-volumes to also remove volumes (e.g. to re-run DB init scripts on next deploy).';
 
   static flags = {
     ...SelfHostedInstanceCommand.flags,
     'project-name': Flags.string({
       description:
         'Docker Compose project name to stop (e.g. powersync_myapp). If omitted and run from a project directory, uses plugins.docker.project_name from link.yaml. Pass this to stop from any directory without loading the project.'
+    }),
+    remove: Flags.boolean({
+      description:
+        'Remove containers after stopping (docker compose down). By default only stop (docker compose stop).',
+      default: false
+    }),
+    'remove-volumes': Flags.boolean({
+      description:
+        'Remove named volumes (docker compose down -v). Use to reset database/storage so init scripts run again on next deploy. Implies --remove.',
+      default: false
     })
   };
 
@@ -36,6 +46,10 @@ export default class DockerStop extends SelfHostedInstanceCommand {
       );
     }
 
-    runDockerComposeDown(projectName);
+    if (flags['remove-volumes'] || flags.remove) {
+      runDockerComposeDown(projectName, { removeVolumes: flags['remove-volumes'] });
+    } else {
+      runDockerComposeStop(projectName);
+    }
   }
 }

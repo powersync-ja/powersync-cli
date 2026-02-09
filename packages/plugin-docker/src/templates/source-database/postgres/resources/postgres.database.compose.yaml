@@ -1,5 +1,5 @@
 # Database module: PostgreSQL for replication source (logical replication).
-# Paths are relative to this file's directory when included from the main compose.
+# Paths are relative to this file's directory when using include (Compose resolves from the included file).
 # Include from main: path: modules/database-postgres/postgres.database.compose.yaml
 
 services:

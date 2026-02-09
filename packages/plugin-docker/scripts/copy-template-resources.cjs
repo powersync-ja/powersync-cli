@@ -14,6 +14,12 @@ if (!fs.existsSync(distTemplates)) {
   process.exit(0);
 }
 
+// Copy root-level template files (e.g. main-compose.yaml)
+const mainComposeSrc = path.join(srcTemplates, 'main-compose.yaml');
+if (fs.existsSync(mainComposeSrc)) {
+  fs.copyFileSync(mainComposeSrc, path.join(distTemplates, 'main-compose.yaml'));
+}
+
 function* walkDirs(dir) {
   if (!fs.existsSync(dir)) return;
   for (const name of fs.readdirSync(dir)) {
