@@ -12,13 +12,16 @@
     "oclif.manifest.json"
   ],
   "scripts": {
-    "build": "tsc -b",
+    "build": "tsc -b && node scripts/copy-template-resources.cjs",
     "lint": "eslint .",
     "prepack": "oclif manifest"
   },
   "dependencies": {
     "@oclif/core": "^4",
-    "@powersync/cli-core": "workspace:*"
+    "@powersync/cli-core": "workspace:*",
+    "@powersync/cli-schemas": "workspace:*",
+    "@powersync/service-schema": "file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-service/packages/schema/powersync-service-schema-1.19.0.tgz",
+    "yaml": "^2"
   },
   "devDependencies": {
     "@types/node": "^24",

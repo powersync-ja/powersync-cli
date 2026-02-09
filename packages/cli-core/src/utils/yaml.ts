@@ -48,14 +48,6 @@ export function parseYamlFile(filePath: string): yaml.Document {
 }
 
 /**
- * Parse a YAML string with !env tag support. Use for any YAML that may contain !env (e.g. service.yaml snippets).
- */
-export function parseYamlString(content: string): unknown {
-  const doc = yaml.parseDocument(content, yamlParseOptions);
-  return doc.toJSON();
-}
-
-/**
  * Parse a YAML string without resolving !env, so the output can preserve the tag for runtime substitution
  * (e.g. when merging service snippets so the PowerSync container resolves !env from its env_file).
  */

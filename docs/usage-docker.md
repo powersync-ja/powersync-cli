@@ -10,7 +10,7 @@ The **docker** plugin adds a `powersync docker` topic for running a self-hosted 
 
 ## Local configuration created by the plugin
 
-Docker commands work against a **compose directory** inside your PowerSync config directory. By default that directory is **powersync/docker/** (override with **`--compose-dir`** on deploy/start/stop). Init creates:
+Docker commands use the **compose directory** **powersync/docker/** inside your PowerSync config directory. Configure creates:
 
 - **powersync/docker/** – Compose project root.
   - **docker-compose.yaml** – Includes database and storage compose partials and the PowerSync service (uses **env_file: .env**; mounts **service.yaml** and **sync.yaml**).
@@ -22,7 +22,7 @@ Init also:
 - Merges **service snippets** into **powersync/service.yaml** (replication and storage sections), **preserving the `!env` tag** so the PowerSync container resolves values from **docker/.env** at runtime.
 - Creates or updates **powersync/link.yaml** with **`plugins.docker.project_name`** so deploy/start/stop use the same Compose project name.
 
-You can use a different config directory with **`--directory`** (e.g. **`--directory my-powersync`**); the compose dir is then **my-powersync/docker/** by default.
+You can use a different config directory with **`--directory`** (e.g. **`--directory my-powersync`**); the compose dir is then **my-powersync/docker/**.
 
 ---
 
@@ -59,7 +59,7 @@ This runs **`docker compose up -d --force-recreate`** in **powersync/docker/** (
 - **Start** (after stop or reboot): **`powersync docker start`** → `docker compose up -d`
 - **Stop**: **`powersync docker stop`** → `docker compose down`
 
-All of these use the same compose dir (**powersync/docker/** by default) and project name from **link.yaml**.
+All of these use **powersync/docker/** and the project name from **link.yaml**.
 
 ---
 
@@ -81,8 +81,7 @@ Run **`powersync docker`** (no subcommand) to see help.
 - **`--directory`** – PowerSync config directory (default: **powersync**). Used by all docker commands.
 - **`--database`** – Database module for **init** (e.g. **postgres**). Required for init.
 - **`--storage`** – Storage module for **init** (e.g. **postgres**). Required for init.
-- **`--project-name`** – Docker Compose project name for **init** (default: derived from config directory name, sanitized).
-- **`--compose-dir`** – Compose directory relative to config (default: **docker**). Used by deploy, start, stop. Compose file is **docker-compose.yaml** inside this dir.
+- **`--project-name`** – Docker Compose project name for **init** (default: derived from config directory name, sanitized). Use **`--project-name`** on **stop** to stop a specific project by name (e.g. after a failed deploy).
 - **`--api-url`** – PowerSync API URL (optional; for consistency with other self-hosted commands; not required for docker init/deploy/start/stop).
 
 ---
@@ -104,21 +103,11 @@ Init copies the selected modules into **powersync/docker/modules/**, generates *
 
 ---
 
-## Using a different config or compose directory
-
-**Different config directory:**
+## Using a different config directory
 
 ```bash
-powersync docker init --directory=my-powersync --database postgres --storage postgres
+powersync docker configure --directory=my-powersync --database postgres --storage postgres
 powersync docker deploy --directory=my-powersync
-```
-
-**Different compose directory** (e.g. **docker-dev/**):
-
-```bash
-powersync docker deploy --compose-dir=docker-dev
-powersync docker start --compose-dir=docker-dev
-powersync docker stop --compose-dir=docker-dev
 ```
 
 ---

@@ -7,22 +7,18 @@ services:
     image: postgres:18
     restart: always
     environment:
-      - POSTGRES_USER=${PG_DATABASE_USER}
-      - POSTGRES_DB=${PG_DATABASE_NAME}
-      - POSTGRES_PASSWORD=${PG_DATABASE_PASSWORD}
-      - PGPORT=${PG_DATABASE_PORT}
+      - POSTGRES_USER=${PS_DATABASE_USER}
+      - POSTGRES_DB=${PS_DATABASE_NAME}
+      - POSTGRES_PASSWORD=${PS_DATABASE_PASSWORD}
+      - PGPORT=${PS_DATABASE_PORT}
     volumes:
       - pg_data:/var/lib/postgresql
       - ./init-scripts:/docker-entrypoint-initdb.d
     ports:
-      - "${PG_DATABASE_PORT}:${PG_DATABASE_PORT}"
-    command: ["postgres", "-c", "wal_level=logical"]
+      - '${PS_DATABASE_PORT}:${PS_DATABASE_PORT}'
+    command: ['postgres', '-c', 'wal_level=logical']
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U ${PG_DATABASE_USER} -d ${PG_DATABASE_NAME}",
-        ]
+      test: ['CMD-SHELL', 'pg_isready -U ${PS_DATABASE_USER} -d ${PS_DATABASE_NAME}']
       interval: 5s
       timeout: 5s
       retries: 5

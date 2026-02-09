@@ -9,5 +9,6 @@
     "moduleResolution": "node16",
     "skipLibCheck": true
   },
-  "include": ["./src/**/*"]
+  "include": ["./src/**/*"],
+  "references": [{ "path": "../cli-core" }]
 }

@@ -1,0 +1,108 @@
+import { LINK_FILENAME, parseYamlDocumentPreserveTags } from '@powersync/cli-core';
+import { execSync } from 'node:child_process';
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+
+const COMPOSE_FILENAME = 'docker-compose.yaml';
+const POWERSYNC_PROJECT_PREFIX = 'powersync_';
+
+export type DockerComposeOptions = {
+  projectDirectory: string;
+  /** Docker Compose project name (e.g. from link.yaml plugins.docker.project_name). When set, passed as -p. */
+  projectName?: string;
+};
+
+/**
+ * Read Docker Compose project name from link.yaml (plugins.docker.project_name). Returns undefined if missing.
+ */
+export function getDockerProjectName(projectDirectory: string): string | undefined {
+  const linkPath = join(projectDirectory, LINK_FILENAME);
+  if (!existsSync(linkPath)) return undefined;
+  try {
+    const obj = parseYamlDocumentPreserveTags(readFileSync(linkPath, 'utf8'));
+    const plugins = obj.get('plugins') as Record<string, unknown> | undefined;
+    const docker = plugins?.docker as Record<string, unknown> | undefined;
+    const name = docker?.project_name as string | undefined;
+    return typeof name === 'string' ? name : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Resolve the compose file path: {projectDirectory}/docker/docker-compose.yaml.
+ */
+export function resolveComposePath(options: DockerComposeOptions): string {
+  return join(options.projectDirectory, 'docker', COMPOSE_FILENAME);
+}
+
+/**
+ * List Docker Compose project names that start with powersync_.
+ * Runs `docker compose ls -a -q` and filters. Returns [] if the command fails or no matches.
+ */
+export function listPowersyncProjectNames(): string[] {
+  try {
+    const out = execSync('docker compose ls -a -q', {
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe']
+    });
+    const names = out
+      .split(/\r?\n/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    return names.filter((n) => n.startsWith(POWERSYNC_PROJECT_PREFIX));
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Log active PowerSync project names and how to stop them. Use after a failed deploy or start.
+ */
+export function logPowersyncProjectsStopHelp(command: { log: (msg: string) => void }): void {
+  const projectNames = listPowersyncProjectNames();
+  if (projectNames.length > 0) {
+    command.log('');
+    command.log('PowerSync Docker project(s) that may be running:');
+    projectNames.forEach((name) => command.log(`  - ${name}`));
+    command.log('');
+    command.log('To stop a project: powersync docker stop --project-name=<name>');
+    command.log('Example: powersync docker stop --project-name=' + projectNames[0]!);
+  }
+}
+
+/**
+ * Run `docker compose -p <projectName> down`. Does not require a compose file or project directory;
+ * use this for stop so it can be run from any directory (e.g. after a deploy conflict).
+ */
+export function runDockerComposeDown(projectName: string, execOptions?: { stdio?: 'inherit' | 'pipe' }): void {
+  const cmd = `docker compose -p "${projectName}" down`;
+  execSync(cmd, {
+    stdio: execOptions?.stdio ?? 'inherit',
+    cwd: process.cwd()
+  });
+}
+
+/**
+ * Run docker compose with the given args. Uses execSync; throws if the process exits non-zero.
+ * Runs with cwd = compose file directory so relative paths in the compose file (e.g. ..:/config) resolve correctly.
+ */
+export function runDockerCompose(
+  options: DockerComposeOptions,
+  args: string[],
+  execOptions?: { stdio?: 'inherit' | 'pipe' }
+): void {
+  const composePath = resolveComposePath(options);
+  if (!existsSync(composePath)) {
+    throw new Error(
+      `Compose file not found: ${composePath}. Run \`powersync docker configure\` to create the docker/ compose dir.`
+    );
+  }
+  const composeDir = dirname(composePath);
+  const projectFlag = options.projectName ? `-p "${options.projectName}" ` : '';
+  const cmd = `docker compose ${projectFlag}-f "${composePath}" ${args.join(' ')}`;
+  execSync(cmd, {
+    stdio: execOptions?.stdio ?? 'inherit',
+    cwd: composeDir
+  });
+}

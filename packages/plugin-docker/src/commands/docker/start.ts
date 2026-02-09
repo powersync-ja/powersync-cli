@@ -1,17 +1,13 @@
-import { Flags } from '@oclif/core';
 import { SelfHostedInstanceCommand, type SelfHostedInstanceCommandFlags } from '@powersync/cli-core';
-import { getDockerProjectName, runDockerCompose } from '../../docker.js';
+import { getDockerProjectName, logPowersyncProjectsStopHelp, runDockerCompose } from '../../docker.js';
 
 export default class DockerStart extends SelfHostedInstanceCommand {
   static summary = 'Start the self-hosted PowerSync stack via Docker Compose.';
-  static description = 'Run `docker compose up -d` for the project docker/ compose file.';
+  static description =
+    'Run `docker compose up -d --wait` for the project docker/ compose file; waits for services (including PowerSync) to be healthy.';
 
   static flags = {
-    ...SelfHostedInstanceCommand.flags,
-    'compose-dir': Flags.string({
-      description: 'Compose directory relative to config (default: docker).',
-      default: 'docker'
-    })
+    ...SelfHostedInstanceCommand.flags
   };
 
   async run(): Promise<void> {
@@ -21,13 +17,17 @@ export default class DockerStart extends SelfHostedInstanceCommand {
       linkingIsRequired: false
     });
 
-    runDockerCompose(
-      {
-        projectDirectory,
-        composeDir: flags['compose-dir'],
-        projectName: getDockerProjectName(projectDirectory)
-      },
-      ['up', '-d']
-    );
+    try {
+      runDockerCompose(
+        {
+          projectDirectory,
+          projectName: getDockerProjectName(projectDirectory)
+        },
+        ['up', '-d', '--wait']
+      );
+    } catch (err) {
+      logPowersyncProjectsStopHelp(this);
+      throw err;
+    }
   }
 }

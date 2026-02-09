@@ -11,4 +11,5 @@ export {
   type SelfHostedInstanceCommandFlags,
   type SelfHostedProject
 } from './command-types/SelfHostedInstanceCommand.js';
-export { parseYamlDocumentPreserveTags, parseYamlFile, parseYamlString, stringifyYaml } from './utils/yaml.js';
+export * from './utils/project-config.js';
+export { parseYamlDocumentPreserveTags, parseYamlFile, stringifyYaml } from './utils/yaml.js';

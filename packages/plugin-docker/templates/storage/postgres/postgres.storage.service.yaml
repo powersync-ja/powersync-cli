@@ -1,8 +1,0 @@
-# Snippet to merge into project service.yaml (storage connection for Docker stack).
-# Used by: powersync docker init --storage postgres
-# Env: PS_STORAGE_SOURCE_URI (e.g. postgres://user:pass@pg-storage:5432/powersync_storage)
-
-storage:
-  type: postgresql
-  uri: !env PS_STORAGE_SOURCE_URI
-  sslmode: disable

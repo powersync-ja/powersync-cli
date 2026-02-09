@@ -59,7 +59,6 @@ No need to edit **.env** for default setups; the PowerSync service reads **docke
 - **`--database`** – Database module for **docker init** (e.g. `postgres`). Required for init.
 - **`--storage`** – Storage module for **docker init** (e.g. `postgres`). Required for init.
 - **`--project-name`** – Docker Compose project name for init (default: derived from config directory name).
-- **`--compose-dir`** – Compose directory relative to config (default: `docker`). Used by deploy, start, stop.
 - **`--api-url`** – PowerSync API URL (optional; for consistency with other self-hosted commands).
 
 ## Building blocks
