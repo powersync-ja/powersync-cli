@@ -14,7 +14,7 @@ export abstract class InstanceCommand extends PowerSyncCommand {
     ...PowerSyncCommand.flags,
     directory: Flags.string({
       default: 'powersync',
-      description: 'Directory containing PowerSync config (default: powersync).',
+      description: 'Directory containing PowerSync config.',
       helpGroup: HelpGroup.PROJECT
     })
   };

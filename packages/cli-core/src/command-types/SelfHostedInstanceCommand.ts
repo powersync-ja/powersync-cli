@@ -26,7 +26,7 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
   static flags = {
     ...InstanceCommand.flags,
     'api-url': Flags.string({
-      description: 'PowerSync API URL. Resolved: flag → API_URL → link.yaml.',
+      description: 'PowerSync API URL. Resolved: flag → API_URL environment variable → link.yaml.',
       required: false,
       helpGroup: HelpGroup.SELF_HOSTED_PROJECT
     })

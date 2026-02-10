@@ -6,6 +6,6 @@ export default class FetchInstances extends Command {
   static summary = 'List Cloud instances in the current org/project.';
 
   async run(): Promise<void> {
-    this.log(ux.colorize('dim', 'fetch instances: not yet implemented'));
+    this.log(ux.colorize('gray', 'fetch instances: not yet implemented'));
   }
 }

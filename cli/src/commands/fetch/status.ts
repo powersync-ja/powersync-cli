@@ -1,4 +1,4 @@
-import { Flags } from '@oclif/core';
+import { Flags, ux } from '@oclif/core';
 import { routes } from '@powersync/management-types';
 import { Document } from 'yaml';
 
@@ -159,13 +159,13 @@ export default class FetchStatus extends SharedInstanceCommand {
       : this.getSelfHostedStatus(project as SelfHostedProject));
 
     if (flags.output === 'json') {
-      this.log(JSON.stringify(diagnostics, null, 2));
+      this.log(ux.colorize('gray', JSON.stringify(diagnostics, null, 2)));
       return;
     } else if (flags.output === 'yaml') {
-      this.log(new Document(diagnostics).toString());
+      this.log(ux.colorize('gray', new Document(diagnostics).toString()));
       return;
     } else {
-      this.log(formatDiagnosticsHuman(diagnostics));
+      this.log(ux.colorize('gray', formatDiagnosticsHuman(diagnostics)));
     }
   }
 }

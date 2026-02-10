@@ -3,6 +3,7 @@ import { cpSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { SERVICE_FILENAME } from '@powersync/cli-core';
 import { InstanceCommand } from '../command-types/InstanceCommand.js';
 import { PowerSyncCommand } from '../command-types/PowerSyncCommand.js';
 
@@ -32,7 +33,14 @@ export default class Init extends PowerSyncCommand {
 
     if (existsSync(targetDir)) {
       this.error(
-        `Directory "${directory}" already exists. Delete the folder to start over, or link existing config to PowerSync Cloud with \`powersync link\`.`,
+        ux.colorize(
+          'red',
+          [
+            `Directory "${directory}" already exists.`,
+            'Delete the folder to start over,',
+            'or link existing config to PowerSync Cloud with `powersync link`.'
+          ].join('\n')
+        ),
         { exit: 1 }
       );
     }
@@ -41,7 +49,7 @@ export default class Init extends PowerSyncCommand {
     const templatePath = join(TEMPLATES_DIR, templateSubdir, 'powersync');
 
     if (!existsSync(templatePath)) {
-      this.error(`Template not found for type "${type}" at ${templatePath}`, {
+      this.error(ux.colorize('red', `Template not found for type "${type}" at ${templatePath}`), {
         exit: 1
       });
     }
@@ -55,6 +63,8 @@ export default class Init extends PowerSyncCommand {
 
     const selfHostedInstructions = [
       'Self Hosted projects currently require external configuration for starting and deploying.',
+      `Configure the ${SERVICE_FILENAME} file with your self-hosted instance details.`,
+      'See the Docker topic, with "powersync docker --help" for local development services.',
       'Please refer to the PowerSync Self-Hosted documentation for more information.'
     ].join('\n');
 
@@ -62,10 +72,11 @@ export default class Init extends PowerSyncCommand {
     this.log(
       [
         ux.colorize('green', `Created PowerSync ${type} project!`),
-        ux.colorize('dim', 'Configuration files are located in:'),
+        '',
+        ux.colorize('gray', 'Configuration files are located in:'),
         ux.colorize('cyan', targetDir),
         '',
-        ux.colorize('dim', instructions)
+        ux.colorize('yellow', instructions)
       ].join('\n')
     );
   }

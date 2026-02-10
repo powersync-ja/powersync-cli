@@ -47,8 +47,8 @@ pnpm build
 Run the CLI from the repo root:
 
 ```bash
-pnpm powersync -- --help
-pnpm exec powersync --help   # if @powersync/cli is a workspace dependency
+powersync -- --help
+powersync --help   # if @powersync/cli is a workspace dependency
 ```
 
 ### Self-hosted with Docker
@@ -56,8 +56,8 @@ pnpm exec powersync --help   # if @powersync/cli is a workspace dependency
 From the repo root, create the Docker layout and run the stack:
 
 ```bash
-pnpm powersync docker configure --database postgres --storage postgres
-pnpm powersync docker start
+powersync docker configure --database postgres --storage postgres
+powersync docker start
 ```
 
 See [plugins/docker](./plugins/docker/README.md) and [docs/usage-docker.md](./docs/usage-docker.md) for details.

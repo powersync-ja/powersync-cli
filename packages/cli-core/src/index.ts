@@ -5,7 +5,7 @@
 export { HelpGroup } from './command-types/HelpGroup.js';
 export { InstanceCommand } from './command-types/InstanceCommand.js';
 export type { EnsureConfigOptions } from './command-types/InstanceCommand.js';
-export { PowerSyncCommand } from './command-types/PowerSyncCommand.js';
+export { PowerSyncCommand, type StyledErrorParams } from './command-types/PowerSyncCommand.js';
 export {
   SelfHostedInstanceCommand,
   type SelfHostedInstanceCommandFlags,

@@ -1,3 +1,4 @@
+import { ux } from '@oclif/core';
 import { SelfHostedInstanceCommand, type SelfHostedInstanceCommandFlags } from '@powersync/cli-core';
 import {
   getDockerProjectName,
@@ -41,6 +42,6 @@ export default class DockerReset extends SelfHostedInstanceCommand {
       logPowersyncProjectsStopHelp(this, opts.projectName);
       throw err;
     }
-    this.log('\n\nTip: use `powersync fetch status` to debug the running instance.');
+    this.log(`\n\nTip: use "${ux.colorize('blue', 'powersync fetch status')}" to debug the running instance.`);
   }
 }

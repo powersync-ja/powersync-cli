@@ -22,83 +22,14 @@ telemetry:
 # -----------------------------------------------------------------------------
 replication:
   connections:
-#     -------------------------------------------------------------------------
-#     PostgreSQL – uncomment this entire block to use
-#     -------------------------------------------------------------------------
-#     - type: postgresql
-#       uri: !env PS_DATA_SOURCE_URI
-#       Unique identifier for the connection. Optional when only a single connection is present.
-#       id: string
-#       Additional meta tag for the connection, used for categorization or grouping.
-#       tag: string
-#       hostname: string
-#       port: number | string
-#       username: string
-#       password: !env PS_DATABASE_PASSWORD
-#       database: string
-#       Options: verify-full | verify-ca | disable
-#       sslmode: disable
-#       cacert: string
-#       client_certificate: string
-#       client_private_key: string
-#       tls_servername: string
-#       reject_ip_ranges: [ string ]
-#       slot_name_prefix: string
-#       max_pool_size: number
-#       When enabled, allows query execution.
-#       debug_api: boolean
-
-#     -------------------------------------------------------------------------
-#     MongoDB – uncomment this entire block to use (comment out PostgreSQL above)
-#     -------------------------------------------------------------------------
-#     - type: mongodb
-#       uri: !env PS_MONGODB_URI
-#       database: string
-#       username: string
-#       password: !env PS_MONGODB_PASSWORD
-#       id: string
-#       tag: string
-#       reject_ip_ranges: []
-#       Options: off | auto_configure | read_only
-#       post_images: off
-#       debug_api: false
-
-#     -------------------------------------------------------------------------
-#     MySQL – uncomment this entire block to use (comment out PostgreSQL above)
-#     -------------------------------------------------------------------------
-#     - type: mysql
-#       uri: !env PS_MYSQL_URI
-#       hostname: db.example.com
-#       port: 3306
-#       database: mydb
-#       username: sync
-#       password: !env PS_MYSQL_PASSWORD
-#       id: string
-#       tag: string
-#       server_id: number
-#       cacert: string
-#       client_certificate: string
-#       client_private_key: string
-#       reject_ip_ranges: []
-#       binlog_queue_memory_limit: number
-#       debug_api: false
-
-# -----------------------------------------------------------------------------
-# STORAGE – configuration for the storage backend (sync bucket storage)
-# -----------------------------------------------------------------------------
-# storage:
-#   type: mongodb
-#   uri: !env PS_MONGO_URI
-#   database: string
-#   username: string
-#   password: !env PS_MONGO_PASSWORD
-#   reject_ip_ranges: []
-
-# -----------------------------------------------------------------------------
-# PostgreSQL storage – uncomment this block and comment out the MongoDB storage block above to use PostgreSQL
-# -----------------------------------------------------------------------------
+    - type: postgresql
+      uri: !env PS_DATA_SOURCE_URI
+      sslmode: disable
 storage:
-#   type: postgresql
+  type: postgresql
+  uri: !env PS_STORAGE_SOURCE_URI
+  sslmode: disable
+
 #   uri: !env PS_STORAGE_URI
 #   id: string
 #   tag: string
@@ -187,9 +118,9 @@ sync_rules:
 # API – API service configuration and parameters
 # -----------------------------------------------------------------------------
 api:
-  #   API access tokens for administrative operations.
   tokens:
-    - use_a_better_token_in_production
+    - dev-token-do-not-use-in-production
+
 #   Performance and safety parameters for the API service.
 #   parameters:
 #     Maximum number of connections (http streams or websockets) per API process. Default of 200.

@@ -1,3 +1,4 @@
+import { ux } from '@oclif/core';
 import { MergedServiceConfig } from '@powersync/service-schema';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -15,10 +16,14 @@ const PostgresSourceDatabaseModule: DockerModule = {
     const { modulesOutputDirectory, serviceConfig, mainComposeDocument } = context;
 
     context.command.log(
-      'Note: the postgres database template is incomplete. Update docker/modules/database-postgres/init-scripts/ with your schema (tables and publication) before deploying.'
-    );
-    context.command.log(
-      'Init scripts run only when the DB volume is empty. If you see "Publication powersync does not exist", run: powersync docker stop --remove --remove-volumes then reset again.'
+      ux.colorize(
+        'yellow',
+        [
+          'Note: the postgres database template is incomplete.',
+          'Update docker/modules/database-postgres/init-scripts/ with your schema (tables and publication) before deploying.',
+          'Init scripts run only when the DB volume is empty. If you see "Publication powersync does not exist", run: powersync docker stop --remove --remove-volumes then reset again.'
+        ].join('\n')
+      )
     );
 
     const moduleOutputDirectory = path.join(modulesOutputDirectory, 'database-postgres');

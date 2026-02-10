@@ -1,4 +1,4 @@
-import { Flags } from '@oclif/core';
+import { Flags, ux } from '@oclif/core';
 import { SelfHostedInstanceCommand, type SelfHostedInstanceCommandFlags } from '@powersync/cli-core';
 import { getDockerProjectName, runDockerComposeDown, runDockerComposeStop } from '../../docker.js';
 
@@ -39,10 +39,11 @@ export default class DockerStop extends SelfHostedInstanceCommand {
 
     if (projectName == null || projectName === '') {
       this.error(
-        'Project name required. Pass --project-name=<name> or run from a project directory that has link.yaml with plugins.docker.project_name.',
-        {
-          exit: 1
-        }
+        ux.colorize(
+          'red',
+          'Project name required. Pass --project-name=<name> or run from a project directory that has link.yaml with plugins.docker.project_name.'
+        ),
+        { exit: 1 }
       );
     }
 

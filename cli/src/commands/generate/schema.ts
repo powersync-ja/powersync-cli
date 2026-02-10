@@ -63,24 +63,28 @@ export default class GenerateSchema extends SharedInstanceCommand {
       });
     }
 
-    const databaseSchema = await (project.linked.type === 'cloud'
-      ? this.getCloudSchema(project as CloudProject)
-      : this.getSelfHostedSchema(project as SelfHostedProject));
+    try {
+      const databaseSchema = await (project.linked.type === 'cloud'
+        ? this.getCloudSchema(project as CloudProject)
+        : this.getSelfHostedSchema(project as SelfHostedProject));
 
-    const syncRulesContent = await (project.linked.type === 'cloud'
-      ? fetchCloudSyncRulesContent(project as CloudProject)
-      : fetchSelfHostedSyncRulesContent(project as SelfHostedProject));
+      const syncRulesContent = await (project.linked.type === 'cloud'
+        ? fetchCloudSyncRulesContent(project as CloudProject)
+        : fetchSelfHostedSyncRulesContent(project as SelfHostedProject));
 
-    const staticSchema = new StaticSchema(databaseSchema.connections);
-    const schema = schemaGenerator.generate(
-      SqlSyncRules.fromYaml(syncRulesContent, {
-        defaultSchema: databaseSchema.defaultSchema ?? 'public',
-        schema: staticSchema
-      }),
-      staticSchema
-    );
+      const staticSchema = new StaticSchema(databaseSchema.connections);
+      const schema = schemaGenerator.generate(
+        SqlSyncRules.fromYaml(syncRulesContent, {
+          defaultSchema: databaseSchema.defaultSchema ?? 'public',
+          schema: staticSchema
+        }),
+        staticSchema
+      );
 
-    writeFileSync(flags['output-path'], schema, 'utf8');
-    this.log(ux.colorize('green', `Generated schema written to ${flags['output-path']}`));
+      writeFileSync(flags['output-path'], schema, 'utf8');
+      this.log(ux.colorize('green', `Generated schema written to ${flags['output-path']}`));
+    } catch (error) {
+      this.styledError({ error, message: 'Failed to generate schema' });
+    }
   }
 }

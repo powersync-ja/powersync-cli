@@ -1,4 +1,4 @@
-import { Flags } from '@oclif/core';
+import { Flags, ux } from '@oclif/core';
 import {
   LINK_FILENAME,
   parseYamlDocumentPreserveTags,
@@ -33,23 +33,25 @@ function composeProjectName(projectDirectory: string): string {
 }
 
 export default class DockerConfigure extends SelfHostedInstanceCommand {
-  static summary = 'Compose database and storage modules into powersync/docker/.';
-  static description =
-    'Copy selected database and storage template modules into powersync/docker/modules/, generate a composed docker-compose.yaml and .env, and merge service config snippets into the project service.yaml. Run from repo root with --directory powersync.';
+  static summary = 'Configures a self hosted project with Docker Compose services.';
+
+  static description = [
+    'Configures a self hosted project with Docker Compose services.',
+    'Docker configuration is located in ./powersync/docker/.',
+    'Configured projects can be started with "powersync docker start".'
+  ].join('\n');
 
   static flags = {
     ...SelfHostedInstanceCommand.flags,
     database: Flags.string({
       description: 'Database module for replication source.',
       required: true,
-      options: TEMPLATES[DockerModuleType.SOURCE_DATABASE].map((template) => template.name),
-      default: TEMPLATES[DockerModuleType.SOURCE_DATABASE][0].name
+      options: TEMPLATES[DockerModuleType.SOURCE_DATABASE].map((template) => template.name)
     }),
     storage: Flags.string({
       description: 'Storage module for PowerSync bucket metadata.',
       required: true,
-      options: TEMPLATES[DockerModuleType.STORAGE].map((template) => template.name),
-      default: TEMPLATES[DockerModuleType.STORAGE][0].name
+      options: TEMPLATES[DockerModuleType.STORAGE].map((template) => template.name)
     })
   };
 
@@ -66,8 +68,10 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
 
     if (existsSync(targetDockerDir)) {
       this.error(
-        `Directory ${targetDockerDir} already exists. Remove it to re-run init, or use a different --directory.`,
-        { exit: 1 }
+        ux.colorize('red', [`Directory ${targetDockerDir} already exists.`, 'Remove it to re-configure.'].join('\n')),
+        {
+          exit: 1
+        }
       );
     }
 
@@ -96,7 +100,7 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
         (template) => template.type === DockerModuleType.SOURCE_DATABASE && template.name === flags.database
       );
       if (!databaseTemplate) {
-        this.error(`Database template ${flags.database} not found.`, { exit: 1 });
+        this.error(ux.colorize('red', `Database template ${flags.database} not found.`), { exit: 1 });
       }
       const databaseModuleResponse = await databaseTemplate.apply(moduleContext);
 
@@ -135,12 +139,12 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
     const projectName = composeProjectName(projectDirectory);
     updateLinkPluginsDocker(projectDirectory, projectName);
 
-    this.log(`Configured ${targetDockerDir}`);
-    this.log('  - docker-compose.yaml (includes modules, adds PowerSync service)');
-    this.log('  - .env');
-    this.log(`  - Merged config into ${SERVICE_FILENAME}`);
-    this.log(`  - ${LINK_FILENAME} (plugins.docker.project_name: ${projectName})`);
-    this.log('Next: run `powersync docker start`.');
+    this.log(ux.colorize('green', `Configured ${targetDockerDir}`));
+    this.log(ux.colorize('gray', '  - docker-compose.yaml (includes modules, adds PowerSync service)'));
+    this.log(ux.colorize('gray', '  - .env'));
+    this.log(ux.colorize('gray', `  - Merged config into ${SERVICE_FILENAME}`));
+    this.log(ux.colorize('gray', `  - ${LINK_FILENAME} (plugins.docker.project_name: ${projectName})`));
+    this.log(`Next: run "${ux.colorize('blue', 'powersync docker start')}" to start the stack.`);
   }
 }
 
