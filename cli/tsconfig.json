@@ -14,7 +14,11 @@
   },
   "skipLibCheck": true,
   "include": ["./src/**/*"],
-  "references": [{ "path": "../packages/cli-core" }, { "path": "../packages/schemas" }],
+  "references": [
+    { "path": "../packages/cli-core" },
+    { "path": "../packages/schemas" },
+    { "path": "../plugins/docker" }
+  ],
   "ts-node": {
     "esm": true
   }

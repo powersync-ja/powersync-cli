@@ -1,8 +1,8 @@
+import { JourneyError } from '@journeyapps-labs/micro-errors';
 import { Command, ux } from '@oclif/core';
 import { join } from 'node:path';
-
 export type StyledErrorParams = {
-  error: any;
+  error?: any;
   message: string;
   suggestions?: string[];
   exitCode?: number;
@@ -18,12 +18,21 @@ export abstract class PowerSyncCommand extends Command {
   /**
    * Reports a styled error via this.error. Normalizes a catch-block error (any) to an Error
    * and includes the cause in the displayed message.
+   *
+   * Like {@link Command.error}, this ends execution: it throws and the process exits, so code
+   * after a call to styledError will not run.
    */
-  protected styledError(params: StyledErrorParams): void {
+  protected styledError(params: StyledErrorParams): never {
     const { error, exitCode = 1, message, suggestions } = params;
-    const err = error instanceof Error ? error : new Error(String(error));
-    this.error(ux.colorize('red', `${message}`), {
+    // Journey SDK errors contain additional fields that we want to pass to the error handler.
+    const journeyError = 'is_journey_error' in error ? (error as JourneyError) : undefined;
+    const journeyErrorMessage = journeyError ? JSON.stringify(journeyError.toJSON(), null, '\t') : undefined;
+    const err = error instanceof Error ? error : error ? new Error(String(error)) : { message: undefined };
+
+    this.error(ux.colorize('red', `${message} :: ${journeyErrorMessage ?? err.message ?? ''}`), {
       ...err,
+      code: journeyError?.errorData?.code ?? 'UNKNOWN_ERROR',
+      message: journeyErrorMessage ?? message,
       exit: exitCode,
       ...(suggestions?.length && { suggestions })
     });

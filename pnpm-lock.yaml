@@ -122,6 +122,9 @@ importers:
 
   packages/cli-core:
     dependencies:
+      '@journeyapps-labs/micro-errors':
+        specifier: ^1.0.1
+        version: 1.0.1
       '@oclif/core':
         specifier: ^4
         version: 4.8.0
@@ -135,37 +138,6 @@ importers:
       '@types/node':
         specifier: ^24
         version: 24.10.10
-      typescript:
-        specifier: ^5
-        version: 5.9.3
-
-  packages/plugin-docker:
-    dependencies:
-      '@oclif/core':
-        specifier: ^4
-        version: 4.8.0
-      '@powersync/cli-core':
-        specifier: workspace:*
-        version: link:../cli-core
-      '@powersync/cli-schemas':
-        specifier: workspace:*
-        version: link:../schemas
-      '@powersync/service-schema':
-        specifier: file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-service/packages/schema/powersync-service-schema-1.19.0.tgz
-        version: file:../service/powersync-service/packages/schema/powersync-service-schema-1.19.0.tgz
-      yaml:
-        specifier: ^2
-        version: 2.8.2
-    devDependencies:
-      '@types/node':
-        specifier: ^24
-        version: 24.10.10
-      eslint:
-        specifier: ^9
-        version: 9.39.2
-      oclif:
-        specifier: ^4
-        version: 4.22.73(@types/node@24.10.10)
       typescript:
         specifier: ^5
         version: 5.9.3

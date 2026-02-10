@@ -68,6 +68,6 @@ This plugin uses **@powersync/cli-core**, which provides:
 - **`SelfHostedInstanceCommand`** – Base class with `loadProject()` and `parseConfig()` for project dir, link config, and **service.yaml**.
 - Types: **`SelfHostedProject`**, **`SelfHostedInstanceCommandFlags`**, **`EnsureConfigOptions`**.
 - **`HelpGroup`**, **`InstanceCommand`**, **`PowerSyncCommand`**.
-- YAML helpers: **`parseYamlFile`**, **`parseYamlString`**, **`parseYamlDocumentPreserveTags`**, **`stringifyYaml`** (for `!env`-aware parsing).
+- YAML helpers: **`parseYamlFile`**, **`parseYamlDocumentPreserveTags`**, **`stringifyYaml`** (for `!env`-aware parsing).
 
 Import from **`@powersync/cli-core`** when authoring your own self-hosted plugins.

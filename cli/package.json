@@ -85,6 +85,7 @@
   "repository": "https://github.com/powersync-ja/powersync-js",
   "scripts": {
     "dev": "tsx bin/dev.js",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "build": "tsc -b",
     "lint": "eslint",
     "postpack": "shx rm -f oclif.manifest.json",

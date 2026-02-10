@@ -13,6 +13,7 @@
   ],
   "scripts": {
     "build": "tsc -b && node ./scripts/copy-template-resources.cjs",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "lint": "eslint .",
     "prepack": "oclif manifest"
   },
