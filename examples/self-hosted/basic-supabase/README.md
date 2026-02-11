@@ -15,7 +15,9 @@ supabase init
 supabase start
 ```
 
-Applying the Supabase DB credentials to `powersync/docker.env`
+Applying the Supabase DB credentials to `powersync/docker/.env`
+
+Note: the connection strings are from the perspective of the PowerSync service running in a Docker container.
 
 `powersync/docker/.env`
 

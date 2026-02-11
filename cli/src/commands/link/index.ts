@@ -6,6 +6,6 @@ export default class Link extends Command {
   static summary = 'Bind this directory to a Cloud or self-hosted instance (writes link.yaml).';
   async run(): Promise<void> {
     await this.parse(Link);
-    this.log(ux.colorize('yellow', 'Use a subcommand: link cloud | link self-hosted'));
+    this.log(ux.colorize('yellow', 'Use a subcommand: ') + ux.colorize('blue', 'link cloud | link self-hosted'));
   }
 }

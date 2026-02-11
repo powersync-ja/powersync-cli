@@ -1,4 +1,4 @@
-import { Flags } from '@oclif/core';
+import { Flags, ux } from '@oclif/core';
 import { existsSync } from 'node:fs';
 import { HelpGroup } from './HelpGroup.js';
 import { PowerSyncCommand } from './PowerSyncCommand.js';
@@ -24,7 +24,7 @@ export abstract class InstanceCommand extends PowerSyncCommand {
     const projectDir = this.resolveProjectDir(flags);
     if (!existsSync(projectDir)) {
       this.styledError({
-        message: `Directory "${directory}" not found. Run \`powersync init\` first to create the project.`
+        message: `Directory "${directory}" not found. Run ${ux.colorize('blue', 'powersync init')} first to create the project.`
       });
     }
     return projectDir;

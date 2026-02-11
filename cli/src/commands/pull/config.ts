@@ -97,7 +97,7 @@ export default class PullConfig extends CloudInstanceCommand {
         mkdirSync(projectDir, { recursive: true });
       } else {
         this.styledError({
-          message: `Directory "${directory}" not found. Run \`powersync init\` first, or pass --instance-id, --org-id, and --project-id to create and link.`
+          message: `Directory "${directory}" not found. Run ${ux.colorize('blue', 'powersync init')} first, or pass --instance-id, --org-id, and --project-id to create and link.`
         });
       }
     }
@@ -113,8 +113,7 @@ export default class PullConfig extends CloudInstanceCommand {
     if (!existsSync(linkPath)) {
       if (!instanceId || !orgId || !projectId) {
         this.styledError({
-          message:
-            'Linking is required. Either run `powersync link cloud --instance-id=<id> --org-id=<id> --project-id=<id>` first, or pass --instance-id, --org-id, and --project-id to this command.'
+          message: `Linking is required. Either run ${ux.colorize('blue', 'powersync link cloud --instance-id=<id> --org-id=<id> --project-id=<id>')} first, or pass --instance-id, --org-id, and --project-id to this command.`
         });
       }
       writeCloudLink(projectDir, { instanceId, orgId, projectId });

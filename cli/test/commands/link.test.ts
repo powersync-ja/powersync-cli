@@ -38,9 +38,8 @@ describe('link', () => {
 
     it('errors when directory does not exist', async () => {
       const result = await runCommand('link cloud --instance-id=inst --org-id=org --project-id=proj', { root });
-      expect(result.error?.message).toMatch(
-        new RegExp(`Directory "${PROJECT_DIR}" not found. Run \`powersync init\` first to create the project.`)
-      );
+      expect(result.error?.message).toContain(`Directory "${PROJECT_DIR}" not found`);
+      expect(result.error?.message).toContain('powersync init');
       expect(result.error?.oclif?.exit).toBe(1);
     });
 
@@ -128,9 +127,8 @@ type: cloud
     it('errors when directory does not exist', async () => {
       process.env.PS_TOKEN = 'secret';
       const result = await runCommand('link self-hosted --api-url=https://ps.example.com', { root });
-      expect(result.error?.message).toMatch(
-        new RegExp(`Directory "${PROJECT_DIR}" not found. Run \`powersync init\` first to create the project.`)
-      );
+      expect(result.error?.message).toContain(`Directory "${PROJECT_DIR}" not found`);
+      expect(result.error?.message).toContain('powersync init');
       expect(result.error?.oclif?.exit).toBe(1);
     });
 

@@ -1,3 +1,4 @@
+import { ux } from '@oclif/core';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { PowerSyncCommand } from '../command-types/PowerSyncCommand.js';
@@ -42,7 +43,7 @@ export function ensureServiceTypeMatches(options: EnsureServiceTypeMatchesOption
 
   if (serviceJson?._type !== expectedType) {
     command.styledError({
-      message: `${SERVICE_FILENAME} in "${directoryLabel}" has \`_type: ${serviceJson?._type}\` but this command requires \`_type: ${expectedType}\`. Use \`powersync init --type=${expectedType}\` to create a project of the correct type, or change _type in ${SERVICE_FILENAME}.`
+      message: `${SERVICE_FILENAME} in "${directoryLabel}" has \`_type: ${serviceJson?._type}\` but this command requires \`_type: ${expectedType}\`. Use ${ux.colorize('blue', `powersync init --type=${expectedType}`)} to create a project of the correct type, or change _type in ${SERVICE_FILENAME}.`
     });
   }
 }

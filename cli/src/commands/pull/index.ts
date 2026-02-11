@@ -7,6 +7,6 @@ export default class Pull extends Command {
 
   async run(): Promise<void> {
     await this.parse(Pull);
-    this.log(ux.colorize('yellow', 'Use a subcommand: pull config'));
+    this.log(ux.colorize('yellow', 'Use a subcommand: ') + ux.colorize('blue', 'pull config'));
   }
 }

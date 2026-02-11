@@ -13,6 +13,8 @@ export default class Fetch extends Command {
 
   async run(): Promise<void> {
     await this.parse(Fetch);
-    this.log(ux.colorize('yellow', 'Use a subcommand: fetch instances | fetch config | fetch status'));
+    this.log(
+      ux.colorize('yellow', 'Use a subcommand: ') + ux.colorize('blue', 'fetch instances | fetch config | fetch status')
+    );
   }
 }

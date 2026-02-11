@@ -45,11 +45,9 @@ describe('init', () => {
     const result = await runCommand(`init --directory=${EXISTING_DIR}`, {
       root
     });
-    expect(result.error?.message).toMatch(
-      new RegExp(
-        `Directory "${EXISTING_DIR}" already exists. Delete the folder to start over, or link existing config to PowerSync Cloud with \`powersync link\`.`
-      )
-    );
+    expect(result.error?.message).toContain('Directory "');
+    expect(result.error?.message).toContain('" already exists');
+    expect(result.error?.message).toContain('powersync link');
     expect(result.error?.oclif?.exit).toBe(1);
   });
 

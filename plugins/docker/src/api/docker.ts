@@ -1,3 +1,4 @@
+import { ux } from '@oclif/core';
 import { LINK_FILENAME, parseYamlDocumentPreserveTags } from '@powersync/cli-core';
 import { execSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
@@ -68,8 +69,8 @@ export function logPowersyncProjectsStopHelp(
     command.log('Other PowerSync Docker project(s) that may be running:');
     projectNames.forEach((name) => command.log(`  - ${name}`));
     command.log('');
-    command.log('To stop a project: powersync docker stop --project-name=<name>');
-    command.log('Example: powersync docker stop --project-name=' + projectNames[0]!);
+    command.log('To stop a project: ' + ux.colorize('blue', 'powersync docker stop --project-name=<name>'));
+    command.log('Example: ' + ux.colorize('blue', `powersync docker stop --project-name=${projectNames[0]!}`));
   }
 }
 
@@ -113,7 +114,7 @@ export function runDockerCompose(
   const composePath = resolveComposePath(options);
   if (!existsSync(composePath)) {
     throw new Error(
-      `Compose file not found: ${composePath}. Run \`powersync docker configure\` to create the docker/ compose dir.`
+      `Compose file not found: ${composePath}. Run ${ux.colorize('blue', 'powersync docker configure')} to create the docker/ compose dir.`
     );
   }
   const composeDir = dirname(composePath);

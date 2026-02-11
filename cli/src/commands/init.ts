@@ -33,7 +33,7 @@ export default class Init extends PowerSyncCommand {
 
     if (existsSync(targetDir)) {
       this.styledError({
-        message: `Directory "${directory}" already exists. Delete the folder to start over, or link existing config to PowerSync Cloud with \`powersync link\`.`
+        message: `Directory "${directory}" already exists. Delete the folder to start over, or link existing config to PowerSync Cloud with ${ux.colorize('blue', 'powersync link')}.`
       });
     }
 
@@ -49,14 +49,16 @@ export default class Init extends PowerSyncCommand {
     mkdirSync(targetDir, { recursive: true });
     cpSync(templatePath, targetDir, { recursive: true });
 
-    const cloudInstructions = ['To deploy to PowerSync Cloud, run:', 'powersync link cloud', 'powersync deploy'].join(
-      '\n'
-    );
+    const cloudInstructions = [
+      'To deploy to PowerSync Cloud, run:',
+      ux.colorize('blue', 'powersync link cloud'),
+      ux.colorize('blue', 'powersync deploy')
+    ].join('\n');
 
     const selfHostedInstructions = [
       'Self Hosted projects currently require external configuration for starting and deploying.',
       `Configure the ${SERVICE_FILENAME} file with your self-hosted instance details.`,
-      'See the Docker topic, with "powersync docker --help" for local development services.',
+      `See the Docker topic, with ${ux.colorize('blue', 'powersync docker --help')} for local development services.`,
       'Please refer to the PowerSync Self-Hosted documentation for more information.'
     ].join('\n');
 

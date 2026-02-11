@@ -19,9 +19,13 @@ const PostgresSourceDatabaseModule: DockerModule = {
       ux.colorize(
         'yellow',
         [
-          'Note: the postgres database template is incomplete.',
+          'Note: the Postgres database template is incomplete.',
           'Update docker/modules/database-postgres/init-scripts/ with your schema (tables and publication) before deploying.',
-          'Init scripts run only when the DB volume is empty. If you see "Publication powersync does not exist", run: powersync docker stop --remove --remove-volumes then reset again.'
+          'Init scripts run only when the DB volume is empty. If you see "Publication powersync does not exist", run: ' +
+            ux.colorize('blue', 'powersync docker stop --remove --remove-volumes') +
+            ' then ' +
+            ux.colorize('blue', 'powersync docker reset') +
+            ' again.'
         ].join('\n')
       )
     );

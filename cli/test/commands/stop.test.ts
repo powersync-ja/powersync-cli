@@ -52,9 +52,7 @@ describe('stop', () => {
 
   it('errors when directory does not exist', async () => {
     const result = await runCommand('stop --confirm=yes', { root });
-    expect(result.error?.message).toMatch(
-      new RegExp(`Directory "${PROJECT_DIR}" not found. Run \`powersync init\` first to create the project.`)
-    );
+    expect(result.error?.message).toMatch(/Directory "powersync" not found/);
     expect(result.error?.oclif?.exit).toBe(1);
   });
 

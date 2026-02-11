@@ -152,7 +152,7 @@ export default class Deploy extends CloudInstanceCommand {
 
     if (status === 'failed') {
       this.styledError({
-        message: `Deploy failed for instance ${linked.instance_id}. Check instance diagnostics for details, for example: powersync fetch status`
+        message: `Deploy failed for instance ${linked.instance_id}. Check instance diagnostics for details, for example: ${ux.colorize('blue', 'powersync fetch status')}`
       });
     }
   }

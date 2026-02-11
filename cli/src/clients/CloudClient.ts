@@ -1,4 +1,5 @@
 import * as sdk from '@journeyapps-labs/common-sdk';
+import { ux } from '@oclif/core';
 import { PowerSyncManagementClient } from '@powersync/management-client';
 import { getSecureStorage } from '../services/SecureStorage.js';
 import { env } from '../utils/env.js';
@@ -12,7 +13,7 @@ export async function createCloudClient(): Promise<PowerSyncManagementClient> {
   const token = env.PS_TOKEN || (await storage.getToken());
   if (!token) {
     throw new Error(
-      'Not logged in. Run `powersync login` to authenticate (you will be prompted for your token). Login is supported on macOS (other platforms coming soon).'
+      `Not logged in. Run ${ux.colorize('blue', 'powersync login')} to authenticate (you will be prompted for your token). Login is supported on macOS (other platforms coming soon).`
     );
   }
   return new PowerSyncManagementClient({
