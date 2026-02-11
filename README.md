@@ -25,10 +25,9 @@ The workspace is split into the main CLI, shared **packages**, and optional **pl
 │   └── schemas/            # @powersync/cli-schemas — config validation (LinkConfig, CLIConfig)
 ├── plugins/
 │   └── docker/             # @powersync/cli-plugin-docker — docker configure, reset, start, stop
-├── examples/               # Sample self-hosted projects (PowerSync + Docker/Supabase)
+├── examples/               # Sample projects initialized with the CLI (see examples/README.md)
+│   ├── cloud/
 │   └── self-hosted/
-│       ├── basic-supabase/ # PowerSync with external DB/storage (Supabase Postgres)
-│       └── docker/        # PowerSync with Postgres DB and storage in Docker
 └── docs/
     ├── usage.md            # General CLI usage (Cloud, self-hosted, linking, auth)
     └── usage-docker.md     # Docker plugin (configure, reset, start, stop, templates)
@@ -68,14 +67,7 @@ See [plugins/docker](./plugins/docker/README.md) and [docs/usage-docker.md](./do
 
 ## Examples
 
-The [**examples/**](./examples) folder contains sample self-hosted projects you can run locally:
-
-| Example            | Path                                                                         | Description                                                     |
-| ------------------ | ---------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| **Basic Supabase** | [examples/self-hosted/basic-supabase](./examples/self-hosted/basic-supabase) | PowerSync with external DB and storage (Supabase Postgres).     |
-| **Basic Docker**   | [examples/self-hosted/docker](./examples/self-hosted/docker)                 | PowerSync with Postgres database and storage running in Docker. |
-
-Each example has its own README with setup and run instructions.
+The [**examples/**](./examples) folder contains basic projects initialized with the CLI. See [examples/README.md](./examples/README.md) for the full list and links to each example's README.
 
 ## Documentation
 
