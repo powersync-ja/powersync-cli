@@ -67,20 +67,18 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
       });
     } catch (error) {
       if (options?.linkingIsRequired) {
-        this.error(`Linking is required. Set API_URL and PS_TOKEN, or link the project first (link.yaml). ${error}`, {
-          exit: 1
+        this.styledError({
+          message: 'Linking is required. Set API_URL and PS_TOKEN, or link the project first (link.yaml).',
+          error
         });
       }
     }
 
     if (!linked && options?.linkingIsRequired) {
-      this.error(
-        [
-          'Linking is required for this command.',
-          'Set API_URL and PS_TOKEN, or link the project first (link.yaml).'
-        ].join('\n'),
-        { exit: 1 }
-      );
+      this.styledError({
+        message:
+          'Linking is required for this command. Set API_URL and PS_TOKEN, or link the project first (link.yaml).'
+      });
     }
 
     return {

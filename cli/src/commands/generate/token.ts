@@ -46,28 +46,17 @@ export default class GenerateToken extends SharedInstanceCommand {
         id: linked.instance_id
       })
       .catch((error) => {
-        this.error(
-          `Failed to get config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}: ${error}`,
-          { exit: 1 }
-        );
+        this.styledError({
+          message: `Failed to get config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`,
+          error
+        });
       });
 
     if (!cloudInstanceConfig?.config?.client_auth?.allow_temporary_tokens) {
-      this.error(
-        ux.colorize(
-          'red',
-          [
-            'Development tokens are not enabled for this instance.',
-            'Set the following config in the instance config to enable development tokens:',
-            '  client_auth:',
-            '    allow_temporary_tokens: true',
-            'Then deploy an update to enable development tokens first.'
-          ].join('\n')
-        ),
-        {
-          exit: 1
-        }
-      );
+      this.styledError({
+        message:
+          'Development tokens are not enabled for this instance. Set the following config in the instance config to enable development tokens:\n  client_auth:\n    allow_temporary_tokens: true\nThen deploy an update to enable development tokens first.'
+      });
     }
 
     const response = await client.generateDevToken({
@@ -85,16 +74,13 @@ export default class GenerateToken extends SharedInstanceCommand {
     const instanceConfig = this.parseSelfHostedConfig(project.projectDirectory);
     const usableKeys = instanceConfig.client_auth?.jwks?.keys?.filter((key) => key.alg === 'HS256') ?? [];
     if (!usableKeys.length) {
-      this.error(
-        ux.colorize('red', 'No usable keys found in the config file. Please add a shared secret to the config file.'),
-        {
-          exit: 1
-        }
-      );
+      this.styledError({
+        message: 'No usable keys found in the config file. Please add a shared secret to the config file.'
+      });
     }
     const specificKey = usableKeys.find((key) => key.kid === config.kid);
     if (config.kid && !specificKey) {
-      this.error(ux.colorize('red', 'No key found with the given kid.'), { exit: 1 });
+      this.styledError({ message: 'No key found with the given kid.' });
     }
 
     const key = (config.kid ? specificKey : usableKeys[0])!;

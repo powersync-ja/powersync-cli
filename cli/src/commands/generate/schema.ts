@@ -58,8 +58,8 @@ export default class GenerateSchema extends SharedInstanceCommand {
 
     const schemaGenerator = schemaGenerators[flags.output as keyof typeof schemaGenerators];
     if (!schemaGenerator) {
-      this.error(`Invalid output type: ${flags.output}. Supported types: ${Object.keys(schemaGenerators).join(', ')}`, {
-        exit: 1
+      this.styledError({
+        message: `Invalid output type: ${flags.output}. Supported types: ${Object.keys(schemaGenerators).join(', ')}`
       });
     }
 
@@ -84,7 +84,7 @@ export default class GenerateSchema extends SharedInstanceCommand {
       writeFileSync(flags['output-path'], schema, 'utf8');
       this.log(ux.colorize('green', `Generated schema written to ${flags['output-path']}`));
     } catch (error) {
-      this.styledError({ error, message: 'Failed to generate schema' });
+      this.styledError({ message: 'Failed to generate schema', error });
     }
   }
 }

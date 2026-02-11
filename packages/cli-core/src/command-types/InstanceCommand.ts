@@ -23,8 +23,8 @@ export abstract class InstanceCommand extends PowerSyncCommand {
     const { directory } = flags;
     const projectDir = this.resolveProjectDir(flags);
     if (!existsSync(projectDir)) {
-      this.error(`Directory "${directory}" not found. Run \`powersync init\` first to create the project.`, {
-        exit: 1
+      this.styledError({
+        message: `Directory "${directory}" not found. Run \`powersync init\` first to create the project.`
       });
     }
     return projectDir;

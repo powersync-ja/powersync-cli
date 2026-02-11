@@ -85,7 +85,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     const hasSelfHostedInputs = flags['api-url'] || env.API_URL;
 
     if (hasCloudInstanceInputs && hasSelfHostedInputs) {
-      this.error(['Cannot use both cloud and self-hosted inputs. Use one or the other.'].join('\n'), { exit: 1 });
+      this.styledError({ message: 'Cannot use both cloud and self-hosted inputs. Use one or the other.' });
     }
 
     let projectType: 'cloud' | 'self-hosted' | null = hasSelfHostedInputs
@@ -113,7 +113,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
 
     // If we don't have a project type by now, we need to error
     if (!projectType && options?.linkingIsRequired) {
-      this.error(linkMissingErrorMessage, { exit: 1 });
+      this.styledError({ message: linkMissingErrorMessage });
     }
 
     // 2) Per-field: flags → env → link file (see class JSDoc).
@@ -128,7 +128,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
         });
       } catch (error) {
         if (options?.linkingIsRequired) {
-          this.error(`${linkMissingErrorMessage}\n${error}`, { exit: 1 });
+          this.styledError({ message: linkMissingErrorMessage, error });
         }
       }
     } else {
@@ -142,13 +142,13 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
         });
       } catch (error) {
         if (options?.linkingIsRequired) {
-          this.error(`${linkMissingErrorMessage}\n${error}`, { exit: 1 });
+          this.styledError({ message: linkMissingErrorMessage, error });
         }
       }
     }
 
     if (!linkConfig && options?.linkingIsRequired) {
-      this.error(linkMissingErrorMessage, { exit: 1 });
+      this.styledError({ message: linkMissingErrorMessage });
     }
 
     // ensure the link config is valid

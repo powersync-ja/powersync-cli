@@ -1,9 +1,10 @@
 import { password } from '@inquirer/prompts';
-import { Command, ux } from '@oclif/core';
+import { ux } from '@oclif/core';
 
+import { PowerSyncCommand } from '../command-types/PowerSyncCommand.js';
 import { getSecureStorage } from '../services/SecureStorage.js';
 
-export default class Login extends Command {
+export default class Login extends PowerSyncCommand {
   static description =
     'Store a PowerSync auth token (PAT) in secure storage so later Cloud commands run without passing a token. Use PS_TOKEN env var for CI or scripts instead.';
   static summary = 'Store auth token in secure storage for Cloud commands.';
@@ -14,7 +15,7 @@ export default class Login extends Command {
       mask: true
     });
     if (!token?.trim()) {
-      this.error('Token is required.', { exit: 1 });
+      this.styledError({ message: 'Token is required.' });
     }
     const storage = getSecureStorage();
     await storage.setToken(token.trim());

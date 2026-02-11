@@ -1,4 +1,4 @@
-import { Flags } from '@oclif/core';
+import { Flags, ux } from '@oclif/core';
 import { Document } from 'yaml';
 
 import { fetchCloudConfig } from '../../api/cloud/fetch-cloud-config.js';
@@ -29,17 +29,17 @@ export default class FetchConfig extends CloudInstanceCommand {
     const client = await this.getClient();
 
     const fetched = await fetchCloudConfig(client, linked).catch((error) => {
-      this.error(
-        `Failed to fetch config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}: ${error}`,
-        { exit: 1 }
-      );
+      this.styledError({
+        message: `Failed to fetch config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`,
+        error
+      });
     });
 
     if (flags.output === 'yaml') {
-      this.log(new Document(fetched).toString());
+      this.log(ux.colorize('gray', new Document(fetched).toString()));
       return;
     }
 
-    this.log(JSON.stringify(fetched, null, 2));
+    this.log(ux.colorize('gray', JSON.stringify(fetched, null, 2)));
   }
 }

@@ -1,4 +1,4 @@
-import { Flags } from '@oclif/core';
+import { Flags, ux } from '@oclif/core';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Document } from 'yaml';
@@ -199,11 +199,11 @@ export default class Validate extends SharedInstanceCommand {
     };
 
     if (flags.output === 'json') {
-      this.log(formatValidationJson(result));
+      this.log(ux.colorize('gray', formatValidationJson(result)));
     } else if (flags.output === 'yaml') {
-      this.log(formatValidationYaml(result));
+      this.log(ux.colorize('gray', formatValidationYaml(result)));
     } else {
-      this.log(formatValidationHuman(result));
+      this.log(ux.colorize('gray', formatValidationHuman(result)));
     }
 
     if (!result.passed) {

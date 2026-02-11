@@ -104,10 +104,11 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
       } catch (error) {
         // It's only an error if linking is required
         if (options?.linkingIsRequired) {
-          this.error(
-            `Linking is required before using this command. Explicitly provided flags were specified, but validation failed ${error}`,
-            { exit: 1 }
-          );
+          this.styledError({
+            message:
+              'Linking is required before using this command. Explicitly provided flags were specified, but validation failed.',
+            error
+          });
         }
       }
     } else if (env.INSTANCE_ID) {
@@ -120,7 +121,10 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
         });
       } catch (error) {
         if (options?.linkingIsRequired) {
-          this.error(`Failed to parse environment variables as CloudLinkConfig: ${error}`, { exit: 1 });
+          this.styledError({
+            message: 'Failed to parse environment variables as CloudLinkConfig',
+            error
+          });
         }
       }
     } else if (existsSync(linkPath)) {
@@ -130,19 +134,19 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
         linked = RequiredCloudLinkConfig.decode(doc.contents?.toJSON());
       } catch (error) {
         if (options?.linkingIsRequired) {
-          this.error(`Failed to parse ${LINK_FILENAME} as CloudLinkConfig: ${error}`, { exit: 1 });
+          this.styledError({
+            message: `Failed to parse ${LINK_FILENAME} as CloudLinkConfig`,
+            error
+          });
         }
       }
     }
 
     if (!linked && options?.linkingIsRequired) {
-      this.error(
-        [
-          'Linking is required before using this command.',
-          'No linking information was found in the current context.'
-        ].join('\n'),
-        { exit: 1 }
-      );
+      this.styledError({
+        message:
+          'Linking is required before using this command. No linking information was found in the current context.'
+      });
     }
 
     const syncRulesPath = join(projectDir, SYNC_FILENAME);

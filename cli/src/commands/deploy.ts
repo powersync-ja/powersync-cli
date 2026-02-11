@@ -62,23 +62,15 @@ export default class Deploy extends CloudInstanceCommand {
       })
       .catch((error) => {
         this.styledError({
-          error,
-          message: [
-            `Failed to get existing config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}: ${error}`,
-            'Ensure the instance has been created before deploying.'
-          ].join('\n')
+          message: `Failed to get existing config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}. Ensure the instance has been created before deploying.`,
+          error
         });
       });
 
     const existingRegion = existingConfig.config?.region;
     if (existingRegion && existingRegion !== config.region) {
       this.styledError({
-        message: [
-          `The existing config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id} has a different region than the config being deployed.`,
-          `Existing region: ${existingRegion}`,
-          `New region: ${config.region}`,
-          'The region cannot be changed after the initial deployment.'
-        ].join('\n'),
+        message: `The existing config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id} has a different region than the config being deployed. Existing region: ${existingRegion}. New region: ${config.region}. The region cannot be changed after the initial deployment.`,
         suggestions: ['Check your config and try again.']
       });
     }
@@ -86,7 +78,7 @@ export default class Deploy extends CloudInstanceCommand {
     // Validate region against list of regions obtained from client.listRegions()
     const regions = await client.listRegions().catch((error) => {
       this.styledError({
-        message: `Could not validate region against list of regions: Failed to list regions`,
+        message: 'Could not validate region against list of regions: Failed to list regions',
         error,
         suggestions: ['Check your network connection and try again.', 'If the problem persists, contact support.']
       });
@@ -95,7 +87,7 @@ export default class Deploy extends CloudInstanceCommand {
     const foundRegion = regions.regions.find((region) => region.name === config.region);
     if (!foundRegion) {
       this.styledError({
-        message: `The region ${config.region} is not supported. Please choose a region from the list of supported regions: ${regions.regions.map((region) => region.name).join(', ')}`
+        message: `The region ${config.region} is not supported. Please choose a region from the list of supported regions: ${regions.regions.map((region) => region.name).join(', ')}.`
       });
     }
 
@@ -109,8 +101,8 @@ export default class Deploy extends CloudInstanceCommand {
     const connectionResults = await testCloudConnections(client, linked, config.replication?.connections ?? []).catch(
       (error) => {
         this.styledError({
+          message: 'Failed to test connections',
           error,
-          message: `Failed to test connections`,
           suggestions: ['Check your network connection and try again.', 'If the problem persists, contact support.']
         });
       }
@@ -146,8 +138,8 @@ export default class Deploy extends CloudInstanceCommand {
       .catch((error) => {
         spinner.stop();
         this.styledError({
-          error,
-          message: `Failed to deploy changes to instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`
+          message: `Failed to deploy changes to instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`,
+          error
         });
       });
 
@@ -156,13 +148,11 @@ export default class Deploy extends CloudInstanceCommand {
     const status = await waitForStatusChange(client, linked, deployResult.id);
     spinner.stop();
 
+    this.log(ux.colorize('green', 'Deployment operation completed successfully!'));
+
     if (status === 'failed') {
       this.styledError({
-        message: [
-          `Deploy failed for instance ${linked.instance_id}.`,
-          'Check instance diagnostics for details, for example:',
-          '  powersync fetch status'
-        ].join('\n')
+        message: `Deploy failed for instance ${linked.instance_id}. Check instance diagnostics for details, for example: powersync fetch status`
       });
     }
   }

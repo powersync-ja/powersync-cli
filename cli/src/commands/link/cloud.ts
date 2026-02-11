@@ -43,8 +43,8 @@ export default class LinkCloud extends CloudInstanceCommand {
     const project = this.loadProject(flags, { configFileRequired: false, linkingIsRequired: false });
     if (create) {
       if (instanceId) {
-        this.error('Do not supply --instance-id when using --create. The instance will be created and linked.', {
-          exit: 1
+        this.styledError({
+          message: 'Do not supply --instance-id when using --create. The instance will be created and linked.'
         });
       }
       const config = this.parseConfig(project.projectDirectory);
@@ -59,7 +59,7 @@ export default class LinkCloud extends CloudInstanceCommand {
         });
         newInstanceId = result.instanceId;
       } catch (error) {
-        this.error(`Failed to create Cloud instance: ${error}`, { exit: 1 });
+        this.styledError({ message: 'Failed to create Cloud instance', error });
       }
       const projectDir = this.ensureProjectDirExists({ directory });
       ensureServiceTypeMatches({
@@ -77,10 +77,10 @@ export default class LinkCloud extends CloudInstanceCommand {
     }
 
     if (!instanceId) {
-      this.error(
-        'Linking requires an instance ID. Supply --instance-id (or use --create to create a new instance and link).',
-        { exit: 1 }
-      );
+      this.styledError({
+        message:
+          'Linking requires an instance ID. Supply --instance-id (or use --create to create a new instance and link).'
+      });
     }
 
     const projectDir = this.ensureProjectDirExists({ directory });

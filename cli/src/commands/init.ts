@@ -32,25 +32,17 @@ export default class Init extends PowerSyncCommand {
     const targetDir = this.resolveProjectDir(flags);
 
     if (existsSync(targetDir)) {
-      this.error(
-        ux.colorize(
-          'red',
-          [
-            `Directory "${directory}" already exists.`,
-            'Delete the folder to start over,',
-            'or link existing config to PowerSync Cloud with `powersync link`.'
-          ].join('\n')
-        ),
-        { exit: 1 }
-      );
+      this.styledError({
+        message: `Directory "${directory}" already exists. Delete the folder to start over, or link existing config to PowerSync Cloud with \`powersync link\`.`
+      });
     }
 
     const templateSubdir = type === 'cloud' ? 'cloud' : 'self-hosted/base';
     const templatePath = join(TEMPLATES_DIR, templateSubdir, 'powersync');
 
     if (!existsSync(templatePath)) {
-      this.error(ux.colorize('red', `Template not found for type "${type}" at ${templatePath}`), {
-        exit: 1
+      this.styledError({
+        message: `Template not found for type "${type}" at ${templatePath}`
       });
     }
 

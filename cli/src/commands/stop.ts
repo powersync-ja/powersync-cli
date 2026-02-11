@@ -19,7 +19,7 @@ export default class Stop extends CloudInstanceCommand {
     const { flags } = await this.parse(Stop);
 
     if (flags.confirm !== 'yes') {
-      this.error('Stopping requires confirmation. Run with --confirm=yes to confirm.', { exit: 1 });
+      this.styledError({ message: 'Stopping requires confirmation. Run with --confirm=yes to confirm.' });
     }
 
     const { linked } = this.loadProject(flags, {
@@ -43,10 +43,10 @@ export default class Stop extends CloudInstanceCommand {
         id: linked.instance_id
       });
     } catch (error) {
-      this.error(
-        `Failed to stop instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}: ${error}`,
-        { exit: 1 }
-      );
+      this.styledError({
+        message: `Failed to stop instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`,
+        error
+      });
     }
   }
 }

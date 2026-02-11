@@ -96,10 +96,9 @@ export default class PullConfig extends CloudInstanceCommand {
       if (instanceId && orgId && projectId) {
         mkdirSync(projectDir, { recursive: true });
       } else {
-        this.error(
-          `Directory "${directory}" not found. Run \`powersync init\` first, or pass --instance-id, --org-id, and --project-id to create and link.`,
-          { exit: 1 }
-        );
+        this.styledError({
+          message: `Directory "${directory}" not found. Run \`powersync init\` first, or pass --instance-id, --org-id, and --project-id to create and link.`
+        });
       }
     }
     ensureServiceTypeMatches({
@@ -113,13 +112,10 @@ export default class PullConfig extends CloudInstanceCommand {
     const linkPath = join(projectDir, LINK_FILENAME);
     if (!existsSync(linkPath)) {
       if (!instanceId || !orgId || !projectId) {
-        this.error(
-          [
-            'Linking is required. Either run `powersync link cloud --instance-id=<id> --org-id=<id> --project-id=<id>` first,',
-            'or pass --instance-id, --org-id, and --project-id to this command.'
-          ].join('\n'),
-          { exit: 1 }
-        );
+        this.styledError({
+          message:
+            'Linking is required. Either run `powersync link cloud --instance-id=<id> --org-id=<id> --project-id=<id>` first, or pass --instance-id, --org-id, and --project-id to this command.'
+        });
       }
       writeCloudLink(projectDir, { instanceId, orgId, projectId });
       this.log(ux.colorize('green', `Created ${directory}/${LINK_FILENAME} with Cloud instance link.`));
@@ -134,33 +130,33 @@ export default class PullConfig extends CloudInstanceCommand {
     this.log(
       ux.colorize(
         'cyan',
-        `Fetching config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`
+        `Fetching config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}...`
       )
     );
 
     const fetched = await fetchCloudConfig(client, linked).catch((error) => {
-      this.error(
-        `Failed to fetch config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}: ${error}`,
-        { exit: 1 }
-      );
+      this.styledError({
+        message: `Failed to fetch config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`,
+        error
+      });
     });
 
     const serviceExists = existsSync(join(projectDir, SERVICE_FILENAME));
     const syncExists = existsSync(join(projectDir, SYNC_FILENAME));
     if (serviceExists) {
       this.warn(
-        [
-          `${SERVICE_FILENAME} already exists. Writing to service-fetched.yaml instead.`,
-          `Manually merge the settings into ${SERVICE_FILENAME} as needed.`
-        ].join('\n')
+        ux.colorize(
+          'yellow',
+          `${SERVICE_FILENAME} already exists. Writing to service-fetched.yaml instead. Manually merge the settings into ${SERVICE_FILENAME} as needed.`
+        )
       );
     }
     if (syncExists && fetched.syncRules) {
       this.warn(
-        [
-          `${SYNC_FILENAME} already exists. Writing to sync-fetched.yaml instead.`,
-          `Manually merge the sync rules into ${SYNC_FILENAME} as needed.`
-        ].join('\n')
+        ux.colorize(
+          'yellow',
+          `${SYNC_FILENAME} already exists. Writing to sync-fetched.yaml instead. Manually merge the sync rules into ${SYNC_FILENAME} as needed.`
+        )
       );
     }
     const serviceYaml = formatServiceYamlWithComments(fetched.config);
