@@ -27,7 +27,8 @@ const PostgresBucketStorageModule: DockerModule = {
       fs.cpSync(initScriptsSrc, initScriptsDest, { recursive: true });
     }
 
-    (mainComposeDocument.get('include') as YAMLSeq).add(storageComposeFilePath);
+    const includePath = path.relative(context.composeOutputDirectory, storageComposeFilePath);
+    (mainComposeDocument.get('include') as YAMLSeq).add(includePath);
 
     const servicesNode = mainComposeDocument.get('services');
     if (isMap(servicesNode)) {

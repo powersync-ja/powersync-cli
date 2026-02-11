@@ -1,5 +1,5 @@
 import { ux } from '@oclif/core';
-import { SelfHostedInstanceCommand, type SelfHostedInstanceCommandFlags } from '@powersync/cli-core';
+import { SelfHostedInstanceCommand } from '@powersync/cli-core';
 import { getDockerProjectName, logPowersyncProjectsStopHelp, runDockerCompose } from '../../docker.js';
 
 export default class DockerStart extends SelfHostedInstanceCommand {
@@ -13,7 +13,7 @@ export default class DockerStart extends SelfHostedInstanceCommand {
 
   async run(): Promise<void> {
     const { flags } = await this.parse(DockerStart);
-    const { projectDirectory } = this.loadProject(flags as SelfHostedInstanceCommandFlags, {
+    const { projectDirectory } = this.loadProject(flags, {
       configFileRequired: false,
       linkingIsRequired: false
     });

@@ -11,6 +11,8 @@ export type DockerModuleContext = {
   /** Invoking command, for logging and output. */
   command: Command;
   projectdirectory: string;
+  /** Directory containing docker-compose.yaml (powersync/docker/). Used for relative include paths. */
+  composeOutputDirectory: string;
   modulesOutputDirectory: string;
   /** Main docker-compose document (docker/). Modules may add to include and services.powersync.depends_on. */
   mainComposeDocument: Document;

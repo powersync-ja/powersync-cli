@@ -5,8 +5,8 @@
 
 include:
   [
-    /Users/stevenontong/Documents/platform_code/powersync/new-cli/examples/self-hosted/docker/powersync/docker/modules/database-postgres/postgres.database.compose.yaml,
-    /Users/stevenontong/Documents/platform_code/powersync/new-cli/examples/self-hosted/docker/powersync/docker/modules/storage-postgres/postgres.storage.compose.yaml
+    modules/database-postgres/postgres.database.compose.yaml,
+    modules/storage-postgres/postgres.storage.compose.yaml
   ]
 
 services:

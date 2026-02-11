@@ -43,7 +43,8 @@ const PostgresSourceDatabaseModule: DockerModule = {
       fs.cpSync(initScriptsSrc, initScriptsDest, { recursive: true });
     }
 
-    (mainComposeDocument.get('include') as YAMLSeq).add(databaseComposeFilePath);
+    const includePath = path.relative(context.composeOutputDirectory, databaseComposeFilePath);
+    (mainComposeDocument.get('include') as YAMLSeq).add(includePath);
 
     const servicesNode = mainComposeDocument.get('services');
     if (isMap(servicesNode)) {

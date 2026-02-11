@@ -87,6 +87,7 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
     const moduleContext: DockerModuleContext = {
       command: this,
       projectdirectory: projectDirectory,
+      composeOutputDirectory: targetDockerDir,
       modulesOutputDirectory: modulesDir,
       mainComposeDocument,
       serviceConfig: serviceConfigDocument
