@@ -1,20 +1,21 @@
 import { Flags, Interfaces } from '@oclif/core';
+import {
+  createCloudClient,
+  EnsureConfigOptions,
+  ensureServiceTypeMatches,
+  env,
+  HelpGroup,
+  InstanceCommand,
+  LINK_FILENAME,
+  parseYamlFile,
+  SERVICE_FILENAME,
+  ServiceType,
+  SYNC_FILENAME
+} from '@powersync/cli-core';
 import { CLICloudConfig, RequiredCloudLinkConfig } from '@powersync/cli-schemas';
 import { PowerSyncManagementClient } from '@powersync/management-client';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { createCloudClient } from '../clients/CloudClient.js';
-import { ensureServiceTypeMatches } from '../utils/ensureServiceType.js';
-import { env } from '../utils/env.js';
-import {
-  LINK_FILENAME,
-  loadLinkDocument,
-  loadServiceDocument,
-  SERVICE_FILENAME,
-  SYNC_FILENAME
-} from '../utils/project-config.js';
-import { HelpGroup } from './HelpGroup.js';
-import { EnsureConfigOptions, InstanceCommand } from './InstanceCommand.js';
 
 export type CloudProject = {
   projectDirectory: string;
@@ -85,7 +86,7 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
       command: this,
       configRequired: options?.configFileRequired ?? false,
       directoryLabel: flags.directory,
-      expectedType: 'cloud',
+      expectedType: ServiceType.CLOUD,
       projectDir
     });
 
@@ -130,7 +131,7 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
     } else if (existsSync(linkPath)) {
       try {
         const linkPath = join(projectDir, LINK_FILENAME);
-        const doc = loadLinkDocument(linkPath);
+        const doc = parseYamlFile(linkPath);
         linked = RequiredCloudLinkConfig.decode(doc.contents?.toJSON());
       } catch (error) {
         if (options?.linkingIsRequired) {
@@ -163,7 +164,7 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
 
   parseConfig(projectDirectory: string): CLICloudConfig {
     const servicePath = join(projectDirectory, SERVICE_FILENAME);
-    const doc = loadServiceDocument(servicePath);
+    const doc = parseYamlFile(servicePath);
     return CLICloudConfig.decode(doc.contents?.toJSON());
   }
 }

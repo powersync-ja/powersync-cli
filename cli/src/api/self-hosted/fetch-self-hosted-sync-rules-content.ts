@@ -1,8 +1,6 @@
+import { createSelfHostedClient, SelfHostedProject, SYNC_FILENAME } from '@powersync/cli-core';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
-import { createSelfHostedClient } from '../../clients/SelfHostedClient.js';
-import { SelfHostedProject } from '../../command-types/SelfHostedInstanceCommand.js';
-import { SYNC_FILENAME } from '../../utils/project-config.js';
 
 /**
  * Fetches the sync rules content for a self-hosted project.

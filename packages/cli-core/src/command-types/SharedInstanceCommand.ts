@@ -1,5 +1,18 @@
 import { Flags, Interfaces } from '@oclif/core';
 import {
+  EnsureConfigOptions,
+  ensureServiceTypeMatches,
+  env,
+  HelpGroup,
+  InstanceCommand,
+  LINK_FILENAME,
+  parseYamlFile,
+  SelfHostedProject,
+  SERVICE_FILENAME,
+  ServiceType,
+  SYNC_FILENAME
+} from '@powersync/cli-core';
+import {
   CLICloudConfig,
   CLISelfHostedConfig,
   CloudLinkConfig,
@@ -10,14 +23,7 @@ import {
 } from '@powersync/cli-schemas';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { ensureServiceTypeMatches } from '../utils/ensureServiceType.js';
-import { env } from '../utils/env.js';
-import { LINK_FILENAME, loadServiceDocument, SERVICE_FILENAME, SYNC_FILENAME } from '../utils/project-config.js';
-import { parseYamlFile } from '../utils/yaml.js';
 import { CloudProject } from './CloudInstanceCommand.js';
-import { HelpGroup } from './HelpGroup.js';
-import { EnsureConfigOptions, InstanceCommand } from './InstanceCommand.js';
-import { SelfHostedProject } from './SelfHostedInstanceCommand.js';
 
 export type SharedInstanceCommandFlags = Interfaces.InferredFlags<
   typeof SharedInstanceCommand.flags & typeof SharedInstanceCommand.baseFlags
@@ -88,10 +94,10 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
       this.styledError({ message: 'Cannot use both cloud and self-hosted inputs. Use one or the other.' });
     }
 
-    let projectType: 'cloud' | 'self-hosted' | null = hasSelfHostedInputs
-      ? 'self-hosted'
+    let projectType: ServiceType | null = hasSelfHostedInputs
+      ? ServiceType.SELF_HOSTED
       : hasCloudInstanceInputs
-        ? 'cloud'
+        ? ServiceType.CLOUD
         : null;
 
     // If type not set by flags/env, use link file type (if present).
@@ -100,9 +106,9 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
       const doc = parseYamlFile(linkPath);
       rawLinkConfig = LinkConfig.decode(doc.contents?.toJSON());
       if (rawLinkConfig.type === 'self-hosted') {
-        projectType = 'self-hosted';
+        projectType = ServiceType.SELF_HOSTED;
       } else if (rawLinkConfig.type === 'cloud') {
-        projectType = 'cloud';
+        projectType = ServiceType.CLOUD;
       }
     }
 
@@ -123,7 +129,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
       try {
         linkConfig = RequiredSelfHostedLinkConfig.decode({
           ..._rawSelfHostedLinkConfig,
-          api_key: env.PS_TOKEN ?? _rawSelfHostedLinkConfig.api_key!,
+          api_key: env.TOKEN ?? _rawSelfHostedLinkConfig.api_key!,
           api_url: flags['api-url'] ?? env.API_URL ?? _rawSelfHostedLinkConfig.api_url!
         });
       } catch (error) {
@@ -166,7 +172,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
       syncRulesContent = readFileSync(syncRulesPath, 'utf8');
     }
 
-    if (projectType === 'cloud') {
+    if (projectType === ServiceType.CLOUD) {
       return {
         projectDirectory: projectDir,
         linked: linkConfig as RequiredCloudLinkConfig,
@@ -182,13 +188,13 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
 
   parseCloudConfig(projectDirectory: string): CLICloudConfig {
     const servicePath = join(projectDirectory, SERVICE_FILENAME);
-    const doc = loadServiceDocument(servicePath);
+    const doc = parseYamlFile(servicePath);
     return CLICloudConfig.decode(doc.contents?.toJSON());
   }
 
   parseSelfHostedConfig(projectDirectory: string): CLISelfHostedConfig {
     const servicePath = join(projectDirectory, SERVICE_FILENAME);
-    const doc = loadServiceDocument(servicePath);
+    const doc = parseYamlFile(servicePath);
     return CLISelfHostedConfig.decode(doc.contents?.toJSON());
   }
 }

@@ -1,11 +1,14 @@
-import { parseYamlFile } from './yaml.js';
-
+/**
+ * The filename used to store cli linking information.
+ */
 export const LINK_FILENAME = 'link.yaml';
+
+/**
+ * The filename used to store the service configuration.
+ */
 export const SERVICE_FILENAME = 'service.yaml';
 
 /**
- * Parses the service.yaml file as a YAML Document.
+ * The filename used to store the sync rules.
  */
-export function loadServiceDocument(servicePath: string): ReturnType<typeof parseYamlFile> {
-  return parseYamlFile(servicePath);
-}
+export const SYNC_FILENAME = 'sync.yaml';

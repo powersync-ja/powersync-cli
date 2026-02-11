@@ -1,6 +1,5 @@
 import { Flags, ux } from '@oclif/core';
-
-import { CloudInstanceCommand } from '../command-types/CloudInstanceCommand.js';
+import { CloudInstanceCommand } from '@powersync/cli-core';
 
 export default class Stop extends CloudInstanceCommand {
   static description =

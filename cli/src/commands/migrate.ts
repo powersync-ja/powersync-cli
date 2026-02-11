@@ -1,6 +1,6 @@
 import { ux } from '@oclif/core';
 
-import { SelfHostedInstanceCommand } from '../command-types/SelfHostedInstanceCommand.js';
+import { SelfHostedInstanceCommand } from '@powersync/cli-core';
 
 export default class Migrate extends SelfHostedInstanceCommand {
   static description =

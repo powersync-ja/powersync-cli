@@ -1,14 +1,18 @@
 import { Flags, ux } from '@oclif/core';
+import {
+  CloudProject,
+  createCloudClient,
+  createSelfHostedClient,
+  parseYamlFile,
+  SelfHostedProject,
+  SERVICE_FILENAME,
+  SharedInstanceCommand,
+  SYNC_FILENAME
+} from '@powersync/cli-core';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Document } from 'yaml';
 import { testCloudConnections } from '../api/cloud/test-connection.js';
-import { createCloudClient } from '../clients/CloudClient.js';
-import { createSelfHostedClient } from '../clients/SelfHostedClient.js';
-import { CloudProject } from '../command-types/CloudInstanceCommand.js';
-import { SelfHostedProject } from '../command-types/SelfHostedInstanceCommand.js';
-import { SharedInstanceCommand } from '../command-types/SharedInstanceCommand.js';
-import { loadServiceDocument, SERVICE_FILENAME, SYNC_FILENAME } from '../utils/project-config.js';
 
 type ValidationTestResult = {
   name: string;
@@ -50,7 +54,7 @@ async function runConfigTest(projectDir: string, isCloud: boolean): Promise<Vali
   const { CLICloudConfig, CLISelfHostedConfig } = await import('@powersync/cli-schemas');
   const servicePath = join(projectDir, SERVICE_FILENAME);
   try {
-    const doc = loadServiceDocument(servicePath);
+    const doc = parseYamlFile(servicePath);
     const raw = doc.contents?.toJSON();
     if (isCloud) {
       CLICloudConfig.decode(raw);
@@ -69,7 +73,7 @@ async function runConnectionTestCloud(project: CloudProject): Promise<Validation
   const { CLICloudConfig } = await import('@powersync/cli-schemas');
   let config: { replication?: { connections?: Array<Record<string, unknown>> } };
   try {
-    const doc = loadServiceDocument(join(project.projectDirectory, SERVICE_FILENAME));
+    const doc = parseYamlFile(join(project.projectDirectory, SERVICE_FILENAME));
     config = CLICloudConfig.decode(doc.contents?.toJSON());
   } catch {
     return {

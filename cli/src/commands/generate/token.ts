@@ -1,9 +1,6 @@
 import { Flags, ux } from '@oclif/core';
+import { CloudProject, createCloudClient, SelfHostedProject, SharedInstanceCommand } from '@powersync/cli-core';
 import * as jose from 'jose';
-import { createCloudClient } from '../../clients/CloudClient.js';
-import { CloudProject } from '../../command-types/CloudInstanceCommand.js';
-import { SelfHostedProject } from '../../command-types/SelfHostedInstanceCommand.js';
-import { SharedInstanceCommand } from '../../command-types/SharedInstanceCommand.js';
 
 type TokenConfig = {
   subject: string;

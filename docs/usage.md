@@ -16,10 +16,10 @@ For commands that don’t require locally stored config (or when you don’t wan
 
 - **Inline as flags**
   - **Cloud:** `--instance-id`, `--org-id`, `--project-id`
-  - **Self-hosted:** `--api-url` (API key is not accepted via flags; use link command or `PS_TOKEN` env var)
+  - **Self-hosted:** `--api-url` (API key is not accepted via flags; use link command or `TOKEN` env var)
 - **Environment variables**
   - **Cloud:** `INSTANCE_ID`, `ORG_ID`, `PROJECT_ID`
-  - **Self-hosted:** `API_URL`, `PS_TOKEN` (token used as API key)
+  - **Self-hosted:** `API_URL`, `TOKEN` (token used as API key)
 
 That lets you run one-off or scripted operations (e.g. generating a development token, generating client side schemas) without creating or using a `powersync/` folder or a link file.
 
@@ -76,7 +76,7 @@ The sections below split usage by **Cloud** and **Self-hosted**, then provide re
 
 # Cloud usage
 
-Authentication is usually the first step. Use `powersync login` to store a token in secure storage (e.g. macOS Keychain), or set the `PS_TOKEN` environment variable if you prefer not to persist the token. See [Authentication (Tokens)](#authentication-tokens) for details.
+Authentication is usually the first step. Use `powersync login` to store a token in secure storage (e.g. macOS Keychain), or set the `TOKEN` environment variable if you prefer not to persist the token. See [Authentication (Tokens)](#authentication-tokens) for details.
 
 There are three main ways to use the CLI with PowerSync Cloud:
 
@@ -152,13 +152,13 @@ Once your self-hosted instance is deployed and reachable, you can **link** it an
 
 ```bash
 powersync link self-hosted --api-url=https://your-powersync.example.com
-# You will be prompted for the API key, or set PS_TOKEN so the link file can use !env PS_TOKEN
+# You will be prompted for the API key, or set TOKEN so the link file can use !env TOKEN
 powersync generate schema
 powersync generate token
 # ... other supported commands
 ```
 
-Use `--api-url` with link file or `API_URL` and `PS_TOKEN` when you prefer not to link; see [Supplying linking information](#supplying-linking-information-for-cloud-and-self-hosted-commands) below.
+Use `--api-url` with link file or `API_URL` and `TOKEN` when you prefer not to link; see [Supplying linking information](#supplying-linking-information-for-cloud-and-self-hosted-commands) below.
 
 ---
 
@@ -166,20 +166,20 @@ Use `--api-url` with link file or `API_URL` and `PS_TOKEN` when you prefer not t
 
 Cloud commands need an auth token (e.g. a PowerSync PAT). You can supply it in two ways; the CLI uses the first that is available:
 
-1. **Environment variable** — `PS_TOKEN`
+1. **Environment variable** — `TOKEN`
 2. **Stored via login** — token saved by `powersync login` (secure storage, e.g. macOS Keychain)
 
 **Environment variable** — useful for CI, scripts, or one-off runs:
 
 ```bash
-export PS_TOKEN=your-token-here
+export TOKEN=your-token-here
 powersync stop --confirm=yes
 ```
 
 Inline:
 
 ```bash
-PS_TOKEN=your-token-here powersync fetch config --output=json
+TOKEN=your-token-here powersync fetch config --output=json
 ```
 
 **Stored via login** — convenient for local use; token is stored securely and reused:
@@ -191,7 +191,7 @@ powersync login
 powersync fetch config
 ```
 
-Login is supported on macOS (other platforms coming soon). If you use another platform or prefer not to store the token, set `PS_TOKEN` in the environment instead.
+Login is supported on macOS (other platforms coming soon). If you use another platform or prefer not to store the token, set `TOKEN` in the environment instead.
 
 # Supplying Linking Information for Cloud and Self-Hosted Commands
 
@@ -202,7 +202,7 @@ Cloud and self-hosted commands need instance (and for Cloud, org and project) id
    - **Self-hosted:** `--api-url` only (API key from env or link file only)
 2. **Environment variables**
    - **Cloud:** `INSTANCE_ID`, `ORG_ID`, `PROJECT_ID`
-   - **Self-hosted:** `API_URL`, `PS_TOKEN` (API key)
+   - **Self-hosted:** `API_URL`, `TOKEN` (API key)
 3. **link.yaml** — a `powersync/link.yaml` file in the project (written by `powersync link cloud` or `powersync link self-hosted`)
 
 ---
@@ -223,7 +223,7 @@ powersync stop --confirm=yes \
   --project-id=6703fd8a3cfe3000hrydg463
 ```
 
-**Self-hosted:** Set `PS_TOKEN` (or use a linked project with API key in link.yaml), then:
+**Self-hosted:** Set `TOKEN` (or use a linked project with API key in link.yaml), then:
 
 ```bash
 powersync fetch status --api-url=https://powersync.example.com
@@ -235,7 +235,7 @@ You can use a different project directory with `--directory`:
 # Cloud
 powersync stop --confirm=yes --directory=my-powersync --instance-id=... --org-id=... --project-id=...
 
-# Self-hosted (API key from PS_TOKEN or link.yaml)
+# Self-hosted (API key from TOKEN or link.yaml)
 powersync fetch status --directory=my-powersync --api-url=https://...
 ```
 
@@ -287,7 +287,7 @@ powersync fetch config --output=json
 
 ```bash
 export API_URL=https://powersync.example.com
-export PS_TOKEN=your-api-key
+export TOKEN=your-api-key
 
 powersync fetch status --output=json
 ```
@@ -299,7 +299,7 @@ Inline for a single command:
 INSTANCE_ID=... ORG_ID=... PROJECT_ID=... powersync stop --confirm=yes
 
 # Self-hosted
-API_URL=https://... PS_TOKEN=... powersync fetch status --output=json
+API_URL=https://... TOKEN=... powersync fetch status --output=json
 ```
 
 **Note:** Environment variables are only used when neither flags nor `link.yaml` provide linking information.

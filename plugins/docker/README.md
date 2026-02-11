@@ -13,7 +13,7 @@ All commands live under **`powersync docker`**:
 
 Run **`powersync docker`** with no subcommand to see help.
 
-All commands use the same project and directory resolution as the main CLI (e.g. `--directory powersync`). They require a self-hosted PowerSync project (**service.yaml** with `_type: self-hosted`). Linking (**link.yaml** / API_URL / PS_TOKEN) is optional.
+All commands use the same project and directory resolution as the main CLI (e.g. `--directory powersync`). They require a self-hosted PowerSync project (**service.yaml** with `_type: self-hosted`). Linking (**link.yaml** / API_URL / TOKEN) is optional.
 
 ## Templates (composable modules)
 

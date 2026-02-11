@@ -1,8 +1,8 @@
 import { Flags, ux } from '@oclif/core';
 import { Document } from 'yaml';
 
+import { CloudInstanceCommand } from '@powersync/cli-core';
 import { fetchCloudConfig } from '../../api/cloud/fetch-cloud-config.js';
-import { CloudInstanceCommand } from '../../command-types/CloudInstanceCommand.js';
 
 export default class FetchConfig extends CloudInstanceCommand {
   static description =

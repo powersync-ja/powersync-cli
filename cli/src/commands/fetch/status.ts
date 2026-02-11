@@ -2,11 +2,13 @@ import { Flags, ux } from '@oclif/core';
 import { routes } from '@powersync/management-types';
 import { Document } from 'yaml';
 
-import { createCloudClient } from '../../clients/CloudClient.js';
-import { createSelfHostedClient } from '../../clients/SelfHostedClient.js';
-import { CloudProject } from '../../command-types/CloudInstanceCommand.js';
-import { SelfHostedProject } from '../../command-types/SelfHostedInstanceCommand.js';
-import { SharedInstanceCommand } from '../../command-types/SharedInstanceCommand.js';
+import {
+  CloudProject,
+  createCloudClient,
+  createSelfHostedClient,
+  SelfHostedProject,
+  SharedInstanceCommand
+} from '@powersync/cli-core';
 
 type DiagnosticsResponse = routes.InstanceDiagnosticsResponse;
 type SyncRulesSection = NonNullable<DiagnosticsResponse['active_sync_rules']>;

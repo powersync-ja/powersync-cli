@@ -50,7 +50,6 @@ pnpm build
 Run the CLI from the repo root:
 
 ```bash
-powersync -- --help
 powersync --help   # if @powersync/cli is a workspace dependency
 ```
 

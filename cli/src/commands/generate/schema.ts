@@ -1,14 +1,16 @@
 import { Flags, ux } from '@oclif/core';
+import {
+  CloudProject,
+  createCloudClient,
+  createSelfHostedClient,
+  SelfHostedProject,
+  SharedInstanceCommand
+} from '@powersync/cli-core';
 import { routes } from '@powersync/management-types';
 import { schemaGenerators, SqlSyncRules, StaticSchema } from '@powersync/service-sync-rules';
 import { writeFileSync } from 'fs';
 import { fetchCloudSyncRulesContent } from '../../api/cloud/fetch-cloud-sync-rules-content.js';
 import { fetchSelfHostedSyncRulesContent } from '../../api/self-hosted/fetch-self-hosted-sync-rules-content.js';
-import { createCloudClient } from '../../clients/CloudClient.js';
-import { createSelfHostedClient } from '../../clients/SelfHostedClient.js';
-import { CloudProject } from '../../command-types/CloudInstanceCommand.js';
-import { SelfHostedProject } from '../../command-types/SelfHostedInstanceCommand.js';
-import { SharedInstanceCommand } from '../../command-types/SharedInstanceCommand.js';
 
 export default class GenerateSchema extends SharedInstanceCommand {
   static description =

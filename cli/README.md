@@ -550,7 +550,7 @@ PROJECT FLAGS
 DESCRIPTION
   Link to a self-hosted PowerSync instance by API URL.
 
-  Write or update link.yaml with a self-hosted instance (API URL). You will be prompted for API key; use !env PS_TOKEN
+  Write or update link.yaml with a self-hosted instance (API URL). You will be prompted for API key; use !env TOKEN
   so commands read the key from the environment.
 ```
 
@@ -567,7 +567,7 @@ USAGE
 DESCRIPTION
   Store auth token in secure storage for Cloud commands.
 
-  Store a PowerSync auth token (PAT) in secure storage so later Cloud commands run without passing a token. Use PS_TOKEN
+  Store a PowerSync auth token (PAT) in secure storage so later Cloud commands run without passing a token. Use TOKEN
   env var for CI or scripts instead.
 ```
 

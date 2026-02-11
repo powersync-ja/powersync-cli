@@ -26,16 +26,16 @@ describe('destroy', () => {
 
   beforeEach(() => {
     origCwd = process.cwd();
-    origPsToken = process.env.PS_TOKEN;
+    origPsToken = process.env.TOKEN;
     tmpDir = mkdtempSync(join(tmpdir(), 'destroy-test-'));
     process.chdir(tmpDir);
-    process.env.PS_TOKEN = 'test-token';
+    process.env.TOKEN = 'test-token';
   });
 
   afterEach(() => {
     process.chdir(origCwd);
-    if (origPsToken !== undefined) process.env.PS_TOKEN = origPsToken;
-    else delete process.env.PS_TOKEN;
+    if (origPsToken !== undefined) process.env.TOKEN = origPsToken;
+    else delete process.env.TOKEN;
     if (tmpDir && existsSync(tmpDir)) rmSync(tmpDir, { recursive: true });
   });
 

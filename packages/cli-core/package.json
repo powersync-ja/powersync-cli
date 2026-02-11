@@ -20,11 +20,17 @@
     "@oclif/core": "^4",
     "@powersync/cli-schemas": "workspace:*",
     "@journeyapps-labs/micro-errors": "^1.0.1",
-    "yaml": "^2"
+    "yaml": "^2",
+    "@journeyapps-labs/common-sdk": "1.0.2",
+    "@powersync/management-client": "0.0.1",
+    "@powersync/management-types": "0.0.1",
+    "@powersync/service-client": "0.0.1",
+    "keychain": "^1.5.0"
   },
   "devDependencies": {
     "@types/node": "^24",
-    "typescript": "^5"
+    "typescript": "^5",
+    "@types/keychain": "^1.4.4"
   },
   "engines": {
     "node": ">=18.0.0"

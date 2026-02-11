@@ -1,8 +1,6 @@
+import { CloudProject, createCloudClient, SYNC_FILENAME } from '@powersync/cli-core';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
-import { createCloudClient } from '../../clients/CloudClient.js';
-import { CloudProject } from '../../command-types/CloudInstanceCommand.js';
-import { SYNC_FILENAME } from '../../utils/project-config.js';
 
 /**
  * Fetches the sync rules content for a cloud project.

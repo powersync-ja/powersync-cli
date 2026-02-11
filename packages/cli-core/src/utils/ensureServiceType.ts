@@ -2,11 +2,13 @@ import { ux } from '@oclif/core';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { PowerSyncCommand } from '../command-types/PowerSyncCommand.js';
-import { loadServiceDocument } from './project-config.js';
+import { SERVICE_FILENAME } from './project-config.js';
+import { parseYamlFile } from './yaml.js';
 
-const SERVICE_FILENAME = 'service.yaml';
-
-export type ServiceType = 'cloud' | 'self-hosted';
+export enum ServiceType {
+  CLOUD = 'cloud',
+  SELF_HOSTED = 'self-hosted'
+}
 
 export type EnsureServiceTypeMatchesOptions = {
   command: PowerSyncCommand;
@@ -32,7 +34,7 @@ export function ensureServiceTypeMatches(options: EnsureServiceTypeMatchesOption
     return;
   }
 
-  const service = loadServiceDocument(servicePath);
+  const service = parseYamlFile(servicePath);
   const serviceJson = service.contents?.toJSON();
 
   if (serviceJson?._type === undefined || serviceJson?._type === null) {

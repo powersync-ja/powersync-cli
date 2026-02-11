@@ -10,7 +10,7 @@ import { env } from '../utils/env.js';
  */
 export async function createCloudClient(): Promise<PowerSyncManagementClient> {
   const storage = getSecureStorage();
-  const token = env.PS_TOKEN || (await storage.getToken());
+  const token = env.TOKEN || (await storage.getToken());
   if (!token) {
     throw new Error(
       `Not logged in. Run ${ux.colorize('blue', 'powersync login')} to authenticate (you will be prompted for your token). Login is supported on macOS (other platforms coming soon).`

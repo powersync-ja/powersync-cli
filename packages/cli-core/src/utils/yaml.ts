@@ -40,11 +40,14 @@ export const YamlEnvTag: yaml.ScalarTag = {
   }
 };
 
-const yamlParseOptions = { customTags: [YamlEnvTag] };
+const YAML_PARSE_OPTIONS = { customTags: [YamlEnvTag] };
 
+/**
+ * Parses a YAML document, evaluating !env tags.
+ */
 export function parseYamlFile(filePath: string): yaml.Document {
   const content = readFileSync(filePath, 'utf8');
-  return yaml.parseDocument(content, yamlParseOptions);
+  return yaml.parseDocument(content, YAML_PARSE_OPTIONS);
 }
 
 /**

@@ -8,7 +8,7 @@ import { parse as parseYaml } from 'yaml';
 import { root } from '../helpers/root.js';
 
 vi.mock('@inquirer/prompts', () => ({
-  input: vi.fn(() => Promise.resolve('!env PS_TOKEN')),
+  input: vi.fn(() => Promise.resolve('!env TOKEN')),
   password: vi.fn(() => Promise.resolve('test-token'))
 }));
 
@@ -112,20 +112,20 @@ type: cloud
 
     beforeEach(() => {
       origCwd = process.cwd();
-      origPsToken = process.env.PS_TOKEN;
+      origPsToken = process.env.TOKEN;
       tmpDir = mkdtempSync(join(tmpdir(), 'link-test-'));
       process.chdir(tmpDir);
     });
 
     afterEach(() => {
       process.chdir(origCwd);
-      if (origPsToken !== undefined) process.env.PS_TOKEN = origPsToken;
-      else delete process.env.PS_TOKEN;
+      if (origPsToken !== undefined) process.env.TOKEN = origPsToken;
+      else delete process.env.TOKEN;
       if (tmpDir && existsSync(tmpDir)) rmSync(tmpDir, { recursive: true });
     });
 
     it('errors when directory does not exist', async () => {
-      process.env.PS_TOKEN = 'secret';
+      process.env.TOKEN = 'secret';
       const result = await runCommand('link self-hosted --api-url=https://ps.example.com', { root });
       expect(result.error?.message).toContain(`Directory "${PROJECT_DIR}" not found`);
       expect(result.error?.message).toContain('powersync init');
@@ -136,7 +136,7 @@ type: cloud
       const projectDir = join(tmpDir, PROJECT_DIR);
       mkdirSync(projectDir, { recursive: true });
       writeServiceYaml(projectDir, 'cloud');
-      process.env.PS_TOKEN = 'k';
+      process.env.TOKEN = 'k';
       const result = await runCommand('link self-hosted --api-url=https://x.com', { root });
       expect(result.error?.message).toMatch(/has `_type: cloud` but this command requires `_type: self-hosted`/);
       expect(result.error?.oclif?.exit).toBe(1);
@@ -147,7 +147,7 @@ type: cloud
       const projectDir = join(tmpDir, PROJECT_DIR);
       mkdirSync(projectDir, { recursive: true });
       writeServiceYaml(projectDir, 'self-hosted');
-      process.env.PS_TOKEN = 'my-token';
+      process.env.TOKEN = 'my-token';
       const { stdout } = await runCommand('link self-hosted --api-url=https://sync.example.com', { root });
       expect(stdout).toContain(`Updated ${PROJECT_DIR}/${LINK_FILENAME} with self-hosted link.`);
       const linkPath = join(tmpDir, PROJECT_DIR, LINK_FILENAME);
@@ -155,7 +155,7 @@ type: cloud
       const linkYaml = parseYaml(readFileSync(linkPath, 'utf8'));
       expect(linkYaml.type).toBe('self-hosted');
       expect(linkYaml.api_url).toBe('https://sync.example.com');
-      expect(linkYaml.api_key).toBe('!env PS_TOKEN');
+      expect(linkYaml.api_key).toBe('!env TOKEN');
     });
 
     it.skip('updates existing link.yaml and preserves comments', async () => {
@@ -168,14 +168,14 @@ type: cloud
 type: self-hosted
 `;
       writeFileSync(linkPath, withComments, 'utf8');
-      process.env.PS_TOKEN = 'new-key';
+      process.env.TOKEN = 'new-key';
       await runCommand('link self-hosted --api-url=https://new.example.com', { root });
       const content = readFileSync(linkPath, 'utf8');
       expect(content).toContain('# Self-hosted config');
       const linkYaml = parseYaml(content);
       expect(linkYaml.type).toBe('self-hosted');
       expect(linkYaml.api_url).toBe('https://new.example.com');
-      expect(linkYaml.api_key).toBe('!env PS_TOKEN');
+      expect(linkYaml.api_key).toBe('!env TOKEN');
     });
 
     it.skip('respects --directory flag', async () => {
@@ -183,7 +183,7 @@ type: self-hosted
       const customDir = 'my-powersync';
       mkdirSync(join(tmpDir, customDir), { recursive: true });
       writeServiceYaml(join(tmpDir, customDir), 'self-hosted');
-      process.env.PS_TOKEN = 'k';
+      process.env.TOKEN = 'k';
       const { stdout } = await runCommand(`link self-hosted --directory=${customDir} --api-url=https://example.com`, {
         root
       });

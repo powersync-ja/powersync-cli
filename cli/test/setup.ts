@@ -4,7 +4,7 @@ import { vi } from 'vitest';
 import { root } from './helpers/root.js';
 
 vi.mock('@inquirer/prompts', () => ({
-  input: vi.fn(() => Promise.resolve('!env PS_TOKEN')),
+  input: vi.fn(() => Promise.resolve('!env TOKEN')),
   password: vi.fn(() => Promise.resolve('test-token'))
 }));
 

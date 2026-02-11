@@ -2,9 +2,9 @@ import { Flags, Interfaces } from '@oclif/core';
 import { CLISelfHostedConfig, RequiredSelfHostedLinkConfig } from '@powersync/cli-schemas';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { ensureServiceTypeMatches } from '../utils/ensureServiceType.js';
+import { ensureServiceTypeMatches, ServiceType } from '../utils/ensureServiceType.js';
 import { env } from '../utils/env.js';
-import { LINK_FILENAME, loadServiceDocument, SERVICE_FILENAME } from '../utils/project-config.js';
+import { LINK_FILENAME, SERVICE_FILENAME } from '../utils/project-config.js';
 import { parseYamlFile } from '../utils/yaml.js';
 import { HelpGroup } from './HelpGroup.js';
 import { EnsureConfigOptions, InstanceCommand } from './InstanceCommand.js';
@@ -39,7 +39,7 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
       command: this,
       configRequired: options?.configFileRequired ?? false,
       directoryLabel: flags.directory,
-      expectedType: 'self-hosted',
+      expectedType: ServiceType.SELF_HOSTED,
       projectDir
     });
 
@@ -55,7 +55,7 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
     }
 
     const api_url = flags['api-url'] ?? env.API_URL ?? (rawLink?.api_url as string | undefined);
-    const api_key = env.PS_TOKEN ?? (rawLink?.api_key as string | undefined);
+    const api_key = env.TOKEN ?? (rawLink?.api_key as string | undefined);
 
     let linked: RequiredSelfHostedLinkConfig | null = null;
     try {
@@ -68,7 +68,7 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
     } catch (error) {
       if (options?.linkingIsRequired) {
         this.styledError({
-          message: 'Linking is required. Set API_URL and PS_TOKEN, or link the project first (link.yaml).',
+          message: 'Linking is required. Set API_URL and TOKEN, or link the project first (link.yaml).',
           error
         });
       }
@@ -76,8 +76,7 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
 
     if (!linked && options?.linkingIsRequired) {
       this.styledError({
-        message:
-          'Linking is required for this command. Set API_URL and PS_TOKEN, or link the project first (link.yaml).'
+        message: 'Linking is required for this command. Set API_URL and TOKEN, or link the project first (link.yaml).'
       });
     }
 
@@ -89,7 +88,7 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
 
   parseConfig(projectDirectory: string) {
     const servicePath = join(projectDirectory, SERVICE_FILENAME);
-    const doc = loadServiceDocument(servicePath);
+    const doc = parseYamlFile(servicePath);
     return CLISelfHostedConfig.decode(doc.contents?.toJSON());
   }
 }

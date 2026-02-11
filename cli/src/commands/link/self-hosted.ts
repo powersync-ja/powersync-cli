@@ -3,16 +3,20 @@ import { Flags, ux } from '@oclif/core';
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { InstanceCommand } from '../../command-types/InstanceCommand.js';
-import { SelfHostedInstanceCommand } from '../../command-types/SelfHostedInstanceCommand.js';
-import { ensureServiceTypeMatches } from '../../utils/ensureServiceType.js';
-import { env } from '../../utils/env.js';
-import { LINK_FILENAME, loadLinkDocument } from '../../utils/project-config.js';
+import {
+  ensureServiceTypeMatches,
+  env,
+  InstanceCommand,
+  LINK_FILENAME,
+  parseYamlFile,
+  SelfHostedInstanceCommand,
+  ServiceType
+} from '@powersync/cli-core';
 
 export default class LinkSelfHosted extends SelfHostedInstanceCommand {
   static description = [
     `Links a self hosted PowerSync instance by API URL.`,
-    `API Keys can be specified via input or specified in the PS_TOKEN environment variable.`
+    `API Keys can be specified via input or specified in the TOKEN environment variable.`
   ].join('\n');
   static summary = 'Link to a self-hosted PowerSync instance by API URL.';
   static flags = {
@@ -32,26 +36,26 @@ export default class LinkSelfHosted extends SelfHostedInstanceCommand {
       command: this,
       configRequired: false,
       directoryLabel: directory,
-      expectedType: 'self-hosted',
+      expectedType: ServiceType.SELF_HOSTED,
       projectDir
     });
 
-    const defaultApiKey = '!env PS_TOKEN';
+    const defaultApiKey = '!env TOKEN';
 
     // If an environment variable is provided, then we should inject it at runtime.
-    const apiKey = env.PS_TOKEN
+    const apiKey = env.TOKEN
       ? defaultApiKey
       : await input({
-          message: 'API key (default: !env PS_TOKEN — read from PS_TOKEN when running commands):',
-          default: '!env PS_TOKEN'
+          message: 'API key (default: !env TOKEN — read from TOKEN when running commands):',
+          default: '!env TOKEN'
         });
 
     // Preserve comments
     const linkPath = join(projectDir, LINK_FILENAME);
-    const doc = loadLinkDocument(linkPath);
+    const doc = parseYamlFile(linkPath);
     doc.set('type', 'self-hosted');
     doc.set('api_url', apiUrl);
-    doc.set('api_key', apiKey.trim() || '!env PS_TOKEN');
+    doc.set('api_key', apiKey.trim() || '!env TOKEN');
     writeFileSync(linkPath, doc.toString(), 'utf8');
 
     this.log(ux.colorize('green', `Updated ${directory}/${LINK_FILENAME} with self-hosted link.`));

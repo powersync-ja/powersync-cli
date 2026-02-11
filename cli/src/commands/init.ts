@@ -3,9 +3,7 @@ import { cpSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { SERVICE_FILENAME } from '@powersync/cli-core';
-import { InstanceCommand } from '../command-types/InstanceCommand.js';
-import { PowerSyncCommand } from '../command-types/PowerSyncCommand.js';
+import { InstanceCommand, PowerSyncCommand, SERVICE_FILENAME } from '@powersync/cli-core';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

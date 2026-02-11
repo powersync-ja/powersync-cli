@@ -5,17 +5,19 @@ import { join } from 'node:path';
 import * as t from 'ts-codec';
 import { Document } from 'yaml';
 
+import {
+  CloudInstanceCommand,
+  ensureServiceTypeMatches,
+  LINK_FILENAME,
+  SERVICE_FILENAME,
+  ServiceType,
+  SYNC_FILENAME
+} from '@powersync/cli-core';
 import { fetchCloudConfig } from '../../api/cloud/fetch-cloud-config.js';
 import { writeCloudLink } from '../../api/cloud/write-cloud-link.js';
-import { CloudInstanceCommand } from '../../command-types/CloudInstanceCommand.js';
-import { ensureServiceTypeMatches } from '../../utils/ensureServiceType.js';
-import {
-  LINK_FILENAME,
-  SERVICE_FETCHED_FILENAME,
-  SERVICE_FILENAME,
-  SYNC_FETCHED_FILENAME,
-  SYNC_FILENAME
-} from '../../utils/project-config.js';
+
+const SERVICE_FETCHED_FILENAME = 'service-fetched.yaml';
+const SYNC_FETCHED_FILENAME = 'sync-fetched.yaml';
 
 type JSONSchemaObject = {
   description?: string;
@@ -105,7 +107,7 @@ export default class PullConfig extends CloudInstanceCommand {
       command: this,
       configRequired: false,
       directoryLabel: directory,
-      expectedType: 'cloud',
+      expectedType: ServiceType.CLOUD,
       projectDir
     });
 

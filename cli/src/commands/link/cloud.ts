@@ -1,12 +1,15 @@
 import { Flags, ux } from '@oclif/core';
 
+import {
+  CloudInstanceCommand,
+  ensureServiceTypeMatches,
+  env,
+  InstanceCommand,
+  LINK_FILENAME,
+  ServiceType
+} from '@powersync/cli-core';
 import { createCloudInstance } from '../../api/cloud/create-cloud-instance.js';
 import { writeCloudLink } from '../../api/cloud/write-cloud-link.js';
-import { CloudInstanceCommand } from '../../command-types/CloudInstanceCommand.js';
-import { InstanceCommand } from '../../command-types/InstanceCommand.js';
-import { ensureServiceTypeMatches } from '../../utils/ensureServiceType.js';
-import { env } from '../../utils/env.js';
-import { LINK_FILENAME } from '../../utils/project-config.js';
 
 export default class LinkCloud extends CloudInstanceCommand {
   static description =
@@ -66,7 +69,7 @@ export default class LinkCloud extends CloudInstanceCommand {
         command: this,
         configRequired: false,
         directoryLabel: directory,
-        expectedType: 'cloud',
+        expectedType: ServiceType.CLOUD,
         projectDir
       });
       writeCloudLink(projectDir, { instanceId: newInstanceId, orgId, projectId });
@@ -88,7 +91,7 @@ export default class LinkCloud extends CloudInstanceCommand {
       command: this,
       configRequired: false,
       directoryLabel: directory,
-      expectedType: 'cloud',
+      expectedType: ServiceType.CLOUD,
       projectDir
     });
 
