@@ -128,6 +128,8 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
         ].join('\n');
     }
 
+    const projectName = composeProjectName(projectDirectory);
+    mainComposeDocument.set('name', projectName);
     writeFileSync(path.join(targetDockerDir, 'docker-compose.yaml'), stringify(mainComposeDocument), 'utf8');
 
     // Persist environment config
@@ -136,8 +138,6 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
     // Set api.tokens in service.yaml for local dev (same token as in link)
     serviceConfigDocument.set('api', { tokens: [DEV_TOKEN] });
     writeFileSync(path.join(projectDirectory, SERVICE_FILENAME), stringify(serviceConfigDocument), 'utf8');
-
-    const projectName = composeProjectName(projectDirectory);
     updateLinkPluginsDocker(projectDirectory, projectName);
 
     this.log(ux.colorize('green', `Configured ${targetDockerDir}`));

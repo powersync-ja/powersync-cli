@@ -2,6 +2,9 @@
 # Modules add entries to include and to services.powersync.depends_on.
 # Relative paths: . = powersync/docker, .. = powersync.
 # Include syntax requires Docker Compose v2.20.3+
+# name: ensures unique volumes per project when switching between projects
+
+name: powersync_local-postgres-node
 
 include:
   - ./modules/database-postgres/postgres.database.compose.yaml
