@@ -154,18 +154,22 @@ export default class FetchStatus extends SharedInstanceCommand {
       linkingIsRequired: true
     });
 
-    const diagnostics = await (project.linked.type === 'cloud'
-      ? this.getCloudStatus(project as CloudProject)
-      : this.getSelfHostedStatus(project as SelfHostedProject));
+    try {
+      const diagnostics = await (project.linked.type === 'cloud'
+        ? this.getCloudStatus(project as CloudProject)
+        : this.getSelfHostedStatus(project as SelfHostedProject));
 
-    if (flags.output === 'json') {
-      this.log(ux.colorize('gray', JSON.stringify(diagnostics, null, 2)));
-      return;
-    } else if (flags.output === 'yaml') {
-      this.log(ux.colorize('gray', new Document(diagnostics).toString()));
-      return;
-    } else {
-      this.log(ux.colorize('gray', formatDiagnosticsHuman(diagnostics)));
+      if (flags.output === 'json') {
+        this.log(ux.colorize('gray', JSON.stringify(diagnostics, null, 2)));
+        return;
+      } else if (flags.output === 'yaml') {
+        this.log(ux.colorize('gray', new Document(diagnostics).toString()));
+        return;
+      } else {
+        this.log(ux.colorize('gray', formatDiagnosticsHuman(diagnostics)));
+      }
+    } catch (error) {
+      this.styledError({ message: 'Failed to fetch instance diagnostics', error });
     }
   }
 }
