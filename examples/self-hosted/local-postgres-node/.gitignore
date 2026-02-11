@@ -1,0 +1,5 @@
+node_modules/
+dist/
+powersync.db
+powersync.db-shm
+powersync.db-wal

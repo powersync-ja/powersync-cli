@@ -140,3 +140,6 @@ vite.config.ts.timestamp-*
 
 # Playground for testing cli commands
 playground/
+
+# PNPM
+.pnpm-store/

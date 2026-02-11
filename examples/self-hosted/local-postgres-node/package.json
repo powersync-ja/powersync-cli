@@ -1,0 +1,27 @@
+{
+  "name": "local-postgres-node-example",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node dist/src/index.js",
+    "build": "tsc",
+    "dev": "tsc && node dist/src/index.js"
+  },
+  "dependencies": {
+    "@powersync/node": "^0.16.0",
+    "better-sqlite3": "^11.0.0",
+    "dotenv": "^16.0.0",
+    "jose": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.0.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3",
+      "better-sqlite3-multiple-ciphers"
+    ]
+  }
+}
