@@ -51,6 +51,8 @@ export default class Deploy extends CloudInstanceCommand {
     const config = this.parseConfig(projectDirectory);
     const client = await this.getClient();
 
+    this.log(ux.colorize('cyan', 'Fetching upstream config for validation...'));
+
     // The existing config is required to deploy changes. The isntance should have been created already.
     const existingConfig = await client
       .getInstanceConfig({
@@ -59,58 +61,66 @@ export default class Deploy extends CloudInstanceCommand {
         id: linked.instance_id
       })
       .catch((error) => {
-        this.error(
-          [
+        this.styledError({
+          error,
+          message: [
             `Failed to get existing config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}: ${error}`,
             'Ensure the instance has been created before deploying.'
-          ].join('\n'),
-          { exit: 1 }
-        );
+          ].join('\n')
+        });
       });
 
     const existingRegion = existingConfig.config?.region;
     if (existingRegion && existingRegion !== config.region) {
-      this.error(
-        [
+      this.styledError({
+        message: [
           `The existing config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id} has a different region than the config being deployed.`,
-          'The region cannot be changed after the initial deployment.',
           `Existing region: ${existingRegion}`,
-          `New region: ${config.region}`
+          `New region: ${config.region}`,
+          'The region cannot be changed after the initial deployment.'
         ].join('\n'),
-        { exit: 1 }
-      );
+        suggestions: ['Check your config and try again.']
+      });
     }
 
     // Validate region against list of regions obtained from client.listRegions()
-    const regions = await client.listRegions({}).catch((error) => {
-      this.error(`Could not validate region against list of regions: Failed to list regions: ${error}`, { exit: 1 });
+    const regions = await client.listRegions().catch((error) => {
+      this.styledError({
+        message: `Could not validate region against list of regions: Failed to list regions`,
+        error,
+        suggestions: ['Check your network connection and try again.', 'If the problem persists, contact support.']
+      });
     });
 
     const foundRegion = regions.regions.find((region) => region.name === config.region);
     if (!foundRegion) {
-      this.error(
-        `The region ${config.region} is not supported. Please choose a region from the list of supported regions: ${regions.regions.map((region) => region.name).join(', ')}`,
-        { exit: 1 }
-      );
+      this.styledError({
+        message: `The region ${config.region} is not supported. Please choose a region from the list of supported regions: ${regions.regions.map((region) => region.name).join(', ')}`
+      });
     }
 
     this.log(ux.colorize('cyan', 'Testing connection before deploy...'));
     if ((config.replication?.connections?.length ?? 0) <= 0) {
-      this.error(
-        'No connection found in config. Please add a connection to the config in replication->connections before deploying.',
-        { exit: 1 }
-      );
+      this.styledError({
+        message: 'No connection found in config.',
+        suggestions: ['Add a connection to the config in replication->connections before deploying.']
+      });
     }
     const connectionResults = await testCloudConnections(client, linked, config.replication?.connections ?? []).catch(
       (error) => {
-        this.error(`Failed to test connections: ${error}`, { exit: 1 });
+        this.styledError({
+          error,
+          message: `Failed to test connections`,
+          suggestions: ['Check your network connection and try again.', 'If the problem persists, contact support.']
+        });
       }
     );
     for (const { connectionName, response } of connectionResults) {
       if (response.success !== true) {
-        this.error(formatTestConnectionFailure(response, connectionName), { exit: 1 });
+        this.styledError({ message: formatTestConnectionFailure(response, connectionName) });
       }
     }
+
     this.log(ux.colorize('green', 'Connection test successful.'));
 
     const spinner = ora({
@@ -120,9 +130,8 @@ export default class Deploy extends CloudInstanceCommand {
     });
     spinner.start();
 
-    let deployResult: { id: string; operation_id?: string };
-    try {
-      deployResult = await client.deployInstance(
+    const deployResult = await client
+      .deployInstance(
         routes.DeployInstanceRequest.encode({
           // Spread the existing config like name, and program version contraints.
           // Should we allow specifying these in the config file?
@@ -133,27 +142,28 @@ export default class Deploy extends CloudInstanceCommand {
           config,
           sync_rules: syncRulesContent
         })
-      );
-    } catch (error) {
-      spinner.stop();
-      this.error(
-        `Failed to deploy changes to instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}: ${error}`,
-        { exit: 1 }
-      );
-    }
+      )
+      .catch((error) => {
+        spinner.stop();
+        this.styledError({
+          error,
+          message: `Failed to deploy changes to instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`
+        });
+      });
+
+    this.log(ux.colorize('cyan', `Deploy operation has been scheduled. Waiting for completion...`));
 
     const status = await waitForStatusChange(client, linked, deployResult.id);
     spinner.stop();
 
     if (status === 'failed') {
-      this.error(
-        [
+      this.styledError({
+        message: [
           `Deploy failed for instance ${linked.instance_id}.`,
           'Check instance diagnostics for details, for example:',
           '  powersync fetch status'
-        ].join('\n'),
-        { exit: 1 }
-      );
+        ].join('\n')
+      });
     }
   }
 }

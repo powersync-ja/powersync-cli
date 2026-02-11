@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@powersync/service-client': file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-service/packages/service-client/powersync-service-client-0.0.0.tgz
+  '@powersync/service-client': file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-service/packages/service-client/powersync-service-client-0.0.1.tgz
   '@powersync/management-types': file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/types/powersync-management-types-0.0.1.tgz
   '@powersync/management-client': file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz
 
@@ -53,8 +53,8 @@ importers:
         specifier: file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/types/powersync-management-types-0.0.1.tgz
         version: file:../service/powersync-hosted/public-packages/types/powersync-management-types-0.0.1.tgz(tsx@4.21.0)(yaml@2.8.2)
       '@powersync/service-client':
-        specifier: file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-service/packages/service-client/powersync-service-client-0.0.0.tgz
-        version: file:../service/powersync-service/packages/service-client/powersync-service-client-0.0.0.tgz(@types/json-schema@7.0.15)(tsx@4.21.0)(yaml@2.8.2)
+        specifier: file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-service/packages/service-client/powersync-service-client-0.0.1.tgz
+        version: file:../service/powersync-service/packages/service-client/powersync-service-client-0.0.1.tgz(@types/json-schema@7.0.15)(tsx@4.21.0)(yaml@2.8.2)
       '@powersync/service-sync-rules':
         specifier: ^0.30.0
         version: 0.30.0
@@ -1178,7 +1178,7 @@ packages:
     resolution: {integrity: sha512-qC56hA5Qc8Y0OWSWK4wSTw58i6pJiDRw6XzP2YPDVTRzs4P37akpKXbe5CyR6E0L3GGe1ITOWLLpysn7ZWDAlQ==}
 
   '@powersync/management-client@file:../service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz':
-    resolution: {integrity: sha512-ZGZPdgIBtclAfALiPDOMUlZB/toRptK/Tpa+sEfnOMiauz59ipVncqyBVTtWJAF0AmKXlz7BW0lBeFuvIgceIg==, tarball: file:../service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz}
+    resolution: {integrity: sha512-8YA1rUJ029Nrmx6/2WjyKlhPsct4i0/M+asSJDFel27ya1TPNKgexeQBiEZz0dHPVT13yPH7bWvSFNycbds8SA==, tarball: file:../service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz}
     version: 0.0.1
 
   '@powersync/management-types@file:../service/powersync-hosted/public-packages/types/powersync-management-types-0.0.1.tgz':
@@ -1189,9 +1189,9 @@ packages:
     resolution: {integrity: sha512-iLWHTqDtoSmZye3Zh4TpKohFL+teqzoi+MGeFlmE6AAN50LeGm3XhJ+aWTGbheOjv7ZLildt+7SXlH4o4idZaw==}
     engines: {node: '>=22.0.0'}
 
-  '@powersync/service-client@file:../service/powersync-service/packages/service-client/powersync-service-client-0.0.0.tgz':
-    resolution: {integrity: sha512-ZI2DcDylu8Kr4O2YXeUzLYeaYuTtZZJmvmjywRWWtv3sWt+Vq0ODagmgxMgf68n7qCUt1sdQtgD1j5akkz7dgA==, tarball: file:../service/powersync-service/packages/service-client/powersync-service-client-0.0.0.tgz}
-    version: 0.0.0
+  '@powersync/service-client@file:../service/powersync-service/packages/service-client/powersync-service-client-0.0.1.tgz':
+    resolution: {integrity: sha512-lb2xDs0M1jmys9wT1CnkRw0YkYr1tBP64zPPZO/1/4EdDvleBvu2oVjiff5wjhNVWmfsGM0uJde/kQ4HWHiPiw==, tarball: file:../service/powersync-service/packages/service-client/powersync-service-client-0.0.1.tgz}
+    version: 0.0.1
 
   '@powersync/service-core@1.18.2':
     resolution: {integrity: sha512-5ffw+V2KybJI0zDeLYSoOrhZNZRBldJfCysZ8Ht0kYwYwvRcdWH558K5YHqFYxao3yszTmOMLJuseUs4Aq5k7w==}
@@ -1236,7 +1236,7 @@ packages:
     resolution: {integrity: sha512-ICMencKesBUoXBH+mlUX9O7xIk+iPU5+p0hl844tPEBVdHqcsuEeA0aInebM2Rji5rKGSxPCqT6r4kNDx4OfZA==}
 
   '@powersync/service-schema@file:../service/powersync-service/packages/schema/powersync-service-schema-1.19.0.tgz':
-    resolution: {integrity: sha512-obglTF3KaCk5wP0GsOR8s8BqOamIh3iYj0RNkKvZ7HBhGE5aZ9c7VSFH6kPt3nuMVAF43zPrdAgfQvXwyFyHSA==, tarball: file:../service/powersync-service/packages/schema/powersync-service-schema-1.19.0.tgz}
+    resolution: {integrity: sha512-EAY0oNBvljyxB0uPE8tSNPHJsY41KnzVxI/ju8A3WGWhFyRZKlRcbNxf7qinosAsnYZNFgknI0/NP0MR7tSdrQ==, tarball: file:../service/powersync-service/packages/schema/powersync-service-schema-1.19.0.tgz}
     version: 1.19.0
 
   '@powersync/service-sync-rules@0.29.10':
@@ -6244,7 +6244,7 @@ snapshots:
       big-integer: 1.6.52
       iconv-lite: 0.6.3
 
-  '@powersync/service-client@file:../service/powersync-service/packages/service-client/powersync-service-client-0.0.0.tgz(@types/json-schema@7.0.15)(tsx@4.21.0)(yaml@2.8.2)':
+  '@powersync/service-client@file:../service/powersync-service/packages/service-client/powersync-service-client-0.0.1.tgz(@types/json-schema@7.0.15)(tsx@4.21.0)(yaml@2.8.2)':
     dependencies:
       '@journeyapps-labs/common-sdk': 1.0.2(@types/json-schema@7.0.15)(tsx@4.21.0)(yaml@2.8.2)
       '@powersync/service-types': 0.14.0
@@ -7323,7 +7323,7 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.0.3
 
-  '@vitest/mocker@3.2.4(vite@7.3.1(@types/node@24.10.10)(tsx@4.21.0))':
+  '@vitest/mocker@3.2.4(vite@7.3.1(@types/node@24.10.10)(tsx@4.21.0)(yaml@2.8.2))':
     dependencies:
       '@vitest/spy': 3.2.4
       estree-walker: 3.0.3
@@ -10108,7 +10108,7 @@ snapshots:
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/expect': 3.2.4
-      '@vitest/mocker': 3.2.4(vite@7.3.1(@types/node@24.10.10)(tsx@4.21.0))
+      '@vitest/mocker': 3.2.4(vite@7.3.1(@types/node@24.10.10)(tsx@4.21.0)(yaml@2.8.2))
       '@vitest/pretty-format': 3.2.4
       '@vitest/runner': 3.2.4
       '@vitest/snapshot': 3.2.4

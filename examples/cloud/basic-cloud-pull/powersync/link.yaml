@@ -1,4 +1,4 @@
 type: cloud
-instance_id: TODO
-org_id: TODO
-project_id: TODO
+instance_id: !env INSTANCE_ID
+org_id: !env ORG_ID
+project_id: !env PROJECT_ID

@@ -16,7 +16,16 @@ export async function createCloudClient(): Promise<PowerSyncManagementClient> {
     );
   }
   return new PowerSyncManagementClient({
-    client: sdk.createNodeNetworkClient({
+    /**
+     * Use the web network client rather than the node client. The node client
+     * uses agentkeepalive to pool TCP connections across requests. When making
+     * multiple requests from the same client, connection reuse can cause 400 Bad
+     * Request errors if the server closes connections before the client's
+     * freeSocketTimeout (30s). The web client uses fetch() which manages
+     * connections differently and avoids this stale-connection issue.
+     * Node.js exposes fetch as a global, so we can use it directly without importing it.
+     */
+    client: sdk.createWebNetworkClient({
       headers: () => ({
         Authorization: `Bearer ${token}`
       })
