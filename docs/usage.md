@@ -195,7 +195,7 @@ Login is supported on macOS (other platforms coming soon). If you use another pl
 
 # Supplying Linking Information for Cloud and Self-Hosted Commands
 
-Cloud and self-hosted commands (`deploy`, `destroy`, `stop`, `fetch config`, `pull config`, etc.) need instance (and for cloud, org and project) identifiers. The same three methods apply to both: the CLI uses the first that is available (flags override environment variables, environment variables override link file):
+Cloud and self-hosted commands need instance (and for Cloud, org and project) identifiers. **Cloud only:** `deploy`, `destroy`, `stop`, `fetch config`, `pull config`. **Both:** `fetch status`, `generate schema`, `generate token`. The same three methods apply: the CLI uses the first that is available (flags override environment variables, environment variables override link file):
 
 1. **Flags**
    - **Cloud:** `--instance-id`, `--org-id`, `--project-id`
@@ -226,7 +226,7 @@ powersync stop --confirm=yes \
 **Self-hosted:** Set `PS_TOKEN` (or use a linked project with API key in link.yaml), then:
 
 ```bash
-powersync fetch config --api-url=https://powersync.example.com
+powersync fetch status --api-url=https://powersync.example.com
 ```
 
 You can use a different project directory with `--directory`:
@@ -236,7 +236,7 @@ You can use a different project directory with `--directory`:
 powersync stop --confirm=yes --directory=my-powersync --instance-id=... --org-id=... --project-id=...
 
 # Self-hosted (API key from PS_TOKEN or link.yaml)
-powersync fetch config --directory=my-powersync --api-url=https://...
+powersync fetch status --directory=my-powersync --api-url=https://...
 ```
 
 ---
@@ -256,7 +256,7 @@ powersync link cloud \
 
 # No IDs needed on later commands
 powersync stop --confirm=yes
-powersync fetch config
+powersync fetch status
 ```
 
 If the project lives in a non-default directory:
@@ -289,7 +289,7 @@ powersync fetch config --output=json
 export API_URL=https://powersync.example.com
 export PS_TOKEN=your-api-key
 
-powersync fetch config --output=json
+powersync fetch status --output=json
 ```
 
 Inline for a single command:
@@ -299,7 +299,7 @@ Inline for a single command:
 INSTANCE_ID=... ORG_ID=... PROJECT_ID=... powersync stop --confirm=yes
 
 # Self-hosted
-API_URL=https://... PS_TOKEN=... powersync fetch config --output=json
+API_URL=https://... PS_TOKEN=... powersync fetch status --output=json
 ```
 
 **Note:** Environment variables are only used when neither flags nor `link.yaml` provide linking information.

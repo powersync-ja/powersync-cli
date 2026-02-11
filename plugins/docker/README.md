@@ -34,7 +34,7 @@ Each implementation provides:
 ### Example
 
 ```bash
-powersync docker init --database postgres --storage postgres
+powersync docker configure --database postgres --storage postgres
 ```
 
 Creates **powersync/docker/** with:
@@ -58,7 +58,7 @@ No need to edit **.env** for default setups; the PowerSync service reads **docke
 - **`--directory`** – Config directory (default: `powersync`).
 - **`--database`** – Database module for **docker configure** (e.g. `postgres`). Required for configure.
 - **`--storage`** – Storage module for **docker configure** (e.g. `postgres`). Required for configure.
-- **`--project-name`** – Docker Compose project name for configure (default: derived from config directory name).
+- **`--project-name`** – Docker Compose project name for **stop** (default: from `link.yaml` when run from project directory). Use to stop from any directory.
 - **`--api-url`** – PowerSync API URL (optional; for consistency with other self-hosted commands).
 
 ## Building blocks
