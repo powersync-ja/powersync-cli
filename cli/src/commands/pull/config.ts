@@ -122,10 +122,7 @@ export default class PullConfig extends CloudInstanceCommand {
       this.log(ux.colorize('green', `Created ${directory}/${LINK_FILENAME} with Cloud instance link.`));
     }
 
-    const { linked } = this.loadProject(flags, {
-      configFileRequired: false,
-      linkingIsRequired: true
-    });
+    const { linked } = this.loadProject(flags);
     const client = await this.getClient();
 
     this.log(

@@ -4,8 +4,14 @@ import { HelpGroup } from './HelpGroup.js';
 import { PowerSyncCommand } from './PowerSyncCommand.js';
 
 export type EnsureConfigOptions = {
-  configFileRequired: boolean;
-  linkingIsRequired?: boolean;
+  configFileRequired?: boolean;
+};
+
+export const DEFAULT_ENSURE_CONFIG_OPTIONS: Required<EnsureConfigOptions> = {
+  /**
+   * Only the deploy and config related commands actually require the config to be present.
+   */
+  configFileRequired: false
 };
 
 /** Base command for operations that target a PowerSync project directory (e.g. link, init). */

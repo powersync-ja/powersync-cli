@@ -1,6 +1,7 @@
 import { Flags, Interfaces } from '@oclif/core';
 import {
   createCloudClient,
+  DEFAULT_ENSURE_CONFIG_OPTIONS,
   EnsureConfigOptions,
   ensureServiceTypeMatches,
   env,
@@ -78,13 +79,20 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
     return createCloudClient();
   }
 
-  loadProject(flags: CloudInstanceCommandFlags, options?: EnsureConfigOptions): CloudProject {
+  loadProject(
+    flags: CloudInstanceCommandFlags,
+    options: EnsureConfigOptions = DEFAULT_ENSURE_CONFIG_OPTIONS
+  ): CloudProject {
+    const resolvedOptions = {
+      ...options,
+      ...DEFAULT_ENSURE_CONFIG_OPTIONS
+    };
     const projectDir = this.ensureProjectDirExists(flags);
 
     // Check if the service.yaml file is present and has _type: cloud
     ensureServiceTypeMatches({
       command: this,
-      configRequired: options?.configFileRequired ?? false,
+      configRequired: resolvedOptions.configFileRequired,
       directoryLabel: flags.directory,
       expectedType: ServiceType.CLOUD,
       projectDir
@@ -104,13 +112,11 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
         });
       } catch (error) {
         // It's only an error if linking is required
-        if (options?.linkingIsRequired) {
-          this.styledError({
-            message:
-              'Linking is required before using this command. Explicitly provided flags were specified, but validation failed.',
-            error
-          });
-        }
+        this.styledError({
+          message:
+            'Linking is required before using this command. Explicitly provided flags were specified, but validation failed.',
+          error
+        });
       }
     } else if (env.INSTANCE_ID) {
       try {
@@ -121,12 +127,10 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
           project_id: env.PROJECT_ID!
         });
       } catch (error) {
-        if (options?.linkingIsRequired) {
-          this.styledError({
-            message: 'Failed to parse environment variables as CloudLinkConfig',
-            error
-          });
-        }
+        this.styledError({
+          message: 'Failed to parse environment variables as CloudLinkConfig',
+          error
+        });
       }
     } else if (existsSync(linkPath)) {
       try {
@@ -134,16 +138,14 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
         const doc = parseYamlFile(linkPath);
         linked = RequiredCloudLinkConfig.decode(doc.contents?.toJSON());
       } catch (error) {
-        if (options?.linkingIsRequired) {
-          this.styledError({
-            message: `Failed to parse ${LINK_FILENAME} as CloudLinkConfig`,
-            error
-          });
-        }
+        this.styledError({
+          message: `Failed to parse ${LINK_FILENAME} as CloudLinkConfig`,
+          error
+        });
       }
     }
 
-    if (!linked && options?.linkingIsRequired) {
+    if (!linked) {
       this.styledError({
         message:
           'Linking is required before using this command. No linking information was found in the current context.'

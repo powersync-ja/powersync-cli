@@ -1,5 +1,6 @@
 import { Command, Flags, ux } from '@oclif/core';
 import { createAccountsHubClient, createCloudClient } from '@powersync/cli-core';
+import { writeFileSync } from 'fs';
 import sortBy from 'lodash/sortBy.js';
 import ora from 'ora';
 
@@ -48,6 +49,10 @@ export default class FetchInstances extends Command {
       description: 'Output format: human or json.',
       options: ['human', 'json'],
       default: 'human'
+    }),
+    'output-file': Flags.string({
+      description: 'Optionally Write instance information to a file',
+      required: false
     })
   };
 
@@ -121,6 +126,8 @@ export default class FetchInstances extends Command {
       spinner.stop();
     }
 
+    this.log(''); // Add spacing
+
     if (flags.output === 'human') {
       // Log in human readable format
       for (const org of sortBy(Object.values(instanceMap), 'name')) {
@@ -135,8 +142,16 @@ export default class FetchInstances extends Command {
         }
         this.log('');
       }
-    } else if (flags.output === 'json') {
-      this.log(ux.colorize('gray', JSON.stringify(instanceMap, null, '\t')));
+    }
+
+    if (flags.output === 'json' || flags['output-file']) {
+      const content = ux.colorizeJson(Object.values(instanceMap));
+      if (flags.output === 'json') {
+        this.log(content);
+      }
+      if (flags['output-file']) {
+        writeFileSync(flags['output-file'], content);
+      }
     }
   }
 }

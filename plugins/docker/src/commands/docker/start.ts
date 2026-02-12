@@ -14,8 +14,7 @@ export default class DockerStart extends SelfHostedInstanceCommand {
   async run(): Promise<void> {
     const { flags } = await this.parse(DockerStart);
     const { projectDirectory } = this.loadProject(flags, {
-      configFileRequired: false,
-      linkingIsRequired: false
+      configFileRequired: true
     });
 
     const projectName = getDockerProjectName(projectDirectory);

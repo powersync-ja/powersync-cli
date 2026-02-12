@@ -181,8 +181,7 @@ export default class Validate extends SharedInstanceCommand {
     const { flags } = await this.parse(Validate);
 
     const project = this.loadProject(flags, {
-      configFileRequired: true,
-      linkingIsRequired: true
+      configFileRequired: true
     });
 
     const isCloud = project.linked.type === 'cloud';

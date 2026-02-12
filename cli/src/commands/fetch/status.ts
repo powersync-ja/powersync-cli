@@ -151,10 +151,7 @@ export default class FetchStatus extends SharedInstanceCommand {
   async run(): Promise<void> {
     const { flags } = await this.parse(FetchStatus);
 
-    const project = this.loadProject(flags, {
-      configFileRequired: false,
-      linkingIsRequired: true
-    });
+    const project = this.loadProject(flags);
 
     try {
       const diagnostics = await (project.linked.type === 'cloud'

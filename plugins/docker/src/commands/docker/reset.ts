@@ -19,8 +19,7 @@ export default class DockerReset extends SelfHostedInstanceCommand {
   async run(): Promise<void> {
     const { flags } = await this.parse(DockerReset);
     const { projectDirectory } = this.loadProject(flags as SelfHostedInstanceCommandFlags, {
-      configFileRequired: false,
-      linkingIsRequired: false
+      configFileRequired: true
     });
 
     const projectName = getDockerProjectName(projectDirectory);

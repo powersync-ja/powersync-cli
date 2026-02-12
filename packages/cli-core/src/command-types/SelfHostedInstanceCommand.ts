@@ -7,7 +7,7 @@ import { env } from '../utils/env.js';
 import { LINK_FILENAME, SERVICE_FILENAME } from '../utils/project-config.js';
 import { parseYamlFile } from '../utils/yaml.js';
 import { HelpGroup } from './HelpGroup.js';
-import { EnsureConfigOptions, InstanceCommand } from './InstanceCommand.js';
+import { DEFAULT_ENSURE_CONFIG_OPTIONS, EnsureConfigOptions, InstanceCommand } from './InstanceCommand.js';
 
 export type SelfHostedProject = {
   projectDirectory: string;
@@ -32,12 +32,20 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
     })
   };
 
-  loadProject(flags: SelfHostedInstanceCommandFlags, options?: EnsureConfigOptions): SelfHostedProject {
+  loadProject(
+    flags: SelfHostedInstanceCommandFlags,
+    options: EnsureConfigOptions = DEFAULT_ENSURE_CONFIG_OPTIONS
+  ): SelfHostedProject {
+    const resolvedOptions = {
+      ...options,
+      ...DEFAULT_ENSURE_CONFIG_OPTIONS
+    };
+
     const projectDir = this.ensureProjectDirExists(flags);
 
     ensureServiceTypeMatches({
       command: this,
-      configRequired: options?.configFileRequired ?? false,
+      configRequired: resolvedOptions.configFileRequired,
       directoryLabel: flags.directory,
       expectedType: ServiceType.SELF_HOSTED,
       projectDir
@@ -66,15 +74,13 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
         api_key: api_key!
       });
     } catch (error) {
-      if (options?.linkingIsRequired) {
-        this.styledError({
-          message: 'Linking is required. Set API_URL and TOKEN, or link the project first (link.yaml).',
-          error
-        });
-      }
+      this.styledError({
+        message: 'Linking is required. Set API_URL and TOKEN, or link the project first (link.yaml).',
+        error
+      });
     }
 
-    if (!linked && options?.linkingIsRequired) {
+    if (!linked) {
       this.styledError({
         message: 'Linking is required for this command. Set API_URL and TOKEN, or link the project first (link.yaml).'
       });

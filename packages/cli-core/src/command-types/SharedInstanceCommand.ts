@@ -1,5 +1,6 @@
 import { Flags, Interfaces } from '@oclif/core';
 import {
+  DEFAULT_ENSURE_CONFIG_OPTIONS,
   EnsureConfigOptions,
   ensureServiceTypeMatches,
   env,
@@ -82,7 +83,15 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     ...InstanceCommand.flags
   };
 
-  loadProject(flags: SharedInstanceCommandFlags, options?: EnsureConfigOptions): CloudProject | SelfHostedProject {
+  loadProject(
+    flags: SharedInstanceCommandFlags,
+    options: EnsureConfigOptions = DEFAULT_ENSURE_CONFIG_OPTIONS
+  ): CloudProject | SelfHostedProject {
+    const resolvedOptions = {
+      ...options,
+      ...DEFAULT_ENSURE_CONFIG_OPTIONS
+    };
+
     const projectDir = this.ensureProjectDirExists(flags);
     const linkPath = join(projectDir, LINK_FILENAME);
 
@@ -118,7 +127,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     ].join('\n');
 
     // If we don't have a project type by now, we need to error
-    if (!projectType && options?.linkingIsRequired) {
+    if (!projectType) {
       this.styledError({ message: linkMissingErrorMessage });
     }
 
@@ -133,9 +142,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
           api_url: flags['api-url'] ?? env.API_URL ?? _rawSelfHostedLinkConfig.api_url!
         });
       } catch (error) {
-        if (options?.linkingIsRequired) {
-          this.styledError({ message: linkMissingErrorMessage, error });
-        }
+        this.styledError({ message: linkMissingErrorMessage, error });
       }
     } else {
       const _rawCloudLinkConfig = (rawLinkConfig as CloudLinkConfig) ?? { type: 'cloud' };
@@ -147,13 +154,11 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
           project_id: flags['project-id'] ?? env.PROJECT_ID ?? _rawCloudLinkConfig.project_id!
         });
       } catch (error) {
-        if (options?.linkingIsRequired) {
-          this.styledError({ message: linkMissingErrorMessage, error });
-        }
+        this.styledError({ message: linkMissingErrorMessage, error });
       }
     }
 
-    if (!linkConfig && options?.linkingIsRequired) {
+    if (!linkConfig) {
       this.styledError({ message: linkMissingErrorMessage });
     }
 

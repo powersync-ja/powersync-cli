@@ -44,14 +44,13 @@ export default class Deploy extends CloudInstanceCommand {
     const { flags } = await this.parse(Deploy);
 
     const { projectDirectory, linked, syncRulesContent } = this.loadProject(flags, {
-      configFileRequired: true,
-      linkingIsRequired: true
+      configFileRequired: true
     });
 
+    this.log(ux.colorize('cyan', 'Performing validations before deploy...'));
+    this.log(ux.colorize('gray', '\tValidating configuration...'));
     const config = this.parseConfig(projectDirectory);
     const client = await this.getClient();
-
-    this.log(ux.colorize('cyan', 'Fetching upstream config for validation...'));
 
     // The existing config is required to deploy changes. The isntance should have been created already.
     const existingConfig = await client
@@ -91,7 +90,7 @@ export default class Deploy extends CloudInstanceCommand {
       });
     }
 
-    this.log(ux.colorize('cyan', 'Testing connection before deploy...'));
+    this.log(ux.colorize('gray', '\tTesting connections...'));
     if ((config.replication?.connections?.length ?? 0) <= 0) {
       this.styledError({
         message: 'No connection found in config.',
@@ -113,10 +112,10 @@ export default class Deploy extends CloudInstanceCommand {
       }
     }
 
-    this.log(ux.colorize('green', 'Connection test successful.'));
+    this.log(ux.colorize('green', 'Validations completed successfully.\n'));
 
     const spinner = ora({
-      prefixText: 'Deploying instance.\n',
+      prefixText: '\nDeploying instance.\n',
       spinner: 'moon',
       suffixText: '\nThis may take a few minutes.\n'
     });

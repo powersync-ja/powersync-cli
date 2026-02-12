@@ -6,7 +6,7 @@ import { fetchCloudConfig } from '../../api/cloud/fetch-cloud-config.js';
 
 export default class FetchConfig extends CloudInstanceCommand {
   static description =
-    'Retrieve the current instance config from PowerSync Cloud and print as YAML or JSON. Uses linked project or --instance-id, --org-id, --project-id. Cloud only.';
+    'Retrieve the current instance config from PowerSync Cloud and print as YAML or JSON. Cloud only.';
   static summary = 'Print linked Cloud instance config (YAML or JSON).';
 
   static flags = {
@@ -21,10 +21,7 @@ export default class FetchConfig extends CloudInstanceCommand {
   async run(): Promise<void> {
     const { flags } = await this.parse(FetchConfig);
 
-    const { linked } = this.loadProject(flags, {
-      configFileRequired: false,
-      linkingIsRequired: true
-    });
+    const { linked } = this.loadProject(flags);
 
     const client = await this.getClient();
 

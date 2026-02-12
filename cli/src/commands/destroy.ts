@@ -22,15 +22,12 @@ export default class Destroy extends CloudInstanceCommand {
       this.styledError({ message: 'Destruction requires confirmation. Run with --confirm=yes to confirm.' });
     }
 
-    const { linked } = this.loadProject(flags, {
-      configFileRequired: false,
-      linkingIsRequired: true
-    });
+    const { linked } = this.loadProject(flags);
     const client = await this.getClient();
 
     this.log(
       ux.colorize(
-        'cyan',
+        'yellow',
         `Destroying instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`
       )
     );
@@ -41,6 +38,8 @@ export default class Destroy extends CloudInstanceCommand {
         org_id: linked.org_id,
         id: linked.instance_id
       });
+
+      this.log(ux.colorize('green', 'Instance destroyed successfully.'));
     } catch (error) {
       this.styledError({
         message: `Failed to destroy instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`,

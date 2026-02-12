@@ -31,8 +31,7 @@ export default class DockerStop extends SelfHostedInstanceCommand {
     let projectName = flags['project-name'];
     if (projectName == null || projectName === '') {
       const { projectDirectory } = this.loadProject(flags as SelfHostedInstanceCommandFlags, {
-        configFileRequired: false,
-        linkingIsRequired: false
+        configFileRequired: true
       });
       projectName = getDockerProjectName(projectDirectory) ?? undefined;
     }

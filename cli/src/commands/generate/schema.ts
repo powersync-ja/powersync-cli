@@ -53,10 +53,7 @@ export default class GenerateSchema extends SharedInstanceCommand {
   async run(): Promise<void> {
     const { flags } = await this.parse(GenerateSchema);
 
-    const project = this.loadProject(flags, {
-      configFileRequired: false,
-      linkingIsRequired: true
-    });
+    const project = this.loadProject(flags);
 
     const schemaGenerator = schemaGenerators[flags.output as keyof typeof schemaGenerators];
     if (!schemaGenerator) {

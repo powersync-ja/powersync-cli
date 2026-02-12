@@ -1,6 +1,14 @@
 import { Flags, ux } from '@oclif/core';
-import { CloudProject, createCloudClient, SelfHostedProject, SharedInstanceCommand } from '@powersync/cli-core';
+import {
+  CloudProject,
+  createCloudClient,
+  SelfHostedProject,
+  SERVICE_FILENAME,
+  SharedInstanceCommand
+} from '@powersync/cli-core';
+import { CLISelfHostedConfig } from '@powersync/cli-schemas';
 import * as jose from 'jose';
+import { join } from 'node:path';
 
 type TokenConfig = {
   subject: string;
@@ -68,7 +76,16 @@ export default class GenerateToken extends SharedInstanceCommand {
 
   protected async generateSelfHostedToken(project: SelfHostedProject, config: TokenConfig): Promise<string> {
     // For self hosted we can check if there is a shared secret in the config file and then manually create a token with JOSE
-    const instanceConfig = this.parseSelfHostedConfig(project.projectDirectory);
+    let instanceConfig: CLISelfHostedConfig;
+    try {
+      instanceConfig = this.parseSelfHostedConfig(project.projectDirectory);
+    } catch (ex) {
+      this.styledError({
+        message: 'Generating a token for self hosted intances requires the configuration to be locally present.',
+        error: ex,
+        suggestions: [`Ensure that ${join(project.projectDirectory, SERVICE_FILENAME)} exits`]
+      });
+    }
     const usableKeys = instanceConfig.client_auth?.jwks?.keys?.filter((key) => key.alg === 'HS256') ?? [];
     if (!usableKeys.length) {
       this.styledError({
@@ -99,10 +116,7 @@ export default class GenerateToken extends SharedInstanceCommand {
 
   async run(): Promise<void> {
     const { flags } = await this.parse(GenerateToken);
-    const project = this.loadProject(flags, {
-      configFileRequired: false,
-      linkingIsRequired: true
-    });
+    const project = this.loadProject(flags);
 
     const token = await (project.linked.type === 'cloud'
       ? this.generateCloudToken(project as CloudProject, {
