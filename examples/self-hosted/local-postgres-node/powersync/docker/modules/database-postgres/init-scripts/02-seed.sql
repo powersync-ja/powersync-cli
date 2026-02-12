@@ -6,3 +6,4 @@ VALUES (
   now()
 )
 ON CONFLICT (id) DO NOTHING;
+

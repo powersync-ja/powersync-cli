@@ -8,4 +8,4 @@ api_url: http://localhost:8080
 api_key: dev-token-do-not-use-in-production
 plugins:
   docker:
-    project_name: powersync_local_postgres_node
+    project_name: powersync_local-postgres-node

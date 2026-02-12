@@ -143,3 +143,6 @@ playground/
 
 # PNPM
 .pnpm-store/
+
+# MacOS
+.DS_Store

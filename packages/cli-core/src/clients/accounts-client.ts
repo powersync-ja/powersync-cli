@@ -9,7 +9,7 @@
 
 import * as sdk from '@journeyapps-labs/common-sdk';
 import { ux } from '@oclif/core';
-import { getSecureStorage } from '../services/SecureStorage.js';
+import { Services } from '../services/services.js';
 import { env } from '../utils/env.js';
 
 /**
@@ -61,11 +61,11 @@ export class AccountsHubClientSDKClient<C extends sdk.NetworkClient = sdk.Networ
  * Uses the token stored by the login command (secure storage, e.g. macOS Keychain).
  */
 export async function createAccountsHubClient(): Promise<AccountsHubClientSDKClient> {
-  const storage = getSecureStorage();
-  const token = env.TOKEN || (await storage.getToken());
+  const { authentication } = Services;
+  const token = env.TOKEN || (await authentication.getToken());
   if (!token) {
     throw new Error(
-      `Not logged in. Run ${ux.colorize('blue', 'powersync login')} to authenticate (you will be prompted for your token). Login is supported on macOS (other platforms coming soon).`
+      `Not logged in. Run ${ux.colorize('blue', 'powersync login')} to authenticate (you will be prompted for your token). Login is supported on macOS (other platforms coming soon), or provide the ${ux.colorize('blue', 'TOKEN')} environment variable.`
     );
   }
   return new AccountsHubClientSDKClient({

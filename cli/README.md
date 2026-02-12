@@ -10,6 +10,7 @@ CLI for PowerSync
 
 - [@powersync/cli](#powersynccli)
 - [Usage](#usage)
+- [Known Limitations](#known-limitations)
 - [Commands](#commands)
 <!-- tocstop -->
 
@@ -32,6 +33,10 @@ USAGE
 ```
 
 <!-- usagestop -->
+
+# Known Limitations
+
+- **Login secure storage**: Secure storage for auth tokens is only supported on macOS (via Keychain). On Windows and Linux, `powersync login` will not persist credentials; use the `TOKEN` environment variable instead for Cloud commands.
 
 # Commands
 

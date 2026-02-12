@@ -1,7 +1,7 @@
 import * as sdk from '@journeyapps-labs/common-sdk';
 import { ux } from '@oclif/core';
 import { PowerSyncManagementClient } from '@powersync/management-client';
-import { getSecureStorage } from '../services/SecureStorage.js';
+import { Services } from '../services/services.js';
 import { env } from '../utils/env.js';
 
 /**
@@ -9,13 +9,6 @@ import { env } from '../utils/env.js';
  * Uses the token stored by the login command (secure storage, e.g. macOS Keychain).
  */
 export async function createCloudClient(): Promise<PowerSyncManagementClient> {
-  const storage = getSecureStorage();
-  const token = env.TOKEN || (await storage.getToken());
-  if (!token) {
-    throw new Error(
-      `Not logged in. Run ${ux.colorize('blue', 'powersync login')} to authenticate (you will be prompted for your token). Login is supported on macOS (other platforms coming soon).`
-    );
-  }
   return new PowerSyncManagementClient({
     /**
      * Use the web network client rather than the node client. The node client
@@ -27,9 +20,17 @@ export async function createCloudClient(): Promise<PowerSyncManagementClient> {
      * Node.js exposes fetch as a global, so we can use it directly without importing it.
      */
     client: sdk.createWebNetworkClient({
-      headers: () => ({
-        Authorization: `Bearer ${token}`
-      })
+      headers: async () => {
+        const token = env.TOKEN || (await Services.authentication.getToken());
+        if (!token) {
+          throw new Error(
+            `Not logged in. Run ${ux.colorize('blue', 'powersync login')} to authenticate (you will be prompted for your token). Login is supported on macOS (other platforms coming soon), or provide the ${ux.colorize('blue', 'TOKEN')} environment variable.`
+          );
+        }
+        return {
+          Authorization: `Bearer ${token}`
+        };
+      }
     }),
     endpoint: env._PS_MANAGEMENT_SERVICE_URL
   });

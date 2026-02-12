@@ -19,6 +19,9 @@ export class DemoConnector implements PowerSyncBackendConnector {
       userId: USER_ID,
       secret
     });
+
+    console.log('token', token);
+
     return {
       endpoint: POWERSYNC_URL,
       token
