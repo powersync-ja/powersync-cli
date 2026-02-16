@@ -1,12 +1,13 @@
-import { ux } from '@oclif/core';
+import { Flags, ux } from '@oclif/core';
 import { cpSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { InstanceCommand, PowerSyncCommand } from '@powersync/cli-core';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+import { writeVscodeSettingsForYamlEnv } from '../../api/write-vscode-settings-for-yaml-env.js';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATES_DIR = join(__dirname, '..', '..', '..', 'templates');
 
 export default class InitCloud extends PowerSyncCommand {
@@ -14,12 +15,16 @@ export default class InitCloud extends PowerSyncCommand {
     'Copy a Cloud template into a config directory (default powersync/). Edit service.yaml then run link cloud and deploy.';
   static summary = 'Scaffold a PowerSync Cloud config directory from a template.';
   static flags = {
-    ...InstanceCommand.flags
+    ...InstanceCommand.flags,
+    vscode: Flags.boolean({
+      description: 'Configure the workspace with .vscode settings for YAML custom tags (!env).',
+      default: false
+    })
   };
 
   async run(): Promise<void> {
     const { flags } = await this.parse(InitCloud);
-    const { directory } = flags;
+    const { directory, vscode } = flags;
     const targetDir = this.resolveProjectDir(flags);
 
     if (existsSync(targetDir)) {
@@ -38,6 +43,10 @@ export default class InitCloud extends PowerSyncCommand {
     mkdirSync(targetDir, { recursive: true });
     cpSync(templatePath, targetDir, { recursive: true });
 
+    if (vscode) {
+      writeVscodeSettingsForYamlEnv(process.cwd());
+    }
+
     const instructions = [
       'Create a new instance with ',
       ux.colorize('blue', 'powersync link cloud --create'),
@@ -48,15 +57,18 @@ export default class InitCloud extends PowerSyncCommand {
       'to deploy.'
     ].join('\n');
 
-    this.log(
-      [
-        ux.colorize('green', 'Created PowerSync cloud project!'),
-        '',
-        ux.colorize('cyan', 'Configuration files are located in:'),
-        ux.colorize('gray', targetDir),
-        '',
-        ux.colorize('yellow', instructions)
-      ].join('\n')
-    );
+    const lines = [
+      ux.colorize('green', 'Created PowerSync cloud project!'),
+      '',
+      ux.colorize('cyan', 'Configuration files are located in:'),
+      ux.colorize('gray', targetDir),
+      '',
+      ux.colorize('yellow', instructions)
+    ];
+    if (vscode) {
+      lines.splice(5, 0, ux.colorize('gray', 'Added .vscode/settings.json for YAML !env tag support.'));
+      lines.splice(6, 0, '');
+    }
+    this.log(lines.join('\n'));
   }
 }

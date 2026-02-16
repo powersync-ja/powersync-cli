@@ -1,12 +1,13 @@
-import { ux } from '@oclif/core';
+import { Flags, ux } from '@oclif/core';
 import { cpSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { InstanceCommand, PowerSyncCommand, SERVICE_FILENAME } from '@powersync/cli-core';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+import { writeVscodeSettingsForYamlEnv } from '../../api/write-vscode-settings-for-yaml-env.js';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATES_DIR = join(__dirname, '..', '..', '..', 'templates');
 
 export default class InitSelfHosted extends PowerSyncCommand {
@@ -14,12 +15,16 @@ export default class InitSelfHosted extends PowerSyncCommand {
     'Copy a self-hosted template into a config directory (default powersync/). Configure service.yaml with your self-hosted instance details.';
   static summary = 'Scaffold a PowerSync self-hosted config directory from a template.';
   static flags = {
-    ...InstanceCommand.flags
+    ...InstanceCommand.flags,
+    vscode: Flags.boolean({
+      description: 'Configure the workspace with .vscode settings for YAML custom tags (!env).',
+      default: false
+    })
   };
 
   async run(): Promise<void> {
     const { flags } = await this.parse(InitSelfHosted);
-    const { directory } = flags;
+    const { directory, vscode } = flags;
     const targetDir = this.resolveProjectDir(flags);
 
     if (existsSync(targetDir)) {
@@ -38,6 +43,10 @@ export default class InitSelfHosted extends PowerSyncCommand {
     mkdirSync(targetDir, { recursive: true });
     cpSync(templatePath, targetDir, { recursive: true });
 
+    if (vscode) {
+      writeVscodeSettingsForYamlEnv(process.cwd());
+    }
+
     const instructions = [
       'Self Hosted projects currently require external configuration for starting and deploying.',
       `Configure the ${SERVICE_FILENAME} file with your self-hosted instance details.`,
@@ -45,15 +54,18 @@ export default class InitSelfHosted extends PowerSyncCommand {
       'Please refer to the PowerSync Self-Hosted documentation for more information.'
     ].join('\n');
 
-    this.log(
-      [
-        ux.colorize('green', 'Created PowerSync self-hosted project!'),
-        '',
-        ux.colorize('gray', 'Configuration files are located in:'),
-        ux.colorize('cyan', targetDir),
-        '',
-        ux.colorize('yellow', instructions)
-      ].join('\n')
-    );
+    const lines = [
+      ux.colorize('green', 'Created PowerSync self-hosted project!'),
+      '',
+      ux.colorize('cyan', 'Configuration files are located in:'),
+      ux.colorize('gray', targetDir),
+      '',
+      ux.colorize('yellow', instructions)
+    ];
+    if (vscode) {
+      lines.splice(5, 0, ux.colorize('gray', 'Added .vscode/settings.json for YAML !env tag support.'));
+      lines.splice(6, 0, '');
+    }
+    this.log(lines.join('\n'));
   }
 }
