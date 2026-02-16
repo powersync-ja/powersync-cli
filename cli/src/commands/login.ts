@@ -1,4 +1,4 @@
-import { confirm, password } from '@inquirer/prompts';
+import { confirm, password, select } from '@inquirer/prompts';
 import { ux } from '@oclif/core';
 import { createAccountsHubClient, PowerSyncCommand, Services } from '@powersync/cli-core';
 import { createServer } from 'node:http';
@@ -58,12 +58,15 @@ export default class Login extends PowerSyncCommand {
       }
     }
 
-    const shouldOpenBrowser = await confirm({
-      message: 'Do you want to open the browser to create a new token?',
-      default: false
+    const tokenMethod = await select({
+      message: 'How would you like to provide your token?',
+      choices: [
+        { value: 'browser', name: 'Open a browser to generate a token' },
+        { value: 'existing', name: 'Enter an existing token' }
+      ]
     });
 
-    const token = shouldOpenBrowser
+    const token = tokenMethod === 'browser'
       ? await new Promise<string>((resolve, reject) => {
           const server = createServer();
           const spinner = ora('Waiting for you to create a token in the dashboard…').start();
