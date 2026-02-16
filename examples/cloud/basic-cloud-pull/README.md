@@ -1,9 +1,9 @@
 # Basic Cloud Pull Example
 
-This example was created by pulling the config for an existing instance.
+This example was created by pulling the config for an existing instance. You need to be logged in (`powersync login`) or set the `TOKEN` environment variable first.
 
 ```bash
-# The pull config command automatically links this project with the PowerSync instance
+# The pull config command writes link.yaml and downloads config for the given instance
 powersync pull config --org-id=123 --project-id=abc --instance-id=def
 ```
 

@@ -28,8 +28,8 @@
     "ajv": "^8.12.0",
     "better-ajv-errors": "^2.0.3",
     "@powersync/service-types": "^0.13.3",
-    "@powersync/service-schema": "file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-service/packages/schema/powersync-service-schema-1.19.5.tgz",
-    "@powersync/management-types": "file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/types/powersync-management-types-0.0.3.tgz"
+    "@powersync/service-schema": "^1.19.2",
+    "@powersync/management-types": "0.0.1"
   },
   "devDependencies": {
     "@types/node": "^22",

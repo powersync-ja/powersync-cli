@@ -1,6 +1,5 @@
 # PowerSync Cloud config (fetched from cloud)
 # yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/cli-config.json
-#
 _type: cloud
 name: mango
 region: us
@@ -13,7 +12,7 @@ replication:
       password:
         secret_ref: default_password
       database: powersync
-      uri: mongodb+srv://steven@cluster0.ikdsp.mongodb.net/powersync
+      uri: !env MONGO_URI
       post_images: auto_configure
 client_auth:
   jwks:

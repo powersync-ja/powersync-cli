@@ -17,10 +17,10 @@ All commands use the same project and directory resolution as the main CLI (e.g.
 
 ## Templates (composable modules)
 
-Templates are organized by **category** and **implementation**:
+Templates are organized by **category** and **implementation** (see also [usage-docker.md](../docs/usage-docker.md#how-configure-uses-templates)):
 
-- **`templates/database/`** – Replication source (e.g. **postgres**).
-- **`templates/storage/`** – PowerSync bucket metadata (e.g. **postgres**).
+- **`templates/source-database/`** – Replication source (e.g. **postgres**). Used by **`--database`**.
+- **`templates/bucket-storage/`** – PowerSync bucket metadata (e.g. **postgres**). Used by **`--storage`**.
 - **`templates/backend/`** – (Reserved for future use.)
 
 Each implementation provides:
@@ -44,7 +44,7 @@ Creates **powersync/docker/** with:
 - **docker-compose.yaml** – `include:` of both partials + PowerSync service (depends on pg-db and pg-storage; uses **env_file: .env**).
 - **.env** – Merged from template.env snippets and PowerSync vars (defaults; no manual setup required for basic use).
 
-Also merges the database and storage snippets into **powersync/service.yaml** (replication and storage with `!env` preserved) and creates/updates **link.yaml** with `plugins.docker.project_name` (derived from the config directory name, or use **`--project-name`**).
+Also merges the database and storage snippets into **powersync/service.yaml** (replication and storage with `!env` preserved) and creates/updates **link.yaml** with `plugins.docker.project_name` (derived from the config directory name). When running **docker stop**, use **`--project-name`** to target a specific project or run from another directory.
 
 ## Usage
 
@@ -58,7 +58,7 @@ No need to edit **.env** for default setups; the PowerSync service reads **docke
 - **`--directory`** – Config directory (default: `powersync`).
 - **`--database`** – Database module for **docker configure** (e.g. `postgres`). Required for configure.
 - **`--storage`** – Storage module for **docker configure** (e.g. `postgres`). Required for configure.
-- **`--project-name`** – Docker Compose project name for **stop** (default: from `link.yaml` when run from project directory). Use to stop from any directory.
+- **`--project-name`** – For **stop** only: Docker Compose project name (e.g. `powersync_myapp`). Default: `plugins.docker.project_name` from `link.yaml` when run from the project directory. Use to stop from any directory or target a specific project.
 - **`--api-url`** – PowerSync API URL (optional; for consistency with other self-hosted commands).
 
 ## Building blocks

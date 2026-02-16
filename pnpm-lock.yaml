@@ -5,7 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@powersync/service-client': file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-service/packages/service-client/powersync-service-client-0.0.1.tgz
   '@powersync/management-types': file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/types/powersync-management-types-0.0.3.tgz
   '@powersync/management-client': file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz
 
@@ -45,7 +44,7 @@ importers:
         version: link:../packages/schemas
       '@powersync/management-client':
         specifier: file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz
-        version: file:../service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz(@types/json-schema@7.0.15)(tsx@4.21.0)(yaml@2.8.2)
+        version: file:../service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz(tsx@4.21.0)(yaml@2.8.2)
       '@powersync/management-types':
         specifier: file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/types/powersync-management-types-0.0.3.tgz
         version: file:../service/powersync-hosted/public-packages/types/powersync-management-types-0.0.3.tgz(tsx@4.21.0)(yaml@2.8.2)
@@ -121,7 +120,7 @@ importers:
     dependencies:
       '@journeyapps-labs/common-sdk':
         specifier: 1.0.2
-        version: 1.0.2(@types/json-schema@7.0.15)(tsx@4.21.0)(yaml@2.8.2)
+        version: 1.0.2(@types/json-schema@7.0.15)(yaml@2.8.2)
       '@journeyapps-labs/micro-errors':
         specifier: ^1.0.1
         version: 1.0.1
@@ -133,13 +132,13 @@ importers:
         version: link:../schemas
       '@powersync/management-client':
         specifier: file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz
-        version: file:../service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz(@types/json-schema@7.0.15)(tsx@4.21.0)(yaml@2.8.2)
+        version: file:../service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz(@types/json-schema@7.0.15)(yaml@2.8.2)
       '@powersync/management-types':
         specifier: file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/types/powersync-management-types-0.0.3.tgz
         version: file:../service/powersync-hosted/public-packages/types/powersync-management-types-0.0.3.tgz(tsx@4.21.0)(yaml@2.8.2)
       '@powersync/service-client':
-        specifier: file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-service/packages/service-client/powersync-service-client-0.0.1.tgz
-        version: file:../service/powersync-service/packages/service-client/powersync-service-client-0.0.1.tgz(@types/json-schema@7.0.15)(tsx@4.21.0)(yaml@2.8.2)
+        specifier: 0.0.2
+        version: 0.0.2(@types/json-schema@7.0.15)(yaml@2.8.2)
       keychain:
         specifier: ^1.5.0
         version: 1.5.0
@@ -1083,9 +1082,8 @@ packages:
     resolution: {integrity: sha512-fD6+gikp/XUVPP2lE85lNpi+sdnd1PVFrig4WFfiYNR4S/cYSGSXsfBpkd90BUScxdtZsJAkBA/Z2iI8a0S5iw==, tarball: file:../service/powersync-hosted/public-packages/types/powersync-management-types-0.0.3.tgz}
     version: 0.0.3
 
-  '@powersync/service-client@file:../service/powersync-service/packages/service-client/powersync-service-client-0.0.1.tgz':
-    resolution: {integrity: sha512-lb2xDs0M1jmys9wT1CnkRw0YkYr1tBP64zPPZO/1/4EdDvleBvu2oVjiff5wjhNVWmfsGM0uJde/kQ4HWHiPiw==, tarball: file:../service/powersync-service/packages/service-client/powersync-service-client-0.0.1.tgz}
-    version: 0.0.1
+  '@powersync/service-client@0.0.2':
+    resolution: {integrity: sha512-UUOGNuYFplmBS2PhrR6KQnQZejtgPnmYtgqg6qMyllRYj7Ctmfzu3ydqAQgpb8PpAQPCfOKV1Q62y1Rejknpfg==}
 
   '@powersync/service-core@1.18.2':
     resolution: {integrity: sha512-5ffw+V2KybJI0zDeLYSoOrhZNZRBldJfCysZ8Ht0kYwYwvRcdWH558K5YHqFYxao3yszTmOMLJuseUs4Aq5k7w==}
@@ -5414,10 +5412,40 @@ snapshots:
     optionalDependencies:
       '@types/node': 24.10.10
 
-  '@journeyapps-labs/common-sdk@1.0.2(@types/json-schema@7.0.15)(tsx@4.21.0)(yaml@2.8.2)':
+  '@journeyapps-labs/common-sdk@1.0.2(@types/json-schema@7.0.15)(yaml@2.8.2)':
     dependencies:
       '@journeyapps-labs/micro-errors': 1.0.1
-      '@journeyapps-labs/micro-streaming': 1.0.1(@types/json-schema@7.0.15)(@types/node@24.10.10)(tsx@4.21.0)(yaml@2.8.2)
+      '@journeyapps-labs/micro-streaming': 1.0.1(@types/json-schema@7.0.15)(@types/node@24.10.10)(yaml@2.8.2)
+      '@types/node': 24.10.10
+      agentkeepalive: 4.6.0
+      bson: 6.10.4
+      lodash: 4.17.23
+      uuid: 13.0.0
+    transitivePeerDependencies:
+      - '@edge-runtime/vm'
+      - '@types/debug'
+      - '@types/json-schema'
+      - '@vitest/browser'
+      - '@vitest/ui'
+      - happy-dom
+      - jiti
+      - jsdom
+      - less
+      - lightningcss
+      - msw
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+      - tsx
+      - yaml
+
+  '@journeyapps-labs/common-sdk@1.0.2(tsx@4.21.0)(yaml@2.8.2)':
+    dependencies:
+      '@journeyapps-labs/micro-errors': 1.0.1
+      '@journeyapps-labs/micro-streaming': 1.0.1(@types/node@24.10.10)(tsx@4.21.0)(yaml@2.8.2)
       '@types/node': 24.10.10
       agentkeepalive: 4.6.0
       bson: 6.10.4
@@ -5472,7 +5500,7 @@ snapshots:
 
   '@journeyapps-labs/micro-errors@1.0.1': {}
 
-  '@journeyapps-labs/micro-schema@1.0.1(@types/json-schema@7.0.15)(@types/node@24.10.10)(tsx@4.21.0)(yaml@2.8.2)':
+  '@journeyapps-labs/micro-schema@1.0.1(@types/json-schema@7.0.15)(@types/node@24.10.10)(yaml@2.8.2)':
     dependencies:
       '@apidevtools/json-schema-ref-parser': 14.2.1(@types/json-schema@7.0.15)
       '@journeyapps-labs/micro-codecs': 1.0.1(tsx@4.21.0)(yaml@2.8.2)
@@ -5504,10 +5532,70 @@ snapshots:
       - tsx
       - yaml
 
-  '@journeyapps-labs/micro-streaming@1.0.1(@types/json-schema@7.0.15)(@types/node@24.10.10)(tsx@4.21.0)(yaml@2.8.2)':
+  '@journeyapps-labs/micro-schema@1.0.1(@types/node@24.10.10)(tsx@4.21.0)(yaml@2.8.2)':
+    dependencies:
+      '@apidevtools/json-schema-ref-parser': 14.2.1(@types/json-schema@7.0.15)
+      '@journeyapps-labs/micro-codecs': 1.0.1(tsx@4.21.0)(yaml@2.8.2)
+      '@journeyapps-labs/micro-errors': 1.0.1
+      ajv: 8.17.1
+      better-ajv-errors: 2.0.3(ajv@8.17.1)
+      ts-codec: 1.3.0
+      vitest: 3.2.4(@types/node@24.10.10)(tsx@4.21.0)(yaml@2.8.2)
+      zod: 4.3.6
+    transitivePeerDependencies:
+      - '@edge-runtime/vm'
+      - '@types/debug'
+      - '@types/json-schema'
+      - '@types/node'
+      - '@vitest/browser'
+      - '@vitest/ui'
+      - happy-dom
+      - jiti
+      - jsdom
+      - less
+      - lightningcss
+      - msw
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+      - tsx
+      - yaml
+
+  '@journeyapps-labs/micro-streaming@1.0.1(@types/json-schema@7.0.15)(@types/node@24.10.10)(yaml@2.8.2)':
     dependencies:
       '@journeyapps-labs/micro-errors': 1.0.1
-      '@journeyapps-labs/micro-schema': 1.0.1(@types/json-schema@7.0.15)(@types/node@24.10.10)(tsx@4.21.0)(yaml@2.8.2)
+      '@journeyapps-labs/micro-schema': 1.0.1(@types/json-schema@7.0.15)(@types/node@24.10.10)(yaml@2.8.2)
+      '@types/express': 5.0.6
+      bson: 6.10.4
+    transitivePeerDependencies:
+      - '@edge-runtime/vm'
+      - '@types/debug'
+      - '@types/json-schema'
+      - '@types/node'
+      - '@vitest/browser'
+      - '@vitest/ui'
+      - happy-dom
+      - jiti
+      - jsdom
+      - less
+      - lightningcss
+      - msw
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+      - tsx
+      - yaml
+
+  '@journeyapps-labs/micro-streaming@1.0.1(@types/node@24.10.10)(tsx@4.21.0)(yaml@2.8.2)':
+    dependencies:
+      '@journeyapps-labs/micro-errors': 1.0.1
+      '@journeyapps-labs/micro-schema': 1.0.1(@types/node@24.10.10)(tsx@4.21.0)(yaml@2.8.2)
       '@types/express': 5.0.6
       bson: 6.10.4
     transitivePeerDependencies:
@@ -5741,9 +5829,37 @@ snapshots:
       winston: 3.19.0
       zod: 3.25.76
 
-  '@powersync/management-client@file:../service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz(@types/json-schema@7.0.15)(tsx@4.21.0)(yaml@2.8.2)':
+  '@powersync/management-client@file:../service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz(@types/json-schema@7.0.15)(yaml@2.8.2)':
     dependencies:
-      '@journeyapps-labs/common-sdk': 1.0.2(@types/json-schema@7.0.15)(tsx@4.21.0)(yaml@2.8.2)
+      '@journeyapps-labs/common-sdk': 1.0.2(@types/json-schema@7.0.15)(yaml@2.8.2)
+      '@powersync/management-types': file:../service/powersync-hosted/public-packages/types/powersync-management-types-0.0.3.tgz(tsx@4.21.0)(yaml@2.8.2)
+    transitivePeerDependencies:
+      - '@edge-runtime/vm'
+      - '@types/debug'
+      - '@types/json-schema'
+      - '@vitest/browser'
+      - '@vitest/ui'
+      - babel-plugin-macros
+      - bufferutil
+      - happy-dom
+      - jiti
+      - jsdom
+      - less
+      - lightningcss
+      - msw
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+      - tsx
+      - utf-8-validate
+      - yaml
+
+  '@powersync/management-client@file:../service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz(tsx@4.21.0)(yaml@2.8.2)':
+    dependencies:
+      '@journeyapps-labs/common-sdk': 1.0.2(tsx@4.21.0)(yaml@2.8.2)
       '@powersync/management-types': file:../service/powersync-hosted/public-packages/types/powersync-management-types-0.0.3.tgz(tsx@4.21.0)(yaml@2.8.2)
     transitivePeerDependencies:
       - '@edge-runtime/vm'
@@ -5799,9 +5915,9 @@ snapshots:
       - utf-8-validate
       - yaml
 
-  '@powersync/service-client@file:../service/powersync-service/packages/service-client/powersync-service-client-0.0.1.tgz(@types/json-schema@7.0.15)(tsx@4.21.0)(yaml@2.8.2)':
+  '@powersync/service-client@0.0.2(@types/json-schema@7.0.15)(yaml@2.8.2)':
     dependencies:
-      '@journeyapps-labs/common-sdk': 1.0.2(@types/json-schema@7.0.15)(tsx@4.21.0)(yaml@2.8.2)
+      '@journeyapps-labs/common-sdk': 1.0.2(@types/json-schema@7.0.15)(yaml@2.8.2)
       '@powersync/service-types': 0.14.0
     transitivePeerDependencies:
       - '@edge-runtime/vm'

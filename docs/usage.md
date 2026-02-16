@@ -195,7 +195,7 @@ Login is supported on macOS (other platforms coming soon). If you use another pl
 
 # Supplying Linking Information for Cloud and Self-Hosted Commands
 
-Cloud and self-hosted commands need instance (and for Cloud, org and project) identifiers. **Cloud only:** `deploy`, `destroy`, `stop`, `fetch config`, `pull config`. **Both:** `fetch status`, `generate schema`, `generate token`. The same three methods apply: the CLI uses the first that is available (flags override environment variables, environment variables override link file):
+Cloud and self-hosted commands need instance (and for Cloud, org and project) identifiers. **Cloud only:** `deploy`, `destroy`, `stop`, `fetch config`, `pull config`. **Both:** `fetch status`, `generate schema`, `generate token`, `validate`. The same three methods apply: the CLI uses the first that is available for each field (flags override environment variables, environment variables override link file):
 
 1. **Flags**
    - **Cloud:** `--instance-id`, `--org-id`, `--project-id`
