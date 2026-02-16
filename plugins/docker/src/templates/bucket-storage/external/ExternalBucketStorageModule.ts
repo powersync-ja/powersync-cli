@@ -1,4 +1,3 @@
-import { MergedServiceConfig } from '@powersync/service-schema';
 import { Scalar } from 'yaml';
 import { DockerModule, DockerModuleContext, DockerModuleType } from '../../../types.js';
 
@@ -16,7 +15,7 @@ const ExternalBucketStorageModule: DockerModule = {
     uri.type = 'PLAIN';
     uri.tag = '!env';
 
-    const storageConfig: MergedServiceConfig['storage'] = {
+    const storageConfig = {
       type: 'postgresql',
       uri,
       sslmode: 'disable'

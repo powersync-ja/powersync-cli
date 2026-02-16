@@ -1,5 +1,4 @@
 import { ux } from '@oclif/core';
-import { MergedServiceConfig } from '@powersync/service-schema';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -61,7 +60,7 @@ const PostgresSourceDatabaseModule: DockerModule = {
     uri.type = 'PLAIN';
     uri.tag = '!env';
 
-    const replicationConfig: MergedServiceConfig['replication'] = {
+    const replicationConfig = {
       connections: [
         {
           type: 'postgresql',

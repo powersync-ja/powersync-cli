@@ -9,14 +9,14 @@ export const CloudLinkConfig = t.object({
 
 export type CloudLinkConfig = t.Encoded<typeof CloudLinkConfig>;
 
-export const RequiredCloudLinkConfig = t.object({
+export const ResolvedCloudLinkConfig = t.object({
   type: t.literal('cloud'),
   instance_id: t.string,
   org_id: t.string,
   project_id: t.string
 });
 
-export type RequiredCloudLinkConfig = t.Encoded<typeof RequiredCloudLinkConfig>;
+export type ResolvedCloudLinkConfig = t.Encoded<typeof ResolvedCloudLinkConfig>;
 
 export const SelfHostedLinkConfig = t.object({
   type: t.literal('self-hosted'),
@@ -28,14 +28,16 @@ export const SelfHostedLinkConfig = t.object({
 
 export type SelfHostedLinkConfig = t.Encoded<typeof SelfHostedLinkConfig>;
 
-export const RequiredSelfHostedLinkConfig = t.object({
+export const ResolvedSelfHostedLinkConfig = t.object({
   type: t.literal('self-hosted'),
   api_url: t.string,
   api_key: t.string,
   plugins: t.record(t.any).optional()
 });
 
-export type RequiredSelfHostedLinkConfig = t.Encoded<typeof RequiredSelfHostedLinkConfig>;
+export type ResolvedSelfHostedLinkConfig = t.Encoded<typeof ResolvedSelfHostedLinkConfig>;
 
 export const LinkConfig = CloudLinkConfig.or(SelfHostedLinkConfig);
 export type LinkConfig = t.Encoded<typeof LinkConfig>;
+
+export const LinkConfigSchema = t.generateJSONSchema(LinkConfig);

@@ -1,26 +1,24 @@
 import { Flags, Interfaces } from '@oclif/core';
 import {
-  createCloudClient,
-  DEFAULT_ENSURE_CONFIG_OPTIONS,
-  EnsureConfigOptions,
-  ensureServiceTypeMatches,
-  env,
-  HelpGroup,
-  InstanceCommand,
-  LINK_FILENAME,
-  parseYamlFile,
-  SERVICE_FILENAME,
-  ServiceType,
-  SYNC_FILENAME
-} from '@powersync/cli-core';
-import { CLICloudConfig, RequiredCloudLinkConfig } from '@powersync/cli-schemas';
+  CLICloudConfig,
+  CLICloudConfigDecoded,
+  ResolvedCloudLinkConfig,
+  validateCloudConfig
+} from '@powersync/cli-schemas';
 import { PowerSyncManagementClient } from '@powersync/management-client';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { createCloudClient } from '../clients/CloudClient.js';
+import { ensureServiceTypeMatches, ServiceType } from '../utils/ensureServiceType.js';
+import { env } from '../utils/env.js';
+import { LINK_FILENAME, SERVICE_FILENAME, SYNC_FILENAME } from '../utils/project-config.js';
+import { parseYamlFile } from '../utils/yaml.js';
+import { HelpGroup } from './HelpGroup.js';
+import { DEFAULT_ENSURE_CONFIG_OPTIONS, EnsureConfigOptions, InstanceCommand } from './InstanceCommand.js';
 
 export type CloudProject = {
   projectDirectory: string;
-  linked: RequiredCloudLinkConfig;
+  linked: ResolvedCloudLinkConfig;
   syncRulesContent?: string;
 };
 
@@ -100,11 +98,11 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
 
     const linkPath = join(projectDir, LINK_FILENAME);
 
-    let linked: RequiredCloudLinkConfig | null = null;
+    let linked: ResolvedCloudLinkConfig | null = null;
     if (flags['instance-id']) {
       try {
         // Use the decode to validate the flags
-        linked = RequiredCloudLinkConfig.decode({
+        linked = ResolvedCloudLinkConfig.decode({
           type: 'cloud',
           instance_id: flags['instance-id'],
           org_id: flags['org-id']!,
@@ -120,7 +118,7 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
       }
     } else if (env.INSTANCE_ID) {
       try {
-        linked = RequiredCloudLinkConfig.decode({
+        linked = ResolvedCloudLinkConfig.decode({
           type: 'cloud',
           instance_id: env.INSTANCE_ID,
           org_id: env.ORG_ID!,
@@ -136,7 +134,7 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
       try {
         const linkPath = join(projectDir, LINK_FILENAME);
         const doc = parseYamlFile(linkPath);
-        linked = RequiredCloudLinkConfig.decode(doc.contents?.toJSON());
+        linked = ResolvedCloudLinkConfig.decode(doc.contents?.toJSON());
       } catch (error) {
         this.styledError({
           message: `Failed to parse ${LINK_FILENAME} as CloudLinkConfig`,
@@ -164,9 +162,15 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
     };
   }
 
-  parseConfig(projectDirectory: string): CLICloudConfig {
+  parseConfig(projectDirectory: string): CLICloudConfigDecoded {
     const servicePath = join(projectDirectory, SERVICE_FILENAME);
     const doc = parseYamlFile(servicePath);
+
+    //validate the config with full schema
+    const validationResult = validateCloudConfig(doc.contents?.toJSON());
+    if (!validationResult.valid) {
+      throw new Error(`Invalid cloud config: ${validationResult.errors?.join('\n')}`);
+    }
     return CLICloudConfig.decode(doc.contents?.toJSON());
   }
 }

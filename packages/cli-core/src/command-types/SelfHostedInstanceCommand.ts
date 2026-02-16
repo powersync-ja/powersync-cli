@@ -1,5 +1,10 @@
 import { Flags, Interfaces } from '@oclif/core';
-import { CLISelfHostedConfig, RequiredSelfHostedLinkConfig } from '@powersync/cli-schemas';
+import {
+  CLISelfHostedConfig,
+  CLISelfHostedConfigDecoded,
+  ResolvedSelfHostedLinkConfig,
+  validateSelfHostedConfig
+} from '@powersync/cli-schemas';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { ensureServiceTypeMatches, ServiceType } from '../utils/ensureServiceType.js';
@@ -11,7 +16,7 @@ import { DEFAULT_ENSURE_CONFIG_OPTIONS, EnsureConfigOptions, InstanceCommand } f
 
 export type SelfHostedProject = {
   projectDirectory: string;
-  linked: RequiredSelfHostedLinkConfig;
+  linked: ResolvedSelfHostedLinkConfig;
 };
 
 export type SelfHostedInstanceCommandFlags = Interfaces.InferredFlags<
@@ -65,9 +70,9 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
     const api_url = flags['api-url'] ?? env.API_URL ?? (rawLink?.api_url as string | undefined);
     const api_key = env.TOKEN ?? (rawLink?.api_key as string | undefined);
 
-    let linked: RequiredSelfHostedLinkConfig | null = null;
+    let linked: ResolvedSelfHostedLinkConfig | null = null;
     try {
-      linked = RequiredSelfHostedLinkConfig.decode({
+      linked = ResolvedSelfHostedLinkConfig.decode({
         ...(rawLink ?? {}),
         type: 'self-hosted',
         api_url: api_url!,
@@ -92,9 +97,15 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
     };
   }
 
-  parseConfig(projectDirectory: string) {
+  parseConfig(projectDirectory: string): CLISelfHostedConfigDecoded {
     const servicePath = join(projectDirectory, SERVICE_FILENAME);
     const doc = parseYamlFile(servicePath);
+
+    //validate the config with full schema
+    const validationResult = validateSelfHostedConfig(doc.contents?.toJSON());
+    if (!validationResult.valid) {
+      throw new Error(`Invalid self-hosted config: ${validationResult.errors?.join('\n')}`);
+    }
     return CLISelfHostedConfig.decode(doc.contents?.toJSON());
   }
 }

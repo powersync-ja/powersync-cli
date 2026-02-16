@@ -9,6 +9,7 @@ import {
   SharedInstanceCommand,
   SYNC_FILENAME
 } from '@powersync/cli-core';
+import { CLICloudConfig, CLICloudConfigDecoded, CLISelfHostedConfig } from '@powersync/cli-schemas';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Document } from 'yaml';
@@ -51,7 +52,6 @@ function formatValidationYaml(result: ValidationResult): string {
 }
 
 async function runConfigTest(projectDir: string, isCloud: boolean): Promise<ValidationTestResult> {
-  const { CLICloudConfig, CLISelfHostedConfig } = await import('@powersync/cli-schemas');
   const servicePath = join(projectDir, SERVICE_FILENAME);
   try {
     const doc = parseYamlFile(servicePath);
@@ -65,38 +65,6 @@ async function runConfigTest(projectDir: string, isCloud: boolean): Promise<Vali
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     return { name: 'config_schema', passed: false, errors: [message] };
-  }
-}
-
-async function runConnectionTestCloud(project: CloudProject): Promise<ValidationTestResult> {
-  const client = await createCloudClient();
-  const { CLICloudConfig } = await import('@powersync/cli-schemas');
-  let config: { replication?: { connections?: Array<Record<string, unknown>> } };
-  try {
-    const doc = parseYamlFile(join(project.projectDirectory, SERVICE_FILENAME));
-    config = CLICloudConfig.decode(doc.contents?.toJSON());
-  } catch {
-    return {
-      name: 'connection',
-      passed: false,
-      errors: ['Could not parse config; run config schema test first.']
-    };
-  }
-  const connections = config.replication?.connections ?? [];
-  if (connections.length === 0) {
-    return { name: 'connection', passed: false, errors: ['No connections defined in config.'] };
-  }
-  try {
-    const results = await testCloudConnections(client, project.linked, connections);
-    const failed = results.filter((r) => r.response.success !== true);
-    if (failed.length === 0) {
-      return { name: 'connection', passed: true };
-    }
-    const errors = failed.map((f) => `${f.connectionName}: ${f.response.error ?? 'Connection test failed'}`);
-    return { name: 'connection', passed: false, errors };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return { name: 'connection', passed: false, errors: [message] };
   }
 }
 
@@ -177,6 +145,36 @@ export default class Validate extends SharedInstanceCommand {
     ...SharedInstanceCommand.flags
   };
 
+  async runConnectionTestCloud(project: CloudProject): Promise<ValidationTestResult> {
+    const client = await createCloudClient();
+    let config: CLICloudConfigDecoded;
+    try {
+      config = this.parseCloudConfig(project.projectDirectory);
+    } catch (error) {
+      return {
+        name: 'connection',
+        passed: false,
+        errors: [`Could not parse config: ${error}`]
+      };
+    }
+    const connections = config.replication?.connections ?? [];
+    if (connections.length === 0) {
+      return { name: 'connection', passed: false, errors: ['No connections defined in config.'] };
+    }
+    try {
+      const results = await testCloudConnections(client, project.linked, connections);
+      const failed = results.filter((r) => r.response.success !== true);
+      if (failed.length === 0) {
+        return { name: 'connection', passed: true };
+      }
+      const errors = failed.map((f) => `${f.connectionName}: ${f.response.error ?? 'Connection test failed'}`);
+      return { name: 'connection', passed: false, errors };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      return { name: 'connection', passed: false, errors: [message] };
+    }
+  }
+
   async run(): Promise<void> {
     const { flags } = await this.parse(Validate);
 
@@ -190,7 +188,7 @@ export default class Validate extends SharedInstanceCommand {
     tests.push(await runConfigTest(project.projectDirectory, isCloud));
 
     if (isCloud) {
-      tests.push(await runConnectionTestCloud(project as CloudProject));
+      tests.push(await this.runConnectionTestCloud(project as CloudProject));
       tests.push(await runSyncRulesTestCloud(project as CloudProject));
     } else {
       tests.push(await runSyncRulesTestSelfHosted(project as SelfHostedProject));

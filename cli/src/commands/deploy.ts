@@ -1,6 +1,6 @@
 import { ux } from '@oclif/core';
 import { CloudInstanceCommand } from '@powersync/cli-core';
-import type { RequiredCloudLinkConfig } from '@powersync/cli-schemas';
+import type { ResolvedCloudLinkConfig } from '@powersync/cli-schemas';
 import { PowerSyncManagementClient } from '@powersync/management-client';
 import { routes } from '@powersync/management-types';
 import ora from 'ora';
@@ -11,7 +11,7 @@ type DeployStatus = 'pending' | 'running' | 'failed' | 'completed';
 
 async function waitForStatusChange(
   client: PowerSyncManagementClient,
-  linked: RequiredCloudLinkConfig,
+  linked: ResolvedCloudLinkConfig,
   instanceId: string
 ): Promise<DeployStatus> {
   for (;;) {
@@ -130,7 +130,8 @@ export default class Deploy extends CloudInstanceCommand {
           // Allow updating the instance name
           name: config.name,
           app_id: linked.project_id,
-          config,
+          // The encoding will ensure the correct typing
+          config: config as any,
           sync_rules: syncRulesContent
         })
       )

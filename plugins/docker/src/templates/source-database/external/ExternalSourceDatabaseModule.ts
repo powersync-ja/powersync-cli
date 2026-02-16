@@ -1,5 +1,4 @@
 import { ux } from '@oclif/core';
-import { MergedServiceConfig } from '@powersync/service-schema';
 import path from 'node:path';
 import { Scalar } from 'yaml';
 import { DockerModule, DockerModuleContext, DockerModuleType } from '../../../types.js';
@@ -22,7 +21,7 @@ const ExternalSourceDatabaseModule: DockerModule = {
     ``;
     uri.tag = '!env';
 
-    const replicationConfig: MergedServiceConfig['replication'] = {
+    const replicationConfig = {
       connections: [
         {
           type: 'postgresql',

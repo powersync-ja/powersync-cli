@@ -1,4 +1,3 @@
-import { MergedServiceConfig } from '@powersync/service-schema';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -45,7 +44,7 @@ const PostgresBucketStorageModule: DockerModule = {
     uri.type = 'PLAIN';
     uri.tag = '!env';
 
-    const storageConfig: MergedServiceConfig['storage'] = {
+    const storageConfig = {
       type: 'postgresql',
       uri,
       sslmode: 'disable'

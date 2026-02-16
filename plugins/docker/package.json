@@ -21,7 +21,8 @@
     "@oclif/core": "^4",
     "@powersync/cli-core": "workspace:*",
     "@powersync/cli-schemas": "workspace:*",
-    "@powersync/service-schema": "file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-service/packages/schema/powersync-service-schema-1.19.0.tgz",
+    "@powersync/service-types": "^0.13.3",
+    "@powersync/service-schema": "file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-service/packages/schema/powersync-service-schema-1.19.3.tgz",
     "yaml": "^2"
   },
   "devDependencies": {

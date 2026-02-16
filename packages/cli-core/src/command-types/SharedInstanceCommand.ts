@@ -1,30 +1,27 @@
 import { Flags, Interfaces } from '@oclif/core';
 import {
-  DEFAULT_ENSURE_CONFIG_OPTIONS,
-  EnsureConfigOptions,
-  ensureServiceTypeMatches,
-  env,
-  HelpGroup,
-  InstanceCommand,
-  LINK_FILENAME,
-  parseYamlFile,
-  SelfHostedProject,
-  SERVICE_FILENAME,
-  ServiceType,
-  SYNC_FILENAME
-} from '@powersync/cli-core';
-import {
   CLICloudConfig,
+  CLICloudConfigDecoded,
   CLISelfHostedConfig,
+  CLISelfHostedConfigDecoded,
   CloudLinkConfig,
   LinkConfig,
-  RequiredCloudLinkConfig,
-  RequiredSelfHostedLinkConfig,
-  SelfHostedLinkConfig
+  ResolvedCloudLinkConfig,
+  ResolvedSelfHostedLinkConfig,
+  SelfHostedLinkConfig,
+  validateCloudConfig,
+  validateSelfHostedConfig
 } from '@powersync/cli-schemas';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { ensureServiceTypeMatches, ServiceType } from '../utils/ensureServiceType.js';
+import { env } from '../utils/env.js';
+import { LINK_FILENAME, SERVICE_FILENAME, SYNC_FILENAME } from '../utils/project-config.js';
+import { parseYamlFile } from '../utils/yaml.js';
 import { CloudProject } from './CloudInstanceCommand.js';
+import { HelpGroup } from './HelpGroup.js';
+import { DEFAULT_ENSURE_CONFIG_OPTIONS, EnsureConfigOptions, InstanceCommand } from './InstanceCommand.js';
+import { SelfHostedProject } from './SelfHostedInstanceCommand.js';
 
 export type SharedInstanceCommandFlags = Interfaces.InferredFlags<
   typeof SharedInstanceCommand.flags & typeof SharedInstanceCommand.baseFlags
@@ -132,11 +129,11 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     }
 
     // 2) Per-field: flags → env → link file (see class JSDoc).
-    let linkConfig: RequiredCloudLinkConfig | RequiredSelfHostedLinkConfig | null = null;
+    let linkConfig: ResolvedCloudLinkConfig | ResolvedSelfHostedLinkConfig | null = null;
     if (projectType === 'self-hosted') {
       const _rawSelfHostedLinkConfig = (rawLinkConfig as SelfHostedLinkConfig) ?? { type: 'self-hosted' };
       try {
-        linkConfig = RequiredSelfHostedLinkConfig.decode({
+        linkConfig = ResolvedSelfHostedLinkConfig.decode({
           ..._rawSelfHostedLinkConfig,
           api_key: env.TOKEN ?? _rawSelfHostedLinkConfig.api_key!,
           api_url: flags['api-url'] ?? env.API_URL ?? _rawSelfHostedLinkConfig.api_url!
@@ -147,7 +144,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     } else {
       const _rawCloudLinkConfig = (rawLinkConfig as CloudLinkConfig) ?? { type: 'cloud' };
       try {
-        linkConfig = RequiredCloudLinkConfig.decode({
+        linkConfig = ResolvedCloudLinkConfig.decode({
           ..._rawCloudLinkConfig,
           instance_id: flags['instance-id'] ?? env.INSTANCE_ID ?? _rawCloudLinkConfig.instance_id!,
           org_id: flags['org-id'] ?? env.ORG_ID ?? _rawCloudLinkConfig.org_id!,
@@ -180,26 +177,38 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     if (projectType === ServiceType.CLOUD) {
       return {
         projectDirectory: projectDir,
-        linked: linkConfig as RequiredCloudLinkConfig,
+        linked: linkConfig as ResolvedCloudLinkConfig,
         syncRulesContent
       };
     }
     return {
       projectDirectory: projectDir,
-      linked: linkConfig as RequiredSelfHostedLinkConfig,
+      linked: linkConfig as ResolvedSelfHostedLinkConfig,
       syncRulesContent
     };
   }
 
-  parseCloudConfig(projectDirectory: string): CLICloudConfig {
+  parseCloudConfig(projectDirectory: string): CLICloudConfigDecoded {
     const servicePath = join(projectDirectory, SERVICE_FILENAME);
     const doc = parseYamlFile(servicePath);
+
+    //validate the config with full schema
+    const validationResult = validateCloudConfig(doc.contents?.toJSON());
+    if (!validationResult.valid) {
+      throw new Error(`Invalid cloud config: ${validationResult.errors?.join('\n')}`);
+    }
     return CLICloudConfig.decode(doc.contents?.toJSON());
   }
 
-  parseSelfHostedConfig(projectDirectory: string): CLISelfHostedConfig {
+  parseSelfHostedConfig(projectDirectory: string): CLISelfHostedConfigDecoded {
     const servicePath = join(projectDirectory, SERVICE_FILENAME);
     const doc = parseYamlFile(servicePath);
+
+    //validate the config with full schema
+    const validationResult = validateSelfHostedConfig(doc.contents?.toJSON());
+    if (!validationResult.valid) {
+      throw new Error(`Invalid self-hosted config: ${validationResult.errors?.join('\n')}`);
+    }
     return CLISelfHostedConfig.decode(doc.contents?.toJSON());
   }
 }

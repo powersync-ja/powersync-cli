@@ -1,4 +1,4 @@
-import { CLICloudConfig, CLICloudConfigDecoded, RequiredCloudLinkConfig } from '@powersync/cli-schemas';
+import { CLICloudConfig, CLICloudConfigDecoded, ResolvedCloudLinkConfig } from '@powersync/cli-schemas';
 import { PowerSyncManagementClient } from '@powersync/management-client';
 
 export type FetchedCloudConfig = {
@@ -11,7 +11,7 @@ export type FetchedCloudConfig = {
  */
 export async function fetchCloudConfig(
   client: PowerSyncManagementClient,
-  linked: RequiredCloudLinkConfig
+  linked: ResolvedCloudLinkConfig
 ): Promise<FetchedCloudConfig> {
   const instanceConfig = await client.getInstanceConfig({
     app_id: linked.project_id,
