@@ -25,8 +25,8 @@ describe('init', () => {
     if (tmpDir && existsSync(tmpDir)) rmSync(tmpDir, { recursive: true });
   });
 
-  it('creates project with default directory and type', async () => {
-    const { stdout } = await runCommand('init', { root });
+  it('creates project with default directory (init cloud)', async () => {
+    const { stdout } = await runCommand('init cloud', { root });
     expect(stdout).toContain('Created PowerSync cloud project');
     const projectDir = join(tmpDir, 'powersync');
     const serviceYamlPath = join(projectDir, 'service.yaml');
@@ -42,7 +42,7 @@ describe('init', () => {
 
   it('errors when directory already exists', async () => {
     mkdirSync(join(tmpDir, EXISTING_DIR), { recursive: true });
-    const result = await runCommand(`init --directory=${EXISTING_DIR}`, {
+    const result = await runCommand(`init cloud --directory=${EXISTING_DIR}`, {
       root
     });
     expect(result.error?.message).toContain('Directory "');
@@ -52,7 +52,7 @@ describe('init', () => {
   });
 
   it('creates project with --directory flag', async () => {
-    const { stdout } = await runCommand(`init --directory=${CUSTOM_DIR}`, {
+    const { stdout } = await runCommand(`init cloud --directory=${CUSTOM_DIR}`, {
       root
     });
     expect(stdout).toContain(`Created PowerSync cloud project`);
@@ -68,8 +68,8 @@ describe('init', () => {
     expect(linkYaml.type).toBe('cloud');
   });
 
-  it('creates self-hosted project with --type=self-hosted', async () => {
-    const { stdout } = await runCommand(`init --type=self-hosted --directory=${CUSTOM_DIR}`, { root });
+  it('creates self-hosted project with init self-hosted', async () => {
+    const { stdout } = await runCommand(`init self-hosted --directory=${CUSTOM_DIR}`, { root });
     expect(stdout).toContain(`Created PowerSync self-hosted project`);
     const projectDir = join(tmpDir, CUSTOM_DIR);
     const serviceYamlPath = join(projectDir, 'service.yaml');

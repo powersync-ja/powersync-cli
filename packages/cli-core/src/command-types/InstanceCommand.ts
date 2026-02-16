@@ -30,7 +30,7 @@ export abstract class InstanceCommand extends PowerSyncCommand {
     const projectDir = this.resolveProjectDir(flags);
     if (!existsSync(projectDir)) {
       this.styledError({
-        message: `Directory "${directory}" not found. Run ${ux.colorize('blue', 'powersync init')} first to create the project.`
+        message: `Directory "${directory}" not found. Run ${ux.colorize('blue', 'powersync init cloud')} or ${ux.colorize('blue', 'powersync init self-hosted')} first to create the project.`
       });
     }
     return projectDir;

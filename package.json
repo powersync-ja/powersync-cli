@@ -16,6 +16,7 @@
   },
   "pnpm": {
     "overrides": {
+      "@powersync/service-schema": "file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-service/packages/schema/powersync-service-schema-1.19.5.tgz",
       "@powersync/management-types": "file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/types/powersync-management-types-0.0.3.tgz",
       "@powersync/management-client": "file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz"
     }

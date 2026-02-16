@@ -5,6 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
+  '@powersync/service-schema': file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-service/packages/schema/powersync-service-schema-1.19.5.tgz
   '@powersync/management-types': file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/types/powersync-management-types-0.0.3.tgz
   '@powersync/management-client': file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz
 
@@ -192,6 +193,9 @@ importers:
 
   plugins/docker:
     dependencies:
+      '@inquirer/prompts':
+        specifier: ^7.2.0
+        version: 7.10.1(@types/node@24.10.10)
       '@oclif/core':
         specifier: ^4
         version: 4.8.0
@@ -202,8 +206,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/schemas
       '@powersync/service-schema':
-        specifier: file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-service/packages/schema/powersync-service-schema-1.19.3.tgz
-        version: file:../service/powersync-service/packages/schema/powersync-service-schema-1.19.3.tgz
+        specifier: file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-service/packages/schema/powersync-service-schema-1.19.5.tgz
+        version: file:../service/powersync-service/packages/schema/powersync-service-schema-1.19.5.tgz
       '@powersync/service-types':
         specifier: ^0.13.3
         version: 0.13.3
@@ -1099,10 +1103,6 @@ packages:
 
   '@powersync/service-rsocket-router@0.2.11':
     resolution: {integrity: sha512-ChnVdoXestJGLd6vfwITkMvYwmOyEnKyZmfQf1ByuyfRi3sM+FByy6QGTgcKx14GxCMEU0aanf0Q5zOPhAvp4Q==}
-
-  '@powersync/service-schema@file:../service/powersync-service/packages/schema/powersync-service-schema-1.19.3.tgz':
-    resolution: {integrity: sha512-vf+q9qfHROkIIYzUO1aZhAx17vhiUxsajxkqsCegztHjXHaw4nANEa04ve1ujfP4/coEm5aNB0FVaHHAahy5cQ==, tarball: file:../service/powersync-service/packages/schema/powersync-service-schema-1.19.3.tgz}
-    version: 1.19.3
 
   '@powersync/service-schema@file:../service/powersync-service/packages/schema/powersync-service-schema-1.19.5.tgz':
     resolution: {integrity: sha512-q4jiaMFQ2cSUxg7jzbJ04FjbJYUkqxCpNwWfUfsxZ+EbB4Ws92UFjAZ7J0CfLcrTo9XuR4XwXReq5LBk7711Aw==, tarball: file:../service/powersync-service/packages/schema/powersync-service-schema-1.19.5.tgz}
@@ -6011,8 +6011,6 @@ snapshots:
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
-
-  '@powersync/service-schema@file:../service/powersync-service/packages/schema/powersync-service-schema-1.19.3.tgz': {}
 
   '@powersync/service-schema@file:../service/powersync-service/packages/schema/powersync-service-schema-1.19.5.tgz': {}
 

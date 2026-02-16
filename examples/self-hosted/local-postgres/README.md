@@ -29,7 +29,7 @@ local-postgres/
 ### 1. Initialize the project
 
 ```bash
-powersync init --type=self-hosted
+powersync init self-hosted
 ```
 
 ### 2. Configure Docker with Postgres modules

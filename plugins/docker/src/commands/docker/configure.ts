@@ -1,3 +1,4 @@
+import { select } from '@inquirer/prompts';
 import { Flags, ux } from '@oclif/core';
 import {
   LINK_FILENAME,
@@ -13,6 +14,8 @@ import { Document, isMap, stringify } from 'yaml';
 import { DEV_TOKEN } from '../../constants.js';
 import { TEMPLATES } from '../../templates/templates-index.js';
 import { DockerModuleContext, DockerModuleType } from '../../types.js';
+
+const NONE_OPTION = 'none';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const MAIN_COMPOSE_TEMPLATE_PATH = path.join(__dirname, '../../templates/main-compose.yaml');
@@ -44,14 +47,14 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
   static flags = {
     ...SelfHostedInstanceCommand.flags,
     database: Flags.string({
-      description: 'Database module for replication source.',
-      required: true,
-      options: TEMPLATES[DockerModuleType.SOURCE_DATABASE].map((template) => template.name)
+      description: 'Database module for replication source. Omit to be prompted.',
+      required: false,
+      options: [...TEMPLATES[DockerModuleType.SOURCE_DATABASE].map((t) => t.name), NONE_OPTION]
     }),
     storage: Flags.string({
-      description: 'Storage module for PowerSync bucket metadata.',
-      required: true,
-      options: TEMPLATES[DockerModuleType.STORAGE].map((template) => template.name)
+      description: 'Storage module for PowerSync bucket metadata. Omit to be prompted.',
+      required: false,
+      options: [...TEMPLATES[DockerModuleType.STORAGE].map((t) => t.name), NONE_OPTION]
     })
   };
 
@@ -72,6 +75,38 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
           exit: 1
         }
       );
+    }
+
+    const databaseChoices = [
+      ...TEMPLATES[DockerModuleType.SOURCE_DATABASE].map((t) => ({ name: t.name, value: t.name })),
+      { name: 'None (do not configure)', value: NONE_OPTION }
+    ];
+    const storageChoices = [
+      ...TEMPLATES[DockerModuleType.STORAGE].map((t) => ({ name: t.name, value: t.name })),
+      { name: 'None (do not configure)', value: NONE_OPTION }
+    ];
+
+    let database: string | undefined = flags.database;
+    if (database === undefined) {
+      database = await select({
+        message: 'Select a database module for a replication source. Use external to configure an existing database.',
+        choices: databaseChoices
+      });
+      if (database === NONE_OPTION) database = undefined;
+    } else if (database === NONE_OPTION) {
+      database = undefined;
+    }
+
+    let storage: string | undefined = flags.storage;
+    if (storage === undefined) {
+      storage = await select({
+        message:
+          'Select a storage module for PowerSync bucket metadata. Use external to configure an existing database.',
+        choices: storageChoices
+      });
+      if (storage === NONE_OPTION) storage = undefined;
+    } else if (storage === NONE_OPTION) {
+      storage = undefined;
     }
 
     mkdirSync(targetDockerDir, { recursive: true });
@@ -95,12 +130,12 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
     // Starting from scratch every time
     let envFileContents = '';
 
-    if (flags.database) {
+    if (database) {
       const databaseTemplate = TEMPLATES[DockerModuleType.SOURCE_DATABASE].find(
-        (template) => template.type === DockerModuleType.SOURCE_DATABASE && template.name === flags.database
+        (template) => template.type === DockerModuleType.SOURCE_DATABASE && template.name === database
       );
       if (!databaseTemplate) {
-        this.error(ux.colorize('red', `Database template ${flags.database} not found.`), { exit: 1 });
+        this.error(ux.colorize('red', `Database template ${database} not found.`), { exit: 1 });
       }
       const databaseModuleResponse = await databaseTemplate.apply(moduleContext);
 
@@ -110,12 +145,12 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
       ].join('\n');
     }
 
-    if (flags.storage) {
+    if (storage) {
       const storageTemplate = TEMPLATES[DockerModuleType.STORAGE].find(
-        (template) => template.type === DockerModuleType.STORAGE && template.name === flags.storage
+        (template) => template.type === DockerModuleType.STORAGE && template.name === storage
       );
       if (!storageTemplate) {
-        this.error(`Storage template ${flags.storage} not found.`, { exit: 1 });
+        this.error(`Storage template ${storage} not found.`, { exit: 1 });
       }
       const storageModuleResponse = await storageTemplate.apply(moduleContext);
 

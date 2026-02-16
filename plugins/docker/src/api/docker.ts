@@ -36,12 +36,13 @@ export function resolveComposePath(options: DockerComposeOptions): string {
 }
 
 /**
- * List Docker Compose project names that start with powersync_.
- * Runs `docker compose ls -a -q` and filters. Returns [] if the command fails or no matches.
+ * List Docker Compose project names that start with powersync_ and have running containers.
+ * Runs `docker compose ls -q` (no -a) so only projects with running containers are returned.
+ * Returns [] if the command fails or no matches.
  */
 export function listPowersyncProjectNames(): string[] {
   try {
-    const out = execSync('docker compose ls -a -q', {
+    const out = execSync('docker compose ls -q', {
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe']
     });
@@ -66,7 +67,7 @@ export function logPowersyncProjectsStopHelp(
   const projectNames = listPowersyncProjectNames().filter((name) => !excludeProjectName || name !== excludeProjectName);
   if (projectNames.length > 0) {
     command.log('');
-    command.log('Other PowerSync Docker project(s) that may be running:');
+    command.log('Other PowerSync Docker project(s) that are running:');
     projectNames.forEach((name) => command.log(`  - ${name}`));
     command.log('');
     command.log('To stop a project: ' + ux.colorize('blue', 'powersync docker stop --project-name=<name>'));

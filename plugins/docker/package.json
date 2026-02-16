@@ -18,6 +18,7 @@
     "prepack": "oclif manifest"
   },
   "dependencies": {
+    "@inquirer/prompts": "^7.2.0",
     "@oclif/core": "^4",
     "@powersync/cli-core": "workspace:*",
     "@powersync/cli-schemas": "workspace:*",

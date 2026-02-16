@@ -4,7 +4,7 @@ The **docker** plugin adds a `powersync docker` topic for running a self-hosted 
 
 ## Prerequisites
 
-- A self-hosted PowerSync project: **service.yaml** in your config directory (default **powersync/**). Create one with **`powersync init --type=self-hosted`** if needed.
+- A self-hosted PowerSync project: **service.yaml** in your config directory (default **powersync/**). Create one with **`powersync init self-hosted`** if needed.
 - Docker and Docker Compose (Compose V2, 2.20.3+ for `include`).
 
 ## Local configuration created by the plugin

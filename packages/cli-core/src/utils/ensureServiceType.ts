@@ -45,7 +45,7 @@ export function ensureServiceTypeMatches(options: EnsureServiceTypeMatchesOption
 
   if (serviceJson?._type !== expectedType) {
     command.styledError({
-      message: `${SERVICE_FILENAME} in "${directoryLabel}" has \`_type: ${serviceJson?._type}\` but this command requires \`_type: ${expectedType}\`. Use ${ux.colorize('blue', `powersync init --type=${expectedType}`)} to create a project of the correct type, or change _type in ${SERVICE_FILENAME}.`
+      message: `${SERVICE_FILENAME} in "${directoryLabel}" has \`_type: ${serviceJson?._type}\` but this command requires \`_type: ${expectedType}\`. Use ${ux.colorize('blue', `powersync init ${expectedType}`)} to create a project of the correct type, or change _type in ${SERVICE_FILENAME}.`
     });
   }
 }

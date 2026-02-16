@@ -187,7 +187,7 @@ export default class PullConfig extends CloudInstanceCommand {
         mkdirSync(projectDir, { recursive: true });
       } else {
         this.styledError({
-          message: `Directory "${directory}" not found. Run ${ux.colorize('blue', 'powersync init')} first, or pass --instance-id, --org-id, and --project-id to create and link.`
+          message: `Directory "${directory}" not found. Run ${ux.colorize('blue', 'powersync init cloud')} first, or pass --instance-id, --org-id, and --project-id to create and link.`
         });
       }
     }

@@ -84,7 +84,7 @@ There are three main ways to use the CLI with PowerSync Cloud:
 
 You can run commands against an instance whose configuration is managed elsewhere (e.g. the PowerSync Dashboard). Link the instance once so the CLI knows which one to use, or pass instance identifiers via flags or environment variables each time.
 
-**Link an instance** (from a project directory, or create a `powersync/` folder first with `powersync init --type=cloud`):
+**Link an instance** (from a project directory, or create a `powersync/` folder first with `powersync init cloud`):
 
 ```bash
 powersync login
@@ -125,13 +125,13 @@ powersync deploy
 
 ## 3. Creating a new instance from the CLI
 
-Use `powersync init` to copy a template config into your project. To **create a new Cloud instance** and link it, use `powersync link cloud --create` with `--org-id` and `--project-id` (do not pass `--instance-id`). The CLI creates the instance and writes the link file.
+Use `powersync init cloud` to copy a template config into your project. To **create a new Cloud instance** and link it, use `powersync link cloud --create` with `--org-id` and `--project-id` (do not pass `--instance-id`). The CLI creates the instance and writes the link file.
 
 The instance **name** and **region** are taken from your local config (`powersync/service.yaml`). Set or edit the `name` and `region` fields there before running `link cloud --create` if you want a specific display name and region.
 
 ```bash
 powersync login
-powersync init --type=cloud
+powersync init cloud
 # Edit powersync/service.yaml (name, region, connections, etc.) and other YAML as needed
 powersync link cloud --create --org-id=<org-id> --project-id=<project-id>
 powersync validate
@@ -144,7 +144,7 @@ To link to an **existing** instance instead, omit `--create` and supply `--insta
 
 # Self-hosted usage
 
-Use `powersync init --type=self-hosted` to create a basic template for self-hosted configuration. The template is copied into your project directory (default `powersync/`). You need to **uncomment and specify your own config** (e.g. database connection, sync rules) in the generated YAML files.
+Use `powersync init self-hosted` to create a basic template for self-hosted configuration. The template is copied into your project directory (default `powersync/`). You need to **uncomment and specify your own config** (e.g. database connection, sync rules) in the generated YAML files.
 
 For deploying the service (e.g. to Docker or another hosting platform), see the [PowerSync self-hosting docs](https://docs.powersync.com/intro/self-hosting#self-hosting) and the [self-host-demo](https://github.com/powersync-ja/self-host-demo) repository for examples and patterns. We plan to support more of these actions from the CLI in the future.
 

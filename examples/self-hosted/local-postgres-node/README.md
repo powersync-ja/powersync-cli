@@ -27,7 +27,7 @@ local-postgres-node/
 
 ### 1. Copy from local-postgres
 
-Start from the [local-postgres](./local-postgres) example (or run `powersync init` and `powersync docker configure --database=postgres --storage=postgres`).
+Start from the [local-postgres](./local-postgres) example (or run `powersync init self-hosted` and `powersync docker configure --database=postgres --storage=postgres`).
 
 ### 2. Add client_auth with HS256 to service.yaml
 
