@@ -19,7 +19,7 @@ Docker commands use the **compose directory** **powersync/docker/** inside your 
 Configure also:
 
 - Merges **replication** and **storage** config into **powersync/service.yaml** (with **`!env`** preserved so the PowerSync container resolves values from **docker/.env** at runtime).
-- Creates or updates **powersync/link.yaml** with **api_url**, **api_key**, and **plugins.docker.project_name** so reset/start/stop use the same Compose project name.
+- Creates or updates **powersync/cli.yaml** with **api_url**, **api_key**, and **plugins.docker.project_name** so reset/start/stop use the same Compose project name.
 
 You can use a different config directory with **`--directory`** (e.g. **`--directory my-powersync`**); the compose dir is then **my-powersync/docker/**.
 
@@ -45,7 +45,7 @@ This creates **powersync/docker/** with:
 - **.env** – Default values for DB credentials, URIs, port, etc.
 - **modules/database-postgres/** and/or **modules/storage-postgres/** – Compose partials and **init-scripts/** (e.g. publication and schema placeholders for postgres).
 
-It also merges replication and storage config into **powersync/service.yaml** and sets **plugins.docker.project_name** in **powersync/link.yaml** (derived from the config directory name). If the directory already exists, remove it first or use a different **--directory**.
+It also merges replication and storage config into **powersync/service.yaml** and sets **plugins.docker.project_name** in **powersync/cli.yaml** (derived from the config directory name). If the directory already exists, remove it first or use a different **--directory**.
 
 ### 2. Start the stack
 
@@ -55,7 +55,7 @@ After configuring, use **`powersync docker start`** to bring up the stack. No ne
 powersync docker start
 ```
 
-This runs **`docker compose up -d --wait`** in **powersync/docker/** (using the project name from **link.yaml**) and waits for all services (including PowerSync) to be healthy.
+This runs **`docker compose up -d --wait`** in **powersync/docker/** (using the project name from **cli.yaml**) and waits for all services (including PowerSync) to be healthy.
 
 Use **`powersync docker reset`** only when you need to start from a clean state: it runs **`docker compose down`** (stop and remove) then **`docker compose up -d --wait`** (e.g. after config changes or to clear a bad state).
 
@@ -66,7 +66,7 @@ Use **`powersync docker reset`** only when you need to start from a clean state:
   - **`powersync docker stop --remove`** → **`docker compose down`** (containers removed).
   - **`powersync docker stop --remove --remove-volumes`** (or **`--remove-volumes`** alone, which implies **--remove**) → **`docker compose down -v`** (containers and named volumes removed). Use this to reset the database so **init-scripts** run again on the next reset (e.g. if you see “Publication 'powersync' does not exist”).
 
-All of these use the project name from **link.yaml** unless you pass **`--project-name`** (e.g. to stop from any directory or to target a specific project).
+All of these use the project name from **cli.yaml** unless you pass **`--project-name`** (e.g. to stop from any directory or to target a specific project).
 
 Use **`powersync fetch status`** to debug a running instance.
 
@@ -76,7 +76,7 @@ Use **`powersync fetch status`** to debug a running instance.
 
 | Command                          | Description                                                                                                                                                                                                                       |
 | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`powersync docker configure`** | Create **powersync/docker/** with chosen **--database** and **--storage** modules, **.env**, and merged **service.yaml**. Writes **link.yaml** with **plugins.docker.project_name**. Remove existing **docker/** first to re-run. |
+| **`powersync docker configure`** | Create **powersync/docker/** with chosen **--database** and **--storage** modules, **.env**, and merged **service.yaml**. Writes **cli.yaml** with **plugins.docker.project_name**. Remove existing **docker/** first to re-run. |
 | **`powersync docker start`**     | Start the stack (`docker compose up -d --wait`). **Use this after configure** to bring up the stack. Waits for healthy.                                                                                                           |
 | **`powersync docker reset`**     | Start from a clean state: stop and remove containers (`docker compose down`), then start (`docker compose up -d --wait`). Use only when you need a full teardown and bring-up (e.g. after config changes). Waits for healthy.     |
 | **`powersync docker stop`**      | Stop the stack. Default: `docker compose stop` (containers kept). **--remove**: remove containers (`down`). **--remove-volumes**: remove containers and volumes (`down -v`). Can use **--project-name** from any directory.       |
@@ -90,7 +90,7 @@ Run **`powersync docker`** (no subcommand) for help.
 - **`--directory`** – PowerSync config directory (default: **powersync**). Used by configure, reset, start.
 - **`--database`** – Database module for **configure**: **postgres** (default), **external**.
 - **`--storage`** – Storage module for **configure**: **postgres** (default), **external**.
-- **`--project-name`** – For **stop**: Docker Compose project name (e.g. **powersync_myapp**). If omitted, uses **plugins.docker.project_name** from **link.yaml** when run from the project directory. Use to stop a specific project from any directory (e.g. after a failed reset).
+- **`--project-name`** – For **stop**: Docker Compose project name (e.g. **powersync_myapp**). If omitted, uses **plugins.docker.project_name** from **cli.yaml** when run from the project directory. Use to stop a specific project from any directory (e.g. after a failed reset).
 - **`--remove`** – For **stop**: remove containers after stopping (`docker compose down`). Default is stop only.
 - **`--remove-volumes`** – For **stop**: remove named volumes (`docker compose down -v`). Use to reset DB/storage so init scripts run again on next reset. Implies **--remove**.
 
@@ -124,7 +124,7 @@ powersync docker start --directory=my-powersync
 
 ## Optional: linking for other self-hosted commands
 
-Configure sets **link.yaml** with **api_url** and **api_key** for the local stack so you can run **fetch status**, **validate**, **generate schema**, etc. without extra flags:
+Configure sets **cli.yaml** with **api_url** and **api_key** for the local stack so you can run **fetch status**, **validate**, **generate schema**, etc. without extra flags:
 
 ```bash
 powersync fetch status

@@ -10,7 +10,7 @@ local-basic-supabase/
 │   ├── docker/          # Docker Compose for PowerSync
 │   │   ├── docker-compose.yaml
 │   │   └── .env         # (created at runtime; DB credentials)
-│   ├── link.yaml        # Instance link (api_url, api_key)
+│   ├── cli.yaml        # Instance link (api_url, api_key)
 │   ├── service.yaml     # Service config (connections, auth)
 │   └── sync.yaml        # Sync rules
 ├── supabase/            # Local Supabase config

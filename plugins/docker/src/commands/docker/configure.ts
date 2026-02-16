@@ -1,7 +1,7 @@
 import { select } from '@inquirer/prompts';
 import { Flags, ux } from '@oclif/core';
 import {
-  LINK_FILENAME,
+  CLI_FILENAME,
   parseYamlDocumentPreserveTags,
   SelfHostedInstanceCommand,
   SERVICE_FILENAME,
@@ -60,9 +60,7 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
 
   async run(): Promise<void> {
     const { flags } = await this.parse(DockerConfigure);
-    const { projectDirectory } = this.loadProject(flags as SelfHostedInstanceCommandFlags, {
-      configFileRequired: true
-    });
+    const projectDirectory = this.ensureProjectDirExists(flags as SelfHostedInstanceCommandFlags);
 
     const targetDockerDir = path.join(projectDirectory, 'docker');
     const modulesDir = path.join(targetDockerDir, 'modules');
@@ -178,14 +176,14 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
     this.log(ux.colorize('gray', '  - docker-compose.yaml (includes modules, adds PowerSync service)'));
     this.log(ux.colorize('gray', '  - .env'));
     this.log(ux.colorize('gray', `  - Merged config into ${SERVICE_FILENAME}`));
-    this.log(ux.colorize('gray', `  - ${LINK_FILENAME} (plugins.docker.project_name: ${projectName})`));
+    this.log(ux.colorize('gray', `  - ${CLI_FILENAME} (plugins.docker.project_name: ${projectName})`));
     this.log(`Next: run "${ux.colorize('blue', 'powersync docker start')}" to start the stack.`);
   }
 }
 
-/** Create or update link.yaml with type: self-hosted, api_url, api_key, and plugins.docker.project_name. */
+/** Create or update cli.yaml with type: self-hosted, api_url, api_key, and plugins.docker.project_name. */
 function updateLinkPluginsDocker(projectDirectory: string, projectName: string): void {
-  const linkPath = path.join(projectDirectory, LINK_FILENAME);
+  const linkPath = path.join(projectDirectory, CLI_FILENAME);
   const linkDocument = existsSync(linkPath)
     ? parseYamlDocumentPreserveTags(readFileSync(linkPath, 'utf8'))
     : new Document({});

@@ -11,7 +11,7 @@ import { root } from '../../helpers/root.js';
 const PROJECT_DIR = 'powersync';
 const SERVICE_FILENAME = 'service.yaml';
 
-/** Minimal valid cloud config decodable by CLICloudConfig. */
+/** Minimal valid cloud config decodable by ServiceCloudConfig. */
 const MOCK_CONFIG = { _type: 'cloud' as const, name: 'test-instance', region: 'us' };
 
 const mockCloudClient = {
@@ -64,7 +64,7 @@ describe('fetch config', () => {
     expect(result.error?.oclif?.exit).toBe(1);
   });
 
-  it('errors when link.yaml does not exist', async () => {
+  it('errors when cli.yaml does not exist', async () => {
     const projectDir = join(tmpDir, PROJECT_DIR);
     mkdirSync(projectDir, { recursive: true });
     writeServiceYaml(projectDir, 'cloud');

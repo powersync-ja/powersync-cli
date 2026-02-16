@@ -1,8 +1,8 @@
 import { Flags, Interfaces } from '@oclif/core';
 import {
-  CLICloudConfig,
-  CLICloudConfigDecoded,
-  ResolvedCloudLinkConfig,
+  ServiceCloudConfig,
+  ServiceCloudConfigDecoded,
+  ResolvedCloudCLIConfig,
   validateCloudConfig
 } from '@powersync/cli-schemas';
 import { PowerSyncManagementClient } from '@powersync/management-client';
@@ -11,14 +11,14 @@ import { join } from 'node:path';
 import { createCloudClient } from '../clients/CloudClient.js';
 import { ensureServiceTypeMatches, ServiceType } from '../utils/ensureServiceType.js';
 import { env } from '../utils/env.js';
-import { LINK_FILENAME, SERVICE_FILENAME, SYNC_FILENAME } from '../utils/project-config.js';
+import { CLI_FILENAME, SERVICE_FILENAME, SYNC_FILENAME } from '../utils/project-config.js';
 import { parseYamlFile } from '../utils/yaml.js';
 import { HelpGroup } from './HelpGroup.js';
 import { DEFAULT_ENSURE_CONFIG_OPTIONS, EnsureConfigOptions, InstanceCommand } from './InstanceCommand.js';
 
 export type CloudProject = {
   projectDirectory: string;
-  linked: ResolvedCloudLinkConfig;
+  linked: ResolvedCloudCLIConfig;
   syncRulesContent?: string;
 };
 
@@ -36,10 +36,10 @@ export type CloudInstanceCommandFlags = Interfaces.InferredFlags<
  * Instance context (instance_id, org_id, project_id) is resolved in this order:
  * 1. Command-line flags (--instance-id, --org-id, --project-id)
  * 2. Environment variables (INSTANCE_ID, ORG_ID, PROJECT_ID)
- * 3. Linked config from link.yaml
+ * 3. Linked config from cli.yaml
  *
  * @example
- * # Use linked project (link.yaml)
+ * # Use linked project (cli.yaml)
  * pnpm exec powersync some-cloud-cmd
  * # Override with env
  * INSTANCE_ID=... ORG_ID=... PROJECT_ID=... pnpm exec powersync some-cloud-cmd
@@ -49,7 +49,7 @@ export type CloudInstanceCommandFlags = Interfaces.InferredFlags<
 export abstract class CloudInstanceCommand extends InstanceCommand {
   static flags = {
     /**
-     * Instance ID, org ID, and project ID are resolved in order: flags → env (INSTANCE_ID, ORG_ID, PROJECT_ID) → link.yaml.
+     * Instance ID, org ID, and project ID are resolved in order: flags → env (INSTANCE_ID, ORG_ID, PROJECT_ID) → cli.yaml.
      */
     ...InstanceCommand.flags,
     'instance-id': Flags.string({
@@ -96,13 +96,13 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
       projectDir
     });
 
-    const linkPath = join(projectDir, LINK_FILENAME);
+    const linkPath = join(projectDir, CLI_FILENAME);
 
-    let linked: ResolvedCloudLinkConfig | null = null;
+    let linked: ResolvedCloudCLIConfig | null = null;
     if (flags['instance-id']) {
       try {
         // Use the decode to validate the flags
-        linked = ResolvedCloudLinkConfig.decode({
+        linked = ResolvedCloudCLIConfig.decode({
           type: 'cloud',
           instance_id: flags['instance-id'],
           org_id: flags['org-id']!,
@@ -118,7 +118,7 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
       }
     } else if (env.INSTANCE_ID) {
       try {
-        linked = ResolvedCloudLinkConfig.decode({
+        linked = ResolvedCloudCLIConfig.decode({
           type: 'cloud',
           instance_id: env.INSTANCE_ID,
           org_id: env.ORG_ID!,
@@ -126,18 +126,18 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
         });
       } catch (error) {
         this.styledError({
-          message: 'Failed to parse environment variables as CloudLinkConfig',
+          message: 'Failed to parse environment variables as CloudCLIConfig',
           error
         });
       }
     } else if (existsSync(linkPath)) {
       try {
-        const linkPath = join(projectDir, LINK_FILENAME);
+        const linkPath = join(projectDir, CLI_FILENAME);
         const doc = parseYamlFile(linkPath);
-        linked = ResolvedCloudLinkConfig.decode(doc.contents?.toJSON());
+        linked = ResolvedCloudCLIConfig.decode(doc.contents?.toJSON());
       } catch (error) {
         this.styledError({
-          message: `Failed to parse ${LINK_FILENAME} as CloudLinkConfig`,
+          message: `Failed to parse ${CLI_FILENAME} as CloudCLIConfig`,
           error
         });
       }
@@ -162,7 +162,7 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
     };
   }
 
-  parseConfig(projectDirectory: string): CLICloudConfigDecoded {
+  parseConfig(projectDirectory: string): ServiceCloudConfigDecoded {
     const servicePath = join(projectDirectory, SERVICE_FILENAME);
     const doc = parseYamlFile(servicePath);
 
@@ -171,6 +171,6 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
     if (!validationResult.valid) {
       throw new Error(`Invalid cloud config: ${validationResult.errors?.join('\n')}`);
     }
-    return CLICloudConfig.decode(doc.contents?.toJSON());
+    return ServiceCloudConfig.decode(doc.contents?.toJSON());
   }
 }

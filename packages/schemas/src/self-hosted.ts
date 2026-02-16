@@ -21,24 +21,24 @@ function mergeObjectSchemas(
 }
 
 // For self hosted, we use the json schema as a merged source of truth
-export const BaseCLISelfHostedConfig = configFile.powerSyncConfig.and(
+export const BaseServiceSelfHostedConfig = configFile.powerSyncConfig.and(
   t.object({
     _type: t.literal('self-hosted')
   })
 );
-export type BaseCLISelfHostedConfig = t.Encoded<typeof BaseCLISelfHostedConfig>;
-export type BaseCLISelfHostedConfigDecoded = t.Decoded<typeof BaseCLISelfHostedConfig>;
+export type BaseServiceSelfHostedConfig = t.Encoded<typeof BaseServiceSelfHostedConfig>;
+export type BaseServiceSelfHostedConfigDecoded = t.Decoded<typeof BaseServiceSelfHostedConfig>;
 
-export const CLISelfHostedConfig = BaseCLISelfHostedConfig.and(t.record(t.any));
-export type CLISelfHostedConfig = t.Encoded<typeof CLISelfHostedConfig>;
-export type CLISelfHostedConfigDecoded = t.Decoded<typeof CLISelfHostedConfig>;
+export const ServiceSelfHostedConfig = BaseServiceSelfHostedConfig.and(t.record(t.any));
+export type ServiceSelfHostedConfig = t.Encoded<typeof ServiceSelfHostedConfig>;
+export type ServiceSelfHostedConfigDecoded = t.Decoded<typeof ServiceSelfHostedConfig>;
 
-const BaseCLISelfHostedConfigSchema = t.generateJSONSchema(BaseCLISelfHostedConfig, {
+const BaseServiceSelfHostedConfigSchema = t.generateJSONSchema(BaseServiceSelfHostedConfig, {
   parsers: [configFile.portParser]
 });
 
-/** JSON Schema for self-hosted CLI config: BaseCLISelfHostedConfig + SelfHostedSchema (management-types). */
-export const CLISelfHostedConfigSchema = mergeObjectSchemas(
-  BaseCLISelfHostedConfigSchema as Record<string, unknown>,
+/** JSON Schema for self-hosted service config: BaseServiceSelfHostedConfig + SelfHostedSchema (management-types). */
+export const ServiceSelfHostedConfigSchema = mergeObjectSchemas(
+  BaseServiceSelfHostedConfigSchema as Record<string, unknown>,
   SelfHostedSchema as Record<string, unknown>
 );

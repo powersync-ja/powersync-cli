@@ -9,7 +9,7 @@ local-postgres-node/
 ├── .env                 # PS_CLIENT_AUTH_KEY (shared secret; copy from .env.example)
 ├── powersync/           # PowerSync service config
 │   ├── docker/
-│   ├── link.yaml
+│   ├── cli.yaml
 │   ├── service.yaml     # client_auth with HS256 jwks
 │   └── sync.yaml
 ├── src/                 # Node.js app

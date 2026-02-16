@@ -9,7 +9,7 @@ import {
   SharedInstanceCommand,
   SYNC_FILENAME
 } from '@powersync/cli-core';
-import { CLICloudConfig, CLICloudConfigDecoded, CLISelfHostedConfig } from '@powersync/cli-schemas';
+import { ServiceCloudConfig, ServiceCloudConfigDecoded, ServiceSelfHostedConfig } from '@powersync/cli-schemas';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Document } from 'yaml';
@@ -57,9 +57,9 @@ async function runConfigTest(projectDir: string, isCloud: boolean): Promise<Vali
     const doc = parseYamlFile(servicePath);
     const raw = doc.contents?.toJSON();
     if (isCloud) {
-      CLICloudConfig.decode(raw);
+      ServiceCloudConfig.decode(raw);
     } else {
-      CLISelfHostedConfig.decode(raw);
+      ServiceSelfHostedConfig.decode(raw);
     }
     return { name: 'config_schema', passed: true };
   } catch (error) {
@@ -147,7 +147,7 @@ export default class Validate extends SharedInstanceCommand {
 
   async runConnectionTestCloud(project: CloudProject): Promise<ValidationTestResult> {
     const client = await createCloudClient();
-    let config: CLICloudConfigDecoded;
+    let config: ServiceCloudConfigDecoded;
     try {
       config = this.parseCloudConfig(project.projectDirectory);
     } catch (error) {

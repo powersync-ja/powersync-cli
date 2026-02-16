@@ -16,7 +16,7 @@ local-postgres/
 │   │       └── storage-postgres/
 │   │           ├── init-scripts/
 │   │           └── postgres.storage.compose.yaml
-│   ├── link.yaml        # Instance link (api_url, api_key)
+│   ├── cli.yaml        # Instance link (api_url, api_key)
 │   ├── service.yaml     # Service config (connections, auth)
 │   └── sync.yaml        # Sync rules
 └── README.md

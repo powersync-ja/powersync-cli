@@ -1,7 +1,7 @@
 /**
- * The filename used to store cli linking information.
+ * The filename used to store CLI instance binding (cloud or self-hosted).
  */
-export const LINK_FILENAME = 'link.yaml';
+export const CLI_FILENAME = 'cli.yaml';
 
 /**
  * The filename used to store the service configuration.

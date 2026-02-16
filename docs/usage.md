@@ -8,7 +8,7 @@ It is possible to manage and deploy updates to instances entirely from the CLI. 
 
 ## Linking to a project
 
-You can **explicitly link** your local config to a cloud or self-hosted project. Running `powersync link [cloud|self-hosted]` creates a persisted **link file** (e.g. `powersync/link.yaml`) that stores the instance information. Once linked, cloud commands in that directory use this context so you don’t need to pass IDs every time. This is the usual workflow when you develop against a single instance and keep config on disk.
+You can **explicitly link** your local config to a cloud or self-hosted project. Running `powersync link [cloud|self-hosted]` creates a persisted **link file** (e.g. `powersync/cli.yaml`) that stores the instance information. Once linked, cloud commands in that directory use this context so you don’t need to pass IDs every time. This is the usual workflow when you develop against a single instance and keep config on disk.
 
 ## Supplying instance information without local config
 
@@ -31,19 +31,19 @@ When you have development, staging, and production instances, you can structure 
 
 **Multiple directories, each linked to one instance**
 
-Use separate config directories (e.g. `powersync`, `powersync-dev`, `powersync-staging`). Each directory has its own `link.yaml` pointing at a different instance. Use `--directory` to run commands against a specific environment:
+Use separate config directories (e.g. `powersync`, `powersync-dev`, `powersync-staging`). Each directory has its own `cli.yaml` pointing at a different instance. Use `--directory` to run commands against a specific environment:
 
 ```bash
-powersync deploy --directory=powersync          # production (linked in powersync/link.yaml)
-powersync deploy --directory=powersync-dev     # dev (linked in powersync-dev/link.yaml)
-powersync deploy --directory=powersync-staging # staging (linked in powersync-staging/link.yaml)
+powersync deploy --directory=powersync          # production (linked in powersync/cli.yaml)
+powersync deploy --directory=powersync-dev     # dev (linked in powersync-dev/cli.yaml)
+powersync deploy --directory=powersync-staging # staging (linked in powersync-staging/cli.yaml)
 ```
 
 **Single directory and link file, with `!env` substitution**
 
-Use a single `powersync/` folder and a single `link.yaml`, and use the **`!env`** custom tag in your YAML to substitute values from the environment. That way you can keep one set of config files and one link file, while varying things like instance IDs, API URLs, or database URLs per environment (e.g. production database URL from an env var). Both the link file and the main config (e.g. `service.yaml`) can use `!env` so that the same repo works for dev, staging, and prod by changing only environment variables.
+Use a single `powersync/` folder and a single `cli.yaml`, and use the **`!env`** custom tag in your YAML to substitute values from the environment. That way you can keep one set of config files and one link file, while varying things like instance IDs, API URLs, or database URLs per environment (e.g. production database URL from an env var). Both the link file and the main config (e.g. `service.yaml`) can use `!env` so that the same repo works for dev, staging, and prod by changing only environment variables.
 
-Example in **link.yaml** (cloud — instance resolved from env):
+Example in **cli.yaml** (cloud — instance resolved from env):
 
 ```yaml
 type: cloud
@@ -203,7 +203,7 @@ Cloud and self-hosted commands need instance (and for Cloud, org and project) id
 2. **Environment variables**
    - **Cloud:** `INSTANCE_ID`, `ORG_ID`, `PROJECT_ID`
    - **Self-hosted:** `API_URL`, `TOKEN` (API key)
-3. **link.yaml** — a `powersync/link.yaml` file in the project (written by `powersync link cloud` or `powersync link self-hosted`)
+3. **cli.yaml** — a `powersync/cli.yaml` file in the project (written by `powersync link cloud` or `powersync link self-hosted`)
 
 ---
 
@@ -216,14 +216,14 @@ Pass the identifiers on each command. Useful for one-off runs or to override the
 ```bash
 powersync login
 
-# Stop a specific instance without linking the directory (overrides link.yaml if present)
+# Stop a specific instance without linking the directory (overrides cli.yaml if present)
 powersync stop --confirm=yes \
   --instance-id=688736sdfcfb46688f509bd0 \
   --org-id=5cc84a3ccudjfhgytw0c08b \
   --project-id=6703fd8a3cfe3000hrydg463
 ```
 
-**Self-hosted:** Set `TOKEN` (or use a linked project with API key in link.yaml), then:
+**Self-hosted:** Set `TOKEN` (or use a linked project with API key in cli.yaml), then:
 
 ```bash
 powersync fetch status --api-url=https://powersync.example.com
@@ -235,20 +235,20 @@ You can use a different project directory with `--directory`:
 # Cloud
 powersync stop --confirm=yes --directory=my-powersync --instance-id=... --org-id=... --project-id=...
 
-# Self-hosted (API key from TOKEN or link.yaml)
+# Self-hosted (API key from TOKEN or cli.yaml)
 powersync fetch status --directory=my-powersync --api-url=https://...
 ```
 
 ---
 
-## Method 2: link.yaml (persistent context)
+## Method 2: cli.yaml (persistent context)
 
 Link the project once; later commands use the stored IDs. Best for day-to-day work in a single project.
 
 ```bash
 powersync login
 
-# Link this project to a Cloud instance (writes powersync/link.yaml)
+# Link this project to a Cloud instance (writes powersync/cli.yaml)
 powersync link cloud \
   --instance-id=688736sdfcfb46688f509bd0 \
   --org-id=5cc84a3ccudjfhgytw0c08b \
@@ -302,4 +302,4 @@ INSTANCE_ID=... ORG_ID=... PROJECT_ID=... powersync stop --confirm=yes
 API_URL=https://... TOKEN=... powersync fetch status --output=json
 ```
 
-**Note:** Environment variables are only used when neither flags nor `link.yaml` provide linking information.
+**Note:** Environment variables are only used when neither flags nor `cli.yaml` provide linking information.

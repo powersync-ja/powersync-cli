@@ -6,14 +6,14 @@ PowerSync CLI plugin that adds a **docker** topic for self-hosted instances: **c
 
 All commands live under **`powersync docker`**:
 
-- **`powersync docker configure`** – Create **powersync/docker/** with database and storage modules (see **Templates** below). Requires **`--database`** and **`--storage`**. Creates **docker-compose.yaml**, **.env** (with defaults), and merges service snippets into **service.yaml** (preserving `!env` so the container resolves vars from **.env**). Writes **link.yaml** with `plugins.docker.project_name` for reset/start/stop.
+- **`powersync docker configure`** – Create **powersync/docker/** with database and storage modules (see **Templates** below). Requires **`--database`** and **`--storage`**. Creates **docker-compose.yaml**, **.env** (with defaults), and merges service snippets into **service.yaml** (preserving `!env` so the container resolves vars from **.env**). Writes **cli.yaml** with `plugins.docker.project_name` for reset/start/stop.
 - **`powersync docker start`** – Start the stack (`docker compose up -d --wait`). **Use this after configure** to bring up the stack.
 - **`powersync docker reset`** – Start from a clean state: stop and remove containers (`docker compose down`), then start (`docker compose up -d --wait`). Use **only when you need a clean state** (e.g. after config changes).
 - **`powersync docker stop`** – Stop the stack (`docker compose stop` by default; use `--remove` for `down`, `--remove-volumes` for `down -v`).
 
 Run **`powersync docker`** with no subcommand to see help.
 
-All commands use the same project and directory resolution as the main CLI (e.g. `--directory powersync`). They require a self-hosted PowerSync project (**service.yaml** with `_type: self-hosted`). Linking (**link.yaml** / API_URL / TOKEN) is optional.
+All commands use the same project and directory resolution as the main CLI (e.g. `--directory powersync`). They require a self-hosted PowerSync project (**service.yaml** with `_type: self-hosted`). Linking (**cli.yaml** / API_URL / TOKEN) is optional.
 
 ## Templates (composable modules)
 
@@ -44,7 +44,7 @@ Creates **powersync/docker/** with:
 - **docker-compose.yaml** – `include:` of both partials + PowerSync service (depends on pg-db and pg-storage; uses **env_file: .env**).
 - **.env** – Merged from template.env snippets and PowerSync vars (defaults; no manual setup required for basic use).
 
-Also merges the database and storage snippets into **powersync/service.yaml** (replication and storage with `!env` preserved) and creates/updates **link.yaml** with `plugins.docker.project_name` (derived from the config directory name). When running **docker stop**, use **`--project-name`** to target a specific project or run from another directory.
+Also merges the database and storage snippets into **powersync/service.yaml** (replication and storage with `!env` preserved) and creates/updates **cli.yaml** with `plugins.docker.project_name` (derived from the config directory name). When running **docker stop**, use **`--project-name`** to target a specific project or run from another directory.
 
 ## Usage
 
@@ -58,7 +58,7 @@ No need to edit **.env** for default setups; the PowerSync service reads **docke
 - **`--directory`** – Config directory (default: `powersync`).
 - **`--database`** – Database module for **docker configure** (e.g. `postgres`). Required for configure.
 - **`--storage`** – Storage module for **docker configure** (e.g. `postgres`). Required for configure.
-- **`--project-name`** – For **stop** only: Docker Compose project name (e.g. `powersync_myapp`). Default: `plugins.docker.project_name` from `link.yaml` when run from the project directory. Use to stop from any directory or target a specific project.
+- **`--project-name`** – For **stop** only: Docker Compose project name (e.g. `powersync_myapp`). Default: `plugins.docker.project_name` from `cli.yaml` when run from the project directory. Use to stop from any directory or target a specific project.
 - **`--api-url`** – PowerSync API URL (optional; for consistency with other self-hosted commands).
 
 ## Building blocks

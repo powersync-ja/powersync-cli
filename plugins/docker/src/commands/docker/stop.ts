@@ -5,13 +5,13 @@ import { getDockerProjectName, runDockerComposeDown, runDockerComposeStop } from
 export default class DockerStop extends SelfHostedInstanceCommand {
   static summary = 'Stop a PowerSync Docker Compose project by name.';
   static description =
-    'Run `docker compose -p <project-name> stop` (containers are not removed by default). Does not require the project directory or a compose file, so you can run it from anywhere (e.g. after a reset conflict). Use --project-name or run from a project with link.yaml to choose which project to stop. Use --remove to also remove the containers. Use --remove-volumes to also remove volumes (e.g. to re-run DB init scripts on next reset).';
+    'Run `docker compose -p <project-name> stop` (containers are not removed by default). Does not require the project directory or a compose file, so you can run it from anywhere (e.g. after a reset conflict). Use --project-name or run from a project with cli.yaml to choose which project to stop. Use --remove to also remove the containers. Use --remove-volumes to also remove volumes (e.g. to re-run DB init scripts on next reset).';
 
   static flags = {
     ...SelfHostedInstanceCommand.flags,
     'project-name': Flags.string({
       description:
-        'Docker Compose project name to stop (e.g. powersync_myapp). If omitted and run from a project directory, uses plugins.docker.project_name from link.yaml. Pass this to stop from any directory without loading the project.'
+        'Docker Compose project name to stop (e.g. powersync_myapp). If omitted and run from a project directory, uses plugins.docker.project_name from cli.yaml. Pass this to stop from any directory without loading the project.'
     }),
     remove: Flags.boolean({
       description:
@@ -40,7 +40,7 @@ export default class DockerStop extends SelfHostedInstanceCommand {
       this.error(
         ux.colorize(
           'red',
-          'Project name required. Pass --project-name=<name> or run from a project directory that has link.yaml with plugins.docker.project_name.'
+          'Project name required. Pass --project-name=<name> or run from a project directory that has cli.yaml with plugins.docker.project_name.'
         ),
         { exit: 1 }
       );

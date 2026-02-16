@@ -1,5 +1,5 @@
 # PowerSync Cloud config (fetched from cloud)
-# yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/cli-config.json
+# yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/service-config.json
 _type: cloud
 name: mango
 region: us

@@ -1,5 +1,5 @@
 import { ux } from '@oclif/core';
-import { CLICloudConfig } from '@powersync/cli-schemas';
+import { ServiceCloudConfig } from '@powersync/cli-schemas';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,7 +9,7 @@ import { Document, isMap, type Node, type Pair, parseDocument, YAMLMap } from 'y
 import {
   CloudInstanceCommand,
   ensureServiceTypeMatches,
-  LINK_FILENAME,
+  CLI_FILENAME,
   SERVICE_FILENAME,
   ServiceType,
   SYNC_FILENAME
@@ -21,7 +21,7 @@ const SERVICE_FETCHED_FILENAME = 'service-fetched.yaml';
 const SYNC_FETCHED_FILENAME = 'sync-fetched.yaml';
 
 const PULL_CONFIG_HEADER = `# PowerSync Cloud config (fetched from cloud)
-# yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/cli-config.json
+# yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/service-config.json
 #
 `;
 
@@ -72,15 +72,15 @@ function insertPair(map: YAMLMap, index: number, pair: Pair<unknown, unknown>): 
   }
 }
 
-function hasSection(config: t.Decoded<typeof CLICloudConfig>, key: 'replication' | 'client_auth'): boolean {
+function hasSection(config: t.Decoded<typeof ServiceCloudConfig>, key: 'replication' | 'client_auth'): boolean {
   const c = config as Record<string, unknown>;
   return c[key] !== undefined && c[key] !== null;
 }
 
-function formatServiceYamlWithComments(config: t.Decoded<typeof CLICloudConfig>): string {
+function formatServiceYamlWithComments(config: t.Decoded<typeof ServiceCloudConfig>): string {
   let schema: JSONSchemaObject;
   try {
-    schema = (t.generateJSONSchema(CLICloudConfig) as JSONSchemaObject) ?? {};
+    schema = (t.generateJSONSchema(ServiceCloudConfig) as JSONSchemaObject) ?? {};
   } catch {
     schema = {};
   }
@@ -170,7 +170,7 @@ function formatServiceYamlWithComments(config: t.Decoded<typeof CLICloudConfig>)
 
 export default class PullConfig extends CloudInstanceCommand {
   static description =
-    'Fetch instance config and sync rules from PowerSync Cloud and write to service.yaml and sync.yaml in the config directory. Writes link.yaml if you pass --instance-id, --org-id, --project-id. Cloud only.';
+    'Fetch instance config and sync rules from PowerSync Cloud and write to service.yaml and sync.yaml in the config directory. Writes cli.yaml if you pass --instance-id, --org-id, --project-id. Cloud only.';
   static summary = 'Download Cloud config and sync rules into local service.yaml and sync.yaml.';
 
   static flags = {
@@ -199,7 +199,7 @@ export default class PullConfig extends CloudInstanceCommand {
       projectDir
     });
 
-    const linkPath = join(projectDir, LINK_FILENAME);
+    const linkPath = join(projectDir, CLI_FILENAME);
     if (!existsSync(linkPath)) {
       if (!instanceId || !orgId || !projectId) {
         this.styledError({
@@ -207,7 +207,7 @@ export default class PullConfig extends CloudInstanceCommand {
         });
       }
       writeCloudLink(projectDir, { instanceId, orgId, projectId });
-      this.log(ux.colorize('green', `Created ${directory}/${LINK_FILENAME} with Cloud instance link.`));
+      this.log(ux.colorize('green', `Created ${directory}/${CLI_FILENAME} with Cloud instance link.`));
     }
 
     const { linked } = this.loadProject(flags);

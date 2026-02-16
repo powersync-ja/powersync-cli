@@ -8,7 +8,7 @@ Each example is structured like a repository root with a `powersync/` folder tha
 example-name/
 ├── powersync/           # PowerSync service config
 │   ├── docker/          # Docker Compose for PowerSync
-│   ├── link.yaml        # Instance link (api_url, api_key)
+│   ├── cli.yaml        # Instance link (api_url, api_key)
 │   ├── service.yaml     # Service config (connections, auth)
 │   └── sync.yaml        # Sync rules
 └── ...

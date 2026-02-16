@@ -17,7 +17,7 @@
       "default": "./dist/index.js"
     },
     "./cli-config-schema.json": "./json-schema/cli-config.json",
-    "./link-config-schema.json": "./json-schema/link-config.json"
+    "./link-config-schema.json": "./json-schema/cli-config.json","./service-config-schema.json":"./json-schema/service-config.json"
   },
   "scripts": {
     "build": "tsc -b && node dist/scripts/create-schemas.js",

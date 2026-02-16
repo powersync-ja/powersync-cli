@@ -1,4 +1,4 @@
-import type { ResolvedCloudLinkConfig } from '@powersync/cli-schemas';
+import type { ResolvedCloudCLIConfig } from '@powersync/cli-schemas';
 import type { PowerSyncManagementClient } from '@powersync/management-client';
 import { routes } from '@powersync/management-types';
 
@@ -13,7 +13,7 @@ export type TestConnectionResult = {
  */
 export async function testCloudConnections(
   client: PowerSyncManagementClient,
-  linked: ResolvedCloudLinkConfig,
+  linked: ResolvedCloudCLIConfig,
   connections: Array<{ name?: string } & Record<string, unknown>>
 ): Promise<TestConnectionResult[]> {
   const results: TestConnectionResult[] = [];

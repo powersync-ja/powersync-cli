@@ -34,7 +34,7 @@ describe('init', () => {
     expect(existsSync(join(projectDir, 'sync.yaml'))).toBe(true);
     const serviceYaml = parseYaml(readFileSync(serviceYamlPath, 'utf8'));
     expect(serviceYaml.telemetry).toBeUndefined();
-    const linkYamlPath = join(projectDir, 'link.yaml');
+    const linkYamlPath = join(projectDir, 'cli.yaml');
     expect(existsSync(linkYamlPath)).toBe(true);
     const linkYaml = parseYaml(readFileSync(linkYamlPath, 'utf8'));
     expect(linkYaml.type).toBe('cloud');
@@ -62,7 +62,7 @@ describe('init', () => {
     expect(existsSync(join(projectDir, 'sync.yaml'))).toBe(true);
     const serviceYaml = parseYaml(readFileSync(serviceYamlPath, 'utf8'));
     expect(serviceYaml.telemetry).toBeUndefined();
-    const linkYamlPath = join(projectDir, 'link.yaml');
+    const linkYamlPath = join(projectDir, 'cli.yaml');
     expect(existsSync(linkYamlPath)).toBe(true);
     const linkYaml = parseYaml(readFileSync(linkYamlPath, 'utf8'));
     expect(linkYaml.type).toBe('cloud');
@@ -78,7 +78,7 @@ describe('init', () => {
     const serviceYaml = parseYaml(readFileSync(serviceYamlPath, 'utf8'));
     expect(serviceYaml.telemetry).toBeDefined();
     expect(serviceYaml.telemetry.disable_telemetry_sharing).toBe(false);
-    const linkYamlPath = join(projectDir, 'link.yaml');
+    const linkYamlPath = join(projectDir, 'cli.yaml');
     expect(existsSync(linkYamlPath)).toBe(true);
     const linkYaml = parseYaml(readFileSync(linkYamlPath, 'utf8'));
     expect(linkYaml.type).toBe('self-hosted');

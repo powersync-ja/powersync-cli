@@ -1,5 +1,5 @@
 import { ux } from '@oclif/core';
-import { LINK_FILENAME, parseYamlDocumentPreserveTags } from '@powersync/cli-core';
+import { CLI_FILENAME, parseYamlDocumentPreserveTags } from '@powersync/cli-core';
 import { execSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -9,15 +9,15 @@ const POWERSYNC_PROJECT_PREFIX = 'powersync_';
 
 export type DockerComposeOptions = {
   projectDirectory: string;
-  /** Docker Compose project name (e.g. from link.yaml plugins.docker.project_name). When set, passed as -p. */
+  /** Docker Compose project name (e.g. from cli.yaml plugins.docker.project_name). When set, passed as -p. */
   projectName?: string;
 };
 
 /**
- * Read Docker Compose project name from link.yaml (plugins.docker.project_name). Returns undefined if missing.
+ * Read Docker Compose project name from cli.yaml (plugins.docker.project_name). Returns undefined if missing.
  */
 export function getDockerProjectName(projectDirectory: string): string | undefined {
-  const linkPath = join(projectDirectory, LINK_FILENAME);
+  const linkPath = join(projectDirectory, CLI_FILENAME);
   if (!existsSync(linkPath)) return undefined;
   try {
     const obj = parseYamlDocumentPreserveTags(readFileSync(linkPath, 'utf8'));

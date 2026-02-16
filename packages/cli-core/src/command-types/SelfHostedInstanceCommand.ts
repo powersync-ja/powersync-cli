@@ -1,22 +1,22 @@
 import { Flags, Interfaces } from '@oclif/core';
 import {
-  CLISelfHostedConfig,
-  CLISelfHostedConfigDecoded,
-  ResolvedSelfHostedLinkConfig,
+  ServiceSelfHostedConfig,
+  ServiceSelfHostedConfigDecoded,
+  ResolvedSelfHostedCLIConfig,
   validateSelfHostedConfig
 } from '@powersync/cli-schemas';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { ensureServiceTypeMatches, ServiceType } from '../utils/ensureServiceType.js';
 import { env } from '../utils/env.js';
-import { LINK_FILENAME, SERVICE_FILENAME } from '../utils/project-config.js';
+import { CLI_FILENAME, SERVICE_FILENAME } from '../utils/project-config.js';
 import { parseYamlFile } from '../utils/yaml.js';
 import { HelpGroup } from './HelpGroup.js';
 import { DEFAULT_ENSURE_CONFIG_OPTIONS, EnsureConfigOptions, InstanceCommand } from './InstanceCommand.js';
 
 export type SelfHostedProject = {
   projectDirectory: string;
-  linked: ResolvedSelfHostedLinkConfig;
+  linked: ResolvedSelfHostedCLIConfig;
 };
 
 export type SelfHostedInstanceCommandFlags = Interfaces.InferredFlags<
@@ -31,7 +31,7 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
   static flags = {
     ...InstanceCommand.flags,
     'api-url': Flags.string({
-      description: 'PowerSync API URL. Resolved: flag → API_URL environment variable → link.yaml.',
+      description: 'PowerSync API URL. Resolved: flag → API_URL environment variable → cli.yaml.',
       required: false,
       helpGroup: HelpGroup.SELF_HOSTED_PROJECT
     })
@@ -56,7 +56,7 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
       projectDir
     });
 
-    const linkPath = join(projectDir, LINK_FILENAME);
+    const linkPath = join(projectDir, CLI_FILENAME);
     let rawLink: Record<string, unknown> | null = null;
     if (existsSync(linkPath)) {
       try {
@@ -70,9 +70,9 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
     const api_url = flags['api-url'] ?? env.API_URL ?? (rawLink?.api_url as string | undefined);
     const api_key = env.TOKEN ?? (rawLink?.api_key as string | undefined);
 
-    let linked: ResolvedSelfHostedLinkConfig | null = null;
+    let linked: ResolvedSelfHostedCLIConfig | null = null;
     try {
-      linked = ResolvedSelfHostedLinkConfig.decode({
+      linked = ResolvedSelfHostedCLIConfig.decode({
         ...(rawLink ?? {}),
         type: 'self-hosted',
         api_url: api_url!,
@@ -80,14 +80,14 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
       });
     } catch (error) {
       this.styledError({
-        message: 'Linking is required. Set API_URL and TOKEN, or link the project first (link.yaml).',
+        message: 'Linking is required. Set API_URL and TOKEN, or link the project first (cli.yaml).',
         error
       });
     }
 
     if (!linked) {
       this.styledError({
-        message: 'Linking is required for this command. Set API_URL and TOKEN, or link the project first (link.yaml).'
+        message: 'Linking is required for this command. Set API_URL and TOKEN, or link the project first (cli.yaml).'
       });
     }
 
@@ -97,7 +97,7 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
     };
   }
 
-  parseConfig(projectDirectory: string): CLISelfHostedConfigDecoded {
+  parseConfig(projectDirectory: string): ServiceSelfHostedConfigDecoded {
     const servicePath = join(projectDirectory, SERVICE_FILENAME);
     const doc = parseYamlFile(servicePath);
 
@@ -106,6 +106,6 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
     if (!validationResult.valid) {
       throw new Error(`Invalid self-hosted config: ${validationResult.errors?.join('\n')}`);
     }
-    return CLISelfHostedConfig.decode(doc.contents?.toJSON());
+    return ServiceSelfHostedConfig.decode(doc.contents?.toJSON());
   }
 }

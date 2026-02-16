@@ -11,7 +11,7 @@ import { root } from '../../helpers/root.js';
 const PROJECT_DIR = 'powersync';
 const SERVICE_FILENAME = 'service.yaml';
 
-/** Minimal valid cloud config decodable by CLICloudConfig. */
+/** Minimal valid cloud config decodable by ServiceCloudConfig. */
 const MOCK_CONFIG = { _type: 'cloud' as const, name: 'test-instance', region: 'us' };
 
 const mockCloudClient = {
@@ -77,14 +77,14 @@ describe('pull config', () => {
     });
     expect(result.error).toBeUndefined();
     expect(existsSync(projectDir)).toBe(true);
-    expect(existsSync(join(projectDir, 'link.yaml'))).toBe(true);
+    expect(existsSync(join(projectDir, 'cli.yaml'))).toBe(true);
     expect(existsSync(join(projectDir, SERVICE_FILENAME))).toBe(true);
     expect(readFileSync(join(projectDir, SERVICE_FILENAME), 'utf8')).toContain('_type: cloud');
     expect(result.stdout).toContain('Created');
     expect(result.stdout).toContain(`Wrote ${SERVICE_FILENAME}`);
   });
 
-  it('errors when link.yaml does not exist and no link flags', async () => {
+  it('errors when cli.yaml does not exist and no link flags', async () => {
     const projectDir = join(tmpDir, PROJECT_DIR);
     mkdirSync(projectDir, { recursive: true });
     writeServiceYaml(projectDir, 'cloud');
@@ -105,10 +105,10 @@ describe('pull config', () => {
       projectId: 'proj-1'
     });
     expect(result.error).toBeUndefined();
-    expect(existsSync(join(projectDir, 'link.yaml'))).toBe(true);
-    expect(readFileSync(join(projectDir, 'link.yaml'), 'utf8')).toContain('instance_id: inst-1');
+    expect(existsSync(join(projectDir, 'cli.yaml'))).toBe(true);
+    expect(readFileSync(join(projectDir, 'cli.yaml'), 'utf8')).toContain('instance_id: inst-1');
     expect(result.stdout).toContain('Created');
-    expect(result.stdout).toContain('link.yaml');
+    expect(result.stdout).toContain('cli.yaml');
     expect(result.stdout).toContain(`Wrote ${SERVICE_FILENAME}`);
     expect(existsSync(join(projectDir, SERVICE_FILENAME))).toBe(true);
     expect(readFileSync(join(projectDir, SERVICE_FILENAME), 'utf8')).toContain('_type: cloud');

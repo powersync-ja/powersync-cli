@@ -1,7 +1,7 @@
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { LINK_FILENAME, parseYamlFile } from '@powersync/cli-core';
+import { CLI_FILENAME, parseYamlFile } from '@powersync/cli-core';
 
 export type WriteCloudLinkOptions = {
   instanceId: string;
@@ -10,11 +10,11 @@ export type WriteCloudLinkOptions = {
 };
 
 /**
- * Writes or updates link.yaml with Cloud instance link (type: cloud, instance_id, org_id, project_id).
+ * Writes or updates cli.yaml with Cloud instance link (type: cloud, instance_id, org_id, project_id).
  */
 export function writeCloudLink(projectDir: string, options: WriteCloudLinkOptions): void {
   const { instanceId, orgId, projectId } = options;
-  const linkPath = join(projectDir, LINK_FILENAME);
+  const linkPath = join(projectDir, CLI_FILENAME);
   const doc = parseYamlFile(linkPath);
   doc.set('type', 'cloud');
   doc.set('instance_id', instanceId);

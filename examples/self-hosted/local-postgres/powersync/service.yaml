@@ -1,6 +1,6 @@
 # TODO update this with published schema
-# yaml-language-server: $schema=/Users/stevenontong/Documents/platform_code/powersync/new-cli/packages/schemas/json-schema/cli-config.json
-# yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/cli-config.json
+# yaml-language-server: $schema=/Users/stevenontong/Documents/platform_code/powersync/new-cli/packages/schemas/json-schema/service-config.json
+# yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/service-config.json
 #
 # PowerSync self-hosted config – example template with all schema options documented.
 # Uncomment one block per type where applicable. We recommend secrets via !env ENV_NAME.

@@ -7,7 +7,7 @@ import {
   ensureServiceTypeMatches,
   env,
   InstanceCommand,
-  LINK_FILENAME,
+  CLI_FILENAME,
   parseYamlFile,
   SelfHostedInstanceCommand,
   ServiceType
@@ -51,13 +51,13 @@ export default class LinkSelfHosted extends SelfHostedInstanceCommand {
         });
 
     // Preserve comments
-    const linkPath = join(projectDir, LINK_FILENAME);
+    const linkPath = join(projectDir, CLI_FILENAME);
     const doc = parseYamlFile(linkPath);
     doc.set('type', 'self-hosted');
     doc.set('api_url', apiUrl);
     doc.set('api_key', apiKey.trim() || '!env TOKEN');
     writeFileSync(linkPath, doc.toString(), 'utf8');
 
-    this.log(ux.colorize('green', `Updated ${directory}/${LINK_FILENAME} with self-hosted link.`));
+    this.log(ux.colorize('green', `Updated ${directory}/${CLI_FILENAME} with self-hosted link.`));
   }
 }

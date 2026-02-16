@@ -6,7 +6,7 @@ import {
   SERVICE_FILENAME,
   SharedInstanceCommand
 } from '@powersync/cli-core';
-import { CLISelfHostedConfig } from '@powersync/cli-schemas';
+import { ServiceSelfHostedConfig } from '@powersync/cli-schemas';
 import * as jose from 'jose';
 import { join } from 'node:path';
 
@@ -76,7 +76,7 @@ export default class GenerateToken extends SharedInstanceCommand {
 
   protected async generateSelfHostedToken(project: SelfHostedProject, config: TokenConfig): Promise<string> {
     // For self hosted we can check if there is a shared secret in the config file and then manually create a token with JOSE
-    let instanceConfig: CLISelfHostedConfig;
+    let instanceConfig: ServiceSelfHostedConfig;
     try {
       instanceConfig = this.parseSelfHostedConfig(project.projectDirectory);
     } catch (ex) {

@@ -26,7 +26,7 @@ async function runDeployDirect(opts?: { directory?: string }) {
   return captureOutput(() => cmd.run());
 }
 
-const LINK_FILENAME = 'link.yaml';
+const CLI_FILENAME = 'cli.yaml';
 const PROJECT_DIR = 'powersync';
 const SERVICE_FILENAME = 'service.yaml';
 
@@ -37,7 +37,7 @@ function writeServiceYaml(projectDir: string, type: 'cloud' | 'self-hosted') {
 
 function writeLinkYaml(projectDir: string, opts: { instance_id: string; org_id: string; project_id: string }) {
   const content = `type: cloud\ninstance_id: ${opts.instance_id}\norg_id: ${opts.org_id}\nproject_id: ${opts.project_id}\n`;
-  writeFileSync(join(projectDir, LINK_FILENAME), content, 'utf8');
+  writeFileSync(join(projectDir, CLI_FILENAME), content, 'utf8');
 }
 
 describe('deploy', () => {
@@ -81,7 +81,7 @@ describe('deploy', () => {
     expect(result.error?.oclif?.exit).toBe(1);
   });
 
-  it('errors when link.yaml does not exist', async () => {
+  it('errors when cli.yaml does not exist', async () => {
     const projectDir = join(tmpDir, PROJECT_DIR);
     mkdirSync(projectDir, { recursive: true });
     writeServiceYaml(projectDir, 'cloud');
@@ -90,13 +90,13 @@ describe('deploy', () => {
     expect(result.error?.oclif?.exit).toBe(1);
   });
 
-  it('errors when link.yaml is missing required fields', async () => {
+  it('errors when cli.yaml is missing required fields', async () => {
     const projectDir = join(tmpDir, PROJECT_DIR);
     mkdirSync(projectDir, { recursive: true });
     writeServiceYaml(projectDir, 'cloud');
-    writeFileSync(join(projectDir, LINK_FILENAME), 'type: cloud\n', 'utf8');
+    writeFileSync(join(projectDir, CLI_FILENAME), 'type: cloud\n', 'utf8');
     const result = await runCommand('deploy', { root });
-    expect(result.error?.message).toMatch(/Failed to parse link\.yaml as CloudLinkConfig/);
+    expect(result.error?.message).toMatch(/Failed to parse cli\.yaml as CloudCLIConfig/);
     expect(result.error?.oclif?.exit).toBe(1);
   });
 

@@ -140,7 +140,7 @@ USAGE
   $ powersync docker [--directory <value>] [--api-url <value>]
 
 SELF_HOSTED_PROJECT FLAGS
-  --api-url=<value>  PowerSync API URL. Resolved: flag → API_URL environment variable → link.yaml.
+  --api-url=<value>  PowerSync API URL. Resolved: flag → API_URL environment variable → cli.yaml.
 
 PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config.
@@ -168,7 +168,7 @@ FLAGS
                        <options: postgres|external>
 
 SELF_HOSTED_PROJECT FLAGS
-  --api-url=<value>  PowerSync API URL. Resolved: flag → API_URL environment variable → link.yaml.
+  --api-url=<value>  PowerSync API URL. Resolved: flag → API_URL environment variable → cli.yaml.
 
 PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config.
@@ -190,7 +190,7 @@ USAGE
   $ powersync docker reset [--directory <value>] [--api-url <value>]
 
 SELF_HOSTED_PROJECT FLAGS
-  --api-url=<value>  PowerSync API URL. Resolved: flag → API_URL environment variable → link.yaml.
+  --api-url=<value>  PowerSync API URL. Resolved: flag → API_URL environment variable → cli.yaml.
 
 PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config.
@@ -212,7 +212,7 @@ USAGE
   $ powersync docker start [--directory <value>] [--api-url <value>]
 
 SELF_HOSTED_PROJECT FLAGS
-  --api-url=<value>  PowerSync API URL. Resolved: flag → API_URL environment variable → link.yaml.
+  --api-url=<value>  PowerSync API URL. Resolved: flag → API_URL environment variable → cli.yaml.
 
 PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config.
@@ -235,7 +235,7 @@ USAGE
 
 FLAGS
   --project-name=<value>  Docker Compose project name to stop (e.g. powersync_myapp). If omitted and run from a project
-                          directory, uses plugins.docker.project_name from link.yaml. Pass this to stop from any
+                          directory, uses plugins.docker.project_name from cli.yaml. Pass this to stop from any
                           directory without loading the project.
   --remove                Remove containers after stopping (docker compose down). By default only stop (docker compose
                           stop).
@@ -243,7 +243,7 @@ FLAGS
                           run again on next reset. Implies --remove.
 
 SELF_HOSTED_PROJECT FLAGS
-  --api-url=<value>  PowerSync API URL. Resolved: flag → API_URL environment variable → link.yaml.
+  --api-url=<value>  PowerSync API URL. Resolved: flag → API_URL environment variable → cli.yaml.
 
 PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config.
@@ -253,7 +253,7 @@ DESCRIPTION
 
   Run `docker compose -p <project-name> stop` (containers are not removed by default). Does not require the project
   directory or a compose file, so you can run it from anywhere (e.g. after a reset conflict). Use --project-name or run
-  from a project with link.yaml to choose which project to stop. Use --remove to also remove the containers. Use
+  from a project with cli.yaml to choose which project to stop. Use --remove to also remove the containers. Use
   --remove-volumes to also remove volumes (e.g. to re-run DB init scripts on next reset).
 ```
 
@@ -342,16 +342,16 @@ FLAGS
 
 SELF_HOSTED_PROJECT FLAGS
   --api-url=<value>  [Self-hosted] PowerSync API URL. When set, context is treated as self-hosted (exclusive with
-                     --instance-id). Resolved: flag → API_URL → link.yaml.
+                     --instance-id). Resolved: flag → API_URL → cli.yaml.
 
 PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config.
 
 CLOUD_PROJECT FLAGS
   --instance-id=<value>  [Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud
-                         (exclusive with --api-url). Resolved: flag → INSTANCE_ID → link.yaml.
-  --org-id=<value>       [Cloud] Organization ID. Resolved: flag → ORG_ID → link.yaml.
-  --project-id=<value>   [Cloud] Project ID. Resolved: flag → PROJECT_ID → link.yaml.
+                         (exclusive with --api-url). Resolved: flag → INSTANCE_ID → cli.yaml.
+  --org-id=<value>       [Cloud] Organization ID. Resolved: flag → ORG_ID → cli.yaml.
+  --project-id=<value>   [Cloud] Project ID. Resolved: flag → PROJECT_ID → cli.yaml.
 
 DESCRIPTION
   Show instance diagnostics (connections, sync rules, replication).
@@ -396,16 +396,16 @@ FLAGS
 
 SELF_HOSTED_PROJECT FLAGS
   --api-url=<value>  [Self-hosted] PowerSync API URL. When set, context is treated as self-hosted (exclusive with
-                     --instance-id). Resolved: flag → API_URL → link.yaml.
+                     --instance-id). Resolved: flag → API_URL → cli.yaml.
 
 PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config.
 
 CLOUD_PROJECT FLAGS
   --instance-id=<value>  [Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud
-                         (exclusive with --api-url). Resolved: flag → INSTANCE_ID → link.yaml.
-  --org-id=<value>       [Cloud] Organization ID. Resolved: flag → ORG_ID → link.yaml.
-  --project-id=<value>   [Cloud] Project ID. Resolved: flag → PROJECT_ID → link.yaml.
+                         (exclusive with --api-url). Resolved: flag → INSTANCE_ID → cli.yaml.
+  --org-id=<value>       [Cloud] Organization ID. Resolved: flag → ORG_ID → cli.yaml.
+  --project-id=<value>   [Cloud] Project ID. Resolved: flag → PROJECT_ID → cli.yaml.
 
 DESCRIPTION
   Generate client schema file from instance schema and sync rules.
@@ -433,16 +433,16 @@ FLAGS
 
 SELF_HOSTED_PROJECT FLAGS
   --api-url=<value>  [Self-hosted] PowerSync API URL. When set, context is treated as self-hosted (exclusive with
-                     --instance-id). Resolved: flag → API_URL → link.yaml.
+                     --instance-id). Resolved: flag → API_URL → cli.yaml.
 
 PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config.
 
 CLOUD_PROJECT FLAGS
   --instance-id=<value>  [Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud
-                         (exclusive with --api-url). Resolved: flag → INSTANCE_ID → link.yaml.
-  --org-id=<value>       [Cloud] Organization ID. Resolved: flag → ORG_ID → link.yaml.
-  --project-id=<value>   [Cloud] Project ID. Resolved: flag → PROJECT_ID → link.yaml.
+                         (exclusive with --api-url). Resolved: flag → INSTANCE_ID → cli.yaml.
+  --org-id=<value>       [Cloud] Organization ID. Resolved: flag → ORG_ID → cli.yaml.
+  --project-id=<value>   [Cloud] Project ID. Resolved: flag → PROJECT_ID → cli.yaml.
 
 DESCRIPTION
   Generate a development JWT for client connections.
@@ -532,16 +532,16 @@ _See code: [src/commands/init/self-hosted.ts](https://github.com/powersync-ja/po
 
 ## `powersync link`
 
-Bind this directory to a Cloud or self-hosted instance (writes link.yaml).
+Bind this directory to a Cloud or self-hosted instance (writes cli.yaml).
 
 ```
 USAGE
   $ powersync link
 
 DESCRIPTION
-  Bind this directory to a Cloud or self-hosted instance (writes link.yaml).
+  Bind this directory to a Cloud or self-hosted instance (writes cli.yaml).
 
-  Write link.yaml so this directory's config is bound to a PowerSync instance. Once linked, commands use that instance
+  Write cli.yaml so this directory's config is bound to a PowerSync instance. Once linked, commands use that instance
   without passing IDs. Use link cloud or link self-hosted.
 ```
 
@@ -560,9 +560,9 @@ FLAGS
   --create               Create a new Cloud instance in the given org and project, then link. Do not supply
                          --instance-id when using --create.
   --instance-id=<value>  PowerSync Cloud instance ID. Omit when using --create. Resolved: flag → INSTANCE_ID →
-                         link.yaml.
-  --org-id=<value>       (required) Organization ID. Resolved: flag → ORG_ID → link.yaml.
-  --project-id=<value>   (required) Project ID. Resolved: flag → PROJECT_ID → link.yaml.
+                         cli.yaml.
+  --org-id=<value>       (required) Organization ID. Resolved: flag → ORG_ID → cli.yaml.
+  --project-id=<value>   (required) Project ID. Resolved: flag → PROJECT_ID → cli.yaml.
 
 PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config.
@@ -570,7 +570,7 @@ PROJECT FLAGS
 DESCRIPTION
   Link to a PowerSync Cloud instance (or create one with --create).
 
-  Write or update link.yaml with a Cloud instance (instance-id, org-id, project-id). Use --create to create a new
+  Write or update cli.yaml with a Cloud instance (instance-id, org-id, project-id). Use --create to create a new
   instance from service.yaml name/region and link it; omit --instance-id when using --create.
 ```
 
@@ -642,7 +642,7 @@ USAGE
   $ powersync migrate [--directory <value>] [--api-url <value>]
 
 SELF_HOSTED_PROJECT FLAGS
-  --api-url=<value>  PowerSync API URL. Resolved: flag → API_URL environment variable → link.yaml.
+  --api-url=<value>  PowerSync API URL. Resolved: flag → API_URL environment variable → cli.yaml.
 
 PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config.
@@ -982,7 +982,7 @@ DESCRIPTION
   Download Cloud config and sync rules into local service.yaml and sync.yaml.
 
   Fetch instance config and sync rules from PowerSync Cloud and write to service.yaml and sync.yaml in the config
-  directory. Writes link.yaml if you pass --instance-id, --org-id, --project-id. Cloud only.
+  directory. Writes cli.yaml if you pass --instance-id, --org-id, --project-id. Cloud only.
 ```
 
 _See code: [src/commands/pull/config.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/pull/config.ts)_
@@ -1032,16 +1032,16 @@ FLAGS
 
 SELF_HOSTED_PROJECT FLAGS
   --api-url=<value>  [Self-hosted] PowerSync API URL. When set, context is treated as self-hosted (exclusive with
-                     --instance-id). Resolved: flag → API_URL → link.yaml.
+                     --instance-id). Resolved: flag → API_URL → cli.yaml.
 
 PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config.
 
 CLOUD_PROJECT FLAGS
   --instance-id=<value>  [Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud
-                         (exclusive with --api-url). Resolved: flag → INSTANCE_ID → link.yaml.
-  --org-id=<value>       [Cloud] Organization ID. Resolved: flag → ORG_ID → link.yaml.
-  --project-id=<value>   [Cloud] Project ID. Resolved: flag → PROJECT_ID → link.yaml.
+                         (exclusive with --api-url). Resolved: flag → INSTANCE_ID → cli.yaml.
+  --org-id=<value>       [Cloud] Organization ID. Resolved: flag → ORG_ID → cli.yaml.
+  --project-id=<value>   [Cloud] Project ID. Resolved: flag → PROJECT_ID → cli.yaml.
 
 DESCRIPTION
   Validate config schema, connections, and sync rules before deploy.

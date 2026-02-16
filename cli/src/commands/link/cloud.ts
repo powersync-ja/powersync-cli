@@ -5,7 +5,7 @@ import {
   ensureServiceTypeMatches,
   env,
   InstanceCommand,
-  LINK_FILENAME,
+  CLI_FILENAME,
   ServiceType
 } from '@powersync/cli-core';
 import { createCloudInstance } from '../../api/cloud/create-cloud-instance.js';
@@ -13,7 +13,7 @@ import { writeCloudLink } from '../../api/cloud/write-cloud-link.js';
 
 export default class LinkCloud extends CloudInstanceCommand {
   static description =
-    'Write or update link.yaml with a Cloud instance (instance-id, org-id, project-id). Use --create to create a new instance from service.yaml name/region and link it; omit --instance-id when using --create.';
+    'Write or update cli.yaml with a Cloud instance (instance-id, org-id, project-id). Use --create to create a new instance from service.yaml name/region and link it; omit --instance-id when using --create.';
   static summary = 'Link to a PowerSync Cloud instance (or create one with --create).';
   static flags = {
     create: Flags.boolean({
@@ -22,17 +22,17 @@ export default class LinkCloud extends CloudInstanceCommand {
       default: false
     }),
     'instance-id': Flags.string({
-      description: 'PowerSync Cloud instance ID. Omit when using --create. Resolved: flag → INSTANCE_ID → link.yaml.',
+      description: 'PowerSync Cloud instance ID. Omit when using --create. Resolved: flag → INSTANCE_ID → cli.yaml.',
       default: env.INSTANCE_ID,
       required: false
     }),
     'org-id': Flags.string({
-      description: 'Organization ID. Resolved: flag → ORG_ID → link.yaml.',
+      description: 'Organization ID. Resolved: flag → ORG_ID → cli.yaml.',
       default: env.ORG_ID,
       required: true
     }),
     'project-id': Flags.string({
-      description: 'Project ID. Resolved: flag → PROJECT_ID → link.yaml.',
+      description: 'Project ID. Resolved: flag → PROJECT_ID → cli.yaml.',
       default: env.PROJECT_ID,
       required: true
     }),
@@ -74,7 +74,7 @@ export default class LinkCloud extends CloudInstanceCommand {
       });
       writeCloudLink(projectDir, { instanceId: newInstanceId, orgId, projectId });
       this.log(
-        ux.colorize('green', `Created Cloud instance ${newInstanceId} and updated ${directory}/${LINK_FILENAME}.`)
+        ux.colorize('green', `Created Cloud instance ${newInstanceId} and updated ${directory}/${CLI_FILENAME}.`)
       );
       return;
     }
@@ -95,6 +95,6 @@ export default class LinkCloud extends CloudInstanceCommand {
     });
 
     writeCloudLink(projectDirectory, { instanceId, orgId, projectId });
-    this.log(ux.colorize('green', `Updated ${directory}/${LINK_FILENAME} with Cloud instance link.`));
+    this.log(ux.colorize('green', `Updated ${directory}/${CLI_FILENAME} with Cloud instance link.`));
   }
 }

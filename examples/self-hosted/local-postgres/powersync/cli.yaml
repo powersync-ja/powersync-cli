@@ -1,5 +1,5 @@
 # TODO update this with published schema
-# yaml-language-server: $schema=/Users/stevenontong/Documents/platform_code/powersync/new-cli/packages/schemas/json-schema/link-config.json
+# yaml-language-server: $schema=/Users/stevenontong/Documents/platform_code/powersync/new-cli/packages/schemas/json-schema/cli-config.json
 
 # This file is managed by the PowerSync CLI.
 # Run \`powersync link --help\` for more information.
@@ -8,4 +8,4 @@ api_url: http://localhost:8080
 api_key: dev-token-do-not-use-in-production
 plugins:
   docker:
-    project_name: powersync_local-postgres-node
+    project_name: powersync_local-postgres
