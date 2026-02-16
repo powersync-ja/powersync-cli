@@ -19,7 +19,10 @@ export function createKeychainSecureStorage(): BaseStorage {
           },
           (err: Error | null, password: string) => {
             if (err) {
-              if (err.message?.includes('could not be found') || (err as Error & { code?: number }).code === 44) {
+              if (
+                err.message?.includes('could not be found') ||
+                (err as Error & { code?: string }).code === 'PasswordNotFound'
+              ) {
                 resolve(null);
                 return;
               }

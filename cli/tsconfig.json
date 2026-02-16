@@ -7,6 +7,7 @@
     "strict": true,
     "target": "es2022",
     "moduleResolution": "node16",
+    "types": ["node"],
     "composite": true,
     "paths": {
       "@syncpoint/wkx": ["./src/syncpoint-wkx.d.ts"]
