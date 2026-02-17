@@ -50,10 +50,10 @@ export default class InitCloud extends PowerSyncCommand {
     const instructions = [
       'Create a new instance with ',
       ux.colorize('blue', '\tpowersync link cloud --create --org-id=<org-id> --project-id=<project-id>'),
-      'or update this project with an existing instance by running',
+      'or pull an existing instance with ',
       ux.colorize(
         'blue',
-        '\tpowersync pull config --org-id=<org-id> --project-id=<project-id> --instance-id=<instance-id>'
+        '\tpowersync pull instance --org-id=<org-id> --project-id=<project-id> --instance-id=<instance-id>'
       ),
       'Then run',
       ux.colorize('blue', '\tpowersync deploy'),

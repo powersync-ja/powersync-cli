@@ -5,8 +5,9 @@ import { configFile } from '@powersync/service-types';
 
 export const ServiceCloudConfig = BasePowerSyncHostedConfig.and(
   t.object({
+    /** Discriminator for Cloud config. */
     _type: t.literal('cloud'),
-    /** The instance name */
+    /** Instance display name. */
     name: t.string
   })
 );

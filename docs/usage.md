@@ -78,13 +78,43 @@ The sections below split usage by **Cloud** and **Self-hosted**, then provide re
 
 Authentication is usually the first step. Use `powersync login` to store a token in secure storage (e.g. macOS Keychain), or set the `TOKEN` environment variable if you prefer not to persist the token. See [Authentication (Tokens)](#authentication-tokens) for details.
 
-There are three main ways to use the CLI with PowerSync Cloud:
+## Creating a new Cloud instance
 
-## 1. Executing commands on an existing instance (no local config management)
+Run **`powersync init cloud`** to scaffold a Cloud config directory (default `powersync/`). Configure **`service.yaml`** (name, region, replication connection, optional client auth) and sync rules. Then run **`powersync link cloud --create`** with `--org-id` and `--project-id` to create a new instance and set the linked instance for future commands. You can then run **`powersync deploy`** and other commands on the new instance and manage config using the local config files. You do not need to keep managing these config files—you can manage config externally (e.g. via the PowerSync Dashboard) if you prefer.
+
+```bash
+powersync login
+powersync init cloud
+# Edit powersync/service.yaml (name, region, connections, etc.) and sync rules
+powersync link cloud --create --org-id=<org-id> --project-id=<project-id>
+powersync validate
+powersync deploy
+```
+
+The instance **name** and **region** are taken from your local `service.yaml`; set them before running `powersync link cloud --create` if you want a specific display name and region.
+
+## Using an existing Cloud instance
+
+For an instance that already exists (e.g. created in the Dashboard), there is no need to run **init** or create a placeholder config. Run **`powersync pull instance`** with the instance identifiers (from the PowerSync Dashboard URL or **`powersync fetch instances`**). The command creates the config directory if needed, writes **`cli.yaml`** (the link), and downloads **`service.yaml`** and **`sync.yaml`** from the cloud. Then edit the files as needed and run **`powersync deploy`** to push changes.
+
+```bash
+powersync login
+
+# IDs from the PowerSync Dashboard URL or `powersync fetch instances`. Creates powersync/, cli.yaml, and downloads config.
+powersync pull instance --org-id=<org-id> --project-id=<project-id> --instance-id=<instance-id>
+
+# Edit the YAML files in powersync/ as needed
+powersync validate
+powersync deploy
+```
+
+If the config directory already exists and is linked, you can run **`powersync pull instance`** without passing IDs to refresh the local config from the cloud.
+
+## Executing commands on an instance (no local config management)
 
 You can run commands against an instance whose configuration is managed elsewhere (e.g. the PowerSync Dashboard). Link the instance once so the CLI knows which one to use, or pass instance identifiers via flags or environment variables each time.
 
-**Link an instance** (from a project directory, or create a `powersync/` folder first with `powersync init cloud`):
+**Link an instance** (from a project directory; for an existing instance you can use **`powersync pull instance`** with IDs to create the directory and link in one step):
 
 ```bash
 powersync login
@@ -94,51 +124,11 @@ powersync link cloud --instance-id=<id> --org-id=<id> --project-id=<id>
 Then run commands without passing IDs again, for example:
 
 ```bash
-# Generate client-side schema from the instance
 powersync generate schema
-
-# Generate a development token for connecting clients
 powersync generate token
 ```
 
 You can also supply `--instance-id`, `--org-id`, and `--project-id` (or the corresponding environment variables) on individual commands if you don’t want to link.
-
-## 2. Pulling and managing existing config
-
-Pull the current instance config into local YAML files, edit them, then deploy changes back. Use this when you want to manage configuration and sync rules from the CLI.
-
-```bash
-powersync login
-
-# IDs from the PowerSync Dashboard URL
-# Pulling a config links a project (if not linked previously).
-powersync pull config --org-id=<org-id> --project-id=<project-id> --instance-id=<instance-id>
-
-# Edit the YAML files in powersync/ as needed (schema, sync rules, etc.)
-
-# Optionally validate before deploying
-powersync validate
-
-# Deploy changes
-powersync deploy
-```
-
-## 3. Creating a new instance from the CLI
-
-Use `powersync init cloud` to copy a template config into your project. To **create a new Cloud instance** and link it, use `powersync link cloud --create` with `--org-id` and `--project-id` (do not pass `--instance-id`). The CLI creates the instance and writes the link file.
-
-The instance **name** and **region** are taken from your local config (`powersync/service.yaml`). Set or edit the `name` and `region` fields there before running `link cloud --create` if you want a specific display name and region.
-
-```bash
-powersync login
-powersync init cloud
-# Edit powersync/service.yaml (name, region, connections, etc.) and other YAML as needed
-powersync link cloud --create --org-id=<org-id> --project-id=<project-id>
-powersync validate
-powersync deploy
-```
-
-To link to an **existing** instance instead, omit `--create` and supply `--instance-id` together with `--org-id` and `--project-id`.
 
 ---
 
@@ -195,7 +185,7 @@ Login is supported on macOS (other platforms coming soon). If you use another pl
 
 # Supplying Linking Information for Cloud and Self-Hosted Commands
 
-Cloud and self-hosted commands need instance (and for Cloud, org and project) identifiers. **Cloud only:** `deploy`, `destroy`, `stop`, `fetch config`, `pull config`. **Both:** `fetch status`, `generate schema`, `generate token`, `validate`. The same three methods apply: the CLI uses the first that is available for each field (flags override environment variables, environment variables override link file):
+Cloud and self-hosted commands need instance (and for Cloud, org and project) identifiers. **Cloud only:** `powersync deploy`, `powersync destroy`, `powersync stop`, `powersync fetch config`, `powersync pull instance`. **Both:** `powersync fetch status`, `powersync generate schema`, `powersync generate token`, `powersync validate`. The same three methods apply: the CLI uses the first that is available for each field (flags override environment variables, environment variables override link file):
 
 1. **Flags**
    - **Cloud:** `--instance-id`, `--org-id`, `--project-id`

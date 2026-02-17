@@ -1,11 +1,11 @@
 import { Config } from '@oclif/core';
-import { captureOutput, runCommand } from '@oclif/test';
+import { captureOutput } from '@oclif/test';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import PullConfigCommand from '../../../src/commands/pull/config.js';
+import PullInstanceCommand from '../../../src/commands/pull/instance.js';
 import { root } from '../../helpers/root.js';
 
 const PROJECT_DIR = 'powersync';
@@ -19,15 +19,19 @@ const mockCloudClient = {
   getInstanceConfig: vi.fn()
 };
 
-vi.mock('../../../src/clients/CloudClient.js', () => ({
-  createCloudClient: () => mockCloudClient
-}));
+vi.mock('@powersync/cli-core', async (importOriginal) => {
+  const orig = (await importOriginal()) as Record<string, unknown>;
+  return {
+    ...orig,
+    createCloudClient: () => mockCloudClient
+  };
+});
 
 function writeServiceYaml(projectDir: string, type: 'cloud' | 'self-hosted') {
   writeFileSync(join(projectDir, SERVICE_FILENAME), `_type: ${type}\nregion: us\n`, 'utf8');
 }
 
-describe('pull config', () => {
+describe('pull instance', () => {
   let oclifConfig: Config;
   let tmpDir: string;
   let origCwd: string;
@@ -36,19 +40,19 @@ describe('pull config', () => {
     oclifConfig = await Config.load({ root });
   });
 
-  function runPullConfigDirect(opts?: { directory?: string; instanceId?: string; orgId?: string; projectId?: string }) {
+  function runPullInstanceDirect(opts?: { directory?: string; instanceId?: string; orgId?: string; projectId?: string }) {
     const directory = opts?.directory ?? PROJECT_DIR;
     const args = ['--directory', directory];
     if (opts?.instanceId) args.push('--instance-id', opts.instanceId);
     if (opts?.orgId) args.push('--org-id', opts.orgId);
     if (opts?.projectId) args.push('--project-id', opts.projectId);
-    const cmd = new PullConfigCommand(args, oclifConfig);
+    const cmd = new PullInstanceCommand(args, oclifConfig);
     return captureOutput(() => cmd.run());
   }
 
   beforeEach(() => {
     origCwd = process.cwd();
-    tmpDir = mkdtempSync(join(tmpdir(), 'pull-config-test-'));
+    tmpDir = mkdtempSync(join(tmpdir(), 'pull-instance-test-'));
     process.chdir(tmpDir);
     mockCloudClient.getInstanceConfig.mockReset();
     mockCloudClient.getInstanceConfig.mockRejectedValue(new Error('network error'));
@@ -60,7 +64,7 @@ describe('pull config', () => {
   });
 
   it('errors when directory does not exist and no link args', async () => {
-    const result = await runCommand('pull config', { root });
+    const result = await runPullInstanceDirect();
     expect(result.error?.message).toContain(`Directory "${PROJECT_DIR}" not found`);
     expect(result.error?.message).toContain('--instance-id');
     expect(result.error?.oclif?.exit).toBe(1);
@@ -70,7 +74,7 @@ describe('pull config', () => {
     const projectDir = join(tmpDir, PROJECT_DIR);
     expect(existsSync(projectDir)).toBe(false);
     mockCloudClient.getInstanceConfig.mockResolvedValueOnce({ config: MOCK_CONFIG });
-    const result = await runPullConfigDirect({
+    const result = await runPullInstanceDirect({
       instanceId: 'inst-1',
       orgId: 'org-1',
       projectId: 'proj-1'
@@ -88,7 +92,7 @@ describe('pull config', () => {
     const projectDir = join(tmpDir, PROJECT_DIR);
     mkdirSync(projectDir, { recursive: true });
     writeServiceYaml(projectDir, 'cloud');
-    const result = await runPullConfigDirect();
+    const result = await runPullInstanceDirect();
     expect(result.error?.message).toContain('Linking is required');
     expect(result.error?.message).toContain('--instance-id');
     expect(result.error?.oclif?.exit).toBe(1);
@@ -99,7 +103,7 @@ describe('pull config', () => {
     mkdirSync(projectDir, { recursive: true });
     // No service.yaml; ensureServiceTypeMatches allows missing when configFileRequired is false
     mockCloudClient.getInstanceConfig.mockResolvedValueOnce({ config: MOCK_CONFIG });
-    const result = await runPullConfigDirect({
+    const result = await runPullInstanceDirect({
       instanceId: 'inst-1',
       orgId: 'org-1',
       projectId: 'proj-1'
@@ -115,15 +119,19 @@ describe('pull config', () => {
   });
 
   describe('when already linked', () => {
-    beforeEach(async () => {
+    beforeEach(() => {
       const projectDir = join(tmpDir, PROJECT_DIR);
       mkdirSync(projectDir, { recursive: true });
-      await runCommand('link cloud --instance-id=inst-1 --org-id=org-1 --project-id=proj-1', { root });
+      writeFileSync(
+        join(projectDir, 'cli.yaml'),
+        'type: cloud\ninstance_id: inst-1\norg_id: org-1\nproject_id: proj-1\n',
+        'utf8'
+      );
     });
 
     it('writes service.yaml when client succeeds', async () => {
       mockCloudClient.getInstanceConfig.mockResolvedValueOnce({ config: MOCK_CONFIG });
-      const result = await runPullConfigDirect();
+      const result = await runPullInstanceDirect();
       expect(result.error).toBeUndefined();
       const projectDir = join(tmpDir, PROJECT_DIR);
       expect(existsSync(join(projectDir, SERVICE_FILENAME))).toBe(true);
@@ -132,7 +140,7 @@ describe('pull config', () => {
     });
 
     it('errors when client fails', async () => {
-      const result = await runPullConfigDirect();
+      const result = await runPullInstanceDirect();
       expect(result.error?.oclif?.exit).toBe(1);
       expect(result.error?.message).toMatch(/Failed to fetch config/);
     });
