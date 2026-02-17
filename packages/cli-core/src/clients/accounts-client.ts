@@ -77,3 +77,26 @@ export async function createAccountsHubClient(): Promise<AccountsHubClientSDKCli
     endpoint: env._PS_ACCOUNTS_HUB_SERVICE_URL
   });
 }
+
+/**
+ * Resolve the default org ID when the token has access to exactly one organization.
+ * Use when --org-id / ORG_ID are not set; most PAT tokens are associated with a single org.
+ * Fetches organizations once and uses the result (no pagination).
+ * @returns The single org's ID.
+ * @throws If the token has zero or multiple orgs (caller should ask the user to pass --org-id).
+ */
+export async function getDefaultOrgId(): Promise<string> {
+  const client = await createAccountsHubClient();
+  const { objects: organizations, total } = await client.listOrganizations({});
+  if (total === 0) {
+    throw new Error(
+      'No organizations found for the current token. Pass --org-id explicitly or use a token that has access to an organization.'
+    );
+  }
+  if (total > 1) {
+    throw new Error(
+      `Token has access to multiple organizations (${total}). Pass ${ux.colorize('blue', '--org-id')} to specify which one.`
+    );
+  }
+  return organizations[0].id;
+}

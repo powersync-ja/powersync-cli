@@ -4,6 +4,7 @@ import {
   CloudInstanceCommand,
   ensureServiceTypeMatches,
   env,
+  getDefaultOrgId,
   InstanceCommand,
   CLI_FILENAME,
   ServiceType
@@ -13,7 +14,7 @@ import { writeCloudLink } from '../../api/cloud/write-cloud-link.js';
 
 export default class LinkCloud extends CloudInstanceCommand {
   static description =
-    'Write or update cli.yaml with a Cloud instance (instance-id, org-id, project-id). Use --create to create a new instance from service.yaml name/region and link it; omit --instance-id when using --create.';
+    'Write or update cli.yaml with a Cloud instance (instance-id, org-id, project-id). Use --create to create a new instance from service.yaml name/region and link it; omit --instance-id when using --create. Org ID is optional when the token has a single organization.';
   static summary = 'Link to a PowerSync Cloud instance (or create one with --create).';
   static flags = {
     create: Flags.boolean({
@@ -27,9 +28,10 @@ export default class LinkCloud extends CloudInstanceCommand {
       required: false
     }),
     'org-id': Flags.string({
-      description: 'Organization ID. Resolved: flag → ORG_ID → cli.yaml.',
+      description:
+        'Organization ID. Optional when the token has a single org; required when the token has multiple orgs. Resolved: flag → ORG_ID → cli.yaml.',
       default: env.ORG_ID,
-      required: true
+      required: false
     }),
     'project-id': Flags.string({
       description: 'Project ID. Resolved: flag → PROJECT_ID → cli.yaml.',
@@ -41,7 +43,11 @@ export default class LinkCloud extends CloudInstanceCommand {
 
   async run(): Promise<void> {
     const { flags } = await this.parse(LinkCloud);
-    const { directory, create, 'instance-id': instanceId, 'org-id': orgId, 'project-id': projectId } = flags;
+    let { directory, create, 'instance-id': instanceId, 'org-id': orgId, 'project-id': projectId } = flags;
+
+    if (!orgId) {
+      orgId = await getDefaultOrgId();
+    }
 
     const projectDirectory = this.resolveProjectDir(flags);
     if (create) {

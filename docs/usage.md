@@ -15,10 +15,10 @@ You can **explicitly link** your local config to a cloud or self-hosted project.
 For commands that don’t require locally stored config (or when you don’t want to use it), you can supply **instance information** in either of these ways:
 
 - **Inline as flags**
-  - **Cloud:** `--instance-id`, `--org-id`, `--project-id`
+  - **Cloud:** `--instance-id`, `--project-id`, and optionally `--org-id`. If `--org-id` (and `ORG_ID`) are omitted, the CLI uses the token’s single organization when the token has access to exactly one; if the token has multiple orgs, you must pass `--org-id` (or set `ORG_ID`).
   - **Self-hosted:** `--api-url` (API key is not accepted via flags; use link command or `TOKEN` env var)
 - **Environment variables**
-  - **Cloud:** `INSTANCE_ID`, `ORG_ID`, `PROJECT_ID`
+  - **Cloud:** `INSTANCE_ID`, `PROJECT_ID`, and optionally `ORG_ID` (same default behaviour as above when omitted)
   - **Self-hosted:** `API_URL`, `TOKEN` (token used as API key)
 
 That lets you run one-off or scripted operations (e.g. generating a development token, generating client side schemas) without creating or using a `powersync/` folder or a link file.
@@ -80,13 +80,14 @@ Authentication is usually the first step. Use `powersync login` to store a token
 
 ## Creating a new Cloud instance
 
-Run **`powersync init cloud`** to scaffold a Cloud config directory (default `powersync/`). Configure **`service.yaml`** (name, region, replication connection, optional client auth) and sync rules. Then run **`powersync link cloud --create`** with `--org-id` and `--project-id` to create a new instance and set the linked instance for future commands. You can then run **`powersync deploy`** and other commands on the new instance and manage config using the local config files. You do not need to keep managing these config files—you can manage config externally (e.g. via the PowerSync Dashboard) if you prefer.
+Run **`powersync init cloud`** to scaffold a Cloud config directory (default `powersync/`). Configure **`service.yaml`** (name, region, replication connection, optional client auth) and sync rules. Then run **`powersync link cloud --create`** with `--project-id` to create a new instance and set the linked instance for future commands. (Add `--org-id` only if your token has access to multiple organizations.) You can then run **`powersync deploy`** and other commands on the new instance and manage config using the local config files. You do not need to keep managing these config files—you can manage config externally (e.g. via the PowerSync Dashboard) if you prefer.
 
 ```bash
 powersync login
 powersync init cloud
 # Edit powersync/service.yaml (name, region, connections, etc.) and sync rules
-powersync link cloud --create --org-id=<org-id> --project-id=<project-id>
+powersync link cloud --create --project-id=<project-id>
+# If your token has multiple orgs: add --org-id=<org-id>
 powersync validate
 powersync deploy
 ```
@@ -101,7 +102,8 @@ For an instance that already exists (e.g. created in the Dashboard), there is no
 powersync login
 
 # IDs from the PowerSync Dashboard URL or `powersync fetch instances`. Creates powersync/, cli.yaml, and downloads config.
-powersync pull instance --org-id=<org-id> --project-id=<project-id> --instance-id=<instance-id>
+powersync pull instance --project-id=<project-id> --instance-id=<instance-id>
+# If your token has multiple orgs: add --org-id=<org-id>
 
 # Edit the YAML files in powersync/ as needed
 powersync validate
@@ -118,7 +120,8 @@ You can run commands against an instance whose configuration is managed elsewher
 
 ```bash
 powersync login
-powersync link cloud --instance-id=<id> --org-id=<id> --project-id=<id>
+powersync link cloud --instance-id=<id> --project-id=<project-id>
+# If your token has multiple orgs: add --org-id=<id>
 ```
 
 Then run commands without passing IDs again, for example:
@@ -128,7 +131,7 @@ powersync generate schema
 powersync generate token
 ```
 
-You can also supply `--instance-id`, `--org-id`, and `--project-id` (or the corresponding environment variables) on individual commands if you don’t want to link.
+You can also supply `--instance-id` and `--project-id` (and `--org-id` only when your token has multiple orgs) or the corresponding environment variables on individual commands if you don’t want to link.
 
 ---
 
@@ -185,13 +188,13 @@ Login is supported on macOS (other platforms coming soon). If you use another pl
 
 # Supplying Linking Information for Cloud and Self-Hosted Commands
 
-Cloud and self-hosted commands need instance (and for Cloud, org and project) identifiers. **Cloud only:** `powersync deploy`, `powersync destroy`, `powersync stop`, `powersync fetch config`, `powersync pull instance`. **Both:** `powersync fetch status`, `powersync generate schema`, `powersync generate token`, `powersync validate`. The same three methods apply: the CLI uses the first that is available for each field (flags override environment variables, environment variables override link file):
+Cloud and self-hosted commands need instance (and for Cloud, org and project) identifiers. **Cloud only:** `powersync deploy`, `powersync destroy`, `powersync stop`, `powersync fetch config`, `powersync pull instance`. **Both:** `powersync fetch status`, `powersync generate schema`, `powersync generate token`, `powersync validate`. The same three methods apply: the CLI uses the first that is available for each field (flags override environment variables, environment variables override link file). For Cloud, **org_id is optional**: when not set via flags, env, or link file, the CLI fetches the token’s organizations and uses the single org if there is exactly one; if the token has multiple orgs, the command errors and you must pass `--org-id` (or set `ORG_ID`).
 
 1. **Flags**
-   - **Cloud:** `--instance-id`, `--org-id`, `--project-id`
+   - **Cloud:** `--instance-id`, `--project-id` (required when using instance-id), `--org-id` (optional; defaults to token’s single org)
    - **Self-hosted:** `--api-url` only (API key from env or link file only)
 2. **Environment variables**
-   - **Cloud:** `INSTANCE_ID`, `ORG_ID`, `PROJECT_ID`
+   - **Cloud:** `INSTANCE_ID`, `PROJECT_ID`, and optionally `ORG_ID` (same default as above)
    - **Self-hosted:** `API_URL`, `TOKEN` (API key)
 3. **cli.yaml** — a `powersync/cli.yaml` file in the project (written by `powersync link cloud` or `powersync link self-hosted`)
 
@@ -209,8 +212,8 @@ powersync login
 # Stop a specific instance without linking the directory (overrides cli.yaml if present)
 powersync stop --confirm=yes \
   --instance-id=688736sdfcfb46688f509bd0 \
-  --org-id=5cc84a3ccudjfhgytw0c08b \
   --project-id=6703fd8a3cfe3000hrydg463
+# If your token has multiple orgs: add --org-id=<org-id>
 ```
 
 **Self-hosted:** Set `TOKEN` (or use a linked project with API key in cli.yaml), then:
@@ -222,8 +225,8 @@ powersync fetch status --api-url=https://powersync.example.com
 You can use a different project directory with `--directory`:
 
 ```bash
-# Cloud
-powersync stop --confirm=yes --directory=my-powersync --instance-id=... --org-id=... --project-id=...
+# Cloud (add --org-id=... only if your token has multiple orgs)
+powersync stop --confirm=yes --directory=my-powersync --instance-id=... --project-id=...
 
 # Self-hosted (API key from TOKEN or cli.yaml)
 powersync fetch status --directory=my-powersync --api-url=https://...
@@ -241,8 +244,8 @@ powersync login
 # Link this project to a Cloud instance (writes powersync/cli.yaml)
 powersync link cloud \
   --instance-id=688736sdfcfb46688f509bd0 \
-  --org-id=5cc84a3ccudjfhgytw0c08b \
   --project-id=6703fd8a3cfe3000hrydg463
+# If your token has multiple orgs: add --org-id=5cc84a3ccudjfhgytw0c08b
 
 # No IDs needed on later commands
 powersync stop --confirm=yes
@@ -252,7 +255,7 @@ powersync fetch status
 If the project lives in a non-default directory:
 
 ```bash
-powersync link cloud --directory=my-powersync --instance-id=... --org-id=... --project-id=...
+powersync link cloud --directory=my-powersync --instance-id=... --project-id=...
 powersync stop --confirm=yes --directory=my-powersync
 ```
 
@@ -262,12 +265,12 @@ powersync stop --confirm=yes --directory=my-powersync
 
 Set identifiers in the environment when you don’t want to link the directory or pass flags every time (e.g. CI or scripts).
 
-**Cloud:**
+**Cloud:** (Most tokens have a single org; omit `ORG_ID`. Set it only if your token has multiple orgs.)
 
 ```bash
 export INSTANCE_ID=688736sdfcfb46688f509bd0
-export ORG_ID=5cc84a3ccudjfhgytw0c08b
 export PROJECT_ID=6703fd8a3cfe3000hrydg463
+# export ORG_ID=...   # only if your token has multiple orgs
 
 powersync stop --confirm=yes
 powersync fetch config --output=json
@@ -285,8 +288,8 @@ powersync fetch status --output=json
 Inline for a single command:
 
 ```bash
-# Cloud
-INSTANCE_ID=... ORG_ID=... PROJECT_ID=... powersync stop --confirm=yes
+# Cloud (add ORG_ID=... only if your token has multiple orgs)
+INSTANCE_ID=... PROJECT_ID=... powersync stop --confirm=yes
 
 # Self-hosted
 API_URL=https://... TOKEN=... powersync fetch status --output=json

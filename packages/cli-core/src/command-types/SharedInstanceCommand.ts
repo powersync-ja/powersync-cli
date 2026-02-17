@@ -1,19 +1,20 @@
 import { Flags, Interfaces } from '@oclif/core';
 import {
+  CLIConfig,
+  CloudCLIConfig,
+  ResolvedCloudCLIConfig,
+  ResolvedSelfHostedCLIConfig,
+  SelfHostedCLIConfig,
   ServiceCloudConfig,
   ServiceCloudConfigDecoded,
   ServiceSelfHostedConfig,
   ServiceSelfHostedConfigDecoded,
-  CloudCLIConfig,
-  CLIConfig,
-  ResolvedCloudCLIConfig,
-  ResolvedSelfHostedCLIConfig,
-  SelfHostedCLIConfig,
   validateCloudConfig,
   validateSelfHostedConfig
 } from '@powersync/cli-schemas';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { getDefaultOrgId } from '../clients/accounts-client.js';
 import { ensureServiceTypeMatches, ServiceType } from '../utils/ensureServiceType.js';
 import { env } from '../utils/env.js';
 import { CLI_FILENAME, SERVICE_FILENAME, SYNC_FILENAME } from '../utils/project-config.js';
@@ -65,10 +66,11 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
         '[Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud (exclusive with --api-url). Resolved: flag → INSTANCE_ID → cli.yaml.',
       required: false,
       helpGroup: HelpGroup.CLOUD_PROJECT,
-      dependsOn: ['org-id', 'project-id']
+      dependsOn: ['project-id']
     }),
     'org-id': Flags.string({
-      description: '[Cloud] Organization ID. Resolved: flag → ORG_ID → cli.yaml.',
+      description:
+        '[Cloud] Organization ID (optional). Defaults to the token’s single org when only one is available; pass explicitly if the token has multiple orgs. Resolved: flag → ORG_ID → cli.yaml.',
       required: false,
       helpGroup: HelpGroup.CLOUD_PROJECT
     }),
@@ -80,10 +82,10 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     ...InstanceCommand.flags
   };
 
-  loadProject(
+  async loadProject(
     flags: SharedInstanceCommandFlags,
     options: EnsureConfigOptions = DEFAULT_ENSURE_CONFIG_OPTIONS
-  ): CloudProject | SelfHostedProject {
+  ): Promise<CloudProject | SelfHostedProject> {
     const resolvedOptions = {
       ...options,
       ...DEFAULT_ENSURE_CONFIG_OPTIONS
@@ -93,7 +95,8 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     const linkPath = join(projectDir, CLI_FILENAME);
 
     // 1) Context type: from flags/env first, then link file (see class JSDoc for resolution order).
-    const hasCloudInstanceInputs = flags['instance-id'] || env.INSTANCE_ID || flags['org-id'] || flags['project-id'];
+    const hasCloudInstanceInputs =
+      flags['instance-id'] || env.INSTANCE_ID || flags['org-id'] || env.ORG_ID || flags['project-id'];
     const hasSelfHostedInputs = flags['api-url'] || env.API_URL;
 
     if (hasCloudInstanceInputs && hasSelfHostedInputs) {
@@ -144,10 +147,14 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     } else {
       const _rawCloudCLIConfig = (rawCLIConfig as CloudCLIConfig) ?? { type: 'cloud' };
       try {
+        let org_id = flags['org-id'] ?? env.ORG_ID ?? _rawCloudCLIConfig.org_id;
+        if (org_id == null && (flags['instance-id'] || env.INSTANCE_ID)) {
+          org_id = await getDefaultOrgId();
+        }
         cliConfig = ResolvedCloudCLIConfig.decode({
           ..._rawCloudCLIConfig,
           instance_id: flags['instance-id'] ?? env.INSTANCE_ID ?? _rawCloudCLIConfig.instance_id!,
-          org_id: flags['org-id'] ?? env.ORG_ID ?? _rawCloudCLIConfig.org_id!,
+          org_id: org_id!,
           project_id: flags['project-id'] ?? env.PROJECT_ID ?? _rawCloudCLIConfig.project_id!
         });
       } catch (error) {

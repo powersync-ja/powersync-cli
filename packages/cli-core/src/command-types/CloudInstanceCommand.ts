@@ -9,6 +9,7 @@ import { PowerSyncManagementClient } from '@powersync/management-client';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createCloudClient } from '../clients/CloudClient.js';
+import { getDefaultOrgId } from '../clients/accounts-client.js';
 import { ensureServiceTypeMatches, ServiceType } from '../utils/ensureServiceType.js';
 import { env } from '../utils/env.js';
 import { CLI_FILENAME, SERVICE_FILENAME, SYNC_FILENAME } from '../utils/project-config.js';
@@ -36,7 +37,8 @@ export type CloudInstanceCommandFlags = Interfaces.InferredFlags<
  * Instance context (instance_id, org_id, project_id) is resolved in this order:
  * 1. Command-line flags (--instance-id, --org-id, --project-id)
  * 2. Environment variables (INSTANCE_ID, ORG_ID, PROJECT_ID)
- * 3. Linked config from cli.yaml
+ * 3. If org_id is still missing: token's single org (via accounts API); error if multiple orgs.
+ * 4. Linked config from cli.yaml
  *
  * @example
  * # Use linked project (cli.yaml)
@@ -55,11 +57,12 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
     'instance-id': Flags.string({
       description: 'PowerSync Cloud instance ID. Manually passed if the current context has not been linked.',
       required: false,
-      dependsOn: ['org-id', 'project-id'],
+      dependsOn: ['project-id'],
       helpGroup: HelpGroup.CLOUD_PROJECT
     }),
     'org-id': Flags.string({
-      description: 'Organization ID. Manually passed if the current context has not been linked.',
+      description:
+        'Organization ID (optional). Defaults to the token’s single org when only one is available; pass explicitly if the token has multiple orgs.',
       required: false,
       helpGroup: HelpGroup.CLOUD_PROJECT
     }),
@@ -77,10 +80,10 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
     return createCloudClient();
   }
 
-  loadProject(
+  async loadProject(
     flags: CloudInstanceCommandFlags,
     options: EnsureConfigOptions = DEFAULT_ENSURE_CONFIG_OPTIONS
-  ): CloudProject {
+  ): Promise<CloudProject> {
     const resolvedOptions = {
       ...options,
       ...DEFAULT_ENSURE_CONFIG_OPTIONS
@@ -101,11 +104,11 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
     let linked: ResolvedCloudCLIConfig | null = null;
     if (flags['instance-id']) {
       try {
-        // Use the decode to validate the flags
+        const org_id = flags['org-id'] ?? env.ORG_ID ?? (await getDefaultOrgId());
         linked = ResolvedCloudCLIConfig.decode({
           type: 'cloud',
           instance_id: flags['instance-id'],
-          org_id: flags['org-id']!,
+          org_id,
           project_id: flags['project-id']!
         });
       } catch (error) {
@@ -118,10 +121,11 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
       }
     } else if (env.INSTANCE_ID) {
       try {
+        const org_id = env.ORG_ID ?? (await getDefaultOrgId());
         linked = ResolvedCloudCLIConfig.decode({
           type: 'cloud',
           instance_id: env.INSTANCE_ID,
-          org_id: env.ORG_ID!,
+          org_id,
           project_id: env.PROJECT_ID!
         });
       } catch (error) {

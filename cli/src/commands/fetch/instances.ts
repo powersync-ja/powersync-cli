@@ -33,7 +33,7 @@ type OrganizationMap = {
 
 export default class FetchInstances extends Command {
   static description =
-    'List PowerSync Cloud instances in the current org and project. Use with a linked directory or pass --org-id and --project-id. Cloud only.';
+    'List PowerSync Cloud instances. Use with a linked directory or optionally pass --org-id and --project-id to filter (omit to list all orgs and projects). Cloud only.';
   static summary = 'List Cloud instances in the current org/project.';
 
   static flags = {
@@ -131,12 +131,12 @@ export default class FetchInstances extends Command {
     if (flags.output === 'human') {
       // Log in human readable format
       for (const org of sortBy(Object.values(instanceMap), 'name')) {
-        this.log(`${ux.colorize('blue', 'Organization: ')} ${org.name} ${ux.colorize('gray', `id=${org.id}`)}`);
+        this.log(`${ux.colorize('blue', 'Organization: ')} ${org.name} ${ux.colorize('gray', `id: ${org.id}`)}`);
         for (const project of sortBy(Object.values(org.projects), 'name')) {
-          this.log(`\t${ux.colorize('blue', 'Project: ')} ${project.name} ${ux.colorize('gray', `id=${project.id}`)}`);
+          this.log(`\t${ux.colorize('blue', 'Project: ')} ${project.name} ${ux.colorize('gray', `id: ${project.id}`)}`);
           for (const instance of sortBy(project.instances, 'name')) {
             this.log(
-              `\t\t${ux.colorize('blue', 'Instance: ')} ${instance.name} ${ux.colorize('gray', `id=${instance.id}`)} ${ux.colorize('gray', `has_config=${instance.has_config}`)} ${ux.colorize('gray', `deployable=${instance.deployable}`)}`
+              `\t\t${ux.colorize('blue', 'Instance: ')} ${instance.name} ${ux.colorize('gray', `id: ${instance.id}`)} ${ux.colorize('gray', `has_config: ${instance.has_config}`)} ${ux.colorize('gray', `deployable: ${instance.deployable}`)}`
             );
           }
         }

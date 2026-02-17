@@ -205,7 +205,7 @@ export default class Validate extends SharedInstanceCommand {
   async run(): Promise<void> {
     const { flags } = await this.parse(Validate);
 
-    const project = this.loadProject(flags, {
+    const project = await this.loadProject(flags, {
       configFileRequired: true
     });
 

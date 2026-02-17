@@ -43,7 +43,7 @@ export default class Deploy extends CloudInstanceCommand {
   async run(): Promise<void> {
     const { flags } = await this.parse(Deploy);
 
-    const { projectDirectory, linked, syncRulesContent } = this.loadProject(flags, {
+    const { projectDirectory, linked, syncRulesContent } = await this.loadProject(flags, {
       configFileRequired: true
     });
 

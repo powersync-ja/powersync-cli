@@ -116,7 +116,7 @@ export default class GenerateToken extends SharedInstanceCommand {
 
   async run(): Promise<void> {
     const { flags } = await this.parse(GenerateToken);
-    const project = this.loadProject(flags);
+    const project = await this.loadProject(flags);
 
     const token = await (project.linked.type === 'cloud'
       ? this.generateCloudToken(project as CloudProject, {

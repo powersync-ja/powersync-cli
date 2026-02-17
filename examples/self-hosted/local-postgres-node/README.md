@@ -92,9 +92,10 @@ pnpm install
 
 ### 2. Start PowerSync
 
+From the project root (this directory):
+
 ```bash
-cd powersync && powersync docker start
-cd ..
+powersync docker start
 ```
 
 ### 3. Run the app

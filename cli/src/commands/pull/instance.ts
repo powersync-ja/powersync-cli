@@ -6,6 +6,7 @@ import {
   CLI_FILENAME,
   CloudInstanceCommand,
   ensureServiceTypeMatches,
+  getDefaultOrgId,
   SERVICE_FILENAME,
   ServiceType,
   SYNC_FILENAME
@@ -25,7 +26,7 @@ const PULL_CONFIG_HEADER = `# PowerSync Cloud config (fetched from cloud)
 
 export default class PullInstance extends CloudInstanceCommand {
   static description =
-    'Fetch an existing Cloud instance by ID: create the config directory if needed, write cli.yaml, and download service.yaml and sync.yaml. Pass --instance-id, --org-id, and --project-id when the directory is not yet linked. Cloud only.';
+    'Fetch an existing Cloud instance by ID: create the config directory if needed, write cli.yaml, and download service.yaml and sync.yaml. Pass --instance-id and --project-id when the directory is not yet linked; --org-id is optional when the token has a single organization. Cloud only.';
   static summary = 'Pull an existing Cloud instance: link and download config into local service.yaml and sync.yaml.';
 
   static flags = {
@@ -34,18 +35,19 @@ export default class PullInstance extends CloudInstanceCommand {
 
   async run(): Promise<void> {
     const { flags } = await this.parse(PullInstance);
-    const { directory, 'instance-id': instanceId, 'org-id': orgId, 'project-id': projectId } = flags;
+    const { directory, 'instance-id': instanceId, 'org-id': _orgId, 'project-id': projectId } = flags;
 
+    const resolvedOrgId = _orgId ?? (await getDefaultOrgId().catch(() => null));
     /**
      * The pull instance command can be used to create a new powersync project directory
      */
     const projectDir = this.resolveProjectDir(flags);
     if (!existsSync(projectDir)) {
-      if (instanceId && orgId && projectId) {
+      if (instanceId && resolvedOrgId && projectId) {
         mkdirSync(projectDir, { recursive: true });
       } else {
         this.styledError({
-          message: `Directory "${directory}" not found. Pass ${ux.colorize('blue', '--instance-id, --org-id, and --project-id')} to create the config directory and link, or run this command from a directory that already contains a linked PowerSync config.`
+          message: `Directory "${directory}" not found. Pass ${ux.colorize('blue', '--instance-id, and --project-id')} to create the config directory and link, or run this command from a directory that already contains a linked PowerSync config.`
         });
       }
     }
@@ -59,16 +61,16 @@ export default class PullInstance extends CloudInstanceCommand {
 
     const linkPath = join(projectDir, CLI_FILENAME);
     if (!existsSync(linkPath)) {
-      if (!instanceId || !orgId || !projectId) {
+      if (!instanceId || !resolvedOrgId || !projectId) {
         this.styledError({
           message: `Linking is required. Pass ${ux.colorize('blue', '--instance-id, --org-id, and --project-id')} to this command, or run ${ux.colorize('blue', 'powersync link cloud --instance-id=<id> --org-id=<id> --project-id=<id>')} first.`
         });
       }
-      writeCloudLink(projectDir, { instanceId, orgId, projectId });
+      writeCloudLink(projectDir, { instanceId, orgId: resolvedOrgId, projectId });
       this.log(ux.colorize('green', `Created ${directory}/${CLI_FILENAME} with Cloud instance link.`));
     }
 
-    const { linked } = this.loadProject(flags);
+    const { linked } = await this.loadProject(flags);
     const client = await this.getClient();
 
     this.log(

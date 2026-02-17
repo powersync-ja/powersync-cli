@@ -21,7 +21,7 @@ export default class FetchConfig extends CloudInstanceCommand {
   async run(): Promise<void> {
     const { flags } = await this.parse(FetchConfig);
 
-    const { linked } = this.loadProject(flags);
+    const { linked } = await this.loadProject(flags);
 
     const client = await this.getClient();
 

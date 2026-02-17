@@ -6,7 +6,8 @@ Log in (`powersync login`) or set the `TOKEN` environment variable, then run:
 
 ```bash
 # Creates powersync/, writes cli.yaml, and downloads config for the given instance
-powersync pull instance --org-id=123 --project-id=abc --instance-id=def
+powersync pull instance --project-id=abc --instance-id=def
+# If your token has multiple orgs: add --org-id=<org-id>
 ```
 
 The configuration file in `./powersync/service.yaml` can now be edited.

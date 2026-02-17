@@ -22,7 +22,7 @@ export default class Destroy extends CloudInstanceCommand {
       this.styledError({ message: 'Destruction requires confirmation. Run with --confirm=yes to confirm.' });
     }
 
-    const { linked } = this.loadProject(flags);
+    const { linked } = await this.loadProject(flags);
     const client = await this.getClient();
 
     this.log(
