@@ -4,7 +4,8 @@
   "description": "PowerSync CLI monorepo",
   "devDependencies": {
     "@powersync/cli": "workspace:*",
-    "prettier": "^3.0.0"
+    "prettier": "^3.0.0",
+    "tsx": "^4"
   },
   "scripts": {
     "build": "pnpm -r run build",
@@ -17,7 +18,7 @@
   "pnpm": {
     "overrides": {
       "@powersync/service-schema": "file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-service/packages/schema/powersync-service-schema-1.19.5.tgz",
-      "@powersync/management-types": "file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/types/powersync-management-types-0.0.3.tgz",
+      "@powersync/management-types": "file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/types/powersync-management-types-0.0.1.tgz",
       "@powersync/management-client": "file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz"
     }
   },

@@ -8,10 +8,72 @@ CLI for PowerSync
 
 <!-- toc -->
 * [@powersync/cli](#powersynccli)
+* [General instructions](#general-instructions)
 * [Usage](#usage)
 * [Known Limitations](#known-limitations)
 * [Commands](#commands)
 <!-- tocstop -->
+
+# General instructions
+
+The PowerSync CLI manages config in a **config directory** (default `powersync/`). You scaffold that directory with **init**, bind it to an instance with **link**, then deploy or run against that instance.
+
+## How it works
+
+- **Config directory** – Contains `service.yaml` (instance config: connections, client auth, etc.), `sync.yaml` (sync rules), and optionally `cli.yaml` (link to a Cloud or self-hosted instance). Use `--directory` to point to another folder.
+- **Linking** – **link cloud** or **link self-hosted** writes (or updates) `cli.yaml` so later commands use that instance without passing IDs or API URLs each time.
+- **YAML and `!env`** – All PowerSync YAML files (`service.yaml`, `sync.yaml`, `cli.yaml`) support the **`!env`** custom tag. A value like `!env MY_VAR` is resolved from the `MY_VAR` environment variable when the CLI or runtime reads the config. You can cast with `::number` or `::boolean`, e.g. `!env PS_PORT::number`. Use this to keep secrets and environment-specific values out of the repo.
+
+## Init: Cloud project
+
+Scaffold a Cloud config directory, then link and deploy:
+
+```sh
+# Scaffold Cloud template into powersync/
+powersync init cloud
+
+# Optional: use a different directory
+powersync init cloud --directory my-powersync
+
+# Optional: add .vscode settings for YAML !env tag support (schema/validation)
+powersync init cloud --vscode
+```
+
+Then edit `powersync/service.yaml` (name, region, replication connection, optional client_auth). **For Cloud, use `!env` for all secrets** (e.g. database passwords, JWT secrets, client auth keys) so they are read from the environment at deploy time and never stored in the file:
+
+```yaml
+# Example: connection secret from environment
+password:
+  secret: !env POWERSYNC_DATABASE_PASSWORD
+```
+
+Log in, link to an instance (create a new one or use an existing ID), and deploy:
+
+```sh
+powersync login
+powersync link cloud --create --org-id=<org-id> --project-id=<project-id>
+# or link to existing: powersync link cloud --org-id=... --project-id=... --instance-id=...
+powersync deploy
+```
+
+## Init: Self-hosted project
+
+Scaffold a self-hosted config directory and configure it for your instance:
+
+```sh
+# Scaffold self-hosted template into powersync/
+powersync init self-hosted
+
+# Optional: different directory or .vscode settings for !env
+powersync init self-hosted --directory my-powersync --vscode
+```
+
+Then edit `powersync/service.yaml` with your self-hosted instance details (replication, storage, client_auth, etc.). Use `!env` for secrets and environment-specific values (URIs, passwords, JWT secrets, etc.). For local development with Docker, use **`powersync docker configure`** then **`powersync docker start`** (see the [docker plugin](../plugins/docker/README.md)).
+
+```sh
+# Link to an existing self-hosted API
+powersync link self-hosted --api-url https://powersync.example.com
+```
 
 # Usage
 

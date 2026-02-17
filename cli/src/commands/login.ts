@@ -12,6 +12,8 @@ export default class Login extends PowerSyncCommand {
   static summary = 'Store auth token in secure storage for Cloud commands.';
 
   async run(): Promise<void> {
+    this.parse(Login);
+
     const { authentication, storage } = Services;
 
     if (!storage.capabilities.supportsSecureStorage) {
@@ -66,84 +68,85 @@ export default class Login extends PowerSyncCommand {
       ]
     });
 
-    const token = tokenMethod === 'browser'
-      ? await new Promise<string>((resolve, reject) => {
-          const server = createServer();
-          const spinner = ora('Waiting for you to create a token in the dashboard…').start();
-          server.once('error', (err) => {
-            spinner.fail();
-            reject(err);
-          });
-
-          // Bind to loopback only so the callback is not reachable from other interfaces
-          server.listen(0, '127.0.0.1', () => {
-            const addressInfo = server.address();
-            if (typeof addressInfo !== 'object' || addressInfo === null || !('port' in addressInfo)) {
+    const token =
+      tokenMethod === 'browser'
+        ? await new Promise<string>((resolve, reject) => {
+            const server = createServer();
+            const spinner = ora('Waiting for you to create a token in the dashboard…').start();
+            server.once('error', (err) => {
               spinner.fail();
-              reject(new Error('Failed to get address'));
-              return;
-            }
-            const { port } = addressInfo as AddressInfo;
-            // Dashboard will fetch() POST the token to this URL (no redirect; token in body).
-            const responseUrl = `http://127.0.0.1:${port}/response`;
-            open(
-              `https://dashboard.powersync.com/account/access-tokens/create?response_url=${encodeURIComponent(responseUrl)}`
-            );
-          });
+              reject(err);
+            });
 
-          let settled = false;
-          const rejectWith = (err: Error) => {
-            if (settled) return;
-            settled = true;
-            spinner.fail();
-            server.close();
-            reject(err);
-          };
-
-          server.on('request', (req, res) => {
-            if (req.method !== 'POST' || !req.url?.startsWith('/response')) {
-              res.statusCode = 400;
-              res.end();
-              rejectWith(new Error('Invalid request: expected POST /response'));
-              return;
-            }
-            const chunks: Buffer[] = [];
-            req.on('data', (chunk) => chunks.push(chunk));
-            req.on('end', () => {
-              const contentType = req.headers['content-type'] ?? '';
-              if (!contentType.includes('application/json')) {
-                res.statusCode = 400;
-                res.end();
-                rejectWith(new Error('Invalid request: Content-Type must be application/json'));
+            // Bind to loopback only so the callback is not reachable from other interfaces
+            server.listen(0, '127.0.0.1', () => {
+              const addressInfo = server.address();
+              if (typeof addressInfo !== 'object' || addressInfo === null || !('port' in addressInfo)) {
+                spinner.fail();
+                reject(new Error('Failed to get address'));
                 return;
               }
-              let tokenValue: string | null = null;
-              try {
-                const parsed = JSON.parse(Buffer.concat(chunks).toString('utf-8')) as { token?: string };
-                tokenValue = typeof parsed?.token === 'string' ? parsed.token.trim() : null;
-              } catch {
-                tokenValue = null;
-              }
-              if (tokenValue) {
-                if (settled) return;
-                settled = true;
-                res.statusCode = 200;
-                res.end();
-                spinner.succeed();
-                resolve(tokenValue);
-                server.close();
-              } else {
+              const { port } = addressInfo as AddressInfo;
+              // Dashboard will fetch() POST the token to this URL (no redirect; token in body).
+              const responseUrl = `http://127.0.0.1:${port}/response`;
+              open(
+                `https://dashboard.powersync.com/account/access-tokens/create?response_url=${encodeURIComponent(responseUrl)}`
+              );
+            });
+
+            let settled = false;
+            const rejectWith = (err: Error) => {
+              if (settled) return;
+              settled = true;
+              spinner.fail();
+              server.close();
+              reject(err);
+            };
+
+            server.on('request', (req, res) => {
+              if (req.method !== 'POST' || !req.url?.startsWith('/response')) {
                 res.statusCode = 400;
                 res.end();
-                rejectWith(new Error('Invalid request: JSON body must include a non-empty "token" string'));
+                rejectWith(new Error('Invalid request: expected POST /response'));
+                return;
               }
+              const chunks: Buffer[] = [];
+              req.on('data', (chunk) => chunks.push(chunk));
+              req.on('end', () => {
+                const contentType = req.headers['content-type'] ?? '';
+                if (!contentType.includes('application/json')) {
+                  res.statusCode = 400;
+                  res.end();
+                  rejectWith(new Error('Invalid request: Content-Type must be application/json'));
+                  return;
+                }
+                let tokenValue: string | null = null;
+                try {
+                  const parsed = JSON.parse(Buffer.concat(chunks).toString('utf-8')) as { token?: string };
+                  tokenValue = typeof parsed?.token === 'string' ? parsed.token.trim() : null;
+                } catch {
+                  tokenValue = null;
+                }
+                if (tokenValue) {
+                  if (settled) return;
+                  settled = true;
+                  res.statusCode = 200;
+                  res.end();
+                  spinner.succeed();
+                  resolve(tokenValue);
+                  server.close();
+                } else {
+                  res.statusCode = 400;
+                  res.end();
+                  rejectWith(new Error('Invalid request: JSON body must include a non-empty "token" string'));
+                }
+              });
             });
+          })
+        : await password({
+            message: 'Enter your API token (https://docs.powersync.com/usage/tools/cli#personal-access-token):',
+            mask: true
           });
-        })
-      : await password({
-          message: 'Enter your API token (https://docs.powersync.com/usage/tools/cli#personal-access-token):',
-          mask: true
-        });
 
     if (!token?.trim()) {
       this.styledError({ message: 'Token is required.' });

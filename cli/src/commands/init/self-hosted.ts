@@ -58,9 +58,9 @@ export default class InitSelfHosted extends PowerSyncCommand {
       ux.colorize('green', 'Created PowerSync self-hosted project!'),
       '',
       ux.colorize('cyan', 'Configuration files are located in:'),
-      ux.colorize('gray', targetDir),
+      ux.colorize('gray', `\t${targetDir}`),
       '',
-      ux.colorize('yellow', instructions)
+      instructions
     ];
     if (vscode) {
       lines.splice(5, 0, ux.colorize('gray', 'Added .vscode/settings.json for YAML !env tag support.'));

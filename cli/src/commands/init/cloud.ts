@@ -49,21 +49,24 @@ export default class InitCloud extends PowerSyncCommand {
 
     const instructions = [
       'Create a new instance with ',
-      ux.colorize('blue', 'powersync link cloud --create'),
+      ux.colorize('blue', '\tpowersync link cloud --create --org-id=<org-id> --project-id=<project-id>'),
       'or update this project with an existing instance by running',
-      ux.colorize('blue', 'powersync pull config'),
+      ux.colorize(
+        'blue',
+        '\tpowersync pull config --org-id=<org-id> --project-id=<project-id> --instance-id=<instance-id>'
+      ),
       'Then run',
-      ux.colorize('blue', 'powersync deploy'),
-      'to deploy.'
+      ux.colorize('blue', '\tpowersync deploy'),
+      'to deploy changes.'
     ].join('\n');
 
     const lines = [
       ux.colorize('green', 'Created PowerSync cloud project!'),
       '',
       ux.colorize('cyan', 'Configuration files are located in:'),
-      ux.colorize('gray', targetDir),
+      ux.colorize('gray', `\t${targetDir}`),
       '',
-      ux.colorize('yellow', instructions)
+      instructions
     ];
     if (vscode) {
       lines.splice(5, 0, ux.colorize('gray', 'Added .vscode/settings.json for YAML !env tag support.'));

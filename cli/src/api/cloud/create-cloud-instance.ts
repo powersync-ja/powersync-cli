@@ -20,6 +20,15 @@ export async function createCloudInstance(
   options: CreateCloudInstanceOptions
 ): Promise<CreateCloudInstanceResult> {
   const { orgId, projectId, name, region } = options;
+
+  // validate the region against the list of regions returned by the client.listRegions() method
+  const regions = await client.listRegions();
+  if (!regions.regions.some((r) => r.name === region)) {
+    throw new Error(
+      `Region ${region} is not supported. Please choose a region from the list of supported regions: ${regions.regions.map((r) => r.name).join(', ')}.`
+    );
+  }
+
   const result = await client.createInstance({
     org_id: orgId,
     app_id: projectId,

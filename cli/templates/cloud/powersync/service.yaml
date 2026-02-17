@@ -20,7 +20,7 @@ region: us
 # replication: database connections for sync
 # Note: only a single connection is currently supported
 replication:
-  connections:
+  connections: []
 #     -------------------------------------------------------------------------
 #     PostgreSQL – uncomment this entire block to use
 #     -------------------------------------------------------------------------
@@ -109,7 +109,7 @@ replication:
 # -----------------------------------------------------------------------------
 # CLIENT AUTH (optional) – uncomment this entire block to enable
 # -----------------------------------------------------------------------------
-client_auth:
+client_auth: {}
 
 #   PowerSync will use the same JWT secret as Supabase.
 #   supabase: false
