@@ -1,9 +1,11 @@
 const DEFAULT_PS_MANAGEMENT_SERVICE_URL = 'https://powersync-api.journeyapps.com';
 const DEFAULT_PS_ACCOUNTS_HUB_SERVICE_URL = 'https://accounts.journeyapps.com';
+const DEFAULT_PS_DASHBOARD_URL = 'https://dashboard.powersync.com';
 
 export type ENV = {
   _PS_MANAGEMENT_SERVICE_URL: string;
   _PS_ACCOUNTS_HUB_SERVICE_URL: string;
+  _PS_DASHBOARD_URL: string;
   TOKEN?: string;
   INSTANCE_ID?: string;
   ORG_ID?: string;
@@ -14,6 +16,7 @@ export type ENV = {
 export const env: ENV = {
   _PS_MANAGEMENT_SERVICE_URL: process.env._PS_MANAGEMENT_SERVICE_URL || DEFAULT_PS_MANAGEMENT_SERVICE_URL,
   _PS_ACCOUNTS_HUB_SERVICE_URL: process.env._PS_ACCOUNTS_HUB_SERVICE_URL || DEFAULT_PS_ACCOUNTS_HUB_SERVICE_URL,
+  _PS_DASHBOARD_URL: process.env._PS_DASHBOARD_URL || DEFAULT_PS_DASHBOARD_URL,
   TOKEN: process.env.TOKEN,
   INSTANCE_ID: process.env.INSTANCE_ID,
   ORG_ID: process.env.ORG_ID,
