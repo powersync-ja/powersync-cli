@@ -10,18 +10,9 @@ CLI for PowerSync
 * [@powersync/cli](#powersynccli)
 * [Overview](#overview)
 * [Cloud](#cloud)
-* [Edit powersync/service.yaml and sync rules](#edit-powersyncserviceyaml-and-sync-rules)
-* [If your token has multiple orgs: add --org-id=<org-id>](#if-your-token-has-multiple-orgs-add---org-idorg-id)
-* [If your token has multiple orgs: add --org-id=<org-id>](#if-your-token-has-multiple-orgs-add---org-idorg-id)
-* [Edit powersync/service.yaml and sync.yaml as needed](#edit-powersyncserviceyaml-and-syncyaml-as-needed)
-* [If your token has multiple orgs: add --org-id=<org-id>](#if-your-token-has-multiple-orgs-add---org-idorg-id)
-* [Or with environment variables (set ORG_ID only if your token has multiple orgs)](#or-with-environment-variables-set-org_id-only-if-your-token-has-multiple-orgs)
 * [Self-hosted](#self-hosted)
-* [powersync/service.yaml (self-hosted instance config)](#powersyncserviceyaml-self-hosted-instance-config)
-* [powersync/cli.yaml (self-hosted)](#powersynccliyaml-self-hosted)
-* [Edit powersync/service.yaml](#edit-powersyncserviceyaml)
-* [Usage](#usage)
 * [Known Limitations](#known-limitations)
+* [Usage](#usage)
 * [Commands](#commands)
 <!-- tocstop -->
 
@@ -61,10 +52,9 @@ Run **`powersync init cloud`** to scaffold the config directory. Configure **`se
 
 ```sh
 powersync init cloud
-# Edit powersync/service.yaml and sync rules
+  # then edit powersync/service.yaml and sync rules
 powersync login
-powersync link cloud --create --project-id=<project-id>
-# If your token has multiple orgs: add --org-id=<org-id>
+powersync link cloud --create --project-id=<project-id>   # add --org-id if token has multiple orgs
 powersync deploy
 ```
 
@@ -76,9 +66,8 @@ Run **`powersync pull instance`** with the instance identifiers (from the PowerS
 
 ```sh
 powersync login
-powersync pull instance --project-id=<project-id> --instance-id=<instance-id>
-# If your token has multiple orgs: add --org-id=<org-id>
-# Edit powersync/service.yaml and sync.yaml as needed
+powersync pull instance --project-id=<project-id> --instance-id=<instance-id>   # add --org-id if multiple orgs
+  # then edit powersync/service.yaml and sync.yaml as needed
 powersync deploy
 ```
 
@@ -92,10 +81,8 @@ Specify the instance using **environment variables** or **CLI flags** (flags tak
 
 ```sh
 powersync login
-powersync generate schema --instance-id=<id> --project-id=<project-id> --output-path=schema.ts --output=ts
-# If your token has multiple orgs: add --org-id=<org-id>
-
-# Or with environment variables (set ORG_ID only if your token has multiple orgs)
+powersync generate schema --instance-id=<id> --project-id=<project-id> --output-path=schema.ts --output=ts   # add --org-id if multiple orgs
+  # or with env vars (set ORG_ID only if your token has multiple orgs):
 export PROJECT_ID=<project-id>
 export INSTANCE_ID=<instance-id>
 powersync generate schema --output-path=schema.ts --output=ts
@@ -112,7 +99,7 @@ The CLI can run a subset of commands against **self-hosted** PowerSync instances
 For any self-hosted instance (local or remote), you must link the running API to the CLI and configure an API key. On the **server** (your PowerSync instance config), define the tokens that are valid in **`service.yaml`**:
 
 ```yaml
-# powersync/service.yaml (self-hosted instance config)
+  # powersync/service.yaml (self-hosted instance config)
 api:
   tokens:
     - dev-token-do-not-use-in-production # or use !env MY_API_TOKEN for secrets
@@ -121,7 +108,7 @@ api:
 Then tell the CLI which token to use when running commands. Run **`powersync link self-hosted --api-url <url>`** to write **`cli.yaml`** with the API URL, and either set the **`TOKEN`** environment variable or set **`api_key`** in **`cli.yaml`**:
 
 ```yaml
-# powersync/cli.yaml (self-hosted)
+  # powersync/cli.yaml (self-hosted)
 type: self-hosted
 api_url: https://powersync.example.com
 api_key: !env TOKEN # or a literal value matching one of the tokens in service.yaml
@@ -135,7 +122,7 @@ Run **`powersync init self-hosted`** to scaffold a config directory. Edit **`ser
 
 ```sh
 powersync init self-hosted
-# Edit powersync/service.yaml
+  # then edit powersync/service.yaml
 powersync link self-hosted --api-url https://powersync.example.com
 powersync fetch status
 ```
@@ -149,6 +136,10 @@ We provide a [Docker plugin](../plugins/docker/README.md) for running a self-hos
 ## Command support
 
 Only some CLI commands work with self-hosted instances. Supported commands include **`powersync fetch status`**, **`powersync generate schema`**, **`powersync generate token`**, **`powersync validate`**, and **`powersync link self-hosted`**. Cloud-only commands such as **`powersync deploy`**, **`powersync destroy`**, **`powersync pull instance`**, **`powersync fetch config`**, and **`powersync fetch instances`** do not apply to self-hosted.
+
+# Known Limitations
+
+- **Login secure storage**: Secure storage for auth tokens is only supported on macOS (via Keychain). On Windows and Linux, `powersync login` will not persist credentials; use the `TOKEN` environment variable instead for Cloud commands.
 
 # Usage
 
@@ -165,10 +156,6 @@ USAGE
 ...
 ```
 <!-- usagestop -->
-
-# Known Limitations
-
-- **Login secure storage**: Secure storage for auth tokens is only supported on macOS (via Keychain). On Windows and Linux, `powersync login` will not persist credentials; use the `TOKEN` environment variable instead for Cloud commands.
 
 # Commands
 
