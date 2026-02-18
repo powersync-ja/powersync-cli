@@ -8,6 +8,7 @@
   },
   "bugs": "https://github.com/powersync-ja/cli/issues",
   "dependencies": {
+    "@fastify/cors": "^10.0.0",
     "@inquirer/prompts": "^7.2.0",
     "@oclif/core": "^4",
     "@oclif/plugin-help": "^6",
@@ -21,6 +22,7 @@
     "@powersync/service-types": "^0.13.3",
     "jose": "^6.1.3",
     "lodash": "^4.17.23",
+    "fastify": "^5.0.0",
     "open": "^11.0.0",
     "ora": "^9.0.0",
     "ts-codec": "^1.3.0",
