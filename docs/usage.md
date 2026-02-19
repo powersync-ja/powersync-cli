@@ -76,7 +76,7 @@ The sections below split usage by **Cloud** and **Self-hosted**, then provide re
 
 # Cloud usage
 
-Authentication is usually the first step. Use `powersync login` to store a token in secure storage (e.g. macOS Keychain), or set the `TOKEN` environment variable if you prefer not to persist the token. See [Authentication (Tokens)](#authentication-tokens) for details.
+Authentication is usually the first step. Use `powersync login` to store a token, or set the `TOKEN` environment variable. Storage behavior depends on platform capabilities and your login choice; see [Authentication (Tokens)](#authentication-tokens) for details.
 
 ## Creating a new Cloud instance
 
@@ -157,10 +157,13 @@ Use `--api-url` with link file or `API_URL` and `TOKEN` when you prefer not to l
 
 # Authentication (Tokens)
 
-Cloud commands need an auth token (e.g. a PowerSync PAT). You can supply it in two ways; the CLI uses the first that is available:
+Cloud commands need an auth token (e.g. a PowerSync PAT). The CLI uses the first available source:
 
 1. **Environment variable** — `TOKEN`
-2. **Stored via login** — token saved by `powersync login` (secure storage, e.g. macOS Keychain)
+2. **Stored via login**
+
+- **Secure storage** when available (for example, macOS Keychain)
+- **Config-file fallback** when secure storage is unavailable **and** you explicitly confirm at login
 
 **Environment variable** — useful for CI, scripts, or one-off runs:
 
@@ -175,7 +178,7 @@ Inline:
 TOKEN=your-token-here powersync fetch config --output=json
 ```
 
-**Stored via login** — convenient for local use; token is stored securely and reused:
+**Stored via login** — convenient for local use; token is reused by later commands:
 
 ```bash
 powersync login
@@ -184,7 +187,17 @@ powersync login
 powersync fetch config
 ```
 
-Login is supported on macOS (other platforms coming soon). If you use another platform or prefer not to store the token, set `TOKEN` in the environment instead.
+If secure storage is not available, `powersync login` asks whether to store the token in plaintext at:
+
+```bash
+$XDG_CONFIG_HOME/powersync/config.yaml
+# or, when XDG_CONFIG_HOME is not set:
+~/.config/powersync/config.yaml
+```
+
+If you decline this prompt, login exits without storing a token. Use `TOKEN` in that case.
+
+`powersync logout` removes the stored token from whichever backend is active (secure storage or config-file fallback).
 
 # Supplying Linking Information for Cloud and Self-Hosted Commands
 

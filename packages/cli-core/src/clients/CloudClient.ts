@@ -24,7 +24,7 @@ export function createCloudClient(): PowerSyncManagementClient {
         const token = env.TOKEN || (await Services.authentication.getToken());
         if (!token) {
           throw new Error(
-            `Not logged in. Run ${ux.colorize('blue', 'powersync login')} to authenticate (you will be prompted for your token). Login is supported on macOS (other platforms coming soon), or provide the ${ux.colorize('blue', 'TOKEN')} environment variable.`
+            `Not logged in. Run ${ux.colorize('blue', 'powersync login')} to authenticate (you will be prompted for your token), or provide the ${ux.colorize('blue', 'TOKEN')} environment variable.`
           );
         }
         return {

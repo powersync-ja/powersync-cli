@@ -8,11 +8,21 @@ export interface StorageCapabilities {
   supportsSecureStorage: boolean;
 }
 
+export type InsecureAuthConfig = {
+  token?: string;
+} & Record<string, unknown>;
+
+export type InsecureStorageConfig = {
+  auth?: InsecureAuthConfig;
+} & Record<string, unknown>;
+
 /**
  * General storage interface.
  */
 export interface StorageService {
   capabilities: StorageCapabilities;
   secureStorage: BaseStorage;
-  // We don't expose non-secure storage yet, but we could in the future
+  insecureStoragePath: string;
+  getInsecureConfig(): Promise<InsecureStorageConfig>;
+  updateInsecureConfig(config: InsecureStorageConfig): Promise<void>;
 }

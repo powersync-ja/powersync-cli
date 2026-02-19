@@ -5,19 +5,25 @@ import { startPATLoginServer } from '../api/login-server.js';
 
 export default class Login extends PowerSyncCommand {
   static description =
-    'Store a PowerSync auth token (PAT) in secure storage so later Cloud commands run without passing a token. Use TOKEN env var for CI or scripts instead.';
-  static summary = 'Store auth token in secure storage for Cloud commands.';
+    'Store a PowerSync auth token (PAT) in secure storage so later Cloud commands run without passing a token. If secure storage is unavailable, login can optionally store it in a local config file. Use TOKEN env var for CI or scripts instead.';
+  static summary = 'Store auth token for Cloud commands.';
 
   async run(): Promise<void> {
     this.parse(Login);
 
     const { authentication, storage } = Services;
+    const shouldUseInsecureStorage =
+      !storage.capabilities.supportsSecureStorage &&
+      (await confirm({
+        message: `Keychain storage is unavailable on this platform. Store token in plaintext at ${storage.insecureStoragePath}? Set the ${ux.colorize('blue', 'TOKEN')} environment variable instead to avoid this.`,
+        default: false
+      }));
 
-    if (!storage.capabilities.supportsSecureStorage) {
-      this.styledError({
-        message: 'Secure storage is not yet supported on this platform.',
-        suggestions: [`Export and use the ${ux.colorize('blue', 'TOKEN')} environment variable for commands.`]
-      });
+    if (!storage.capabilities.supportsSecureStorage && !shouldUseInsecureStorage) {
+      this.log(
+        `Login cancelled. Use ${ux.colorize('blue', 'TOKEN')} environment variable for commands, or rerun login and allow local fallback storage.`
+      );
+      this.exit(0);
     }
 
     const listOrgs = async (): Promise<string> => {

@@ -7,13 +7,14 @@ CLI for PowerSync
 [![Downloads/week](https://img.shields.io/npm/dw/@powersync/cli.svg)](https://npmjs.org/package/@powersync/cli)
 
 <!-- toc -->
-* [@powersync/cli](#powersynccli)
-* [Overview](#overview)
-* [Cloud](#cloud)
-* [Self-hosted](#self-hosted)
-* [Known Limitations](#known-limitations)
-* [Usage](#usage)
-* [Commands](#commands)
+
+- [@powersync/cli](#powersynccli)
+- [Overview](#overview)
+- [Cloud](#cloud)
+- [Self-hosted](#self-hosted)
+- [Known Limitations](#known-limitations)
+- [Usage](#usage)
+- [Commands](#commands)
 <!-- tocstop -->
 
 # Overview
@@ -34,9 +35,13 @@ The CLI supports **PowerSync Cloud** for creating instances, deploying config, p
 Cloud commands require a PowerSync **personal access token (PAT)**. You can authenticate in two ways:
 
 **1. Interactive login (recommended for local use)**  
-Run **`powersync login`**. You can either open a browser to create a token in the [PowerSync Dashboard](https://dashboard.powersync.com/account/access-tokens/create) or paste an existing token. On **macOS**, the token is stored in Keychain so you don’t need to pass it again. On **Windows and Linux**, secure storage is not yet supported—use the **`TOKEN`** environment variable instead (see below).
+Run **`powersync login`**. You can either open a browser to create a token in the [PowerSync Dashboard](https://dashboard.powersync.com/account/access-tokens/create) or paste an existing token.
 
-**2. Environment variable (CI, scripts, or when not using macOS)**  
+- If secure storage is available, the token is saved there (for example, macOS Keychain).
+- If secure storage is unavailable, the CLI asks for confirmation before storing the token in plaintext at **`$XDG_CONFIG_HOME/powersync/config.yaml`** (or **`~/.config/powersync/config.yaml`** when `XDG_CONFIG_HOME` is unset).
+- If you decline, login exits without storing a token.
+
+**2. Environment variable (CI, scripts, or non-persistent use)**  
 Set **`TOKEN`** to your PAT. The CLI uses **`TOKEN`** when set; otherwise it uses the token from **`powersync login`**. Example:
 
 ```sh
@@ -44,7 +49,7 @@ export TOKEN=your-personal-access-token
 powersync fetch instances --project-id=<project-id>
 ```
 
-To stop using stored credentials, run **`powersync logout`**.
+To stop using stored credentials, run **`powersync logout`**. This clears the stored token from the active backend (secure storage or config-file fallback).
 
 ## Creating a new instance
 
@@ -99,7 +104,7 @@ The CLI can run a subset of commands against **self-hosted** PowerSync instances
 For any self-hosted instance (local or remote), you must link the running API to the CLI and configure an API key. On the **server** (your PowerSync instance config), define the tokens that are valid in **`service.yaml`**:
 
 ```yaml
-  # powersync/service.yaml (self-hosted instance config)
+# powersync/service.yaml (self-hosted instance config)
 api:
   tokens:
     - dev-token-do-not-use-in-production # or use !env MY_API_TOKEN for secrets
@@ -108,7 +113,7 @@ api:
 Then tell the CLI which token to use when running commands. Run **`powersync link self-hosted --api-url <url>`** to write **`cli.yaml`** with the API URL, and either set the **`TOKEN`** environment variable or set **`api_key`** in **`cli.yaml`**:
 
 ```yaml
-  # powersync/cli.yaml (self-hosted)
+# powersync/cli.yaml (self-hosted)
 type: self-hosted
 api_url: https://powersync.example.com
 api_key: !env TOKEN # or a literal value matching one of the tokens in service.yaml
@@ -139,11 +144,12 @@ Only some CLI commands work with self-hosted instances. Supported commands inclu
 
 # Known Limitations
 
-- **Login secure storage**: Secure storage for auth tokens is only supported on macOS (via Keychain). On Windows and Linux, `powersync login` will not persist credentials; use the `TOKEN` environment variable instead for Cloud commands.
+- **Plaintext fallback storage**: When secure storage is unavailable, login can store the token in plaintext config (`$XDG_CONFIG_HOME/powersync/config.yaml` or `~/.config/powersync/config.yaml`) only after explicit confirmation.
 
 # Usage
 
 <!-- usage -->
+
 ```sh-session
 $ npm install -g @powersync/cli
 $ powersync COMMAND
@@ -155,51 +161,53 @@ USAGE
   $ powersync COMMAND
 ...
 ```
+
 <!-- usagestop -->
 
 # Commands
 
 <!-- commands -->
-* [`powersync deploy`](#powersync-deploy)
-* [`powersync destroy`](#powersync-destroy)
-* [`powersync docker`](#powersync-docker)
-* [`powersync docker configure`](#powersync-docker-configure)
-* [`powersync docker reset`](#powersync-docker-reset)
-* [`powersync docker start`](#powersync-docker-start)
-* [`powersync docker stop`](#powersync-docker-stop)
-* [`powersync fetch`](#powersync-fetch)
-* [`powersync fetch config`](#powersync-fetch-config)
-* [`powersync fetch instances`](#powersync-fetch-instances)
-* [`powersync fetch status`](#powersync-fetch-status)
-* [`powersync generate`](#powersync-generate)
-* [`powersync generate schema`](#powersync-generate-schema)
-* [`powersync generate token`](#powersync-generate-token)
-* [`powersync help [COMMAND]`](#powersync-help-command)
-* [`powersync init`](#powersync-init)
-* [`powersync init base`](#powersync-init-base)
-* [`powersync init cloud`](#powersync-init-cloud)
-* [`powersync init self-hosted`](#powersync-init-self-hosted)
-* [`powersync link`](#powersync-link)
-* [`powersync link cloud`](#powersync-link-cloud)
-* [`powersync link self-hosted`](#powersync-link-self-hosted)
-* [`powersync login`](#powersync-login)
-* [`powersync logout`](#powersync-logout)
-* [`powersync migrate`](#powersync-migrate)
-* [`powersync plugins`](#powersync-plugins)
-* [`powersync plugins add PLUGIN`](#powersync-plugins-add-plugin)
-* [`powersync plugins:inspect PLUGIN...`](#powersync-pluginsinspect-plugin)
-* [`powersync plugins install PLUGIN`](#powersync-plugins-install-plugin)
-* [`powersync plugins link PATH`](#powersync-plugins-link-path)
-* [`powersync plugins remove [PLUGIN]`](#powersync-plugins-remove-plugin)
-* [`powersync plugins reset`](#powersync-plugins-reset)
-* [`powersync plugins uninstall [PLUGIN]`](#powersync-plugins-uninstall-plugin)
-* [`powersync plugins unlink [PLUGIN]`](#powersync-plugins-unlink-plugin)
-* [`powersync plugins update`](#powersync-plugins-update)
-* [`powersync pull`](#powersync-pull)
-* [`powersync pull config`](#powersync-pull-config)
-* [`powersync pull instance`](#powersync-pull-instance)
-* [`powersync stop`](#powersync-stop)
-* [`powersync validate`](#powersync-validate)
+
+- [`powersync deploy`](#powersync-deploy)
+- [`powersync destroy`](#powersync-destroy)
+- [`powersync docker`](#powersync-docker)
+- [`powersync docker configure`](#powersync-docker-configure)
+- [`powersync docker reset`](#powersync-docker-reset)
+- [`powersync docker start`](#powersync-docker-start)
+- [`powersync docker stop`](#powersync-docker-stop)
+- [`powersync fetch`](#powersync-fetch)
+- [`powersync fetch config`](#powersync-fetch-config)
+- [`powersync fetch instances`](#powersync-fetch-instances)
+- [`powersync fetch status`](#powersync-fetch-status)
+- [`powersync generate`](#powersync-generate)
+- [`powersync generate schema`](#powersync-generate-schema)
+- [`powersync generate token`](#powersync-generate-token)
+- [`powersync help [COMMAND]`](#powersync-help-command)
+- [`powersync init`](#powersync-init)
+- [`powersync init base`](#powersync-init-base)
+- [`powersync init cloud`](#powersync-init-cloud)
+- [`powersync init self-hosted`](#powersync-init-self-hosted)
+- [`powersync link`](#powersync-link)
+- [`powersync link cloud`](#powersync-link-cloud)
+- [`powersync link self-hosted`](#powersync-link-self-hosted)
+- [`powersync login`](#powersync-login)
+- [`powersync logout`](#powersync-logout)
+- [`powersync migrate`](#powersync-migrate)
+- [`powersync plugins`](#powersync-plugins)
+- [`powersync plugins add PLUGIN`](#powersync-plugins-add-plugin)
+- [`powersync plugins:inspect PLUGIN...`](#powersync-pluginsinspect-plugin)
+- [`powersync plugins install PLUGIN`](#powersync-plugins-install-plugin)
+- [`powersync plugins link PATH`](#powersync-plugins-link-path)
+- [`powersync plugins remove [PLUGIN]`](#powersync-plugins-remove-plugin)
+- [`powersync plugins reset`](#powersync-plugins-reset)
+- [`powersync plugins uninstall [PLUGIN]`](#powersync-plugins-uninstall-plugin)
+- [`powersync plugins unlink [PLUGIN]`](#powersync-plugins-unlink-plugin)
+- [`powersync plugins update`](#powersync-plugins-update)
+- [`powersync pull`](#powersync-pull)
+- [`powersync pull config`](#powersync-pull-config)
+- [`powersync pull instance`](#powersync-pull-instance)
+- [`powersync stop`](#powersync-stop)
+- [`powersync validate`](#powersync-validate)
 
 ## `powersync deploy`
 
@@ -1233,4 +1241,5 @@ DESCRIPTION
 ```
 
 _See code: [src/commands/validate.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/validate.ts)_
+
 <!-- commandsstop -->
