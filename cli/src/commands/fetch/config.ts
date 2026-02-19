@@ -1,4 +1,4 @@
-import { Flags, ux } from '@oclif/core';
+import { Flags } from '@oclif/core';
 import { Document } from 'yaml';
 
 import { CloudInstanceCommand } from '@powersync/cli-core';
@@ -33,10 +33,10 @@ export default class FetchConfig extends CloudInstanceCommand {
     });
 
     if (flags.output === 'yaml') {
-      this.log(ux.colorize('gray', new Document(fetched).toString()));
+      this.log(new Document(fetched).toString());
       return;
     }
 
-    this.log(ux.colorize('gray', JSON.stringify(fetched, null, 2)));
+    this.log(JSON.stringify(fetched, null, 2));
   }
 }

@@ -1,4 +1,4 @@
-import { Flags, ux } from '@oclif/core';
+import { Flags } from '@oclif/core';
 import {
   CloudProject,
   createCloudClient,
@@ -130,6 +130,6 @@ export default class GenerateToken extends SharedInstanceCommand {
         }));
 
     // This is purposefully simple in order for the output to be easily used in shell scripts.
-    this.log(ux.colorize('gray', token));
+    this.log(token);
   }
 }

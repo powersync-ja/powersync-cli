@@ -232,12 +232,12 @@ export default class Validate extends SharedInstanceCommand {
       const runResults = await Promise.all(testEntries.map((e) => e.promise));
       const tests: ValidationTestResult[] = testEntries.map((e, i) => ({ name: e.name, ...runResults[i] }));
       result = { passed: tests.every((t) => t.passed), tests };
-      this.log(ux.colorize('gray', formatValidationJson(result)));
+      this.log(formatValidationJson(result));
     } else if (flags.output === 'yaml') {
       const runResults = await Promise.all(testEntries.map((e) => e.promise));
       const tests: ValidationTestResult[] = testEntries.map((e, i) => ({ name: e.name, ...runResults[i] }));
       result = { passed: tests.every((t) => t.passed), tests };
-      this.log(ux.colorize('gray', formatValidationYaml(result)));
+      this.log(formatValidationYaml(result));
     } else if (flags.output === 'human') {
       this.log('Running validation tests...');
 
@@ -267,9 +267,9 @@ export default class Validate extends SharedInstanceCommand {
 
       for (const test of result.tests) {
         if (test.passed) {
-          this.log(ux.colorize('green', `✓ ${test.name}`));
+          this.log(`✓ ${ux.colorize('blue', test.name)}`);
         } else {
-          this.log(`✗ ${test.name}`);
+          this.log(`✗ ${ux.colorize('blue', test.name)}`);
           for (const error of test.errors ?? []) {
             this.log(ux.colorize('red', `${INDENT}${BULLET} ${error}`));
           }
@@ -280,7 +280,7 @@ export default class Validate extends SharedInstanceCommand {
       const runResults = await Promise.all(testEntries.map((e) => e.promise));
       const tests: ValidationTestResult[] = testEntries.map((e, i) => ({ name: e.name, ...runResults[i] }));
       result = { passed: tests.every((t) => t.passed), tests };
-      this.log(ux.colorize('gray', formatValidationHuman(result)));
+      this.log(formatValidationHuman(result));
     }
 
     if (!result.passed) {

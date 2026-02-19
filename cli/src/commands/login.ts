@@ -31,13 +31,10 @@ export default class Login extends PowerSyncCommand {
     if (existingToken) {
       this.log('An existing token was found. This existing token has access to the following organizations:');
       try {
-        this.log(ux.colorize('gray', await listOrgs()));
+        this.log(await listOrgs());
       } catch (err) {
         this.log(
-          ux.colorize(
-            'yellow',
-            `\tFailed to list organizations. This is normal if the token is not valid. ${JSON.stringify(err)}`
-          )
+          `\tFailed to list organizations. This is normal if the token is not valid. ${ux.colorize('blue', JSON.stringify(err))}`
         );
       }
       const overwrite = await confirm({
@@ -46,7 +43,7 @@ export default class Login extends PowerSyncCommand {
       });
       if (overwrite) {
         await authentication.deleteToken();
-        this.log(ux.colorize('green', 'Existing token deleted.'));
+        this.log('Existing token deleted.');
       } else {
         this.exit(0);
       }
@@ -94,8 +91,8 @@ export default class Login extends PowerSyncCommand {
       await authentication.setToken(token.trim());
       const orgs = await listOrgs();
       this.log('You have access to the following organizations:');
-      this.log(ux.colorize('gray', orgs));
-      this.log(ux.colorize('green', 'Token is valid.'));
+      this.log(orgs);
+      this.log('Token is valid.');
       this.log(ux.colorize('green', 'Token stored successfully.'));
     } catch (err) {
       await authentication.deleteToken();

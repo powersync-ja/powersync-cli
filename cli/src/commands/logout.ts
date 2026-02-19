@@ -12,7 +12,7 @@ export default class Logout extends PowerSyncCommand {
 
     const token = await authentication.getToken();
     if (!token) {
-      this.log(ux.colorize('yellow', 'You were not logged in.'));
+      this.log('You were not logged in. Logout is a no-op.');
       return;
     }
 

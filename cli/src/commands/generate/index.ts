@@ -1,4 +1,4 @@
-import { Command, ux } from '@oclif/core';
+import { Command } from '@oclif/core';
 
 export default class Generate extends Command {
   static description =
@@ -7,6 +7,6 @@ export default class Generate extends Command {
 
   async run(): Promise<void> {
     await this.parse(Generate);
-    this.log(ux.colorize('yellow', 'Use a subcommand: ') + ux.colorize('blue', 'generate schema | generate token'));
+    this.log('Use a subcommand: generate schema | generate token');
   }
 }

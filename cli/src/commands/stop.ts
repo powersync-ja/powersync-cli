@@ -26,10 +26,7 @@ export default class Stop extends CloudInstanceCommand {
     const client = await this.getClient();
 
     this.log(
-      ux.colorize(
-        'yellow',
-        `Stopping instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`
-      )
+      `Stopping instance ${ux.colorize('blue', linked.instance_id)} in project ${ux.colorize('blue', linked.project_id)} in org ${ux.colorize('blue', linked.org_id)}`
     );
 
     try {

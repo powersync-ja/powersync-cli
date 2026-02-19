@@ -47,8 +47,8 @@ export default class Deploy extends CloudInstanceCommand {
       configFileRequired: true
     });
 
-    this.log(ux.colorize('cyan', 'Performing validations before deploy...'));
-    this.log(ux.colorize('gray', '\tValidating configuration...'));
+    this.log('Performing validations before deploy...');
+    this.log('\tValidating configuration...');
     const config = this.parseConfig(projectDirectory);
     const client = await this.getClient();
 
@@ -90,7 +90,7 @@ export default class Deploy extends CloudInstanceCommand {
       });
     }
 
-    this.log(ux.colorize('gray', '\tTesting connections...'));
+    this.log('\tTesting connections...');
     if ((config.replication?.connections?.length ?? 0) <= 0) {
       this.styledError({
         message: 'No connection found in config.',
@@ -112,7 +112,7 @@ export default class Deploy extends CloudInstanceCommand {
       }
     }
 
-    this.log(ux.colorize('green', 'Validations completed successfully.\n'));
+    this.log('Validations completed successfully.\n');
 
     const spinner = ora({
       prefixText: '\nDeploying instance.\n',
@@ -143,7 +143,7 @@ export default class Deploy extends CloudInstanceCommand {
         });
       });
 
-    this.log(ux.colorize('cyan', `Deploy operation has been scheduled. Waiting for completion...`));
+    this.log(`Deploy operation has been scheduled. Waiting for completion...`);
 
     const status = await waitForStatusChange(client, linked, deployResult.id);
     spinner.stop();

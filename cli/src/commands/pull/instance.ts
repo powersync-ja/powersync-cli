@@ -1,4 +1,3 @@
-import { ux } from '@oclif/core';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -47,7 +46,7 @@ export default class PullInstance extends CloudInstanceCommand {
         mkdirSync(projectDir, { recursive: true });
       } else {
         this.styledError({
-          message: `Directory "${directory}" not found. Pass ${ux.colorize('blue', '--instance-id, and --project-id')} to create the config directory and link, or run this command from a directory that already contains a linked PowerSync config.`
+          message: `Directory "${directory}" not found. Pass --instance-id, and --project-id to create the config directory and link, or run this command from a directory that already contains a linked PowerSync config.`
         });
       }
     }
@@ -63,18 +62,18 @@ export default class PullInstance extends CloudInstanceCommand {
     if (!existsSync(linkPath)) {
       if (!instanceId || !resolvedOrgId || !projectId) {
         this.styledError({
-          message: `Linking is required. Pass ${ux.colorize('blue', '--instance-id, --org-id, and --project-id')} to this command, or run ${ux.colorize('blue', 'powersync link cloud --instance-id=<id> --org-id=<id> --project-id=<id>')} first.`
+          message: `Linking is required. Pass --instance-id, --org-id, and --project-id to this command, or run ${ux.colorize('blue', 'powersync link cloud --instance-id=<id> --org-id=<id> --project-id=<id>')} first.`
         });
       }
       writeCloudLink(projectDir, { instanceId, orgId: resolvedOrgId, projectId });
-      this.log(ux.colorize('green', `Created ${directory}/${CLI_FILENAME} with Cloud instance link.`));
+      this.log(`Created ${ux.colorize('blue', `${directory}/${CLI_FILENAME}`)} with Cloud instance link.`);
     }
 
     const { linked } = await this.loadProject(flags);
     const client = await this.getClient();
 
     this.log(
-      `Fetching config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}...`
+      `Fetching config for instance ${ux.colorize('blue', linked.instance_id)} in project ${ux.colorize('blue', linked.project_id)} in org ${ux.colorize('blue', linked.org_id)}...`
     );
 
     const fetched = await fetchCloudConfig(client, linked).catch((error) => {
@@ -88,18 +87,12 @@ export default class PullInstance extends CloudInstanceCommand {
     const syncExists = existsSync(join(projectDir, SYNC_FILENAME));
     if (serviceExists) {
       this.warn(
-        ux.colorize(
-          'yellow',
-          `${SERVICE_FILENAME} already exists. Writing to service-fetched.yaml instead. Manually merge the settings into ${SERVICE_FILENAME} as needed.`
-        )
+        `${ux.colorize('blue', SERVICE_FILENAME)} already exists. Writing to ${ux.colorize('blue', 'service-fetched.yaml')} instead. Manually merge the settings into ${ux.colorize('blue', SERVICE_FILENAME)} as needed.`
       );
     }
     if (syncExists && fetched.syncRules) {
       this.warn(
-        ux.colorize(
-          'yellow',
-          `${SYNC_FILENAME} already exists. Writing to sync-fetched.yaml instead. Manually merge the sync rules into ${SYNC_FILENAME} as needed.`
-        )
+        `${ux.colorize('blue', SYNC_FILENAME)} already exists. Writing to ${ux.colorize('blue', 'sync-fetched.yaml')} instead. Manually merge the sync rules into ${ux.colorize('blue', SYNC_FILENAME)} as needed.`
       );
     }
     const serviceYaml = PULL_CONFIG_HEADER + stringify(ServiceCloudConfig.encode(fetched.config));
@@ -108,13 +101,13 @@ export default class PullInstance extends CloudInstanceCommand {
     const serviceOutputPath = join(projectDir, serviceOutputName);
     this.log('');
     writeFileSync(serviceOutputPath, serviceYaml, 'utf8');
-    this.log(ux.colorize('green', `Wrote ${serviceOutputName} with config from the cloud.`));
+    this.log(`Wrote ${ux.colorize('blue', serviceOutputName)} with config from the cloud.`);
 
     if (typeof fetched.syncRules === 'string') {
       const syncOutputName = syncExists ? SYNC_FETCHED_FILENAME : SYNC_FILENAME;
       const syncOutputPath = join(projectDir, syncOutputName);
       writeFileSync(syncOutputPath, fetched.syncRules, 'utf8');
-      this.log(ux.colorize('green', `Wrote ${syncOutputName} with sync rules from the cloud.`));
+      this.log(`Wrote ${ux.colorize('blue', syncOutputName)} with sync rules from the cloud.`);
     }
   }
 }
