@@ -9,6 +9,12 @@ import { root } from '../helpers/root.js';
 
 const CUSTOM_DIR = 'custom-dir';
 const EXISTING_DIR = 'existing-dir';
+const YAML_SYNC_RULES_SCHEMA =
+  '# yaml-language-server: $schema=https://unpkg.com/@powersync/service-sync-rules@latest/schema/sync_rules.json\n#';
+const YAML_SERVICE_SCHEMA =
+  '# yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/service-config.json\n#';
+const YAML_CLI_SCHEMA =
+  '# yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/cli-config.json\n#';
 
 describe('init', () => {
   let tmpDir: string;
@@ -30,12 +36,16 @@ describe('init', () => {
     expect(stdout).toContain('Created PowerSync cloud project');
     const projectDir = join(tmpDir, 'powersync');
     const serviceYamlPath = join(projectDir, 'service.yaml');
+    const syncYamlPath = join(projectDir, 'sync.yaml');
     expect(existsSync(serviceYamlPath)).toBe(true);
-    expect(existsSync(join(projectDir, 'sync.yaml'))).toBe(true);
+    expect(existsSync(syncYamlPath)).toBe(true);
+    expect(readFileSync(serviceYamlPath, 'utf8')).toContain(YAML_SERVICE_SCHEMA);
+    expect(readFileSync(syncYamlPath, 'utf8')).toContain(YAML_SYNC_RULES_SCHEMA);
     const serviceYaml = parseYaml(readFileSync(serviceYamlPath, 'utf8'));
     expect(serviceYaml.telemetry).toBeUndefined();
     const linkYamlPath = join(projectDir, 'cli.yaml');
     expect(existsSync(linkYamlPath)).toBe(true);
+    expect(readFileSync(linkYamlPath, 'utf8')).toContain(YAML_CLI_SCHEMA);
     const linkYaml = parseYaml(readFileSync(linkYamlPath, 'utf8'));
     expect(linkYaml.type).toBe('cloud');
   });
@@ -58,12 +68,16 @@ describe('init', () => {
     expect(stdout).toContain(`Created PowerSync cloud project`);
     const projectDir = join(tmpDir, CUSTOM_DIR);
     const serviceYamlPath = join(projectDir, 'service.yaml');
+    const syncYamlPath = join(projectDir, 'sync.yaml');
     expect(existsSync(serviceYamlPath)).toBe(true);
-    expect(existsSync(join(projectDir, 'sync.yaml'))).toBe(true);
+    expect(existsSync(syncYamlPath)).toBe(true);
+    expect(readFileSync(serviceYamlPath, 'utf8')).toContain(YAML_SERVICE_SCHEMA);
+    expect(readFileSync(syncYamlPath, 'utf8')).toContain(YAML_SYNC_RULES_SCHEMA);
     const serviceYaml = parseYaml(readFileSync(serviceYamlPath, 'utf8'));
     expect(serviceYaml.telemetry).toBeUndefined();
     const linkYamlPath = join(projectDir, 'cli.yaml');
     expect(existsSync(linkYamlPath)).toBe(true);
+    expect(readFileSync(linkYamlPath, 'utf8')).toContain(YAML_CLI_SCHEMA);
     const linkYaml = parseYaml(readFileSync(linkYamlPath, 'utf8'));
     expect(linkYaml.type).toBe('cloud');
   });
@@ -73,13 +87,17 @@ describe('init', () => {
     expect(stdout).toContain(`Created PowerSync self-hosted project`);
     const projectDir = join(tmpDir, CUSTOM_DIR);
     const serviceYamlPath = join(projectDir, 'service.yaml');
+    const syncYamlPath = join(projectDir, 'sync.yaml');
     expect(existsSync(serviceYamlPath)).toBe(true);
-    expect(existsSync(join(projectDir, 'sync.yaml'))).toBe(true);
+    expect(existsSync(syncYamlPath)).toBe(true);
+    expect(readFileSync(serviceYamlPath, 'utf8')).toContain(YAML_SERVICE_SCHEMA);
+    expect(readFileSync(syncYamlPath, 'utf8')).toContain(YAML_SYNC_RULES_SCHEMA);
     const serviceYaml = parseYaml(readFileSync(serviceYamlPath, 'utf8'));
     expect(serviceYaml.telemetry).toBeDefined();
     expect(serviceYaml.telemetry.disable_telemetry_sharing).toBe(false);
     const linkYamlPath = join(projectDir, 'cli.yaml');
     expect(existsSync(linkYamlPath)).toBe(true);
+    expect(readFileSync(linkYamlPath, 'utf8')).toContain(YAML_CLI_SCHEMA);
     const linkYaml = parseYaml(readFileSync(linkYamlPath, 'utf8'));
     expect(linkYaml.type).toBe('self-hosted');
   });

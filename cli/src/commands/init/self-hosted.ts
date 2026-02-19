@@ -1,9 +1,18 @@
 import { Flags, ux } from '@oclif/core';
-import { cpSync, existsSync, mkdirSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { InstanceCommand, PowerSyncCommand, SERVICE_FILENAME } from '@powersync/cli-core';
+import {
+  CLI_FILENAME,
+  InstanceCommand,
+  PowerSyncCommand,
+  SERVICE_FILENAME,
+  SYNC_FILENAME,
+  YAML_CLI_SCHEMA,
+  YAML_SERVICE_SCHEMA,
+  YAML_SYNC_RULES_SCHEMA
+} from '@powersync/cli-core';
 
 import { writeVscodeSettingsForYamlEnv } from '../../api/write-vscode-settings-for-yaml-env.js';
 
@@ -42,6 +51,14 @@ export default class InitSelfHosted extends PowerSyncCommand {
 
     mkdirSync(targetDir, { recursive: true });
     cpSync(templatePath, targetDir, { recursive: true });
+
+    const servicePath = join(targetDir, SERVICE_FILENAME);
+    const syncPath = join(targetDir, SYNC_FILENAME);
+    const cliPath = join(targetDir, CLI_FILENAME);
+
+    writeFileSync(servicePath, `${YAML_SERVICE_SCHEMA}\n\n${readFileSync(servicePath, 'utf8')}`);
+    writeFileSync(syncPath, `${YAML_SYNC_RULES_SCHEMA}\n\n${readFileSync(syncPath, 'utf8')}`);
+    writeFileSync(cliPath, `${YAML_CLI_SCHEMA}\n\n${readFileSync(cliPath, 'utf8')}`);
 
     if (vscode) {
       writeVscodeSettingsForYamlEnv(process.cwd());
