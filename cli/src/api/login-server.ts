@@ -109,7 +109,15 @@ export async function startPATLoginServer(): Promise<{
     }
     if (settled) return;
     settled = true;
-    await reply.status(200).send();
+    const html = `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Token accepted</title></head>
+<body>
+  <p>Token was accepted.</p>
+  <p>Check the CLI output for further results.</p>
+</body>
+</html>`;
+    await reply.type('text/html').status(200).send(html);
     resolveToken(tokenValue);
     await app.close();
   });
@@ -130,7 +138,7 @@ export async function startPATLoginServer(): Promise<{
   };
   const requestBase64 = Buffer.from(JSON.stringify(requestPayload), 'utf-8').toString('base64');
 
-  open(`${env._PS_DASHBOARD_URL}/account/access-tokens/create?request=${encodeURIComponent(requestBase64)}`);
+  open(`${env._PS_DASHBOARD_URL}/account/access-tokens/create?cliRequest=${encodeURIComponent(requestBase64)}`);
 
   return { address, tokenPromise };
 }
