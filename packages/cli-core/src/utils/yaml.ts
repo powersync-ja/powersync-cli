@@ -1,6 +1,16 @@
 import { readFileSync } from 'node:fs';
 import * as yaml from 'yaml';
 
+export const YAML_SYNC_RULES_SCHEMA = /* yaml */ `
+# yaml-language-server: $schema=https://unpkg.com/@powersync/service-sync-rules@latest/schema/sync_rules.json
+#
+`.trim();
+
+export const YAML_SERVICE_SCHEMA = /* yaml */ `
+# yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/service-config.json
+#
+`.trim();
+
 /**
  * Custom YAML tag which performs string environment variable substitution
  * Allows for type casting string environment variables to boolean or number

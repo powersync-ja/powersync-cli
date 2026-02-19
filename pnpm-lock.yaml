@@ -5,6 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
+  '@powersync-community/sync-config-rewriter': file://Users/stevenontong/Documents/platform_code/powersync/bucket-definitions-to-sync-streams/js-package/powersync-community-sync-config-rewriter-0.1.0.tgz
   '@powersync/service-schema': file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-service/packages/schema/powersync-service-schema-1.19.5.tgz
   '@powersync/management-types': file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/types/powersync-management-types-0.0.1.tgz
   '@powersync/management-client': file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz
@@ -40,6 +41,9 @@ importers:
       '@oclif/plugin-plugins':
         specifier: ^5
         version: 5.4.55
+      '@powersync-community/sync-config-rewriter':
+        specifier: file://Users/stevenontong/Documents/platform_code/powersync/bucket-definitions-to-sync-streams/js-package/powersync-community-sync-config-rewriter-0.1.0.tgz
+        version: file:../bucket-definitions-to-sync-streams/js-package/powersync-community-sync-config-rewriter-0.1.0.tgz
       '@powersync/cli-core':
         specifier: workspace:*
         version: link:../packages/cli-core
@@ -1108,15 +1112,19 @@ packages:
     resolution: {integrity: sha512-h104Kh26rR8tm+a3Qkc5S4VLYint3FE48as7+/5oCEcKR2idC/pF1G6AhIXKI+eHPJa/3J9i5z0Al47IeGHPkA==}
     engines: {node: '>=12'}
 
+  '@powersync-community/sync-config-rewriter@file:../bucket-definitions-to-sync-streams/js-package/powersync-community-sync-config-rewriter-0.1.0.tgz':
+    resolution: {integrity: sha512-lcbXMVsYsTRojn1fpM//CMYJ9z2gx1V12R8ZrxszLN48Q/Mgju4gJ8j6v0UmYr/AeTyjcspTZvNlR+2qODO/XQ==, tarball: file:../bucket-definitions-to-sync-streams/js-package/powersync-community-sync-config-rewriter-0.1.0.tgz}
+    version: 0.1.0
+
   '@powersync/lib-services-framework@0.7.14':
     resolution: {integrity: sha512-beQyt75NMkiRiZOqcLGuKnCnPzwe59hCO9GjUn8Ox70PQoXncIw/9W7A9OiECQkRnWKuzX5LVarUrMnm6GCh0A==}
 
   '@powersync/management-client@file:../service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz':
-    resolution: {integrity: sha512-2p+JAGkuOw3gcsE1TdE7Ajr+StTqwy/Lzpjh5z7RH+BfiQoTtQ/BIM2es+oKPbnbUwabCi4/W9/Bti8otGRHWA==, tarball: file:../service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz}
+    resolution: {integrity: sha512-1pzl302Nb3BlcbFCnxqVzUFNsb18bh1ADoHanLv35OiAIpRtKr0DfLVh0YJzyoSeY+b6LVdHSCaOOGiGPl3L/g==, tarball: file:../service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz}
     version: 0.0.1
 
   '@powersync/management-types@file:../service/powersync-hosted/public-packages/types/powersync-management-types-0.0.1.tgz':
-    resolution: {integrity: sha512-YdZRe0LiBE5tPiNeQdDapFQScyOU4+BKNYMj0bV5zNZxaCj6COgedhWXKRu14kx0pAnMvQ6iXxJOi9DqzN8pTQ==, tarball: file:../service/powersync-hosted/public-packages/types/powersync-management-types-0.0.1.tgz}
+    resolution: {integrity: sha512-kDvIpaBeRsjz7oU8abMUN4XriMVuwgtQET7vdlYHonzh7ceqID64KwM6zBdXJ2ljURQ9G1E0hdmwjzvn8cQn3g==, tarball: file:../service/powersync-hosted/public-packages/types/powersync-management-types-0.0.1.tgz}
     version: 0.0.1
 
   '@powersync/service-client@0.0.2':
@@ -5908,6 +5916,8 @@ snapshots:
       '@pnpm/config.env-replace': 1.1.0
       '@pnpm/network.ca-file': 1.0.2
       config-chain: 1.1.13
+
+  '@powersync-community/sync-config-rewriter@file:../bucket-definitions-to-sync-streams/js-package/powersync-community-sync-config-rewriter-0.1.0.tgz': {}
 
   '@powersync/lib-services-framework@0.7.14':
     dependencies:
