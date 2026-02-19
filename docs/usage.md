@@ -4,7 +4,7 @@ The PowerSync CLI operates against **PowerSync instances**. How you point the CL
 
 ## Local configuration
 
-It is possible to manage and deploy updates to instances entirely from the CLI. Local files are used to store the configuration state in a folder relative to your current working directory. By default this folder is `powersync/`. It holds schema, sync rules, and other YAML config. You can use a different folder via the `--directory` flag when supported.
+It is possible to manage and deploy updates to instances entirely from the CLI. Local files are used to store the configuration state in a folder relative to your current working directory. By default this folder is `powersync/`. It holds schema, sync config, and other YAML config. You can use a different folder via the `--directory` flag when supported.
 
 ## Linking to a project
 
@@ -80,12 +80,12 @@ Authentication is usually the first step. Use `powersync login` to store a token
 
 ## Creating a new Cloud instance
 
-Run **`powersync init cloud`** to scaffold a Cloud config directory (default `powersync/`). Configure **`service.yaml`** (name, region, replication connection, optional client auth) and sync rules. Then run **`powersync link cloud --create`** with `--project-id` to create a new instance and set the linked instance for future commands. (Add `--org-id` only if your token has access to multiple organizations.) You can then run **`powersync deploy`** and other commands on the new instance and manage config using the local config files. You do not need to keep managing these config files—you can manage config externally (e.g. via the PowerSync Dashboard) if you prefer.
+Run **`powersync init cloud`** to scaffold a Cloud config directory (default `powersync/`). Configure **`service.yaml`** (name, region, replication connection, optional client auth) and sync config. Then run **`powersync link cloud --create`** with `--project-id` to create a new instance and set the linked instance for future commands. (Add `--org-id` only if your token has access to multiple organizations.) You can then run **`powersync deploy`** and other commands on the new instance and manage config using the local config files. You do not need to keep managing these config files—you can manage config externally (e.g. via the PowerSync Dashboard) if you prefer.
 
 ```bash
 powersync login
 powersync init cloud
-# Edit powersync/service.yaml (name, region, connections, etc.) and sync rules
+# Edit powersync/service.yaml (name, region, connections, etc.) and sync config
 powersync link cloud --create --project-id=<project-id>
 # If your token has multiple orgs: add --org-id=<org-id>
 powersync validate
@@ -137,7 +137,7 @@ You can also supply `--instance-id` and `--project-id` (and `--org-id` only when
 
 # Self-hosted usage
 
-Use `powersync init self-hosted` to create a basic template for self-hosted configuration. The template is copied into your project directory (default `powersync/`). You need to **uncomment and specify your own config** (e.g. database connection, sync rules) in the generated YAML files.
+Use `powersync init self-hosted` to create a basic template for self-hosted configuration. The template is copied into your project directory (default `powersync/`). You need to **uncomment and specify your own config** (e.g. database connection, sync config) in the generated YAML files.
 
 For deploying the service (e.g. to Docker or another hosting platform), see the [PowerSync self-hosting docs](https://docs.powersync.com/intro/self-hosting#self-hosting) and the [self-host-demo](https://github.com/powersync-ja/self-host-demo) repository for examples and patterns. We plan to support more of these actions from the CLI in the future.
 

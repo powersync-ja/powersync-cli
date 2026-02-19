@@ -3,9 +3,9 @@ import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
 /**
- * Fetches the sync rules content for a self-hosted project.
- * @param project - The project to fetch the sync rules content for.
- * @returns The sync rules content.
+ * Fetches the sync config content for a self-hosted project.
+ * @param project - The project to fetch the sync config content for.
+ * @returns The sync config content.
  */
 export async function fetchSelfHostedSyncRulesContent(project: SelfHostedProject): Promise<string> {
   const { linked } = project;
@@ -24,7 +24,7 @@ export async function fetchSelfHostedSyncRulesContent(project: SelfHostedProject
   const content = instanceConfig.active_sync_rules?.content;
 
   if (!content) {
-    throw new Error('No active sync rules found');
+    throw new Error('No active sync config found');
   }
 
   return content;

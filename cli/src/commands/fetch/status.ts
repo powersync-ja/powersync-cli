@@ -103,12 +103,12 @@ function formatDiagnosticsHuman(diagnostics: DiagnosticsResponse): string {
   sections.push(formatConnectionsSection(diagnostics.connections ?? [], 0));
 
   if (diagnostics.active_sync_rules != null) {
-    sections.push('═══ Active Sync Rules ═══');
+    sections.push('═══ Active Sync Config ═══');
     sections.push(formatSyncRulesSection(diagnostics.active_sync_rules, 0));
   }
 
   if (diagnostics.deploying_sync_rules != null) {
-    sections.push('═══ Deploying Sync Rules ═══');
+    sections.push('═══ Deploying Sync Config ═══');
     sections.push(formatSyncRulesSection(diagnostics.deploying_sync_rules, 0));
   }
 
@@ -116,9 +116,9 @@ function formatDiagnosticsHuman(diagnostics: DiagnosticsResponse): string {
 }
 
 export default class FetchStatus extends SharedInstanceCommand {
+  static summary = 'Show instance diagnostics (connections, sync config, replication).';
   static description =
-    'Fetch instance diagnostics: connection status, active and deploying sync rules, replication state. Output as human-readable, JSON, or YAML. Cloud and self-hosted.';
-  static summary = 'Show instance diagnostics (connections, sync rules, replication).';
+    'Fetch instance diagnostics: connection status, active and deploying sync config, replication state. Output as human-readable, JSON, or YAML. Cloud and self-hosted.';
 
   static flags = {
     output: Flags.string({

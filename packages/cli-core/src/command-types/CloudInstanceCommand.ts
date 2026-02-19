@@ -1,8 +1,8 @@
 import { Flags, Interfaces } from '@oclif/core';
 import {
+  ResolvedCloudCLIConfig,
   ServiceCloudConfig,
   ServiceCloudConfigDecoded,
-  ResolvedCloudCLIConfig,
   validateCloudConfig
 } from '@powersync/cli-schemas';
 import { PowerSyncManagementClient } from '@powersync/management-client';
@@ -74,11 +74,26 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
   };
 
   /**
-   * @returns A PowerSync Management Client for the Cloud (uses token from login).
+   * Used to interface with the PowerSync Management API for Cloud instances. Automatically created with the token from login (or TOKEN env variable).
    */
-  async getClient(): Promise<PowerSyncManagementClient> {
-    return createCloudClient();
+  client: PowerSyncManagementClient = createCloudClient();
+
+  protected _project: CloudProject | null = null;
+
+  /**
+   * The currently loaded project, including linked instance information and sync config content. Call loadProject() before accessing this property. This is set to the loaded project after calling loadProject() to avoid multiple loads of the same project.
+   */
+  get project(): CloudProject {
+    if (!this._project) {
+      throw new Error('Project not loaded. Call loadProject() first.');
+    }
+    return this._project;
   }
+
+  /**
+   * The parsed service config from the service.yaml file. Call parseConfig() before accessing this property. This is set to the parsed config after calling parseConfig() to avoid multiple parses of the same config.
+   */
+  protected serviceConfig: ServiceCloudConfigDecoded | null = null;
 
   async loadProject(
     flags: CloudInstanceCommandFlags,
@@ -159,11 +174,11 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
     if (existsSync(syncRulesPath)) {
       syncRulesContent = readFileSync(syncRulesPath, 'utf8');
     }
-    return {
+    return (this._project = {
       projectDirectory: projectDir,
       linked: linked!,
       syncRulesContent
-    };
+    });
   }
 
   parseConfig(projectDirectory: string): ServiceCloudConfigDecoded {
@@ -175,6 +190,6 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
     if (!validationResult.valid) {
       throw new Error(`Invalid cloud config: ${validationResult.errors?.join('\n')}`);
     }
-    return ServiceCloudConfig.decode(doc.contents?.toJSON());
+    return (this.serviceConfig = ServiceCloudConfig.decode(doc.contents?.toJSON()));
   }
 }

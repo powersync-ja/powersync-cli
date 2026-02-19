@@ -63,7 +63,7 @@ function decryptTokenFromDashboard(base64Payload: string, privateKeyPem: string)
  * CLI instance can decrypt the token; the value that might appear in a URL or
  * in transit is ciphertext, not the secret.
  */
-export async function startPATLoginServer(): Promise<{
+export async function startPATLoginServer(signal: AbortSignal): Promise<{
   address: string;
   tokenPromise: Promise<string>;
 }> {
@@ -80,6 +80,14 @@ export async function startPATLoginServer(): Promise<{
   const tokenPromise = new Promise<string>((resolve, reject) => {
     resolveToken = resolve;
     rejectToken = reject;
+  });
+
+  signal.addEventListener('abort', () => {
+    if (!settled) {
+      settled = true;
+      rejectToken(new Error('Login aborted'));
+    }
+    app.close().catch(() => {});
   });
 
   const app = Fastify({ logger: false });

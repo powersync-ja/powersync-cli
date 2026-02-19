@@ -5,9 +5,8 @@ import { CloudInstanceCommand } from '@powersync/cli-core';
 import { fetchCloudConfig } from '../../api/cloud/fetch-cloud-config.js';
 
 export default class FetchConfig extends CloudInstanceCommand {
-  static description =
-    'Retrieve the current instance config from PowerSync Cloud and print as YAML or JSON. Cloud only.';
-  static summary = 'Print linked Cloud instance config (YAML or JSON).';
+  static summary = '[Cloud only] Print linked Cloud instance config (YAML or JSON).';
+  static description = 'Retrieve the current instance config from PowerSync Cloud and print as YAML or JSON.';
 
   static flags = {
     output: Flags.string({
@@ -23,7 +22,7 @@ export default class FetchConfig extends CloudInstanceCommand {
 
     const { linked } = await this.loadProject(flags);
 
-    const client = await this.getClient();
+    const { client } = this;
 
     const fetched = await fetchCloudConfig(client, linked).catch((error) => {
       this.styledError({

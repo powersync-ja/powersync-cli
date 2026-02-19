@@ -14,8 +14,8 @@ import { fetchSelfHostedSyncRulesContent } from '../../api/self-hosted/fetch-sel
 
 export default class GenerateSchema extends SharedInstanceCommand {
   static description =
-    'Generate a client-side schema file from the instance database schema and sync rules. Supports multiple output types (e.g. type, dart). Requires a linked instance. Cloud and self-hosted.';
-  static summary = 'Generate client schema file from instance schema and sync rules.';
+    'Generate a client-side schema file from the instance database schema and sync config. Supports multiple output types (e.g. type, dart). Requires a linked instance. Cloud and self-hosted.';
+  static summary = 'Generate client schema file from instance schema and sync config.';
 
   static flags = {
     output: Flags.string({

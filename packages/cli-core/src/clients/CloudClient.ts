@@ -8,7 +8,7 @@ import { env } from '../utils/env.js';
  * Creates a PowerSync Management Client for the Cloud.
  * Uses the token stored by the login command (secure storage, e.g. macOS Keychain).
  */
-export async function createCloudClient(): Promise<PowerSyncManagementClient> {
+export function createCloudClient(): PowerSyncManagementClient {
   return new PowerSyncManagementClient({
     /**
      * Use the web network client rather than the node client. The node client

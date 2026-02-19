@@ -7,11 +7,11 @@
 config:
   edition: 2
 
-# Define sync rules to control which data is synced to each user
+# Define sync config to control which data is synced to each user
 # Docs: https://docs.powersync.com/usage/sync-rules
 bucket_definitions:
   global:
-    #     Sync rules without parameter queries will sync to all users
+    #     Sync config without parameter queries will sync to all users
     data:
       #       Sync all rows
       - SELECT * FROM mytable

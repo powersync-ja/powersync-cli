@@ -32,9 +32,8 @@ type OrganizationMap = {
 };
 
 export default class FetchInstances extends Command {
-  static description =
-    'List PowerSync Cloud instances. Use with a linked directory or optionally pass --org-id and --project-id to filter (omit to list all orgs and projects). Cloud only.';
-  static summary = 'List Cloud instances in the current org/project.';
+  static summary = '[Cloud only] List Cloud instances in the current org/project.';
+  static description = 'List PowerSync Cloud instances, grouped by organization and project.';
 
   static flags = {
     'org-id': Flags.string({

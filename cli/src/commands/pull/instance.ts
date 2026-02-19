@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import { ux } from '@oclif/core';
 import {
   CLI_FILENAME,
   CloudInstanceCommand,
@@ -70,7 +71,7 @@ export default class PullInstance extends CloudInstanceCommand {
     }
 
     const { linked } = await this.loadProject(flags);
-    const client = await this.getClient();
+    const { client } = this;
 
     this.log(
       `Fetching config for instance ${ux.colorize('blue', linked.instance_id)} in project ${ux.colorize('blue', linked.project_id)} in org ${ux.colorize('blue', linked.org_id)}...`
@@ -92,7 +93,7 @@ export default class PullInstance extends CloudInstanceCommand {
     }
     if (syncExists && fetched.syncRules) {
       this.warn(
-        `${ux.colorize('blue', SYNC_FILENAME)} already exists. Writing to ${ux.colorize('blue', 'sync-fetched.yaml')} instead. Manually merge the sync rules into ${ux.colorize('blue', SYNC_FILENAME)} as needed.`
+        `${ux.colorize('blue', SYNC_FILENAME)} already exists. Writing to ${ux.colorize('blue', 'sync-fetched.yaml')} instead. Manually merge the sync config into ${ux.colorize('blue', SYNC_FILENAME)} as needed.`
       );
     }
     const serviceYaml = PULL_CONFIG_HEADER + stringify(ServiceCloudConfig.encode(fetched.config));
@@ -107,7 +108,7 @@ export default class PullInstance extends CloudInstanceCommand {
       const syncOutputName = syncExists ? SYNC_FETCHED_FILENAME : SYNC_FILENAME;
       const syncOutputPath = join(projectDir, syncOutputName);
       writeFileSync(syncOutputPath, fetched.syncRules, 'utf8');
-      this.log(`Wrote ${ux.colorize('blue', syncOutputName)} with sync rules from the cloud.`);
+      this.log(`Wrote ${ux.colorize('blue', syncOutputName)} with sync config from the cloud.`);
     }
   }
 }

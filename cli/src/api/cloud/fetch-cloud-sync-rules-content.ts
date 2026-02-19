@@ -3,9 +3,9 @@ import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
 /**
- * Fetches the sync rules content for a cloud project.
- * @param project - The project to fetch the sync rules content for.
- * @returns The sync rules content.
+ * Fetches the sync config content for a cloud project.
+ * @param project - The project to fetch the sync config content for.
+ * @returns The sync config content.
  */
 export async function fetchCloudSyncRulesContent(project: CloudProject): Promise<string> {
   const { linked } = project;
@@ -24,7 +24,7 @@ export async function fetchCloudSyncRulesContent(project: CloudProject): Promise
   });
 
   if (!instanceConfig.sync_rules) {
-    throw new Error('No sync rules found');
+    throw new Error('No sync config found');
   }
 
   return instanceConfig.sync_rules;

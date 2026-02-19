@@ -1,4 +1,4 @@
-# Define sync rules to control which data is synced to each user
+# Define sync config to control which data is synced to each user
 bucket_definitions:
   global:
     data:

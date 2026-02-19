@@ -48,11 +48,11 @@ To stop using stored credentials, run **`powersync logout`**.
 
 ## Creating a new instance
 
-Run **`powersync init cloud`** to scaffold the config directory. Configure **`service.yaml`** (name, region, replication, optional client auth) and sync rules; use **`!env`** for all secrets. Then run **`powersync link cloud --create`** with `--project-id` to create the instance and write **`cli.yaml`**. (Add `--org-id` only if your token has access to multiple organizations.) After that you can run **`powersync deploy`** and manage config from the project (or switch to managing it externally if you prefer).
+Run **`powersync init cloud`** to scaffold the config directory. Configure **`service.yaml`** (name, region, replication, optional client auth) and sync config; use **`!env`** for all secrets. Then run **`powersync link cloud --create`** with `--project-id` to create the instance and write **`cli.yaml`**. (Add `--org-id` only if your token has access to multiple organizations.) After that you can run **`powersync deploy`** and manage config from the project (or switch to managing it externally if you prefer).
 
 ```sh
 powersync init cloud
-  # then edit powersync/service.yaml and sync rules
+  # then edit powersync/service.yaml and sync config
 powersync login
 powersync link cloud --create --project-id=<project-id>   # add --org-id if token has multiple orgs
 powersync deploy
@@ -203,7 +203,7 @@ USAGE
 
 ## `powersync deploy`
 
-Push local config to the linked Cloud instance (connections + sync rules).
+Push local config to the linked Cloud instance (connections + sync config).
 
 ```
 USAGE
@@ -219,9 +219,9 @@ CLOUD_PROJECT FLAGS
   --project-id=<value>   Project ID. Manually passed if the current context has not been linked.
 
 DESCRIPTION
-  Push local config to the linked Cloud instance (connections + sync rules).
+  Push local config to the linked Cloud instance (connections + sync config).
 
-  Push local config (service.yaml, sync rules) to the linked PowerSync Cloud instance. Tests connections and sync rules
+  Push local config (service.yaml, sync config) to the linked PowerSync Cloud instance. Tests connections and sync config
   first; requires a linked project. Cloud only.
 ```
 
@@ -456,7 +456,7 @@ _See code: [src/commands/fetch/instances.ts](https://github.com/powersync-ja/pow
 
 ## `powersync fetch status`
 
-Show instance diagnostics (connections, sync rules, replication).
+Show instance diagnostics (connections, sync config, replication).
 
 ```
 USAGE
@@ -482,9 +482,9 @@ CLOUD_PROJECT FLAGS
   --project-id=<value>   [Cloud] Project ID. Resolved: flag → PROJECT_ID → cli.yaml.
 
 DESCRIPTION
-  Show instance diagnostics (connections, sync rules, replication).
+  Show instance diagnostics (connections, sync config, replication).
 
-  Fetch instance diagnostics: connection status, active and deploying sync rules, replication state. Output as
+  Fetch instance diagnostics: connection status, active and deploying sync config, replication state. Output as
   human-readable, JSON, or YAML. Cloud and self-hosted.
 ```
 
@@ -501,7 +501,7 @@ USAGE
 DESCRIPTION
   Generate client schema or development token.
 
-  Generate client artifacts: schema (from instance schema + sync rules) or a development token for connecting clients.
+  Generate client artifacts: schema (from instance schema + sync config) or a development token for connecting clients.
   Cloud and self-hosted where supported.
 ```
 
@@ -509,7 +509,7 @@ _See code: [src/commands/generate/index.ts](https://github.com/powersync-ja/powe
 
 ## `powersync generate schema`
 
-Generate client schema file from instance schema and sync rules.
+Generate client schema file from instance schema and sync config.
 
 ```
 USAGE
@@ -537,9 +537,9 @@ CLOUD_PROJECT FLAGS
   --project-id=<value>   [Cloud] Project ID. Resolved: flag → PROJECT_ID → cli.yaml.
 
 DESCRIPTION
-  Generate client schema file from instance schema and sync rules.
+  Generate client schema file from instance schema and sync config.
 
-  Generate a client-side schema file from the instance database schema and sync rules. Supports multiple output types
+  Generate a client-side schema file from the instance database schema and sync config. Supports multiple output types
   (e.g. type, dart). Requires a linked instance. Cloud and self-hosted.
 ```
 
@@ -1116,7 +1116,7 @@ _See code: [src/commands/pull/index.ts](https://github.com/powersync-ja/powersyn
 
 ## `powersync pull config`
 
-Download Cloud config and sync rules into local service.yaml and sync.yaml.
+Download Cloud config and sync config into local service.yaml and sync.yaml.
 
 ```
 USAGE
@@ -1132,9 +1132,9 @@ CLOUD_PROJECT FLAGS
   --project-id=<value>   Project ID. Manually passed if the current context has not been linked.
 
 DESCRIPTION
-  Download Cloud config and sync rules into local service.yaml and sync.yaml.
+  Download Cloud config and sync config into local service.yaml and sync.yaml.
 
-  Fetch instance config and sync rules from PowerSync Cloud and write to service.yaml and sync.yaml in the config
+  Fetch instance config and sync config from PowerSync Cloud and write to service.yaml and sync.yaml in the config
   directory. Writes cli.yaml if you pass --instance-id, --org-id, --project-id. Cloud only.
 ```
 
@@ -1200,7 +1200,7 @@ _See code: [src/commands/stop.ts](https://github.com/powersync-ja/powersync-js/b
 
 ## `powersync validate`
 
-Validate config schema, connections, and sync rules before deploy.
+Validate config schema, connections, and sync config before deploy.
 
 ```
 USAGE
@@ -1226,9 +1226,9 @@ CLOUD_PROJECT FLAGS
   --project-id=<value>   [Cloud] Project ID. Resolved: flag → PROJECT_ID → cli.yaml.
 
 DESCRIPTION
-  Validate config schema, connections, and sync rules before deploy.
+  Validate config schema, connections, and sync config before deploy.
 
-  Run validation checks on local config: config schema, database connections, and sync rules. Requires a linked
+  Run validation checks on local config: config schema, database connections, and sync config. Requires a linked
   instance. Works with Cloud and self-hosted.
 ```
 

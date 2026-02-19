@@ -55,8 +55,8 @@ export default class Login extends PowerSyncCommand {
     });
 
     // Allows aborting the prompt if the server returns the token
-    const abortPromptController = new AbortController();
-    const serverResponse = openBrowser ? await startPATLoginServer() : null;
+    const abortController = new AbortController();
+    const serverResponse = openBrowser ? await startPATLoginServer(abortController.signal) : null;
     if (serverResponse) {
       this.log(
         `Waiting on ${ux.colorize('blue', serverResponse.address)} for you to create a token in the dashboard...`
@@ -65,7 +65,7 @@ export default class Login extends PowerSyncCommand {
     const serverTokenPromise = serverResponse
       ? serverResponse.tokenPromise.then((token) => {
           // Abort the prompt if the server returns the token
-          abortPromptController.abort();
+          abortController.abort();
           return token.trim();
         })
       : null;
@@ -77,8 +77,11 @@ export default class Login extends PowerSyncCommand {
           : 'Enter your API token (https://docs.powersync.com/usage/tools/cli#personal-access-token):',
         mask: true
       },
-      { signal: abortPromptController.signal }
-    );
+      { signal: abortController.signal }
+    ).then((token) => {
+      abortController.abort();
+      return token.trim();
+    });
 
     const token = await Promise.race([serverTokenPromise, promptTokenPromise]);
 

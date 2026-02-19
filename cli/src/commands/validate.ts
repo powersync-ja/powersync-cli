@@ -50,7 +50,7 @@ const BULLET = '•';
 enum Tests {
   CONFIGURATION_SCHEMA = 'Validate Configuration Schema',
   TEST_CONNECTIONS = 'Test Connections',
-  SYNC_RULES = 'Validate Sync Rules'
+  SYNC_RULES = 'Validate Sync Config'
 }
 
 function formatOraMessage(entries: ValidationTestEntry[]): string {
@@ -161,8 +161,8 @@ async function runSyncRulesTestSelfHosted(project: SelfHostedProject): Promise<V
 
 export default class Validate extends SharedInstanceCommand {
   static description =
-    'Run validation checks on local config: config schema, database connections, and sync rules. Requires a linked instance. Works with Cloud and self-hosted.';
-  static summary = 'Validate config schema, connections, and sync rules before deploy.';
+    'Run validation checks on local config: config schema, database connections, and sync config. Requires a linked instance. Works with Cloud and self-hosted.';
+  static summary = 'Validate config schema, connections, and sync config before deploy.';
 
   static flags = {
     output: Flags.string({

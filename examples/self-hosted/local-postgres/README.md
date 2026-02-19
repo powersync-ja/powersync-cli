@@ -18,7 +18,7 @@ local-postgres/
 │   │           └── postgres.storage.compose.yaml
 │   ├── cli.yaml        # Instance link (api_url, api_key)
 │   ├── service.yaml     # Service config (connections, auth)
-│   └── sync.yaml        # Sync rules
+│   └── sync.yaml        # Sync config
 └── README.md
 ```
 
@@ -47,7 +47,7 @@ Create files in `powersync/docker/modules/database-postgres/init-scripts/`:
 
 > **Note:** Init scripts run only when the Postgres data directory is empty. If you see "Publication 'powersync' does not exist", remove the database volume and redeploy: `powersync docker stop --remove --remove-volumes` then `powersync docker reset`.
 
-### 4. Update sync rules
+### 4. Update sync config
 
 Ensure `powersync/sync.yaml` includes rules for your tables (e.g. `SELECT * FROM todos` in a bucket).
 

@@ -13,7 +13,7 @@ The workspace is split into the main CLI, shared **packages**, and optional **pl
 
 | Package                                              | Path                 | Description                                                                        |
 | ---------------------------------------------------- | -------------------- | ---------------------------------------------------------------------------------- |
-| [**@powersync/cli**](./cli)                          | `cli/`               | Main CLI — manage instances, config, sync rules, cloud and self-hosted             |
+| [**@powersync/cli**](./cli)                          | `cli/`               | Main CLI — manage instances, config, sync config, cloud and self-hosted             |
 | [**@powersync/cli-core**](./packages/cli-core)       | `packages/cli-core/` | Core types and base commands shared by the CLI and plugins                         |
 | [**@powersync/cli-schemas**](./packages/schemas)     | `packages/schemas/`  | Shared config schemas (cli.yaml, service.yaml, etc.)                              |
 | [**@powersync/cli-plugin-docker**](./plugins/docker) | `plugins/docker/`    | Docker plugin — self-hosted PowerSync with Compose (configure, reset, start, stop) |

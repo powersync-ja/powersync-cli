@@ -23,7 +23,7 @@ export default class Destroy extends CloudInstanceCommand {
     }
 
     const { linked } = await this.loadProject(flags);
-    const client = await this.getClient();
+    const { client } = this;
 
     this.log(
       `${ux.colorize('red', 'Destroying')} instance ${ux.colorize('blue', linked.instance_id)} in project ${ux.colorize('blue', linked.project_id)} in org ${ux.colorize('blue', linked.org_id)}`

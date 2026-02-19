@@ -1,12 +1,12 @@
 import { Flags, ux } from '@oclif/core';
 
 import {
+  CLI_FILENAME,
   CloudInstanceCommand,
   ensureServiceTypeMatches,
   env,
   getDefaultOrgId,
   InstanceCommand,
-  CLI_FILENAME,
   ServiceType
 } from '@powersync/cli-core';
 import { createCloudInstance } from '../../api/cloud/create-cloud-instance.js';
@@ -57,7 +57,8 @@ export default class LinkCloud extends CloudInstanceCommand {
         });
       }
       const config = this.parseConfig(projectDirectory);
-      const client = await this.getClient();
+      const { client } = this;
+
       let newInstanceId: string;
       try {
         const result = await createCloudInstance(client, {
