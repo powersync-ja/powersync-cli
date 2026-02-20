@@ -9,7 +9,7 @@ This document describes how we document commands and help text in the PowerSync 
 - **`static examples`** — Array of example invocations. Always include at least:
   - `'<%= config.bin %> <%= command.id %>'` (base form).
   - Additional entries for common flag combinations (e.g. `--confirm=yes`, `--output=json`, `--instance-id=<id> --project-id=<id>`).
-  Use the oclif template so the bin name stays correct when the CLI is installed under a different name.
+    Use the oclif template so the bin name stays correct when the CLI is installed under a different name.
 
 ## Flag descriptions
 

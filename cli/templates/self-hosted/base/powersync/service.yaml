@@ -15,7 +15,7 @@ telemetry:
 #   prometheus_port: 9090
 
 # -----------------------------------------------------------------------------
-# [optional] REPLICATION – configuration for data replication; array of data source connections
+# [required] REPLICATION – configuration for data replication; array of data source connections
 # Connection: `uri` and `password` are required for a complete connection. Alternatively omit `uri`
 # and provide individual fields (hostname, port, database, username, password, etc.); they are used
 # to construct the connection URI. For MongoDB, `uri` is required.

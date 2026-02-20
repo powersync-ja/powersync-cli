@@ -3,10 +3,7 @@ import { CloudInstanceCommand } from '@powersync/cli-core';
 
 export default class Destroy extends CloudInstanceCommand {
   static description = 'Permanently delete the linked PowerSync Cloud instance and its data. Requires --confirm=yes.';
-  static examples = [
-    '<%= config.bin %> <%= command.id %>',
-    '<%= config.bin %> <%= command.id %> --confirm=yes'
-  ];
+  static examples = ['<%= config.bin %> <%= command.id %>', '<%= config.bin %> <%= command.id %> --confirm=yes'];
   static flags = {
     confirm: Flags.string({
       description: 'Set to "yes" to confirm destruction of the instance.',
@@ -14,7 +11,7 @@ export default class Destroy extends CloudInstanceCommand {
     }),
     ...CloudInstanceCommand.flags
   };
-static summary = '[Cloud only] Permanently destroy the linked Cloud instance.';
+  static summary = '[Cloud only] Permanently destroy the linked Cloud instance.';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(Destroy);

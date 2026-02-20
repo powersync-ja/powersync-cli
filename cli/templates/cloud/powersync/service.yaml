@@ -13,7 +13,7 @@ name: My instance
 # Note: This cannot be changed after the initial deployment
 region: us
 
-# [optional] replication: database connections for sync
+# [required] replication: database connections for sync
 # Note: only a single connection is currently supported.
 # Connection: `uri` and `password` are required for a complete connection. Alternatively omit `uri`
 # and provide individual fields (hostname, port, database, username, password, etc.); they are used
