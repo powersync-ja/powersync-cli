@@ -4,11 +4,11 @@ The PowerSync CLI operates against **PowerSync instances**. How you point the CL
 
 ## Local configuration
 
-It is possible to manage and deploy updates to instances entirely from the CLI. Local files are used to store the configuration state in a folder relative to your current working directory. By default this folder is `powersync/`. It holds schema, sync rules, and other YAML config. You can use a different folder via the `--directory` flag when supported.
+It is possible to manage and deploy updates to instances entirely from the CLI. Local files are used to store the configuration state in a folder relative to your current working directory. By default this folder is `powersync/`. It holds schema, service config, sync config, and other YAML config. You can use a different folder via the `--directory` flag when required.
 
-## Linking to a project
+## Linking to an existing instance
 
-You can **explicitly link** your local config to a cloud or self-hosted project. Running `powersync link [cloud|self-hosted]` creates a persisted **link file** (e.g. `powersync/cli.yaml`) that stores the instance information. Once linked, cloud commands in that directory use this context so you don’t need to pass IDs every time. This is the usual workflow when you develop against a single instance and keep config on disk.
+You can **explicitly link** your local config to a cloud or self-hosted project. Running `powersync link [cloud|self-hosted]` creates a persisted **link file** (e.g. `powersync/cli.yaml`) that stores the instance information. Once linked, cloud commands in that directory use this context so you don’t need to pass IDs every time.
 
 ## Supplying instance information without local config
 
@@ -76,16 +76,16 @@ The sections below split usage by **Cloud** and **Self-hosted**, then provide re
 
 # Cloud usage
 
-Authentication is usually the first step. Use `powersync login` to store a token in secure storage (e.g. macOS Keychain), or set the `TOKEN` environment variable if you prefer not to persist the token. See [Authentication (Tokens)](#authentication-tokens) for details.
+Authentication is usually the first step. Use `powersync login` to store a token, or set the `TOKEN` environment variable. Storage behavior depends on platform capabilities and your login choice; see [Authentication (Tokens)](#authentication-tokens) for details.
 
 ## Creating a new Cloud instance
 
-Run **`powersync init cloud`** to scaffold a Cloud config directory (default `powersync/`). Configure **`service.yaml`** (name, region, replication connection, optional client auth) and sync rules. Then run **`powersync link cloud --create`** with `--project-id` to create a new instance and set the linked instance for future commands. (Add `--org-id` only if your token has access to multiple organizations.) You can then run **`powersync deploy`** and other commands on the new instance and manage config using the local config files. You do not need to keep managing these config files—you can manage config externally (e.g. via the PowerSync Dashboard) if you prefer.
+Run **`powersync init cloud`** to scaffold a Cloud config directory (default `powersync/`). Configure **`service.yaml`** (name, region, replication connection, optional client auth) and sync config. Then run **`powersync link cloud --create`** with `--project-id` to create a new instance and set the linked instance for future commands. (Add `--org-id` only if your token has access to multiple organizations.) You can then run **`powersync deploy`** and other commands on the new instance and manage config using the local config files. You do not need to keep managing these config files—you can manage config externally (e.g. via the PowerSync Dashboard) if you prefer.
 
 ```bash
 powersync login
 powersync init cloud
-# Edit powersync/service.yaml (name, region, connections, etc.) and sync rules
+# Edit powersync/service.yaml (name, region, connections, etc.) and sync config
 powersync link cloud --create --project-id=<project-id>
 # If your token has multiple orgs: add --org-id=<org-id>
 powersync validate
@@ -120,6 +120,7 @@ You can run commands against an instance whose configuration is managed elsewher
 
 ```bash
 powersync login
+powersync fetch instances # to see available instances and their IDs
 powersync link cloud --instance-id=<id> --project-id=<project-id>
 # If your token has multiple orgs: add --org-id=<id>
 ```
@@ -137,7 +138,7 @@ You can also supply `--instance-id` and `--project-id` (and `--org-id` only when
 
 # Self-hosted usage
 
-Use `powersync init self-hosted` to create a basic template for self-hosted configuration. The template is copied into your project directory (default `powersync/`). You need to **uncomment and specify your own config** (e.g. database connection, sync rules) in the generated YAML files.
+Use `powersync init self-hosted` to create a basic template for self-hosted configuration. The template is copied into your project directory (default `powersync/`). You need to **uncomment and specify your own config** (e.g. database connection, sync config) in the generated YAML files.
 
 For deploying the service (e.g. to Docker or another hosting platform), see the [PowerSync self-hosting docs](https://docs.powersync.com/intro/self-hosting#self-hosting) and the [self-host-demo](https://github.com/powersync-ja/self-host-demo) repository for examples and patterns. We plan to support more of these actions from the CLI in the future.
 
@@ -157,10 +158,13 @@ Use `--api-url` with link file or `API_URL` and `TOKEN` when you prefer not to l
 
 # Authentication (Tokens)
 
-Cloud commands need an auth token (e.g. a PowerSync PAT). You can supply it in two ways; the CLI uses the first that is available:
+Cloud commands need an auth token (e.g. a PowerSync PAT). The CLI uses the first available source:
 
 1. **Environment variable** — `TOKEN`
-2. **Stored via login** — token saved by `powersync login` (secure storage, e.g. macOS Keychain)
+2. **Stored via login**
+
+- **Secure storage** when available (for example, macOS Keychain)
+- **Config-file fallback** when secure storage is unavailable **and** you explicitly confirm at login
 
 **Environment variable** — useful for CI, scripts, or one-off runs:
 
@@ -175,7 +179,7 @@ Inline:
 TOKEN=your-token-here powersync fetch config --output=json
 ```
 
-**Stored via login** — convenient for local use; token is stored securely and reused:
+**Stored via login** — convenient for local use; token is reused by later commands:
 
 ```bash
 powersync login
@@ -184,7 +188,17 @@ powersync login
 powersync fetch config
 ```
 
-Login is supported on macOS (other platforms coming soon). If you use another platform or prefer not to store the token, set `TOKEN` in the environment instead.
+If secure storage is not available, `powersync login` asks whether to store the token in plaintext at:
+
+```bash
+$XDG_CONFIG_HOME/powersync/config.yaml
+# or, when XDG_CONFIG_HOME is not set:
+~/.config/powersync/config.yaml
+```
+
+If you decline this prompt, login exits without storing a token. Use `TOKEN` in that case.
+
+`powersync logout` removes the stored token from whichever backend is active (secure storage or config-file fallback).
 
 # Supplying Linking Information for Cloud and Self-Hosted Commands
 

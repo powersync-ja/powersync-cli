@@ -9,6 +9,6 @@ export const CLI_FILENAME = 'cli.yaml';
 export const SERVICE_FILENAME = 'service.yaml';
 
 /**
- * The filename used to store the sync rules.
+ * The filename used to store the sync config.
  */
 export const SYNC_FILENAME = 'sync.yaml';

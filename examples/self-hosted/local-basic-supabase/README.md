@@ -12,7 +12,7 @@ local-basic-supabase/
 │   │   └── .env         # (created at runtime; DB credentials)
 │   ├── cli.yaml        # Instance link (api_url, api_key)
 │   ├── service.yaml     # Service config (connections, auth)
-│   └── sync.yaml        # Sync rules
+│   └── sync.yaml        # Sync config
 ├── supabase/            # Local Supabase config
 │   ├── config.toml
 │   └── migrations/
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS todos (
 CREATE PUBLICATION powersync FOR ALL TABLES;
 ```
 
-### 6. Update sync rules
+### 6. Update sync config
 
 Ensure `powersync/sync.yaml` includes rules for the `todos` table (e.g. `SELECT * FROM todos` in a bucket).
 

@@ -2,13 +2,20 @@ import { readFileSync } from 'node:fs';
 import * as yaml from 'yaml';
 
 export const YAML_SYNC_RULES_SCHEMA = /* yaml */ `
+# Adds YAML Schema support for VSCode users with the YAML extension installed. This enables features like validation and autocompletion based on the provided schema.
 # yaml-language-server: $schema=https://unpkg.com/@powersync/service-sync-rules@latest/schema/sync_rules.json
-#
 `.trim();
 
 export const YAML_SERVICE_SCHEMA = /* yaml */ `
-# yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/service-config.json
-#
+# Adds YAML Schema support for VSCode users with the YAML extension installed. This enables features like validation and autocompletion based on the provided schema.
+# yaml-language-server: $schema=https://gist.githubusercontent.com/stevensJourney/27f5c71855f23f09cf92c5c6b1142905/raw
+# ## TODO enable after publishing to NPM. yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/service-config.json
+`.trim();
+
+export const YAML_CLI_SCHEMA = /* yaml */ `
+# Adds YAML Schema support for VSCode users with the YAML extension installed. This enables features like validation and autocompletion based on the provided schema.
+# yaml-language-server: $schema=https://gist.githubusercontent.com/stevensJourney/c6ec080cebfa0d54864e42bbeab1b011/raw
+# ## TODO enable after publishing to NPM. yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/cli-config.json
 `.trim();
 
 /**

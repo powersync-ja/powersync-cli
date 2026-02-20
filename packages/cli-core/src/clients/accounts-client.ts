@@ -65,7 +65,7 @@ export async function createAccountsHubClient(): Promise<AccountsHubClientSDKCli
   const token = env.TOKEN || (await authentication.getToken());
   if (!token) {
     throw new Error(
-      `Not logged in. Run ${ux.colorize('blue', 'powersync login')} to authenticate (you will be prompted for your token). Login is supported on macOS (other platforms coming soon), or provide the ${ux.colorize('blue', 'TOKEN')} environment variable.`
+      `Not logged in. Run ${ux.colorize('blue', 'powersync login')} to authenticate (you will be prompted for your token), or provide the ${ux.colorize('blue', 'TOKEN')} environment variable.`
     );
   }
   return new AccountsHubClientSDKClient({

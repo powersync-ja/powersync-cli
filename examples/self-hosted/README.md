@@ -2,7 +2,7 @@
 
 ## Overview
 
-Each example is structured like a repository root with a `powersync/` folder that holds all PowerSync service configuration (connections, sync rules, Docker Compose).
+Each example is structured like a repository root with a `powersync/` folder that holds all PowerSync service configuration (connections, sync config, Docker Compose).
 
 ```
 example-name/
@@ -10,7 +10,7 @@ example-name/
 │   ├── docker/          # Docker Compose for PowerSync
 │   ├── cli.yaml        # Instance link (api_url, api_key)
 │   ├── service.yaml     # Service config (connections, auth)
-│   └── sync.yaml        # Sync rules
+│   └── sync.yaml        # Sync config
 └── ...
 ```
 

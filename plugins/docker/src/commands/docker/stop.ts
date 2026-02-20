@@ -6,6 +6,10 @@ export default class DockerStop extends SelfHostedInstanceCommand {
   static summary = 'Stop a PowerSync Docker Compose project by name.';
   static description =
     'Run `docker compose -p <project-name> stop` (containers are not removed by default). Does not require the project directory or a compose file, so you can run it from anywhere (e.g. after a reset conflict). Use --project-name or run from a project with cli.yaml to choose which project to stop. Use --remove to also remove the containers. Use --remove-volumes to also remove volumes (e.g. to re-run DB init scripts on next reset).';
+  static examples = [
+    '<%= config.bin %> <%= command.id %>',
+    '<%= config.bin %> <%= command.id %> --project-name=powersync_myapp --remove'
+  ];
 
   static flags = {
     ...SelfHostedInstanceCommand.flags,

@@ -4,12 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  '@powersync-community/sync-config-rewriter': file://Users/stevenontong/Documents/platform_code/powersync/bucket-definitions-to-sync-streams/js-package/powersync-community-sync-config-rewriter-0.1.0.tgz
-  '@powersync/service-schema': file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-service/packages/schema/powersync-service-schema-1.19.5.tgz
-  '@powersync/management-types': file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/types/powersync-management-types-0.0.1.tgz
-  '@powersync/management-client': file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz
-
 importers:
 
   .:
@@ -42,8 +36,8 @@ importers:
         specifier: ^5
         version: 5.4.55
       '@powersync-community/sync-config-rewriter':
-        specifier: file://Users/stevenontong/Documents/platform_code/powersync/bucket-definitions-to-sync-streams/js-package/powersync-community-sync-config-rewriter-0.1.0.tgz
-        version: file:../bucket-definitions-to-sync-streams/js-package/powersync-community-sync-config-rewriter-0.1.0.tgz
+        specifier: 0.1.0
+        version: 0.1.0
       '@powersync/cli-core':
         specifier: workspace:*
         version: link:../packages/cli-core
@@ -54,11 +48,11 @@ importers:
         specifier: workspace:*
         version: link:../packages/schemas
       '@powersync/management-client':
-        specifier: file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz
-        version: file:../service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz(@types/json-schema@7.0.15)(tsx@4.21.0)(yaml@2.8.2)
+        specifier: 0.0.1
+        version: 0.0.1(@types/json-schema@7.0.15)(tsx@4.21.0)(yaml@2.8.2)
       '@powersync/management-types':
-        specifier: file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/types/powersync-management-types-0.0.1.tgz
-        version: file:../service/powersync-hosted/public-packages/types/powersync-management-types-0.0.1.tgz(tsx@4.21.0)(yaml@2.8.2)
+        specifier: 0.0.1
+        version: 0.0.1(tsx@4.21.0)(yaml@2.8.2)
       '@powersync/service-sync-rules':
         specifier: ^0.30.0
         version: 0.30.0
@@ -145,11 +139,11 @@ importers:
         specifier: workspace:*
         version: link:../schemas
       '@powersync/management-client':
-        specifier: file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz
-        version: file:../service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz(@types/json-schema@7.0.15)(tsx@4.21.0)(yaml@2.8.2)
+        specifier: 0.0.1
+        version: 0.0.1(@types/json-schema@7.0.15)(tsx@4.21.0)(yaml@2.8.2)
       '@powersync/management-types':
-        specifier: file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/types/powersync-management-types-0.0.1.tgz
-        version: file:../service/powersync-hosted/public-packages/types/powersync-management-types-0.0.1.tgz(tsx@4.21.0)(yaml@2.8.2)
+        specifier: 0.0.1
+        version: 0.0.1(tsx@4.21.0)(yaml@2.8.2)
       '@powersync/service-client':
         specifier: 0.0.2
         version: 0.0.2(@types/json-schema@7.0.15)(tsx@4.21.0)(yaml@2.8.2)
@@ -173,11 +167,11 @@ importers:
   packages/schemas:
     dependencies:
       '@powersync/management-types':
-        specifier: file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-hosted/public-packages/types/powersync-management-types-0.0.1.tgz
-        version: file:../service/powersync-hosted/public-packages/types/powersync-management-types-0.0.1.tgz(tsx@4.21.0)(yaml@2.8.2)
+        specifier: 0.0.1
+        version: 0.0.1(tsx@4.21.0)(yaml@2.8.2)
       '@powersync/service-schema':
-        specifier: file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-service/packages/schema/powersync-service-schema-1.19.5.tgz
-        version: file:../service/powersync-service/packages/schema/powersync-service-schema-1.19.5.tgz
+        specifier: ^1.19.2
+        version: 1.19.2
       '@powersync/service-types':
         specifier: ^0.13.3
         version: 0.13.3
@@ -219,8 +213,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/schemas
       '@powersync/service-schema':
-        specifier: file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-service/packages/schema/powersync-service-schema-1.19.5.tgz
-        version: file:../service/powersync-service/packages/schema/powersync-service-schema-1.19.5.tgz
+        specifier: ^1.19.2
+        version: 1.19.2
       '@powersync/service-types':
         specifier: ^0.13.3
         version: 0.13.3
@@ -1112,20 +1106,17 @@ packages:
     resolution: {integrity: sha512-h104Kh26rR8tm+a3Qkc5S4VLYint3FE48as7+/5oCEcKR2idC/pF1G6AhIXKI+eHPJa/3J9i5z0Al47IeGHPkA==}
     engines: {node: '>=12'}
 
-  '@powersync-community/sync-config-rewriter@file:../bucket-definitions-to-sync-streams/js-package/powersync-community-sync-config-rewriter-0.1.0.tgz':
-    resolution: {integrity: sha512-lcbXMVsYsTRojn1fpM//CMYJ9z2gx1V12R8ZrxszLN48Q/Mgju4gJ8j6v0UmYr/AeTyjcspTZvNlR+2qODO/XQ==, tarball: file:../bucket-definitions-to-sync-streams/js-package/powersync-community-sync-config-rewriter-0.1.0.tgz}
-    version: 0.1.0
+  '@powersync-community/sync-config-rewriter@0.1.0':
+    resolution: {integrity: sha512-lcbXMVsYsTRojn1fpM//CMYJ9z2gx1V12R8ZrxszLN48Q/Mgju4gJ8j6v0UmYr/AeTyjcspTZvNlR+2qODO/XQ==}
 
   '@powersync/lib-services-framework@0.7.14':
     resolution: {integrity: sha512-beQyt75NMkiRiZOqcLGuKnCnPzwe59hCO9GjUn8Ox70PQoXncIw/9W7A9OiECQkRnWKuzX5LVarUrMnm6GCh0A==}
 
-  '@powersync/management-client@file:../service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz':
-    resolution: {integrity: sha512-1pzl302Nb3BlcbFCnxqVzUFNsb18bh1ADoHanLv35OiAIpRtKr0DfLVh0YJzyoSeY+b6LVdHSCaOOGiGPl3L/g==, tarball: file:../service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz}
-    version: 0.0.1
+  '@powersync/management-client@0.0.1':
+    resolution: {integrity: sha512-km7tP4ZhQbUEat6E7Mey2f8kmQvu5Qrhj7Xfsdrwp0yymr+0gNGDdGd7L4Mwqy5vvwMWAqiYoaGr6DLjSTk7BA==}
 
-  '@powersync/management-types@file:../service/powersync-hosted/public-packages/types/powersync-management-types-0.0.1.tgz':
-    resolution: {integrity: sha512-kDvIpaBeRsjz7oU8abMUN4XriMVuwgtQET7vdlYHonzh7ceqID64KwM6zBdXJ2ljURQ9G1E0hdmwjzvn8cQn3g==, tarball: file:../service/powersync-hosted/public-packages/types/powersync-management-types-0.0.1.tgz}
-    version: 0.0.1
+  '@powersync/management-types@0.0.1':
+    resolution: {integrity: sha512-kDvIpaBeRsjz7oU8abMUN4XriMVuwgtQET7vdlYHonzh7ceqID64KwM6zBdXJ2ljURQ9G1E0hdmwjzvn8cQn3g==}
 
   '@powersync/service-client@0.0.2':
     resolution: {integrity: sha512-UUOGNuYFplmBS2PhrR6KQnQZejtgPnmYtgqg6qMyllRYj7Ctmfzu3ydqAQgpb8PpAQPCfOKV1Q62y1Rejknpfg==}
@@ -1145,9 +1136,8 @@ packages:
   '@powersync/service-rsocket-router@0.2.11':
     resolution: {integrity: sha512-ChnVdoXestJGLd6vfwITkMvYwmOyEnKyZmfQf1ByuyfRi3sM+FByy6QGTgcKx14GxCMEU0aanf0Q5zOPhAvp4Q==}
 
-  '@powersync/service-schema@file:../service/powersync-service/packages/schema/powersync-service-schema-1.19.5.tgz':
-    resolution: {integrity: sha512-q4jiaMFQ2cSUxg7jzbJ04FjbJYUkqxCpNwWfUfsxZ+EbB4Ws92UFjAZ7J0CfLcrTo9XuR4XwXReq5LBk7711Aw==, tarball: file:../service/powersync-service/packages/schema/powersync-service-schema-1.19.5.tgz}
-    version: 1.19.5
+  '@powersync/service-schema@1.19.2':
+    resolution: {integrity: sha512-okDBUuFkmz0eavKw0eea0E+MRvtU4tnnm/ir2avKzv1GILlvoyMFrqfZD2nflGVWD2Dg3xH68HEAQ9fWVl5pCg==}
 
   '@powersync/service-sync-rules@0.29.10':
     resolution: {integrity: sha512-z26aJVvTVeYhFuopItQEwU3snS0BfTrPRA6PWkpfgN6RAEOCzb0oj8L/D3RM4w0k6FqyxEQb7/TI11YAUv7Lrg==}
@@ -5917,7 +5907,7 @@ snapshots:
       '@pnpm/network.ca-file': 1.0.2
       config-chain: 1.1.13
 
-  '@powersync-community/sync-config-rewriter@file:../bucket-definitions-to-sync-streams/js-package/powersync-community-sync-config-rewriter-0.1.0.tgz': {}
+  '@powersync-community/sync-config-rewriter@0.1.0': {}
 
   '@powersync/lib-services-framework@0.7.14':
     dependencies:
@@ -5934,10 +5924,10 @@ snapshots:
       winston: 3.19.0
       zod: 3.25.76
 
-  '@powersync/management-client@file:../service/powersync-hosted/public-packages/client/powersync-management-client-0.0.1.tgz(@types/json-schema@7.0.15)(tsx@4.21.0)(yaml@2.8.2)':
+  '@powersync/management-client@0.0.1(@types/json-schema@7.0.15)(tsx@4.21.0)(yaml@2.8.2)':
     dependencies:
       '@journeyapps-labs/common-sdk': 1.0.2(@types/json-schema@7.0.15)(tsx@4.21.0)(yaml@2.8.2)
-      '@powersync/management-types': file:../service/powersync-hosted/public-packages/types/powersync-management-types-0.0.1.tgz(tsx@4.21.0)(yaml@2.8.2)
+      '@powersync/management-types': 0.0.1(tsx@4.21.0)(yaml@2.8.2)
     transitivePeerDependencies:
       - '@edge-runtime/vm'
       - '@types/debug'
@@ -5962,7 +5952,7 @@ snapshots:
       - utf-8-validate
       - yaml
 
-  '@powersync/management-types@file:../service/powersync-hosted/public-packages/types/powersync-management-types-0.0.1.tgz(tsx@4.21.0)(yaml@2.8.2)':
+  '@powersync/management-types@0.0.1(tsx@4.21.0)(yaml@2.8.2)':
     dependencies:
       '@journeyapps-labs/micro-codecs': 1.0.1(tsx@4.21.0)(yaml@2.8.2)
       '@powersync/service-module-mssql': 0.1.2
@@ -6089,7 +6079,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@powersync/service-schema@file:../service/powersync-service/packages/schema/powersync-service-schema-1.19.5.tgz': {}
+  '@powersync/service-schema@1.19.2': {}
 
   '@powersync/service-sync-rules@0.29.10':
     dependencies:

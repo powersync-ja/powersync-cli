@@ -8,7 +8,7 @@ import { env } from '../utils/env.js';
  * Creates a PowerSync Management Client for the Cloud.
  * Uses the token stored by the login command (secure storage, e.g. macOS Keychain).
  */
-export async function createCloudClient(): Promise<PowerSyncManagementClient> {
+export function createCloudClient(): PowerSyncManagementClient {
   return new PowerSyncManagementClient({
     /**
      * Use the web network client rather than the node client. The node client
@@ -24,7 +24,7 @@ export async function createCloudClient(): Promise<PowerSyncManagementClient> {
         const token = env.TOKEN || (await Services.authentication.getToken());
         if (!token) {
           throw new Error(
-            `Not logged in. Run ${ux.colorize('blue', 'powersync login')} to authenticate (you will be prompted for your token). Login is supported on macOS (other platforms coming soon), or provide the ${ux.colorize('blue', 'TOKEN')} environment variable.`
+            `Not logged in. Run ${ux.colorize('blue', 'powersync login')} to authenticate (you will be prompted for your token), or provide the ${ux.colorize('blue', 'TOKEN')} environment variable.`
           );
         }
         return {

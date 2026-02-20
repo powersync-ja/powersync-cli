@@ -1,5 +1,6 @@
 import { Config } from '@oclif/core';
 import { captureOutput } from '@oclif/test';
+import { PowerSyncManagementClient } from '@powersync/management-client';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -19,14 +20,6 @@ const mockCloudClient = {
   getInstanceConfig: vi.fn()
 };
 
-vi.mock('@powersync/cli-core', async (importOriginal) => {
-  const orig = (await importOriginal()) as Record<string, unknown>;
-  return {
-    ...orig,
-    createCloudClient: () => mockCloudClient
-  };
-});
-
 function writeServiceYaml(projectDir: string, type: 'cloud' | 'self-hosted') {
   writeFileSync(join(projectDir, SERVICE_FILENAME), `_type: ${type}\nregion: us\n`, 'utf8');
 }
@@ -40,13 +33,19 @@ describe('pull instance', () => {
     oclifConfig = await Config.load({ root });
   });
 
-  function runPullInstanceDirect(opts?: { directory?: string; instanceId?: string; orgId?: string; projectId?: string }) {
+  function runPullInstanceDirect(opts?: {
+    directory?: string;
+    instanceId?: string;
+    orgId?: string;
+    projectId?: string;
+  }) {
     const directory = opts?.directory ?? PROJECT_DIR;
     const args = ['--directory', directory];
     if (opts?.instanceId) args.push('--instance-id', opts.instanceId);
     if (opts?.orgId) args.push('--org-id', opts.orgId);
     if (opts?.projectId) args.push('--project-id', opts.projectId);
     const cmd = new PullInstanceCommand(args, oclifConfig);
+    cmd.client = mockCloudClient as unknown as PowerSyncManagementClient;
     return captureOutput(() => cmd.run());
   }
 

@@ -1,34 +1,33 @@
 import { Config } from '@oclif/core';
 import { captureOutput, runCommand } from '@oclif/test';
+import { CLI_FILENAME, SERVICE_FILENAME } from '@powersync/cli-core';
+import { PowerSyncManagementClient } from '@powersync/management-client';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { root } from '../helpers/root.js';
 
-import * as CloudClient from '../../src/clients/CloudClient.js';
-import DeployCommand from '../../src/commands/deploy.js';
+import DeployCommand from '../../src/commands/deploy/index.js';
+import { root } from '../helpers/root.js';
 
 const mockGetInstanceConfig = vi.fn();
 const mockDeployInstance = vi.fn();
 const mockGetInstanceStatus = vi.fn();
-vi.spyOn(CloudClient, 'createCloudClient').mockReturnValue({
-  deployInstance: mockDeployInstance,
-  getInstanceConfig: mockGetInstanceConfig,
-  getInstanceStatus: mockGetInstanceStatus
-} as unknown as ReturnType<typeof CloudClient.createCloudClient>);
 
 /** Run deploy by instantiating the command and calling .run() so the spy on createCloudClient applies. */
 async function runDeployDirect(opts?: { directory?: string }) {
   const directory = opts?.directory ?? PROJECT_DIR;
   const config = await Config.load({ root });
   const cmd = new DeployCommand(['--directory', directory], config);
+  cmd.client = {
+    deployInstance: mockDeployInstance,
+    getInstanceConfig: mockGetInstanceConfig,
+    getInstanceStatus: mockGetInstanceStatus
+  } as unknown as PowerSyncManagementClient;
   return captureOutput(() => cmd.run());
 }
 
-const CLI_FILENAME = 'cli.yaml';
 const PROJECT_DIR = 'powersync';
-const SERVICE_FILENAME = 'service.yaml';
 
 function writeServiceYaml(projectDir: string, type: 'cloud' | 'self-hosted') {
   const content = type === 'cloud' ? '_type: cloud\nname: test-instance\nregion: us\n' : `_type: ${type}\nregion: us\n`;
@@ -59,8 +58,12 @@ describe('deploy', () => {
 
   afterEach(() => {
     process.chdir(origCwd);
-    if (origPsToken !== undefined) process.env.TOKEN = origPsToken;
-    else delete process.env.TOKEN;
+    if (origPsToken === undefined) {
+      delete process.env.TOKEN;
+    } else {
+      process.env.TOKEN = origPsToken;
+    }
+
     if (tmpDir && existsSync(tmpDir)) rmSync(tmpDir, { recursive: true });
   });
 

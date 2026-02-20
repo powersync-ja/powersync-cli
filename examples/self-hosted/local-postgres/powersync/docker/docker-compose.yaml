@@ -7,16 +7,13 @@
 name: powersync_local-postgres
 
 include:
-  [
-    modules/database-postgres/postgres.database.compose.yaml,
-    modules/storage-postgres/postgres.storage.compose.yaml,
-  ]
+  [modules/database-postgres/postgres.database.compose.yaml, modules/storage-postgres/postgres.storage.compose.yaml]
 
 services:
   powersync:
     restart: unless-stopped
     image: journeyapps/powersync-service:latest
-    command: ["start", "-r", "unified"]
+    command: ['start', '-r', 'unified']
     env_file:
       - .env
     volumes:
@@ -27,9 +24,9 @@ services:
       NODE_OPTIONS: --max-old-space-size=1000
     healthcheck:
       test:
-        - "CMD"
-        - "node"
-        - "-e"
+        - 'CMD'
+        - 'node'
+        - '-e'
         - "fetch('http://localhost:${PS_PORT:-8080}/probes/liveness').then(r =>
           r.ok ? process.exit(0) : process.exit(1)).catch(() =>
           process.exit(1))"
@@ -37,9 +34,5 @@ services:
       timeout: 1s
       retries: 15
     ports:
-      - "${PS_PORT:-8080}:${PS_PORT:-8080}"
-    depends_on:
-      {
-        pg-db: { condition: service_healthy },
-        pg-storage: { condition: service_healthy },
-      }
+      - '${PS_PORT:-8080}:${PS_PORT:-8080}'
+    depends_on: { pg-db: { condition: service_healthy }, pg-storage: { condition: service_healthy } }

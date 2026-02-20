@@ -8,15 +8,18 @@ import {
 } from '@powersync/cli-core';
 import { routes } from '@powersync/management-types';
 import { schemaGenerators, SqlSyncRules, StaticSchema } from '@powersync/service-sync-rules';
-import { writeFileSync } from 'fs';
+import { writeFileSync } from 'node:fs';
+
 import { fetchCloudSyncRulesContent } from '../../api/cloud/fetch-cloud-sync-rules-content.js';
 import { fetchSelfHostedSyncRulesContent } from '../../api/self-hosted/fetch-self-hosted-sync-rules-content.js';
 
 export default class GenerateSchema extends SharedInstanceCommand {
   static description =
-    'Generate a client-side schema file from the instance database schema and sync rules. Supports multiple output types (e.g. type, dart). Requires a linked instance. Cloud and self-hosted.';
-  static summary = 'Generate client schema file from instance schema and sync rules.';
-
+    'Generate a client-side schema file from the instance database schema and sync config. Supports multiple output types (e.g. type, dart). Requires a linked instance. Cloud and self-hosted.';
+  static examples = [
+    '<%= config.bin %> <%= command.id %> --output=ts --output-path=schema.ts',
+    '<%= config.bin %> <%= command.id %> --output=dart --output-path=lib/schema.dart --instance-id=<id> --project-id=<id>'
+  ];
   static flags = {
     output: Flags.string({
       default: 'type',
@@ -30,6 +33,7 @@ export default class GenerateSchema extends SharedInstanceCommand {
     }),
     ...SharedInstanceCommand.flags
   };
+  static summary = 'Generate client schema file from instance schema and sync config.';
 
   async getCloudSchema(project: CloudProject): Promise<routes.GetSchemaResponse> {
     const { linked } = project;
@@ -83,7 +87,7 @@ export default class GenerateSchema extends SharedInstanceCommand {
       writeFileSync(flags['output-path'], schema, 'utf8');
       this.log(ux.colorize('green', `Generated schema written to ${flags['output-path']}`));
     } catch (error) {
-      this.styledError({ message: 'Failed to generate schema', error });
+      this.styledError({ error, message: 'Failed to generate schema' });
     }
   }
 }

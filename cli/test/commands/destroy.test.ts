@@ -34,8 +34,12 @@ describe('destroy', () => {
 
   afterEach(() => {
     process.chdir(origCwd);
-    if (origPsToken !== undefined) process.env.TOKEN = origPsToken;
-    else delete process.env.TOKEN;
+    if (origPsToken === undefined) {
+      delete process.env.TOKEN;
+    } else {
+      process.env.TOKEN = origPsToken;
+    }
+
     if (tmpDir && existsSync(tmpDir)) rmSync(tmpDir, { recursive: true });
   });
 

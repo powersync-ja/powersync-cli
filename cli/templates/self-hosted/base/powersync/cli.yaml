@@ -1,6 +1,3 @@
-# TODO update this with published schema
-# yaml-language-server: $schema=/Users/stevenontong/Documents/platform_code/powersync/new-cli/packages/schemas/json-schema/cli-config.json
-
 # This file is managed by the PowerSync CLI.
 # Run \`powersync link --help\` for more information.
 type: self-hosted

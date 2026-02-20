@@ -1,8 +1,8 @@
 import { Flags, Interfaces } from '@oclif/core';
 import {
+  ResolvedSelfHostedCLIConfig,
   ServiceSelfHostedConfig,
   ServiceSelfHostedConfigDecoded,
-  ResolvedSelfHostedCLIConfig,
   validateSelfHostedConfig
 } from '@powersync/cli-schemas';
 import { existsSync } from 'node:fs';
@@ -36,6 +36,18 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
       helpGroup: HelpGroup.SELF_HOSTED_PROJECT
     })
   };
+
+  protected _project: SelfHostedProject | null = null;
+
+  /**
+   * The currently loaded project, including linked instance information and sync config content. Call loadProject() before accessing this property. This is set to the loaded project after calling loadProject() to avoid multiple loads of the same project.
+   */
+  get project(): SelfHostedProject {
+    if (!this._project) {
+      throw new Error('Project not loaded. Call loadProject() first.');
+    }
+    return this._project;
+  }
 
   loadProject(
     flags: SelfHostedInstanceCommandFlags,

@@ -1,7 +1,14 @@
 import cors from '@fastify/cors';
 import { env } from '@powersync/cli-core';
-import Fastify from 'fastify';
-import { createDecipheriv, createPrivateKey, createPublicKey, generateKeyPairSync, privateDecrypt } from 'node:crypto';
+import { fastify } from 'fastify';
+import {
+  createDecipheriv,
+  createPrivateKey,
+  createPublicKey,
+  generateKeyPairSync,
+  JsonWebKey,
+  privateDecrypt
+} from 'node:crypto';
 import open from 'open';
 
 /** Hybrid encryption format from dashboard: [encrypted_cek (256)] [iv (12)] [ciphertext] [tag (16)]. */
@@ -11,7 +18,7 @@ const GCM_TAG_BYTES = 16;
 
 /** Decode base64 or base64url (URL-safe) to bytes. Accepts standard base64 or base64url from query params. */
 function decodeBase64Payload(payload: string): Buffer {
-  const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+  const base64 = payload.replaceAll('-', '+').replaceAll('_', '/');
   const pad = base64.length % 4;
   const padded = pad === 0 ? base64 : base64 + '='.repeat(4 - pad);
   return Buffer.from(padded, 'base64');
@@ -27,18 +34,19 @@ function decryptTokenFromDashboard(base64Payload: string, privateKeyPem: string)
   if (raw.length < RSA_ENCRYPTED_KEY_BYTES + IV_BYTES + GCM_TAG_BYTES) {
     throw new Error('Payload too short');
   }
+
   const encryptedCek = raw.subarray(0, RSA_ENCRYPTED_KEY_BYTES);
   const iv = raw.subarray(RSA_ENCRYPTED_KEY_BYTES, RSA_ENCRYPTED_KEY_BYTES + IV_BYTES);
   const ciphertextWithTag = raw.subarray(RSA_ENCRYPTED_KEY_BYTES + IV_BYTES);
   const ciphertext = ciphertextWithTag.subarray(0, ciphertextWithTag.length - GCM_TAG_BYTES);
   const tag = ciphertextWithTag.subarray(-GCM_TAG_BYTES);
 
-  const keyObject = createPrivateKey({ key: privateKeyPem, format: 'pem' });
+  const keyObject = createPrivateKey({ format: 'pem', key: privateKeyPem });
   const cek = privateDecrypt({ key: keyObject, oaepHash: 'sha256' }, encryptedCek);
 
   const decipher = createDecipheriv('aes-256-gcm', cek, iv);
   decipher.setAuthTag(tag);
-  return Buffer.concat([decipher.update(ciphertext), decipher.final()]).toString('utf-8');
+  return Buffer.concat([decipher.update(ciphertext), decipher.final()]).toString('utf8');
 }
 
 /**
@@ -63,14 +71,14 @@ function decryptTokenFromDashboard(base64Payload: string, privateKeyPem: string)
  * CLI instance can decrypt the token; the value that might appear in a URL or
  * in transit is ciphertext, not the secret.
  */
-export async function startPATLoginServer(): Promise<{
+export async function startPATLoginServer(signal: AbortSignal): Promise<{
   address: string;
   tokenPromise: Promise<string>;
 }> {
-  const { publicKey: publicKeyPem, privateKey: privateKeyPem } = generateKeyPairSync('rsa', {
+  const { privateKey: privateKeyPem, publicKey: publicKeyPem } = generateKeyPairSync('rsa', {
     modulusLength: 2048,
-    publicKeyEncoding: { type: 'spki', format: 'pem' },
-    privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
+    privateKeyEncoding: { format: 'pem', type: 'pkcs8' },
+    publicKeyEncoding: { format: 'pem', type: 'spki' }
   });
   const publicKeyJwk = createPublicKey(publicKeyPem).export({ format: 'jwk' }) as JsonWebKey;
 
@@ -82,7 +90,16 @@ export async function startPATLoginServer(): Promise<{
     rejectToken = reject;
   });
 
-  const app = Fastify({ logger: false });
+  signal.addEventListener('abort', () => {
+    if (!settled) {
+      settled = true;
+      rejectToken(new Error('Login aborted'));
+    }
+
+    app.close().catch(() => {});
+  });
+
+  const app = fastify({ logger: false });
   const allowOrigin = env._PS_DASHBOARD_URL.replace(/\/$/, '');
   await app.register(cors, { origin: allowOrigin });
 
@@ -94,8 +111,10 @@ export async function startPATLoginServer(): Promise<{
         settled = true;
         rejectToken(new Error('Invalid request: GET /response must include a non-empty "token" query parameter'));
       }
+
       return;
     }
+
     let tokenValue: string;
     try {
       tokenValue = decryptTokenFromDashboard(rawToken, privateKeyPem);
@@ -105,8 +124,10 @@ export async function startPATLoginServer(): Promise<{
         settled = true;
         rejectToken(new Error('Failed to decrypt token from dashboard'));
       }
+
       return;
     }
+
     if (settled) return;
     settled = true;
     const html = `<!DOCTYPE html>
@@ -127,16 +148,17 @@ export async function startPATLoginServer(): Promise<{
       settled = true;
       rejectToken(err instanceof Error ? err : new Error(String(err)));
     }
-    void reply.status(500).send({ error: 'Internal server error' });
+
+    reply.status(500).send({ error: 'Internal server error' });
   });
 
-  const address = await app.listen({ port: 0, host: '127.0.0.1' });
+  const address = await app.listen({ host: '127.0.0.1', port: 0 });
   const responseUrl = `${address}/response`;
-  const requestPayload: { redirect_url: string; public_key: JsonWebKey } = {
-    redirect_url: responseUrl,
-    public_key: publicKeyJwk
+  const requestPayload: { public_key: JsonWebKey; redirect_url: string } = {
+    public_key: publicKeyJwk,
+    redirect_url: responseUrl
   };
-  const requestBase64 = Buffer.from(JSON.stringify(requestPayload), 'utf-8').toString('base64');
+  const requestBase64 = Buffer.from(JSON.stringify(requestPayload), 'utf8').toString('base64');
 
   open(`${env._PS_DASHBOARD_URL}/account/access-tokens/create?cliRequest=${encodeURIComponent(requestBase64)}`);
 

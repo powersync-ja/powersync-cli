@@ -79,8 +79,20 @@
     ],
     "topicSeparator": " ",
     "topics": {
-      "hello": {
-        "description": "Say hello to the world and others"
+      "fetch": {
+        "description": "run \"powersync fetch\" to see a list of subcommands"
+      },
+      "generate": {
+        "description": "run \"powersync generate\" to see a list of subcommands"
+      },
+      "init": {
+        "description": "run \"powersync init\" to see a list of subcommands"
+      },
+      "link": {
+        "description": "run \"powersync link\" to see a list of subcommands"
+      },
+      "pull": {
+        "description": "run \"powersync pull\" to see a list of subcommands"
       }
     }
   },

@@ -1,20 +1,20 @@
 import { Command, Flags, ux } from '@oclif/core';
 import { createAccountsHubClient, createCloudClient } from '@powersync/cli-core';
-import { writeFileSync } from 'fs';
 import sortBy from 'lodash/sortBy.js';
+import { writeFileSync } from 'node:fs';
 import ora from 'ora';
 
 type Instance = {
+  deployable: boolean;
+  has_config: boolean;
   id: string;
   name: string;
-  has_config: boolean;
-  deployable: boolean;
 };
 
 export type Project = {
   id: string;
-  name: string;
   instances: Instance[];
+  name: string;
 };
 
 type ProjectMap = {
@@ -32,29 +32,31 @@ type OrganizationMap = {
 };
 
 export default class FetchInstances extends Command {
-  static description =
-    'List PowerSync Cloud instances. Use with a linked directory or optionally pass --org-id and --project-id to filter (omit to list all orgs and projects). Cloud only.';
-  static summary = 'List Cloud instances in the current org/project.';
-
+  static description = 'List PowerSync Cloud instances, grouped by organization and project.';
+  static examples = [
+    '<%= config.bin %> <%= command.id %>',
+    '<%= config.bin %> <%= command.id %> --project-id=<id> --output=json'
+  ];
   static flags = {
     'org-id': Flags.string({
       description: 'Optional Organization ID. Defaults to all organizations.',
       required: false
     }),
+    output: Flags.string({
+      default: 'human',
+      description: 'Output format: human or json.',
+      options: ['human', 'json']
+    }),
+    'output-file': Flags.string({
+      description: 'Optionally write instance information to a file.',
+      required: false
+    }),
     'project-id': Flags.string({
       description: 'Optional Project ID. Defaults to all projects in the org.',
       required: false
-    }),
-    output: Flags.string({
-      description: 'Output format: human or json.',
-      options: ['human', 'json'],
-      default: 'human'
-    }),
-    'output-file': Flags.string({
-      description: 'Optionally Write instance information to a file',
-      required: false
     })
   };
+  static summary = '[Cloud only] List Cloud instances in the current org/project.';
 
   async run(): Promise<void> {
     const accountsClient = await createAccountsHubClient();
@@ -69,8 +71,8 @@ export default class FetchInstances extends Command {
     let spinnerStarted = false;
 
     const spinner = ora({
-      text: 'Fetching instances...',
-      stream: process.stdout
+      stream: process.stdout,
+      text: 'Fetching instances...'
     });
 
     for await (const page of accountsClient.listOrganizations.paginate({ id: org_id })) {
@@ -107,8 +109,8 @@ export default class FetchInstances extends Command {
             spinner.text = `Fetching org ${processedOrgs + 1} of ${totalOrgs}, project ${processedProjects + 1} of ${totalProjects}...`;
             const projectMap = (orgMap.projects[project.id] = {
               id: project.id,
-              name: project.name,
-              instances: [] as Instance[]
+              instances: [] as Instance[],
+              name: project.name
             });
             const instances = await managementClient.listInstances({
               app_id: project.id,
@@ -118,6 +120,7 @@ export default class FetchInstances extends Command {
             processedProjects++;
           }
         }
+
         processedOrgs++;
       }
     }
@@ -140,6 +143,7 @@ export default class FetchInstances extends Command {
             );
           }
         }
+
         this.log('');
       }
     }
@@ -149,6 +153,7 @@ export default class FetchInstances extends Command {
       if (flags.output === 'json') {
         this.log(content);
       }
+
       if (flags['output-file']) {
         writeFileSync(flags['output-file'], content);
       }

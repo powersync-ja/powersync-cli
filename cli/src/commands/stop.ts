@@ -3,9 +3,11 @@ import { CloudInstanceCommand } from '@powersync/cli-core';
 
 export default class Stop extends CloudInstanceCommand {
   static description =
-    'Deactivate the linked PowerSync Cloud instance. Requires --confirm=yes. Restart later with powersync deploy. Cloud only.';
-  static summary = 'Stop the linked Cloud instance (restart with deploy).';
-
+    'Deactivate the linked PowerSync Cloud instance. Requires --confirm=yes. Restart later with powersync deploy.';
+  static examples = [
+    '<%= config.bin %> <%= command.id %>',
+    '<%= config.bin %> <%= command.id %> --confirm=yes'
+  ];
   static flags = {
     confirm: Flags.string({
       description: 'Set to "yes" to confirm stopping the instance.',
@@ -13,6 +15,7 @@ export default class Stop extends CloudInstanceCommand {
     }),
     ...CloudInstanceCommand.flags
   };
+  static summary = '[Cloud only] Stop the linked Cloud instance (restart with deploy).';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(Stop);
@@ -23,27 +26,24 @@ export default class Stop extends CloudInstanceCommand {
 
     const { linked } = await this.loadProject(flags);
 
-    const client = await this.getClient();
+    const { client } = this;
 
     this.log(
-      ux.colorize(
-        'yellow',
-        `Stopping instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`
-      )
+      `Stopping instance ${ux.colorize('blue', linked.instance_id)} in project ${ux.colorize('blue', linked.project_id)} in org ${ux.colorize('blue', linked.org_id)}`
     );
 
     try {
       await client.deactivateInstance({
         app_id: linked.project_id,
-        org_id: linked.org_id,
-        id: linked.instance_id
+        id: linked.instance_id,
+        org_id: linked.org_id
       });
 
       this.log(ux.colorize('green', 'Instance stopped successfully.'));
     } catch (error) {
       this.styledError({
-        message: `Failed to stop instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`,
-        error
+        error,
+        message: `Failed to stop instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`
       });
     }
   }

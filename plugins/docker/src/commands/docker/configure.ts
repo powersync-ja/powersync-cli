@@ -43,6 +43,10 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
     'Docker configuration is located in ./powersync/docker/.',
     'Configured projects can be started with "powersync docker start".'
   ].join('\n');
+  static examples = [
+    '<%= config.bin %> <%= command.id %>',
+    '<%= config.bin %> <%= command.id %> --database=postgres --storage=postgres'
+  ];
 
   static flags = {
     ...SelfHostedInstanceCommand.flags,
@@ -177,6 +181,7 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
     this.log(ux.colorize('gray', '  - .env'));
     this.log(ux.colorize('gray', `  - Merged config into ${SERVICE_FILENAME}`));
     this.log(ux.colorize('gray', `  - ${CLI_FILENAME} (plugins.docker.project_name: ${projectName})`));
+    this.log('');
     this.log(`Next: run "${ux.colorize('blue', 'powersync docker start')}" to start the stack.`);
   }
 }

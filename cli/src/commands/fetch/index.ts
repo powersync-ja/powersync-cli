@@ -1,4 +1,4 @@
-import { Command, ux } from '@oclif/core';
+import { Command } from '@oclif/core';
 
 /**
  * This cloud only implementation is exported as index.ts
@@ -9,12 +9,11 @@ import { Command, ux } from '@oclif/core';
 export default class Fetch extends Command {
   static description =
     'Subcommands: list Cloud instances in org/project (fetch instances), print instance config as YAML/JSON (fetch config), or show instance diagnostics (fetch status).';
+  static examples = ['<%= config.bin %> <%= command.id %>'];
   static summary = 'List instances, fetch config, or fetch instance diagnostics.';
 
   async run(): Promise<void> {
     await this.parse(Fetch);
-    this.log(
-      ux.colorize('yellow', 'Use a subcommand: ') + ux.colorize('blue', 'fetch instances | fetch config | fetch status')
-    );
+    this.log('Use a subcommand: fetch instances | fetch config | fetch status');
   }
 }

@@ -1,5 +1,6 @@
 import type { ResolvedCloudCLIConfig } from '@powersync/cli-schemas';
 import type { PowerSyncManagementClient } from '@powersync/management-client';
+
 import { routes } from '@powersync/management-types';
 
 export type TestConnectionResult = {
@@ -14,16 +15,16 @@ export type TestConnectionResult = {
 export async function testCloudConnections(
   client: PowerSyncManagementClient,
   linked: ResolvedCloudCLIConfig,
-  connections: Array<{ name?: string } & Record<string, unknown>>
+  connections: Array<Record<string, unknown> & { name?: string }>
 ): Promise<TestConnectionResult[]> {
   const results: TestConnectionResult[] = [];
   for (const connection of connections) {
     const response = await client.testConnection(
       routes.TestConnectionRequest.encode({
-        id: linked.instance_id,
-        org_id: linked.org_id,
         app_id: linked.project_id,
-        connection: connection as Parameters<typeof routes.TestConnectionRequest.encode>[0]['connection']
+        connection: connection as Parameters<typeof routes.TestConnectionRequest.encode>[0]['connection'],
+        id: linked.instance_id,
+        org_id: linked.org_id
       })
     );
     results.push({
@@ -31,6 +32,7 @@ export async function testCloudConnections(
       response
     });
   }
+
   return results;
 }
 

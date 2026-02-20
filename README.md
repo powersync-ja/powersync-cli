@@ -13,9 +13,9 @@ The workspace is split into the main CLI, shared **packages**, and optional **pl
 
 | Package                                              | Path                 | Description                                                                        |
 | ---------------------------------------------------- | -------------------- | ---------------------------------------------------------------------------------- |
-| [**@powersync/cli**](./cli)                          | `cli/`               | Main CLI — manage instances, config, sync rules, cloud and self-hosted             |
+| [**@powersync/cli**](./cli)                          | `cli/`               | Main CLI — manage instances, config, sync config, cloud and self-hosted            |
 | [**@powersync/cli-core**](./packages/cli-core)       | `packages/cli-core/` | Core types and base commands shared by the CLI and plugins                         |
-| [**@powersync/cli-schemas**](./packages/schemas)     | `packages/schemas/`  | Shared config schemas (cli.yaml, service.yaml, etc.)                              |
+| [**@powersync/cli-schemas**](./packages/schemas)     | `packages/schemas/`  | Shared config schemas (cli.yaml, service.yaml, etc.)                               |
 | [**@powersync/cli-plugin-docker**](./plugins/docker) | `plugins/docker/`    | Docker plugin — self-hosted PowerSync with Compose (configure, reset, start, stop) |
 
 ```
@@ -50,7 +50,7 @@ pnpm build
 Run the CLI from the repo root:
 
 ```bash
-powersync --help   # if @powersync/cli is a workspace dependency
+powersync --help
 ```
 
 ### Self-hosted with Docker
@@ -58,7 +58,7 @@ powersync --help   # if @powersync/cli is a workspace dependency
 From the repo root, create the Docker layout and run the stack:
 
 ```bash
-powersync docker configure --database postgres --storage postgres
+powersync docker configure
 powersync docker start
 ```
 
@@ -72,4 +72,5 @@ The [**examples/**](./examples) folder contains basic projects initialized with 
 
 - [**Usage**](./docs/usage.md) — How the CLI works: Cloud and self-hosted, linking, auth, supplying instance info
 - [**Usage (Docker)**](./docs/usage-docker.md) — Docker plugin: configure, reset, start, stop, templates, flags
+- [**CLI documentation conventions**](./docs/cli-documentation-conventions.md) — How we document commands (description, summary, examples, flags, topics)
 - [CLI package README](./cli/README.md) — Install, usage, and command reference

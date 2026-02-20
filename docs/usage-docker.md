@@ -74,12 +74,12 @@ Use **`powersync fetch status`** to debug a running instance.
 
 ## Commands reference
 
-| Command                          | Description                                                                                                                                                                                                                       |
-| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Command                          | Description                                                                                                                                                                                                                      |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **`powersync docker configure`** | Create **powersync/docker/** with chosen **--database** and **--storage** modules, **.env**, and merged **service.yaml**. Writes **cli.yaml** with **plugins.docker.project_name**. Remove existing **docker/** first to re-run. |
-| **`powersync docker start`**     | Start the stack (`docker compose up -d --wait`). **Use this after configure** to bring up the stack. Waits for healthy.                                                                                                           |
-| **`powersync docker reset`**     | Start from a clean state: stop and remove containers (`docker compose down`), then start (`docker compose up -d --wait`). Use only when you need a full teardown and bring-up (e.g. after config changes). Waits for healthy.     |
-| **`powersync docker stop`**      | Stop the stack. Default: `docker compose stop` (containers kept). **--remove**: remove containers (`down`). **--remove-volumes**: remove containers and volumes (`down -v`). Can use **--project-name** from any directory.       |
+| **`powersync docker start`**     | Start the stack (`docker compose up -d --wait`). **Use this after configure** to bring up the stack. Waits for healthy.                                                                                                          |
+| **`powersync docker reset`**     | Start from a clean state: stop and remove containers (`docker compose down`), then start (`docker compose up -d --wait`). Use only when you need a full teardown and bring-up (e.g. after config changes). Waits for healthy.    |
+| **`powersync docker stop`**      | Stop the stack. Default: `docker compose stop` (containers kept). **--remove**: remove containers (`down`). **--remove-volumes**: remove containers and volumes (`down -v`). Can use **--project-name** from any directory.      |
 
 Run **`powersync docker`** (no subcommand) for help.
 
