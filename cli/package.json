@@ -20,7 +20,7 @@
     "@powersync/management-types": "0.0.1",
     "@powersync/service-sync-rules": "^0.30.0",
     "@powersync/service-types": "^0.13.3",
-    "@powersync-community/sync-config-rewriter": "0.1.0",
+    "@powersync-community/sync-config-rewriter": "^0.1.1",
     "jose": "^6.1.3",
     "lodash": "^4.17.23",
     "fastify": "^5.0.0",

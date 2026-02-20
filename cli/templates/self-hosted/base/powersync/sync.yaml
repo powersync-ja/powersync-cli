@@ -1,24 +1,23 @@
-# See Documentation for more information:
-# https://docs.powersync.com/usage/sync-rules
-
-# See https://docs.powersync.com/usage/sync-rules/compatibility for config:edition details
+# See https://docs.powersync.com/sync/advanced/compatibility
 config:
   edition: 2
+  sync_config_compiler: true
 
-# Define sync config to control which data is synced to each user
-# Docs: https://docs.powersync.com/usage/sync-rules
-bucket_definitions:
+# Define Sync Streams to control which data is synced to each user
+# Docs: https://docs.powersync.com/sync/streams/overview
+streams:
   global:
-    #     Sync config without parameter queries will sync to all users
-    data:
-      #       Sync all rows
+    # Streams without parameters sync the same data to all users
+    auto_subscribe: true
+    queries:
+      # Sync all rows
       - SELECT * FROM mytable
-      #       Only sync some rows
+      # Only sync some rows
       - SELECT * FROM mytable WHERE mycolumn = false
-  #       Wildcards can be used, useful in development to quickly sync all tables
-  #      - SELECT * FROM "%"
+      # Wildcards can be used, useful in development to quickly sync all tables
+      #- SELECT * FROM "%"
+
   by_user:
-    #     Only sync rows belonging to the user, using fields from the auth token
-    parameters: SELECT request.user_id() as user_id
-    data:
-      - SELECT * FROM mytable WHERE mytable.user_id = bucket.user_id
+    # Only sync rows belonging to the user, using fields from the auth token
+    auto_subscribe: true
+    query: SELECT * FROM mytable WHERE mytable.user_id = auth.user_id()
