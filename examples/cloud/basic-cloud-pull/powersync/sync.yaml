@@ -3,5 +3,5 @@ bucket_definitions:
   global:
     data:
       # mongodb uses _id as the primary ke      x  .  * exclud  e s _ fields. testing
-      - select _id as id, * FROM lists   
+      - select _id as id, * FROM lists
       - select _id as id, * from todos

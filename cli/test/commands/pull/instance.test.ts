@@ -40,7 +40,12 @@ describe('pull instance', () => {
     oclifConfig = await Config.load({ root });
   });
 
-  function runPullInstanceDirect(opts?: { directory?: string; instanceId?: string; orgId?: string; projectId?: string }) {
+  function runPullInstanceDirect(opts?: {
+    directory?: string;
+    instanceId?: string;
+    orgId?: string;
+    projectId?: string;
+  }) {
     const directory = opts?.directory ?? PROJECT_DIR;
     const args = ['--directory', directory];
     if (opts?.instanceId) args.push('--instance-id', opts.instanceId);
