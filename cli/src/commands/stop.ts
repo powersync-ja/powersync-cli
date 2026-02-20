@@ -3,7 +3,11 @@ import { CloudInstanceCommand } from '@powersync/cli-core';
 
 export default class Stop extends CloudInstanceCommand {
   static description =
-    'Deactivate the linked PowerSync Cloud instance. Requires --confirm=yes. Restart later with powersync deploy. Cloud only.';
+    'Deactivate the linked PowerSync Cloud instance. Requires --confirm=yes. Restart later with powersync deploy.';
+  static examples = [
+    '<%= config.bin %> <%= command.id %>',
+    '<%= config.bin %> <%= command.id %> --confirm=yes'
+  ];
   static flags = {
     confirm: Flags.string({
       description: 'Set to "yes" to confirm stopping the instance.',
@@ -11,7 +15,7 @@ export default class Stop extends CloudInstanceCommand {
     }),
     ...CloudInstanceCommand.flags
   };
-  static summary = 'Stop the linked Cloud instance (restart with deploy).';
+  static summary = '[Cloud only] Stop the linked Cloud instance (restart with deploy).';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(Stop);

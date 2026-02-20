@@ -164,6 +164,24 @@ USAGE
 
 <!-- usagestop -->
 
+## Environment variables
+
+You can supply instance and auth context via environment variables (useful for CI or scripts):
+
+- **`TOKEN`** — PowerSync personal access token for Cloud commands. [Learn more](https://docs.powersync.com/usage/tools/cli#personal-access-token).
+- **`ORG_ID`** — Organization ID (optional for Cloud). Omit when your token has a single organization; required when it has multiple.
+- **`PROJECT_ID`** — Project ID (Cloud).
+- **`INSTANCE_ID`** — Instance ID (Cloud). Get IDs from the [PowerSync Dashboard](https://dashboard.powersync.com) or **`powersync fetch instances`**.
+- **`API_URL`** — Self-hosted PowerSync API base URL (e.g. `https://powersync.example.com`).
+
+Example (Cloud):
+
+```sh
+TOKEN=your-token PROJECT_ID=456 INSTANCE_ID=789 powersync fetch status
+```
+
+See [docs/usage.md](../docs/usage.md) for full usage and resolution order (flags, env, cli.yaml).
+
 # Commands
 
 <!-- commands -->

@@ -4,6 +4,7 @@ import { PowerSyncCommand, Services } from '@powersync/cli-core';
 export default class Logout extends PowerSyncCommand {
   static description =
     'Remove the stored PowerSync auth token from secure storage or local fallback config storage. Cloud commands will no longer use stored credentials until you run login again.';
+  static examples = ['<%= config.bin %> <%= command.id %>'];
   static summary = 'Remove stored auth token.';
 
   async run(): Promise<void> {

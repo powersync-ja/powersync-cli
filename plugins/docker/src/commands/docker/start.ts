@@ -6,6 +6,7 @@ export default class DockerStart extends SelfHostedInstanceCommand {
   static summary = 'Start the self-hosted PowerSync stack via Docker Compose.';
   static description =
     'Runs `docker compose up -d --wait` for the project docker/ compose file; waits for services (including PowerSync) to be healthy. Use `powersync fetch status` to debug running instances.';
+  static examples = ['<%= config.bin %> <%= command.id %>'];
 
   static flags = {
     ...SelfHostedInstanceCommand.flags

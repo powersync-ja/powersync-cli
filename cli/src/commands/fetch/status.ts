@@ -13,6 +13,11 @@ import { DiagnosticsResponse, formatDiagnosticsHuman } from '../../api/display-s
 export default class FetchStatus extends SharedInstanceCommand {
   static description =
     'Fetch instance diagnostics: connection status, active and deploying sync config, replication state. Output as human-readable, JSON, or YAML. Cloud and self-hosted.';
+  static examples = [
+    '<%= config.bin %> <%= command.id %>',
+    '<%= config.bin %> <%= command.id %> --output=json',
+    '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id>'
+  ];
   static flags = {
     output: Flags.string({
       default: 'human',

@@ -27,6 +27,11 @@ const PULL_CONFIG_HEADER = `# PowerSync Cloud config (fetched from cloud)
 export default class PullInstance extends CloudInstanceCommand {
   static description =
     'Fetch an existing Cloud instance by ID: create the config directory if needed, write cli.yaml, and download service.yaml and sync.yaml. Pass --instance-id and --project-id when the directory is not yet linked; --org-id is optional when the token has a single organization. Cloud only.';
+  static examples = [
+    '<%= config.bin %> <%= command.id %>',
+    '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id>',
+    '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id> --org-id=<org-id>'
+  ];
   static flags = {
     ...CloudInstanceCommand.flags
   };

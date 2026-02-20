@@ -5,6 +5,10 @@ import DeployAll from './index.js';
 
 export class DeploySyncConfig extends DeployAll {
   static description = 'Deploy only sync config changes.';
+  static examples = [
+    '<%= config.bin %> <%= command.id %>',
+    '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id>'
+  ];
   static flags = {
     ...DeployAll.flags
   };

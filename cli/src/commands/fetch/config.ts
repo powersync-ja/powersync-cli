@@ -6,6 +6,10 @@ import { fetchCloudConfig } from '../../api/cloud/fetch-cloud-config.js';
 
 export default class FetchConfig extends CloudInstanceCommand {
   static description = 'Retrieve the current instance config from PowerSync Cloud and print as YAML or JSON.';
+  static examples = [
+    '<%= config.bin %> <%= command.id %>',
+    '<%= config.bin %> <%= command.id %> --output=json'
+  ];
   static flags = {
     output: Flags.string({
       default: 'yaml',

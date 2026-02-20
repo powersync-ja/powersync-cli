@@ -1,12 +1,12 @@
 import { Config } from '@oclif/core';
 import { captureOutput, runCommand } from '@oclif/test';
+import { CLI_FILENAME, SERVICE_FILENAME } from '@powersync/cli-core';
 import { PowerSyncManagementClient } from '@powersync/management-client';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { CLI_FILENAME, SERVICE_FILENAME } from '@powersync/cli-core';
 import DeployCommand from '../../src/commands/deploy/index.js';
 import { root } from '../helpers/root.js';
 

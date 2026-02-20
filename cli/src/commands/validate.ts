@@ -166,6 +166,11 @@ async function runSyncRulesTestSelfHosted(project: SelfHostedProject): Promise<V
 export default class Validate extends SharedInstanceCommand {
   static description =
     'Run validation checks on local config: config schema, database connections, and sync config. Requires a linked instance. Works with Cloud and self-hosted.';
+  static examples = [
+    '<%= config.bin %> <%= command.id %>',
+    '<%= config.bin %> <%= command.id %> --output=json',
+    '<%= config.bin %> <%= command.id %> --api-url=https://powersync.example.com'
+  ];
   static flags = {
     output: Flags.string({
       default: 'human',

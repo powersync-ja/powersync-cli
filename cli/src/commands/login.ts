@@ -7,6 +7,7 @@ import { startPATLoginServer } from '../api/login-server.js';
 export default class Login extends PowerSyncCommand {
   static description =
     'Store a PowerSync auth token (PAT) in secure storage so later Cloud commands run without passing a token. If secure storage is unavailable, login can optionally store it in a local config file. Use TOKEN env var for CI or scripts instead.';
+  static examples = ['<%= config.bin %> <%= command.id %>'];
   static summary = 'Store auth token for Cloud commands.';
 
   async run(): Promise<void> {

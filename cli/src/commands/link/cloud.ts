@@ -15,6 +15,11 @@ import { writeCloudLink } from '../../api/cloud/write-cloud-link.js';
 export default class LinkCloud extends CloudInstanceCommand {
   static description =
     'Write or update cli.yaml with a Cloud instance (instance-id, org-id, project-id). Use --create to create a new instance from service.yaml name/region and link it; omit --instance-id when using --create. Org ID is optional when the token has a single organization.';
+  static examples = [
+    '<%= config.bin %> <%= command.id %> --project-id=<project-id>',
+    '<%= config.bin %> <%= command.id %> --create --project-id=<project-id>',
+    '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<project-id> --org-id=<org-id>'
+  ];
   static flags = {
     create: Flags.boolean({
       default: false,

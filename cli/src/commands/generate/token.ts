@@ -19,6 +19,10 @@ type TokenConfig = {
 export default class GenerateToken extends SharedInstanceCommand {
   static description =
     'Generate a JWT for development clients to connect to PowerSync. Cloud: uses instance dev-token API (allow_temporary_tokens must be enabled). Self-hosted: signs with shared secret from config. Requires --subject; optional --expires-in-seconds.';
+  static examples = [
+    '<%= config.bin %> <%= command.id %> --subject=user-123',
+    '<%= config.bin %> <%= command.id %> --subject=user-123 --expires-in-seconds=3600'
+  ];
   static flags = {
     'expires-in-seconds': Flags.integer({
       default: 43_200,

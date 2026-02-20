@@ -45,6 +45,10 @@ export default class DeployAll extends CloudInstanceCommand {
     'Validates connections and sync config before deploying.',
     `See also ${ux.colorize('blue', 'powersync deploy sync-config')} to deploy only sync config changes.`
   ].join('\n');
+  static examples = [
+    '<%= config.bin %> <%= command.id %>',
+    '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id>'
+  ];
   static flags = {
     ...CloudInstanceCommand.flags
   };

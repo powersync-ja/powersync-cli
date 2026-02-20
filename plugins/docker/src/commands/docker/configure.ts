@@ -43,6 +43,10 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
     'Docker configuration is located in ./powersync/docker/.',
     'Configured projects can be started with "powersync docker start".'
   ].join('\n');
+  static examples = [
+    '<%= config.bin %> <%= command.id %>',
+    '<%= config.bin %> <%= command.id %> --database=postgres --storage=postgres'
+  ];
 
   static flags = {
     ...SelfHostedInstanceCommand.flags,

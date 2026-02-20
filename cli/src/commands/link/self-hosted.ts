@@ -17,6 +17,9 @@ export default class LinkSelfHosted extends SelfHostedInstanceCommand {
     `Links a self hosted PowerSync instance by API URL.`,
     `API Keys can be specified via input or specified in the TOKEN environment variable.`
   ].join('\n');
+  static examples = [
+    '<%= config.bin %> <%= command.id %> --api-url=https://powersync.example.com'
+  ];
   static flags = {
     'api-url': Flags.string({
       description: 'Self-hosted PowerSync API base URL (e.g. https://powersync.example.com).',

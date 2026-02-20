@@ -21,6 +21,10 @@ const TEMPLATES_DIR = join(__dirname, '..', '..', '..', 'templates');
 export default class InitSelfHosted extends PowerSyncCommand {
   static description =
     'Copy a self-hosted template into a config directory (default powersync/). Configure service.yaml with your self-hosted instance details.';
+  static examples = [
+    '<%= config.bin %> <%= command.id %>',
+    '<%= config.bin %> <%= command.id %> --directory=powersync --vscode'
+  ];
   static flags = {
     ...InstanceCommand.flags,
     vscode: Flags.boolean({

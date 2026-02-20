@@ -2,12 +2,11 @@ import { confirm, password } from '@inquirer/prompts';
 import { Config } from '@oclif/core';
 import { captureOutput } from '@oclif/test';
 import * as cliCore from '@powersync/cli-core';
-import { Services } from '@powersync/cli-core';
+import { Services, StorageImpl } from '@powersync/cli-core';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { startPATLoginServer } from '../../src/api/login-server.js';
 import LoginCommand from '../../src/commands/login.js';
-
 import { root } from '../helpers/root.js';
 
 vi.mock('@inquirer/prompts', () => ({
@@ -46,14 +45,14 @@ describe('login', () => {
     authentication.deleteToken.mockReset();
 
     authentication.getToken.mockResolvedValue(null);
-    authentication.setToken.mockResolvedValue();
-    authentication.deleteToken.mockResolvedValue();
+    authentication.setToken.mockResolvedValue(null);
+    authentication.deleteToken.mockResolvedValue(null);
 
-    (Services as any).storage = {
+    Services.storage = {
       capabilities: { supportsSecureStorage: true },
       insecureStoragePath: '/tmp/powersync-config.json'
-    };
-    (Services as any).authentication = authentication;
+    } as unknown as StorageImpl;
+    Services.authentication = authentication as unknown as cliCore.AuthenticationServiceImpl;
 
     mockedConfirm.mockResolvedValue(false);
     mockedPassword.mockResolvedValue('  test-token  ');
@@ -65,7 +64,7 @@ describe('login', () => {
       listOrganizations: vi.fn().mockResolvedValue({
         objects: [{ id: 'org-1', label: 'Org One' }]
       })
-    } as any);
+    } as unknown as cliCore.AccountsHubClientSDKClient);
   });
 
   afterEach(() => {
@@ -79,7 +78,7 @@ describe('login', () => {
 
   it('stores a valid token from prompt when browser flow is declined', async () => {
     mockedConfirm.mockResolvedValueOnce(true); // openBrowser
-    mockedPassword.mockImplementationOnce(() => new Promise(() => {}) as any);
+    mockedPassword.mockImplementationOnce(() => Object.assign(Promise.resolve('test-token'), { cancel: vi.fn() }));
     const result = await runLoginDirect();
 
     expect(result.error).toBeUndefined();
@@ -91,10 +90,10 @@ describe('login', () => {
   });
 
   it('cancels login when secure storage is unavailable and fallback is declined', async () => {
-    (Services as any).storage = {
+    Services.storage = {
       capabilities: { supportsSecureStorage: false },
       insecureStoragePath: '/tmp/powersync-config.json'
-    };
+    } as unknown as StorageImpl;
     mockedConfirm.mockResolvedValueOnce(false); // insecure fallback prompt
 
     const result = await runLoginDirect();
@@ -106,7 +105,7 @@ describe('login', () => {
 
   it('deletes token and errors when token validation fails', async () => {
     mockedConfirm.mockResolvedValueOnce(true); // openBrowser
-    mockedPassword.mockImplementationOnce(() => new Promise(() => {}) as any);
+    mockedPassword.mockImplementationOnce(() => Object.assign(Promise.resolve('test-token'), { cancel: vi.fn() }));
     authentication.setToken.mockRejectedValueOnce(new Error('unauthorized'));
 
     const result = await runLoginDirect();

@@ -33,6 +33,10 @@ type OrganizationMap = {
 
 export default class FetchInstances extends Command {
   static description = 'List PowerSync Cloud instances, grouped by organization and project.';
+  static examples = [
+    '<%= config.bin %> <%= command.id %>',
+    '<%= config.bin %> <%= command.id %> --project-id=<id> --output=json'
+  ];
   static flags = {
     'org-id': Flags.string({
       description: 'Optional Organization ID. Defaults to all organizations.',
@@ -44,7 +48,7 @@ export default class FetchInstances extends Command {
       options: ['human', 'json']
     }),
     'output-file': Flags.string({
-      description: 'Optionally Write instance information to a file',
+      description: 'Optionally write instance information to a file.',
       required: false
     }),
     'project-id': Flags.string({

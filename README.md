@@ -72,4 +72,5 @@ The [**examples/**](./examples) folder contains basic projects initialized with 
 
 - [**Usage**](./docs/usage.md) — How the CLI works: Cloud and self-hosted, linking, auth, supplying instance info
 - [**Usage (Docker)**](./docs/usage-docker.md) — Docker plugin: configure, reset, start, stop, templates, flags
+- [**CLI documentation conventions**](./docs/cli-documentation-conventions.md) — How we document commands (description, summary, examples, flags, topics)
 - [CLI package README](./cli/README.md) — Install, usage, and command reference

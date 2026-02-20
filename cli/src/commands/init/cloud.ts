@@ -21,6 +21,10 @@ const TEMPLATES_DIR = join(__dirname, '..', '..', '..', 'templates');
 export default class InitCloud extends PowerSyncCommand {
   static description =
     'Copy a Cloud template into a config directory (default powersync/). Edit service.yaml then run link cloud and deploy.';
+  static examples = [
+    '<%= config.bin %> <%= command.id %>',
+    '<%= config.bin %> <%= command.id %> --directory=powersync --vscode'
+  ];
   static flags = {
     ...InstanceCommand.flags,
     vscode: Flags.boolean({
