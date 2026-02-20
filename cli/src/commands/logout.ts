@@ -1,5 +1,4 @@
 import { ux } from '@oclif/core';
-
 import { PowerSyncCommand, Services } from '@powersync/cli-core';
 
 export default class Logout extends PowerSyncCommand {

@@ -1,15 +1,14 @@
 import { ux } from '@oclif/core/ux';
 import { routes } from '@powersync/management-types';
+
 import DeployAll from './index.js';
 
 export class DeploySyncConfig extends DeployAll {
-  static summary = '[Cloud only] Deploy local sync config to the linked Cloud instance.';
-
   static description = 'Deploy only sync config changes.';
-
   static flags = {
     ...DeployAll.flags
   };
+  static summary = '[Cloud only] Deploy local sync config to the linked Cloud instance.';
 
   /**
    * Deploys only the sync config.
@@ -20,7 +19,7 @@ export class DeploySyncConfig extends DeployAll {
     const { project } = this;
     const { linked } = project;
 
-    const syncRulesContent = project.syncRulesContent;
+    const { syncRulesContent } = project;
     if (!syncRulesContent) {
       this.styledError({
         message: `Sync config content not loaded. Ensure sync config is present and valid.`
@@ -34,18 +33,18 @@ export class DeploySyncConfig extends DeployAll {
       });
     }
 
-    return await this.withDeploy(async () => {
-      return await this.client.deployInstance(
+    return this.withDeploy(async () =>
+      this.client.deployInstance(
         routes.DeployInstanceRequest.encode({
           ...cloudConfigState,
-          config: cloudConfigState.config!,
           app_id: linked.project_id,
-          org_id: linked.org_id,
+          config: cloudConfigState.config!,
           id: linked.instance_id,
+          org_id: linked.org_id,
           sync_rules: syncRulesContent
         })
-      );
-    });
+      )
+    );
   }
 
   async run(): Promise<void> {

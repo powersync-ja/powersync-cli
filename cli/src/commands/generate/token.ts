@@ -11,33 +11,32 @@ import * as jose from 'jose';
 import { join } from 'node:path';
 
 type TokenConfig = {
-  subject: string;
   expiresInSeconds: number;
   kid?: string;
+  subject: string;
 };
 
 export default class GenerateToken extends SharedInstanceCommand {
   static description =
     'Generate a JWT for development clients to connect to PowerSync. Cloud: uses instance dev-token API (allow_temporary_tokens must be enabled). Self-hosted: signs with shared secret from config. Requires --subject; optional --expires-in-seconds.';
-  static summary = 'Generate a development JWT for client connections.';
-
   static flags = {
-    subject: Flags.string({
-      description: 'Subject of the token.',
-      required: true
-    }),
     'expires-in-seconds': Flags.integer({
+      default: 43_200,
       description: 'Expiration time in seconds. Default is 43,200 (12 hours).',
-      required: false,
-      default: 43_200
+      required: false
     }),
     kid: Flags.string({
       description:
         '[Self-hosted only] Key ID of the key to use for signing the token. If not provided, the first key will be used.',
       required: false
     }),
+    subject: Flags.string({
+      description: 'Subject of the token.',
+      required: true
+    }),
     ...SharedInstanceCommand.flags
   };
+  static summary = 'Generate a development JWT for client connections.';
 
   protected async generateCloudToken(project: CloudProject, config: TokenConfig): Promise<string> {
     const { linked } = project;
@@ -47,13 +46,13 @@ export default class GenerateToken extends SharedInstanceCommand {
     const cloudInstanceConfig = await client
       .getInstanceConfig({
         app_id: linked.project_id,
-        org_id: linked.org_id,
-        id: linked.instance_id
+        id: linked.instance_id,
+        org_id: linked.org_id
       })
       .catch((error) => {
         this.styledError({
-          message: `Failed to get config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`,
-          error
+          error,
+          message: `Failed to get config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`
         });
       });
 
@@ -66,10 +65,10 @@ export default class GenerateToken extends SharedInstanceCommand {
 
     const response = await client.generateDevToken({
       app_id: linked.project_id,
-      org_id: linked.org_id,
+      expiresInSeconds: config.expiresInSeconds,
       id: linked.instance_id,
-      subject: config.subject,
-      expiresInSeconds: config.expiresInSeconds
+      org_id: linked.org_id,
+      subject: config.subject
     });
     return response.token;
   }
@@ -79,19 +78,21 @@ export default class GenerateToken extends SharedInstanceCommand {
     let instanceConfig: ServiceSelfHostedConfig;
     try {
       instanceConfig = this.parseSelfHostedConfig(project.projectDirectory);
-    } catch (ex) {
+    } catch (error) {
       this.styledError({
+        error,
         message: 'Generating a token for self hosted intances requires the configuration to be locally present.',
-        error: ex,
         suggestions: [`Ensure that ${join(project.projectDirectory, SERVICE_FILENAME)} exits`]
       });
     }
+
     const usableKeys = instanceConfig.client_auth?.jwks?.keys?.filter((key) => key.alg === 'HS256') ?? [];
-    if (!usableKeys.length) {
+    if (usableKeys.length === 0) {
       this.styledError({
         message: 'No usable keys found in the config file. Please add a shared secret to the config file.'
       });
     }
+
     const specificKey = usableKeys.find((key) => key.kid === config.kid);
     if (config.kid && !specificKey) {
       this.styledError({ message: 'No key found with the given kid.' });
@@ -101,7 +102,9 @@ export default class GenerateToken extends SharedInstanceCommand {
 
     const endpoint = project.linked.api_url;
     const audiences = [endpoint];
-    instanceConfig.client_auth?.audience?.forEach((audience) => audiences.push(audience));
+    for (const aud of instanceConfig.client_auth?.audience ?? []) {
+      audiences.push(aud);
+    }
 
     const token = await new jose.SignJWT({})
       .setProtectedHeader({ alg: key.alg!, kid: key.kid })
@@ -120,13 +123,13 @@ export default class GenerateToken extends SharedInstanceCommand {
 
     const token = await (project.linked.type === 'cloud'
       ? this.generateCloudToken(project as CloudProject, {
-          subject: flags.subject,
-          expiresInSeconds: flags['expires-in-seconds']
+          expiresInSeconds: flags['expires-in-seconds'],
+          subject: flags.subject
         })
       : this.generateSelfHostedToken(project as SelfHostedProject, {
-          subject: flags.subject,
           expiresInSeconds: flags['expires-in-seconds'],
-          kid: flags['kid']
+          kid: flags.kid,
+          subject: flags.subject
         }));
 
     // This is purposefully simple in order for the output to be easily used in shell scripts.

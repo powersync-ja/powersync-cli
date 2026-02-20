@@ -1,5 +1,6 @@
 import { Config } from '@oclif/core';
 import { captureOutput, runCommand } from '@oclif/test';
+import { PowerSyncManagementClient } from '@powersync/management-client';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -19,10 +20,6 @@ const mockCloudClient = {
   getInstanceConfig: vi.fn()
 };
 
-vi.mock('../../../src/clients/CloudClient.js', () => ({
-  createCloudClient: () => mockCloudClient
-}));
-
 function writeServiceYaml(projectDir: string, type: 'cloud' | 'self-hosted') {
   writeFileSync(join(projectDir, SERVICE_FILENAME), `_type: ${type}\nregion: us\n`, 'utf8');
 }
@@ -41,6 +38,7 @@ describe('fetch config', () => {
     const args = ['--directory', directory];
     if (opts?.output) args.push('--output', opts.output);
     const cmd = new FetchConfigCommand(args, oclifConfig);
+    cmd.client = mockCloudClient as unknown as PowerSyncManagementClient;
     return captureOutput(() => cmd.run());
   }
 

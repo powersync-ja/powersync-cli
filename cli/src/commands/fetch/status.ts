@@ -1,7 +1,4 @@
 import { Flags } from '@oclif/core';
-import { routes } from '@powersync/management-types';
-import { Document } from 'yaml';
-
 import {
   CloudProject,
   createCloudClient,
@@ -9,6 +6,8 @@ import {
   SelfHostedProject,
   SharedInstanceCommand
 } from '@powersync/cli-core';
+import { routes } from '@powersync/management-types';
+import { Document } from 'yaml';
 
 type DiagnosticsResponse = routes.InstanceDiagnosticsResponse;
 type SyncRulesSection = NonNullable<DiagnosticsResponse['active_sync_rules']>;
@@ -21,7 +20,7 @@ function pad(level: number): string {
 }
 
 /** Format a date value as "ISO (local)" for human output. Returns raw value if not parseable. */
-function formatDate(value: string | number | undefined | null): string {
+function formatDate(value: null | number | string | undefined): string {
   if (value === undefined || value === null) return '—';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return String(value);
@@ -40,15 +39,18 @@ function formatConnectionsSection(connections: DiagnosticsResponse['connections'
   const lines: string[] = [];
   for (const conn of connections) {
     const status = conn.connected ? 'connected' : 'disconnected';
-    lines.push(`${p}${BULLET} ${conn.id}`);
-    lines.push(`${p}  Postgres URI: ${conn.postgres_uri ?? '—'}`);
-    lines.push(`${p}  Status: ${status}`);
+    lines.push(
+      `${p}${BULLET} ${conn.id}`,
+      `${p}  Postgres URI: ${conn.postgres_uri ?? '—'}`,
+      `${p}  Status: ${status}`
+    );
     if (conn.errors?.length) {
-      lines.push(`${p}  Errors:`);
-      lines.push(formatErrors(conn.errors, indentLevel + 2));
+      lines.push(`${p}  Errors:`, formatErrors(conn.errors, indentLevel + 2));
     }
+
     lines.push('');
   }
+
   return lines.join('\n').trimEnd() + '\n';
 }
 
@@ -57,16 +59,16 @@ function formatSyncRulesSection(section: SyncRulesSection, indentLevel: number):
   const lines: string[] = [];
 
   if (section.errors?.length) {
-    lines.push(`${p}Errors:`);
-    lines.push(formatErrors(section.errors, indentLevel + 1));
-    lines.push('');
+    lines.push(`${p}Errors:`, formatErrors(section.errors, indentLevel + 1), '');
   }
 
   if (section.connections?.length) {
     lines.push(`${p}Connections:`);
     for (const conn of section.connections) {
-      lines.push(`${p}  ${BULLET} ${conn.tag ?? conn.id} (slot: ${conn.slot_name ?? '—'})`);
-      lines.push(`${p}    Initial replication done: ${conn.initial_replication_done}`);
+      lines.push(
+        `${p}  ${BULLET} ${conn.tag ?? conn.id} (slot: ${conn.slot_name ?? '—'})`,
+        `${p}    Initial replication done: ${conn.initial_replication_done}`
+      );
       if (conn.last_lsn != null) lines.push(`${p}    Last LSN: ${conn.last_lsn}`);
       if (conn.last_keepalive_ts != null) lines.push(`${p}    Last keepalive: ${formatDate(conn.last_keepalive_ts)}`);
       if (conn.last_checkpoint_ts != null)
@@ -85,12 +87,12 @@ function formatSyncRulesSection(section: SyncRulesSection, indentLevel: number):
         }
       }
     }
+
     lines.push('');
   }
 
   if (section.content != null && section.content !== '') {
-    lines.push(`${p}Content:`);
-    lines.push(`${p}  ${section.content.split('\n').join(`\n${p}  `)}`);
+    lines.push(`${p}Content:`, `${p}  ${section.content.split('\n').join(`\n${p}  `)}`);
   }
 
   return lines.join('\n').trimEnd() || `${p}(no data)\n`;
@@ -99,27 +101,22 @@ function formatSyncRulesSection(section: SyncRulesSection, indentLevel: number):
 function formatDiagnosticsHuman(diagnostics: DiagnosticsResponse): string {
   const sections: string[] = [];
 
-  sections.push('═══ Connections ═══');
-  sections.push(formatConnectionsSection(diagnostics.connections ?? [], 0));
+  sections.push('═══ Connections ═══', formatConnectionsSection(diagnostics.connections ?? [], 0));
 
   if (diagnostics.active_sync_rules != null) {
-    sections.push('═══ Active Sync Config ═══');
-    sections.push(formatSyncRulesSection(diagnostics.active_sync_rules, 0));
+    sections.push('═══ Active Sync Config ═══', formatSyncRulesSection(diagnostics.active_sync_rules, 0));
   }
 
   if (diagnostics.deploying_sync_rules != null) {
-    sections.push('═══ Deploying Sync Config ═══');
-    sections.push(formatSyncRulesSection(diagnostics.deploying_sync_rules, 0));
+    sections.push('═══ Deploying Sync Config ═══', formatSyncRulesSection(diagnostics.deploying_sync_rules, 0));
   }
 
   return sections.join('\n').trimEnd();
 }
 
 export default class FetchStatus extends SharedInstanceCommand {
-  static summary = 'Show instance diagnostics (connections, sync config, replication).';
   static description =
     'Fetch instance diagnostics: connection status, active and deploying sync config, replication state. Output as human-readable, JSON, or YAML. Cloud and self-hosted.';
-
   static flags = {
     output: Flags.string({
       default: 'human',
@@ -128,22 +125,23 @@ export default class FetchStatus extends SharedInstanceCommand {
     }),
     ...SharedInstanceCommand.flags
   };
+  static summary = 'Show instance diagnostics (connections, sync config, replication).';
 
   async getCloudStatus(project: CloudProject): Promise<DiagnosticsResponse> {
     const { linked } = project;
     const client = await createCloudClient();
     return client.getInstanceDiagnostics({
       app_id: linked.project_id,
-      org_id: linked.org_id,
-      id: linked.instance_id
+      id: linked.instance_id,
+      org_id: linked.org_id
     });
   }
 
   async getSelfHostedStatus(project: SelfHostedProject): Promise<DiagnosticsResponse> {
     const { linked } = project;
     const client = createSelfHostedClient({
-      apiUrl: linked.api_url,
-      apiKey: linked.api_key
+      apiKey: linked.api_key,
+      apiUrl: linked.api_url
     });
     return client.diagnostics({});
   }
@@ -160,15 +158,13 @@ export default class FetchStatus extends SharedInstanceCommand {
 
       if (flags.output === 'json') {
         this.log(JSON.stringify(diagnostics, null, 2));
-        return;
       } else if (flags.output === 'yaml') {
         this.log(new Document(diagnostics).toString());
-        return;
       } else {
         this.log(formatDiagnosticsHuman(diagnostics));
       }
     } catch (error) {
-      this.styledError({ message: 'Failed to fetch instance diagnostics', error });
+      this.styledError({ error, message: 'Failed to fetch instance diagnostics' });
     }
   }
 }

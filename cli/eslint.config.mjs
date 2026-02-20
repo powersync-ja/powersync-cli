@@ -5,17 +5,19 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const gitignorePath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '.gitignore');
-const rootGitignorePath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../.gitignore');
 
 export default [
   includeIgnoreFile(gitignorePath),
-  includeIgnoreFile(rootGitignorePath),
   ...oclif,
   prettier,
   {
     rules: {
-      // fs.cp/cpSync available since Node 16.7.0; engine is >=18
-      'n/no-unsupported-features/node-builtins': 'off'
+      camelcase: 'off',
+      eqeqeq: ['error', 'always', { null: 'ignore' }],
+      'n/no-unsupported-features/node-builtins': 'off',
+      'no-await-in-loop': 'off',
+      'no-eq-null': 'off',
+      'no-multi-assign': 'off'
     }
   }
 ];

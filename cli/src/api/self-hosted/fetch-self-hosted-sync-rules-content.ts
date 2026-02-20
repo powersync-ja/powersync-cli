@@ -1,6 +1,6 @@
 import { createSelfHostedClient, SelfHostedProject, SYNC_FILENAME } from '@powersync/cli-core';
-import { existsSync, readFileSync } from 'fs';
-import { join } from 'path';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 /**
  * Fetches the sync config content for a self-hosted project.
@@ -10,8 +10,8 @@ import { join } from 'path';
 export async function fetchSelfHostedSyncRulesContent(project: SelfHostedProject): Promise<string> {
   const { linked } = project;
   const client = createSelfHostedClient({
-    apiUrl: linked.api_url,
-    apiKey: linked.api_key
+    apiKey: linked.api_key,
+    apiUrl: linked.api_url
   });
 
   // First try and use the local file

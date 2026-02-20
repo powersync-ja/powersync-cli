@@ -9,9 +9,9 @@ vi.mock('@inquirer/prompts', () => ({
 
 vi.mock('../../src/services/SecureStorage.js', () => ({
   getSecureStorage: () => ({
+    deleteToken: () => Promise.resolve(),
     getToken: () => Promise.resolve(null),
-    setToken: () => Promise.resolve(),
-    deleteToken: () => Promise.resolve()
+    setToken: () => Promise.resolve()
   })
 }));
 

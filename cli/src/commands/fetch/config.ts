@@ -1,13 +1,11 @@
 import { Flags } from '@oclif/core';
+import { CloudInstanceCommand } from '@powersync/cli-core';
 import { Document } from 'yaml';
 
-import { CloudInstanceCommand } from '@powersync/cli-core';
 import { fetchCloudConfig } from '../../api/cloud/fetch-cloud-config.js';
 
 export default class FetchConfig extends CloudInstanceCommand {
-  static summary = '[Cloud only] Print linked Cloud instance config (YAML or JSON).';
   static description = 'Retrieve the current instance config from PowerSync Cloud and print as YAML or JSON.';
-
   static flags = {
     output: Flags.string({
       default: 'yaml',
@@ -16,6 +14,7 @@ export default class FetchConfig extends CloudInstanceCommand {
     }),
     ...CloudInstanceCommand.flags
   };
+static summary = '[Cloud only] Print linked Cloud instance config (YAML or JSON).';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(FetchConfig);
@@ -26,8 +25,8 @@ export default class FetchConfig extends CloudInstanceCommand {
 
     const fetched = await fetchCloudConfig(client, linked).catch((error) => {
       this.styledError({
-        message: `Failed to fetch config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`,
-        error
+        error,
+        message: `Failed to fetch config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`
       });
     });
 

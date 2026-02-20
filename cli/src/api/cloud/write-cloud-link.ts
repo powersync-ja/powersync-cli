@@ -1,8 +1,7 @@
+import { CLI_FILENAME, parseYamlFile } from '@powersync/cli-core';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Document } from 'yaml';
-
-import { CLI_FILENAME, parseYamlFile } from '@powersync/cli-core';
 
 export type WriteCloudLinkOptions = {
   instanceId: string;
@@ -20,6 +19,7 @@ export function writeCloudLink(projectDir: string, options: WriteCloudLinkOption
   if (!existsSync(projectDir)) {
     mkdirSync(projectDir, { recursive: true });
   }
+
   const doc = existsSync(linkPath) ? parseYamlFile(linkPath) : new Document();
   doc.set('type', 'cloud');
   doc.set('instance_id', instanceId);

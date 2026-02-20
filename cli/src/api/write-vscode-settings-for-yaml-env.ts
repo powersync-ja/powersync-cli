@@ -14,7 +14,7 @@ export function writeVscodeSettingsForYamlEnv(workspaceRoot: string): void {
   let settings: Record<string, unknown> = {};
   if (existsSync(settingsPath)) {
     try {
-      const raw = readFileSync(settingsPath, 'utf-8');
+      const raw = readFileSync(settingsPath, 'utf8');
       settings = JSON.parse(raw) as Record<string, unknown>;
     } catch {
       // If invalid JSON, overwrite with our settings
@@ -24,5 +24,5 @@ export function writeVscodeSettingsForYamlEnv(workspaceRoot: string): void {
   const currentSettings = (settings['yaml.customTags'] ?? []) as string[];
   settings['yaml.customTags'] = [...currentSettings, ...VSCODE_YAML_TAGS];
   mkdirSync(vscodeDir, { recursive: true });
-  writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n', 'utf-8');
+  writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n', 'utf8');
 }

@@ -1,6 +1,3 @@
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { ux } from '@oclif/core';
 import {
   CLI_FILENAME,
@@ -12,7 +9,10 @@ import {
   SYNC_FILENAME
 } from '@powersync/cli-core';
 import { ServiceCloudConfig } from '@powersync/cli-schemas';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { stringify } from 'yaml';
+
 import { fetchCloudConfig } from '../../api/cloud/fetch-cloud-config.js';
 import { writeCloudLink } from '../../api/cloud/write-cloud-link.js';
 
@@ -27,11 +27,10 @@ const PULL_CONFIG_HEADER = `# PowerSync Cloud config (fetched from cloud)
 export default class PullInstance extends CloudInstanceCommand {
   static description =
     'Fetch an existing Cloud instance by ID: create the config directory if needed, write cli.yaml, and download service.yaml and sync.yaml. Pass --instance-id and --project-id when the directory is not yet linked; --org-id is optional when the token has a single organization. Cloud only.';
-  static summary = 'Pull an existing Cloud instance: link and download config into local service.yaml and sync.yaml.';
-
   static flags = {
     ...CloudInstanceCommand.flags
   };
+static summary = 'Pull an existing Cloud instance: link and download config into local service.yaml and sync.yaml.';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(PullInstance);
@@ -51,6 +50,7 @@ export default class PullInstance extends CloudInstanceCommand {
         });
       }
     }
+
     ensureServiceTypeMatches({
       command: this,
       configRequired: false,
@@ -66,6 +66,7 @@ export default class PullInstance extends CloudInstanceCommand {
           message: `Linking is required. Pass --instance-id, --org-id, and --project-id to this command, or run ${ux.colorize('blue', 'powersync link cloud --instance-id=<id> --org-id=<id> --project-id=<id>')} first.`
         });
       }
+
       writeCloudLink(projectDir, { instanceId, orgId: resolvedOrgId, projectId });
       this.log(`Created ${ux.colorize('blue', `${directory}/${CLI_FILENAME}`)} with Cloud instance link.`);
     }
@@ -79,8 +80,8 @@ export default class PullInstance extends CloudInstanceCommand {
 
     const fetched = await fetchCloudConfig(client, linked).catch((error) => {
       this.styledError({
-        message: `Failed to fetch config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`,
-        error
+        error,
+        message: `Failed to fetch config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`
       });
     });
 
@@ -91,11 +92,13 @@ export default class PullInstance extends CloudInstanceCommand {
         `${ux.colorize('blue', SERVICE_FILENAME)} already exists. Writing to ${ux.colorize('blue', 'service-fetched.yaml')} instead. Manually merge the settings into ${ux.colorize('blue', SERVICE_FILENAME)} as needed.`
       );
     }
+
     if (syncExists && fetched.syncRules) {
       this.warn(
         `${ux.colorize('blue', SYNC_FILENAME)} already exists. Writing to ${ux.colorize('blue', 'sync-fetched.yaml')} instead. Manually merge the sync config into ${ux.colorize('blue', SYNC_FILENAME)} as needed.`
       );
     }
+
     const serviceYaml = PULL_CONFIG_HEADER + stringify(ServiceCloudConfig.encode(fetched.config));
 
     const serviceOutputName = serviceExists ? SERVICE_FETCHED_FILENAME : SERVICE_FILENAME;

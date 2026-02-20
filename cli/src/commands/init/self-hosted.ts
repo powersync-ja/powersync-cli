@@ -1,8 +1,4 @@
 import { Flags, ux } from '@oclif/core';
-import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import {
   CLI_FILENAME,
   InstanceCommand,
@@ -13,6 +9,9 @@ import {
   YAML_SERVICE_SCHEMA,
   YAML_SYNC_RULES_SCHEMA
 } from '@powersync/cli-core';
+import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { writeVscodeSettingsForYamlEnv } from '../../api/write-vscode-settings-for-yaml-env.js';
 
@@ -22,14 +21,14 @@ const TEMPLATES_DIR = join(__dirname, '..', '..', '..', 'templates');
 export default class InitSelfHosted extends PowerSyncCommand {
   static description =
     'Copy a self-hosted template into a config directory (default powersync/). Configure service.yaml with your self-hosted instance details.';
-  static summary = 'Scaffold a PowerSync self-hosted config directory from a template.';
   static flags = {
     ...InstanceCommand.flags,
     vscode: Flags.boolean({
-      description: 'Configure the workspace with .vscode settings for YAML custom tags (!env).',
-      default: false
+      default: false,
+      description: 'Configure the workspace with .vscode settings for YAML custom tags (!env).'
     })
   };
+  static summary = 'Scaffold a PowerSync self-hosted config directory from a template.';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(InitSelfHosted);
@@ -83,6 +82,7 @@ export default class InitSelfHosted extends PowerSyncCommand {
       lines.splice(5, 0, 'Added .vscode/settings.json for YAML !env tag support.');
       lines.splice(6, 0, '');
     }
+
     this.log(lines.join('\n'));
   }
 }

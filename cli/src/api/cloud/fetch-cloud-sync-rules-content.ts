@@ -1,6 +1,6 @@
 import { CloudProject, createCloudClient, SYNC_FILENAME } from '@powersync/cli-core';
-import { existsSync, readFileSync } from 'fs';
-import { join } from 'path';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 /**
  * Fetches the sync config content for a cloud project.
@@ -19,8 +19,8 @@ export async function fetchCloudSyncRulesContent(project: CloudProject): Promise
   // Try and fetch from the cloud config
   const instanceConfig = await client.getInstanceConfig({
     app_id: linked.project_id,
-    org_id: linked.org_id,
-    id: linked.instance_id
+    id: linked.instance_id,
+    org_id: linked.org_id
   });
 
   if (!instanceConfig.sync_rules) {

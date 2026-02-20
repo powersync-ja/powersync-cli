@@ -1,4 +1,5 @@
 import { runCommand } from '@oclif/test';
+import { YAML_CLI_SCHEMA, YAML_SERVICE_SCHEMA, YAML_SYNC_RULES_SCHEMA } from '@powersync/cli-core';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -9,12 +10,6 @@ import { root } from '../helpers/root.js';
 
 const CUSTOM_DIR = 'custom-dir';
 const EXISTING_DIR = 'existing-dir';
-const YAML_SYNC_RULES_SCHEMA =
-  '# yaml-language-server: $schema=https://unpkg.com/@powersync/service-sync-rules@latest/schema/sync_rules.json\n#';
-const YAML_SERVICE_SCHEMA =
-  '# yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/service-config.json\n#';
-const YAML_CLI_SCHEMA =
-  '# yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/cli-config.json\n#';
 
 describe('init', () => {
   let tmpDir: string;

@@ -1,24 +1,22 @@
 import { input } from '@inquirer/prompts';
 import { Flags, ux } from '@oclif/core';
-import { writeFileSync } from 'node:fs';
-import { join } from 'node:path';
-
 import {
+  CLI_FILENAME,
   ensureServiceTypeMatches,
   env,
   InstanceCommand,
-  CLI_FILENAME,
   parseYamlFile,
   SelfHostedInstanceCommand,
   ServiceType
 } from '@powersync/cli-core';
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 export default class LinkSelfHosted extends SelfHostedInstanceCommand {
   static description = [
     `Links a self hosted PowerSync instance by API URL.`,
     `API Keys can be specified via input or specified in the TOKEN environment variable.`
   ].join('\n');
-  static summary = 'Link to a self-hosted PowerSync instance by API URL.';
   static flags = {
     'api-url': Flags.string({
       description: 'Self-hosted PowerSync API base URL (e.g. https://powersync.example.com).',
@@ -26,10 +24,11 @@ export default class LinkSelfHosted extends SelfHostedInstanceCommand {
     }),
     ...InstanceCommand.flags
   };
+  static summary = 'Link to a self-hosted PowerSync instance by API URL.';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(LinkSelfHosted);
-    const { directory, 'api-url': apiUrl } = flags;
+    const { 'api-url': apiUrl, directory } = flags;
 
     const projectDir = this.ensureProjectDirExists(flags);
     ensureServiceTypeMatches({
@@ -46,8 +45,8 @@ export default class LinkSelfHosted extends SelfHostedInstanceCommand {
     const apiKey = env.TOKEN
       ? defaultApiKey
       : await input({
-          message: 'API key (default: !env TOKEN — read from TOKEN when running commands):',
-          default: '!env TOKEN'
+          default: '!env TOKEN',
+          message: 'API key (default: !env TOKEN — read from TOKEN when running commands):'
         });
 
     // Preserve comments

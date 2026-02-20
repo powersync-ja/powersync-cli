@@ -1,6 +1,7 @@
 import { confirm, password } from '@inquirer/prompts';
 import { ux } from '@oclif/core';
 import { createAccountsHubClient, PowerSyncCommand, Services } from '@powersync/cli-core';
+
 import { startPATLoginServer } from '../api/login-server.js';
 
 export default class Login extends PowerSyncCommand {
@@ -15,8 +16,8 @@ export default class Login extends PowerSyncCommand {
     const shouldUseInsecureStorage =
       !storage.capabilities.supportsSecureStorage &&
       (await confirm({
-        message: `Keychain storage is unavailable on this platform. Store token in plaintext at ${storage.insecureStoragePath}? Set the ${ux.colorize('blue', 'TOKEN')} environment variable instead to avoid this.`,
-        default: false
+        default: false,
+        message: `Keychain storage is unavailable on this platform. Store token in plaintext at ${storage.insecureStoragePath}? Set the ${ux.colorize('blue', 'TOKEN')} environment variable instead to avoid this.`
       }));
 
     if (!storage.capabilities.supportsSecureStorage && !shouldUseInsecureStorage) {
@@ -38,14 +39,15 @@ export default class Login extends PowerSyncCommand {
       this.log('An existing token was found. This existing token has access to the following organizations:');
       try {
         this.log(await listOrgs());
-      } catch (err) {
+      } catch (error) {
         this.log(
-          `\tFailed to list organizations. This is normal if the token is not valid. ${ux.colorize('blue', JSON.stringify(err))}`
+          `\tFailed to list organizations. This is normal if the token is not valid. ${ux.colorize('blue', JSON.stringify(error))}`
         );
       }
+
       const overwrite = await confirm({
-        message: 'Do you want to overwrite the existing token?',
-        default: false
+        default: false,
+        message: 'Do you want to overwrite the existing token?'
       });
       if (overwrite) {
         await authentication.deleteToken();
@@ -56,8 +58,8 @@ export default class Login extends PowerSyncCommand {
     }
 
     const openBrowser = await confirm({
-      message: 'Would you like to open a browser to generate a token?',
-      default: true
+      default: true,
+      message: 'Would you like to open a browser to generate a token?'
     });
 
     // Allows aborting the prompt if the server returns the token
@@ -68,6 +70,7 @@ export default class Login extends PowerSyncCommand {
         `Waiting on ${ux.colorize('blue', serverResponse.address)} for you to create a token in the dashboard...`
       );
     }
+
     const serverTokenPromise = serverResponse
       ? serverResponse.tokenPromise.then((token) => {
           // Abort the prompt if the server returns the token
@@ -78,10 +81,10 @@ export default class Login extends PowerSyncCommand {
 
     const promptTokenPromise = password(
       {
+        mask: true,
         message: openBrowser
           ? 'Enter the token if the browser failed to send it to the CLI'
-          : 'Enter your API token (https://docs.powersync.com/usage/tools/cli#personal-access-token):',
-        mask: true
+          : 'Enter your API token (https://docs.powersync.com/usage/tools/cli#personal-access-token):'
       },
       { signal: abortController.signal }
     ).then((token) => {
@@ -103,9 +106,9 @@ export default class Login extends PowerSyncCommand {
       this.log(orgs);
       this.log('Token is valid.');
       this.log(ux.colorize('green', 'Token stored successfully.'));
-    } catch (err) {
+    } catch (error) {
       await authentication.deleteToken();
-      this.styledError({ message: 'Invalid token. Please try again.', error: err });
+      this.styledError({ error, message: 'Invalid token. Please try again.' });
     }
   }
 }

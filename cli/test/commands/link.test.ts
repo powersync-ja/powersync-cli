@@ -36,11 +36,17 @@ describe('link', () => {
       if (tmpDir && existsSync(tmpDir)) rmSync(tmpDir, { recursive: true });
     });
 
-    it('errors when directory does not exist', async () => {
+    it('creates directory and cli.yaml when directory does not exist', async () => {
       const result = await runCommand('link cloud --instance-id=inst --org-id=org --project-id=proj', { root });
-      expect(result.error?.message).toContain(`Directory "${PROJECT_DIR}" not found`);
-      expect(result.error?.message).toContain('powersync init');
-      expect(result.error?.oclif?.exit).toBe(1);
+      expect(result.error).toBeUndefined();
+      expect(result.stdout).toContain(`Updated ${PROJECT_DIR}/${CLI_FILENAME} with Cloud instance link.`);
+      const linkPath = join(tmpDir, PROJECT_DIR, CLI_FILENAME);
+      expect(existsSync(linkPath)).toBe(true);
+      const linkYaml = parseYaml(readFileSync(linkPath, 'utf8'));
+      expect(linkYaml.type).toBe('cloud');
+      expect(linkYaml.instance_id).toBe('inst');
+      expect(linkYaml.org_id).toBe('org');
+      expect(linkYaml.project_id).toBe('proj');
     });
 
     it('errors when service.yaml _type does not match (self-hosted)', async () => {
@@ -119,8 +125,12 @@ type: cloud
 
     afterEach(() => {
       process.chdir(origCwd);
-      if (origPsToken !== undefined) process.env.TOKEN = origPsToken;
-      else delete process.env.TOKEN;
+      if (origPsToken === undefined) {
+        delete process.env.TOKEN;
+      } else {
+        process.env.TOKEN = origPsToken;
+      }
+
       if (tmpDir && existsSync(tmpDir)) rmSync(tmpDir, { recursive: true });
     });
 

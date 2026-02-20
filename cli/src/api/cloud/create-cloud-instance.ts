@@ -1,9 +1,9 @@
 import type { PowerSyncManagementClient } from '@powersync/management-client';
 
 export type CreateCloudInstanceOptions = {
+  name: string;
   orgId: string;
   projectId: string;
-  name: string;
   region: string;
 };
 
@@ -19,7 +19,7 @@ export async function createCloudInstance(
   client: PowerSyncManagementClient,
   options: CreateCloudInstanceOptions
 ): Promise<CreateCloudInstanceResult> {
-  const { orgId, projectId, name, region } = options;
+  const { name, orgId, projectId, region } = options;
 
   // validate the region against the list of regions returned by the client.listRegions() method
   const regions = await client.listRegions();
@@ -30,9 +30,9 @@ export async function createCloudInstance(
   }
 
   const result = await client.createInstance({
-    org_id: orgId,
     app_id: projectId,
     name,
+    org_id: orgId,
     region
   });
   return { instanceId: result.id };
