@@ -23,7 +23,7 @@
     "@powersync/cli-core": "workspace:*",
     "@powersync/cli-schemas": "workspace:*",
     "@powersync/service-types": "^0.13.3",
-    "@powersync/service-schema": "file:/Users/stevenontong/Documents/platform_code/powersync/service/powersync-service/packages/schema/powersync-service-schema-1.19.3.tgz",
+    "@powersync/service-schema": "^1.19.2",
     "yaml": "^2"
   },
   "devDependencies": {
