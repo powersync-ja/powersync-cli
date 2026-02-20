@@ -86,12 +86,13 @@ export default class InitCloud extends PowerSyncCommand {
       '',
       'Configuration files are located in:',
       `\t${targetDir}`,
+      `Check the ${SERVICE_FILENAME} and ${SYNC_FILENAME} file(s) and configure them by uncommenting the options you would like to use.`,
       '',
       instructions
     ];
     if (vscode) {
-      lines.splice(5, 0, 'Added .vscode/settings.json for YAML !env tag support.');
-      lines.splice(6, 0, '');
+      lines.splice(6, 0, 'Added .vscode/settings.json for YAML !env tag support.');
+      lines.splice(7, 0, '');
     }
 
     this.log(lines.join('\n'));

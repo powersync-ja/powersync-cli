@@ -13,116 +13,164 @@ name: My instance
 # Note: This cannot be changed after the initial deployment
 region: us
 
-# replication: database connections for sync
-# Note: only a single connection is currently supported
+# [optional] replication: database connections for sync
+# Note: only a single connection is currently supported.
+# Connection: `uri` and `password` are required for a complete connection. Alternatively omit `uri`
+# and provide individual fields (hostname, port, database, username, password, etc.); they are used
+# to construct the connection URI. For MongoDB, `uri` is required.
 replication:
-  connections: []
 #     -------------------------------------------------------------------------
 #     PostgreSQL – uncomment this entire block to use
 #     -------------------------------------------------------------------------
+#  connections:
 #     - type: postgresql
-#       hostname: example.com
-#       database: one
-#       username: postgres
+#       # [optional]
+#       uri: string
 #       password:
 #         secret: !env POWERSYNC_DATABASE_PASSWORD
-#       uri: string
+#       # [optional]
+#       hostname: example.com
+#       # [optional]
+#       database: one
+#       # [optional]
+#       username: postgres
+#       # [optional]
 #       port: 5432
+#       # [optional]
 #       name: string
+#       # [optional]
 #       id: string
+#       # [optional]
 #       tag: string
-#       # Options: verify-full | verify-ca
+#       # [optional] Options: verify-full | verify-ca
 #       sslmode: verify-full
+#       # [optional]
 #       cacert: string
+#       # [optional]
 #       client_certificate: string
+#       # [optional]
 #       client_private_key:
 #         secret: !env POWERSYNC_DATABASE_CLIENT_KEY
+#       # [optional]
 #       vpc_endpoint_hostname: string
+#       # [optional]
 #       debug_api: boolean
 
 #     -------------------------------------------------------------------------
 #     MongoDB – uncomment this entire block to use (comment out PostgreSQL above)
+#     uri is required for MongoDB; other fields are optional.
 #     -------------------------------------------------------------------------
+#  connections:
 #     - type: mongodb
 #       uri: mongodb+srv://user:pass@host/db
-#       name: string
-#       id: string
-#       tag: string
-#       username: string
 #       password:
 #         secret: !env POWERSYNC_MONGODB_PASSWORD
+#       # [optional]
+#       name: string
+#       # [optional]
+#       id: string
+#       # [optional]
+#       tag: string
+#       # [optional]
+#       username: string
+#       # [optional]
 #       database: string
-#       Options: off | auto_configure | read_only
+#       # [optional] Options: off | auto_configure | read_only
 #       post_images: off
+#       # [optional]
 #       vpc_endpoint_hostname: string
 
 #     -------------------------------------------------------------------------
 #     MySQL – uncomment this entire block to use (comment out PostgreSQL above)
 #     -------------------------------------------------------------------------
+#  connections:
 #     - type: mysql
-#       hostname: db.example.com
-#       port: 3306
-#       database: mydb
-#       username: sync
+#       # [optional]
+#       uri: string
 #       password:
 #         secret: !env POWERSYNC_MYSQL_PASSWORD
+#       # [optional]
+#       hostname: db.example.com
+#       # [optional]
+#       port: 3306
+#       # [optional]
+#       database: mydb
+#       # [optional]
+#       username: sync
+#       # [optional]
 #       name: string
+#       # [optional]
 #       id: string
+#       # [optional]
 #       tag: string
-#       uri: string
+#       # [optional]
 #       client_certificate: string
+#       # [optional]
 #       client_private_key:
 #         secret: !env POWERSYNC_MYSQL_CLIENT_KEY
+#       # [optional]
 #       debug_api: false
 
 #     -------------------------------------------------------------------------
 #     MSSQL – uncomment this entire block to use (comment out PostgreSQL above)
 #     -------------------------------------------------------------------------
+#  connections:
 #     - type: mssql
-#       hostname: sql.example.com
-#       port: 1433
-#       database: mydb
-#       schema: dbo
-#       username: sync
+#       # [optional]
+#       uri: string
 #       password:
 #         secret: !env POWERSYNC_MSSQL_PASSWORD
+#       # [optional]
+#       hostname: sql.example.com
+#       # [optional]
+#       port: 1433
+#       # [optional]
+#       database: mydb
+#       # [optional]
+#       schema: dbo
+#       # [optional]
+#       username: sync
+#       # [optional]
 #       name: string
+#       # [optional]
 #       id: string
+#       # [optional]
 #       tag: string
-#       uri: string
-#       Options: default | azure-active-directory-password | azure-active-directory-service-principal-secret
+#       # [optional] Options: default | azure-active-directory-password | azure-active-directory-service-principal-secret
 #       authentication:
 #         type: default
 #         options:
 #           password:
 #             secret: !env POWERSYNC_MSSQL_PASSWORD
+#       # [optional]
 #       additionalConfig:
 #         pollingIntervalMs: 5000
 #         pollingBatchSize: 1000
 #         trustServerCertificate: false
+#       # [optional]
 #       debug_api: false
 
 # -----------------------------------------------------------------------------
 # CLIENT AUTH (optional) – uncomment this entire block to enable
 # -----------------------------------------------------------------------------
-client_auth: {}
+# client_auth:
 
-#   PowerSync will use the same JWT secret as Supabase.
+#   # [optional] PowerSync will use the same JWT secret as Supabase.
 #   supabase: false
 
-#   Legacy: If your Supabase project does not use the new JWT signing keys, you must provide your project's legacy JWT secret to use Supabase Auth. Get it from your project's API settings in the Supabase Dashboard.
+#   # [optional] Legacy: If your Supabase project does not use the new JWT signing keys, you must provide your project's legacy JWT secret to use Supabase Auth. Get it from your project's API settings in the Supabase Dashboard.
 #   supabase_jwt_secret:
 #     secret: !env POWERSYNC_SUPABASE_JWT_SECRET
 
-#   Additional audiences to accept when validating incoming JWT tokens (the instance domain is always accepted)
+#   # [optional] Additional audiences to accept when validating incoming JWT tokens (the instance domain is always accepted)
 #   additional_audiences: []
 
-#   Enables development tokens to be generated and accepted by the instance
+#   # [optional] Enables development tokens to be generated and accepted by the instance
 #   allow_temporary_tokens: false
 
-#   URL to a JSON Web Key Set (JWKS) endpoint; the instance fetches public keys from this URL to verify JWT signatures from clients.
+#   # [optional] URL to a JSON Web Key Set (JWKS) endpoint; the instance fetches public keys from this URL to verify JWT signatures from clients.
 #   jwks_uri: https://example.com/jwks.json
-#   Inline JSON Web Key Set; provide keys directly instead of (or in addition to) jwks_uri to verify JWT signatures.
+#   # [optional] Inline JSON Web Key Set; provide keys directly instead of (or in addition to) jwks_uri to verify JWT signatures.
 #   jwks:
 #     keys:
 #       HMAC (symmetric) – Options: HS256 | HS384 | HS512
