@@ -11,7 +11,7 @@ export default class Stop extends CloudInstanceCommand {
     }),
     ...CloudInstanceCommand.flags
   };
-static summary = 'Stop the linked Cloud instance (restart with deploy).';
+  static summary = 'Stop the linked Cloud instance (restart with deploy).';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(Stop);

@@ -52,7 +52,7 @@ export default class FetchInstances extends Command {
       required: false
     })
   };
-static summary = '[Cloud only] List Cloud instances in the current org/project.';
+  static summary = '[Cloud only] List Cloud instances in the current org/project.';
 
   async run(): Promise<void> {
     const accountsClient = await createAccountsHubClient();

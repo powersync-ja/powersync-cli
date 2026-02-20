@@ -29,7 +29,7 @@ export default class GenerateSchema extends SharedInstanceCommand {
     }),
     ...SharedInstanceCommand.flags
   };
-static summary = 'Generate client schema file from instance schema and sync config.';
+  static summary = 'Generate client schema file from instance schema and sync config.';
 
   async getCloudSchema(project: CloudProject): Promise<routes.GetSchemaResponse> {
     const { linked } = project;

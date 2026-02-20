@@ -11,7 +11,7 @@ export default class Destroy extends CloudInstanceCommand {
     }),
     ...CloudInstanceCommand.flags
   };
-static summary = 'Permanently destroy the linked Cloud instance.';
+  static summary = 'Permanently destroy the linked Cloud instance.';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(Destroy);

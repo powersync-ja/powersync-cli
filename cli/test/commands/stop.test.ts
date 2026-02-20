@@ -34,8 +34,11 @@ describe('stop', () => {
 
   afterEach(() => {
     process.chdir(origCwd);
-    if (origPsToken === undefined) {delete process.env.TOKEN;}
-    else {process.env.TOKEN = origPsToken;}
+    if (origPsToken === undefined) {
+      delete process.env.TOKEN;
+    } else {
+      process.env.TOKEN = origPsToken;
+    }
 
     if (tmpDir && existsSync(tmpDir)) rmSync(tmpDir, { recursive: true });
   });

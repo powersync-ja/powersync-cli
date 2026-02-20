@@ -14,7 +14,7 @@ export default class FetchConfig extends CloudInstanceCommand {
     }),
     ...CloudInstanceCommand.flags
   };
-static summary = '[Cloud only] Print linked Cloud instance config (YAML or JSON).';
+  static summary = '[Cloud only] Print linked Cloud instance config (YAML or JSON).';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(FetchConfig);
