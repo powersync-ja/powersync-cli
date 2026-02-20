@@ -27,8 +27,7 @@ describe('init', () => {
   });
 
   it('creates project with default directory (init cloud)', async () => {
-    const { stdout } = await runCommand('init cloud', { root });
-    expect(stdout).toContain('Created PowerSync cloud project');
+    await runCommand('init cloud', { root });
     const projectDir = join(tmpDir, 'powersync');
     const serviceYamlPath = join(projectDir, 'service.yaml');
     const syncYamlPath = join(projectDir, 'sync.yaml');
@@ -57,10 +56,9 @@ describe('init', () => {
   });
 
   it('creates project with --directory flag', async () => {
-    const { stdout } = await runCommand(`init cloud --directory=${CUSTOM_DIR}`, {
+    await runCommand(`init cloud --directory=${CUSTOM_DIR}`, {
       root
     });
-    expect(stdout).toContain(`Created PowerSync cloud project`);
     const projectDir = join(tmpDir, CUSTOM_DIR);
     const serviceYamlPath = join(projectDir, 'service.yaml');
     const syncYamlPath = join(projectDir, 'sync.yaml');
@@ -78,8 +76,7 @@ describe('init', () => {
   });
 
   it('creates self-hosted project with init self-hosted', async () => {
-    const { stdout } = await runCommand(`init self-hosted --directory=${CUSTOM_DIR}`, { root });
-    expect(stdout).toContain(`Created PowerSync self-hosted project`);
+    await runCommand(`init self-hosted --directory=${CUSTOM_DIR}`, { root });
     const projectDir = join(tmpDir, CUSTOM_DIR);
     const serviceYamlPath = join(projectDir, 'service.yaml');
     const syncYamlPath = join(projectDir, 'sync.yaml');

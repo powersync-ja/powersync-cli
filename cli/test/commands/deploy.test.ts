@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { CLI_FILENAME, SERVICE_FILENAME } from '@powersync/cli-core';
 import DeployCommand from '../../src/commands/deploy/index.js';
 import { root } from '../helpers/root.js';
 
@@ -26,9 +27,7 @@ async function runDeployDirect(opts?: { directory?: string }) {
   return captureOutput(() => cmd.run());
 }
 
-const CLI_FILENAME = 'cli.yaml';
 const PROJECT_DIR = 'powersync';
-const SERVICE_FILENAME = 'service.yaml';
 
 function writeServiceYaml(projectDir: string, type: 'cloud' | 'self-hosted') {
   const content = type === 'cloud' ? '_type: cloud\nname: test-instance\nregion: us\n' : `_type: ${type}\nregion: us\n`;

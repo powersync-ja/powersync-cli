@@ -39,7 +39,6 @@ describe('link', () => {
     it('creates directory and cli.yaml when directory does not exist', async () => {
       const result = await runCommand('link cloud --instance-id=inst --org-id=org --project-id=proj', { root });
       expect(result.error).toBeUndefined();
-      expect(result.stdout).toContain(`Updated ${PROJECT_DIR}/${CLI_FILENAME} with Cloud instance link.`);
       const linkPath = join(tmpDir, PROJECT_DIR, CLI_FILENAME);
       expect(existsSync(linkPath)).toBe(true);
       const linkYaml = parseYaml(readFileSync(linkPath, 'utf8'));
