@@ -72,6 +72,7 @@ export default class InitCloud extends PowerSyncCommand {
         'blue',
         '\tpowersync pull instance --org-id=<org-id> --project-id=<project-id> --instance-id=<instance-id>'
       ),
+      `Tip: use ${ux.colorize('blue', 'powersync fetch instances')} to see available organizations and projects for your token.`,
       'Then run',
       ux.colorize('blue', '\tpowersync deploy'),
       'to deploy changes.'

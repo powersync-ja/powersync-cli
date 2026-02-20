@@ -15,18 +15,15 @@ const PostgresSourceDatabaseModule: DockerModule = {
     const { modulesOutputDirectory, serviceConfig, mainComposeDocument } = context;
 
     context.command.log(
-      ux.colorize(
-        'yellow',
-        [
-          'Note: the Postgres database template is incomplete.',
-          'Update docker/modules/database-postgres/init-scripts/ with your schema (tables and publication) before deploying.',
-          'Init scripts run only when the DB volume is empty. If you see "Publication powersync does not exist", run: ' +
-            ux.colorize('blue', 'powersync docker stop --remove --remove-volumes') +
-            ' then ' +
-            ux.colorize('blue', 'powersync docker reset') +
-            ' again.'
-        ].join('\n')
-      )
+      [
+        `${ux.colorize('yellow', 'Note')}: the Postgres database template is incomplete.`,
+        'Update docker/modules/database-postgres/init-scripts/ with your schema (tables and publication) before deploying.',
+        'Init scripts run only when the DB volume is empty. If you see "Publication powersync does not exist", run: ' +
+          ux.colorize('blue', 'powersync docker stop --remove --remove-volumes') +
+          ' then ' +
+          ux.colorize('blue', 'powersync docker reset') +
+          ' again.'
+      ].join('\n')
     );
 
     const moduleOutputDirectory = path.join(modulesOutputDirectory, 'database-postgres');

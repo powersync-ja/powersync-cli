@@ -177,6 +177,7 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
     this.log(ux.colorize('gray', '  - .env'));
     this.log(ux.colorize('gray', `  - Merged config into ${SERVICE_FILENAME}`));
     this.log(ux.colorize('gray', `  - ${CLI_FILENAME} (plugins.docker.project_name: ${projectName})`));
+    this.log('');
     this.log(`Next: run "${ux.colorize('blue', 'powersync docker start')}" to start the stack.`);
   }
 }

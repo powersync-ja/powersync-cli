@@ -3,17 +3,14 @@ import * as yaml from 'yaml';
 
 export const YAML_SYNC_RULES_SCHEMA = /* yaml */ `
 # yaml-language-server: $schema=https://unpkg.com/@powersync/service-sync-rules@latest/schema/sync_rules.json
-#
 `.trim();
 
 export const YAML_SERVICE_SCHEMA = /* yaml */ `
 # yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/service-config.json
-#
 `.trim();
 
 export const YAML_CLI_SCHEMA = /* yaml */ `
 # yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/cli-config.json
-#
 `.trim();
 
 /**
