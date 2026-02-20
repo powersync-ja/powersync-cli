@@ -1,17 +1,12 @@
 import { Flags, ux } from '@oclif/core';
-
+import { instantiate } from '@powersync-community/sync-config-rewriter';
 import { InstanceCommand, SYNC_FILENAME, YAML_SYNC_RULES_SCHEMA } from '@powersync/cli-core';
 import { access, readFile, writeFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
-
-import { instantiate } from '@powersync-community/sync-config-rewriter';
-
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 export default class MigrateSyncRules extends InstanceCommand {
   static description = 'Migrates Sync Rules to Sync Streams';
-  static summary = 'Migrates Sync Rules to Sync Streams';
-
   static flags = {
     'input-file': Flags.string({
       description: 'Path to the input sync rules file. Defaults to the project sync.yaml file.',
@@ -23,6 +18,7 @@ export default class MigrateSyncRules extends InstanceCommand {
     }),
     ...InstanceCommand.flags
   };
+  static summary = 'Migrates Sync Rules to Sync Streams';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(MigrateSyncRules);
@@ -39,6 +35,7 @@ export default class MigrateSyncRules extends InstanceCommand {
         message: `Sync input file ${syncInputPath} not found.`
       });
     }
+
     const syncInputContent = await readFile(syncInputPath, 'utf8');
 
     const wasmBuffer = await readFile(
@@ -49,14 +46,19 @@ export default class MigrateSyncRules extends InstanceCommand {
 
     const output = SyncStreamsRewriter.syncRulesToSyncStreams(syncInputContent);
     switch (output.type) {
-      case 'error':
+      case 'error': {
         this.styledError({
           message: `Failed to migrate sync rules: ${output.diagnostics.map((d) => `${d.message} at line ${d.startOffset}, column ${d.length}`).join('\n')}`
         });
-      case 'success':
+        break;
+      }
+
+      case 'success': {
         const outputContent = output.result;
         await writeFile(syncOutputPath, YAML_SYNC_RULES_SCHEMA + outputContent);
         this.log(ux.colorize('green', `Wrote ${syncOutputPath} with migrated sync streams.`));
+        break;
+      }
     }
   }
 }
