@@ -4,11 +4,11 @@ The PowerSync CLI operates against **PowerSync instances**. How you point the CL
 
 ## Local configuration
 
-It is possible to manage and deploy updates to instances entirely from the CLI. Local files are used to store the configuration state in a folder relative to your current working directory. By default this folder is `powersync/`. It holds schema, sync config, and other YAML config. You can use a different folder via the `--directory` flag when supported.
+It is possible to manage and deploy updates to instances entirely from the CLI. Local files are used to store the configuration state in a folder relative to your current working directory. By default this folder is `powersync/`. It holds schema, service config, sync config, and other YAML config. You can use a different folder via the `--directory` flag when required.
 
-## Linking to a project
+## Linking to an existing instance
 
-You can **explicitly link** your local config to a cloud or self-hosted project. Running `powersync link [cloud|self-hosted]` creates a persisted **link file** (e.g. `powersync/cli.yaml`) that stores the instance information. Once linked, cloud commands in that directory use this context so you don’t need to pass IDs every time. This is the usual workflow when you develop against a single instance and keep config on disk.
+You can **explicitly link** your local config to a cloud or self-hosted project. Running `powersync link [cloud|self-hosted]` creates a persisted **link file** (e.g. `powersync/cli.yaml`) that stores the instance information. Once linked, cloud commands in that directory use this context so you don’t need to pass IDs every time.
 
 ## Supplying instance information without local config
 
@@ -120,6 +120,7 @@ You can run commands against an instance whose configuration is managed elsewher
 
 ```bash
 powersync login
+powersync fetch instances # to see available instances and their IDs
 powersync link cloud --instance-id=<id> --project-id=<project-id>
 # If your token has multiple orgs: add --org-id=<id>
 ```

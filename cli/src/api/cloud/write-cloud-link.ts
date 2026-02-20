@@ -1,4 +1,4 @@
-import { existsSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Document } from 'yaml';
 
@@ -17,6 +17,9 @@ export type WriteCloudLinkOptions = {
 export function writeCloudLink(projectDir: string, options: WriteCloudLinkOptions): void {
   const { instanceId, orgId, projectId } = options;
   const linkPath = join(projectDir, CLI_FILENAME);
+  if (!existsSync(projectDir)) {
+    mkdirSync(projectDir, { recursive: true });
+  }
   const doc = existsSync(linkPath) ? parseYamlFile(linkPath) : new Document();
   doc.set('type', 'cloud');
   doc.set('instance_id', instanceId);

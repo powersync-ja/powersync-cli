@@ -25,6 +25,7 @@ const PostgresSourceDatabaseModule: DockerModule = {
           ' again.'
       ].join('\n')
     );
+    context.command.log('');
 
     const moduleOutputDirectory = path.join(modulesOutputDirectory, 'database-postgres');
     fs.mkdirSync(moduleOutputDirectory, { recursive: true });
