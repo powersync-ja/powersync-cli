@@ -15,6 +15,7 @@
     "@oclif/plugin-plugins": "^5",
     "@powersync/cli-core": "workspace:*",
     "@powersync/cli-plugin-docker": "workspace:*",
+    "@powersync/cli-plugin-config-edit": "workspace:*",
     "@powersync/cli-schemas": "workspace:*",
     "@powersync/management-client": "0.0.1",
     "@powersync/management-types": "0.0.1",
@@ -75,7 +76,8 @@
     "plugins": [
       "@oclif/plugin-help",
       "@oclif/plugin-plugins",
-      "@powersync/cli-plugin-docker"
+      "@powersync/cli-plugin-docker",
+      "@powersync/cli-plugin-config-edit"
     ],
     "topicSeparator": " ",
     "topics": {
