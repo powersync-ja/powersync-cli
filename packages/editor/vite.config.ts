@@ -11,7 +11,8 @@ import { nitro } from 'nitro/vite';
 const config = defineConfig({
   resolve: {
     alias: {
-      buffer: 'buffer'
+      buffer: 'buffer',
+      minimatch: './src/polyfills/minimatch.ts'
     }
   },
   optimizeDeps: {

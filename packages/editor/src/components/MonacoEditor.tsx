@@ -1,7 +1,7 @@
 import { YAML_SCHEMAS } from '@/utils/yaml-schemas';
 import Editor, { loader, type BeforeMount, type Monaco, type OnMount } from '@monaco-editor/react';
+import type { editor } from 'monaco-editor';
 import * as monaco from 'monaco-editor';
-import { editor } from 'monaco-editor';
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import { configureMonacoYaml } from 'monaco-yaml';
 import YamlWorker from 'monaco-yaml/yaml.worker?worker';

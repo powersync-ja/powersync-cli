@@ -148,12 +148,12 @@ function FileEditor() {
         };
 
   return (
-    <div className="flex h-full w-full flex-1 flex-col gap-6 bg-slate-900/20 px-10 py-8">
-      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
+    <div className="flex h-full w-full flex-1 flex-col gap-6 bg-background px-10 py-8 text-foreground">
+      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.4em] text-white/40">Editing</p>
-          <h2 className="text-2xl font-semibold text-white">{filename}</h2>
-          <p className="text-sm text-white/60">PowerSync CLI YAML configuration</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.4em] text-muted-foreground">Editing</p>
+          <h2 className="text-2xl font-semibold text-foreground">{filename}</h2>
+          <p className="text-sm text-muted-foreground">PowerSync CLI YAML configuration</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <button
@@ -161,7 +161,9 @@ function FileEditor() {
             disabled={validation.errors === 0 && validation.warnings === 0}
             onClick={() => setShowValidation((open) => !open)}
             className={`flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold transition ${validationBadge.tone} ${
-              validation.errors > 0 || validation.warnings > 0 ? 'hover:border-white/60 hover:bg-white/10' : ''
+              validation.errors > 0 || validation.warnings > 0
+                ? 'hover:border-destructive/50 hover:bg-destructive/5'
+                : ''
             } ${validation.errors === 0 && validation.warnings === 0 ? 'cursor-not-allowed opacity-60' : ''}`}>
             {validationBadge.icon}
             {validationBadge.label}
@@ -175,34 +177,34 @@ function FileEditor() {
             type="button"
             onClick={handleReset}
             disabled={!hasChanges || status === 'saving'}
-            className="inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white/80 transition hover:border-white/50 disabled:cursor-not-allowed disabled:opacity-50">
+            className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground transition hover:border-primary/50 disabled:cursor-not-allowed disabled:opacity-50">
             <RotateCcw size={16} /> Reset
           </button>
           <button
             type="button"
             onClick={handleSave}
             disabled={!hasChanges || status === 'saving'}
-            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-cyan-500/30 transition hover:from-cyan-400 hover:to-blue-400 disabled:cursor-not-allowed disabled:opacity-60">
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60">
             {status === 'saving' ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Save changes
           </button>
         </div>
       </header>
 
       {errorMessage && (
-        <div className="rounded-xl border border-rose-500/40 bg-rose-500/10 p-4 text-sm text-rose-100">
+        <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive-foreground">
           {errorMessage}
         </div>
       )}
 
       {showValidation && validationMarkers.length > 0 && (
-        <div className="rounded-xl border border-rose-400/40 bg-rose-500/5 px-4 py-3 text-sm text-white/90">
+        <div className="rounded-xl border border-destructive/25 bg-destructive/5 px-4 py-3 text-sm text-foreground">
           <div className="mb-2 flex items-center justify-between">
-            <div className="flex items-center gap-2 font-semibold text-rose-50">
-              <Info size={16} className="text-rose-200" /> Validation details
+            <div className="flex items-center gap-2 font-semibold text-destructive-foreground">
+              <Info size={16} className="text-destructive" /> Validation details
             </div>
             <button
               type="button"
-              className="text-xs font-semibold text-white/60 underline-offset-4 hover:text-white"
+              className="text-xs font-semibold text-muted-foreground underline-offset-4 hover:text-foreground"
               onClick={() => setShowValidation(false)}>
               Hide
             </button>
@@ -211,18 +213,18 @@ function FileEditor() {
             {validationMarkers.map((marker, idx) => {
               const isError = ERROR_SEVERITIES.has(marker.severity);
               const tone = isError
-                ? 'text-rose-100 bg-rose-500/15 border-rose-300/40'
-                : 'text-amber-100 bg-amber-500/15 border-amber-300/40';
-              const label = isError ? 'Error' : 'Warning';
+                ? 'text-destructive-foreground bg-destructive/15 border-destructive/40'
+                : 'text-warning-foreground bg-warning/15 border-warning/40';
+              const label = isError ? 'Error' : 'Info';
               return (
                 <li key={`${marker.message}-${marker.startLineNumber}-${idx}`} className="flex items-start gap-3">
                   <span
                     className={`mt-0.5 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${tone}`}>
                     {label}
                   </span>
-                  <div className="flex-1 leading-relaxed text-white/90">
-                    <div className="font-semibold text-white">Line {marker.startLineNumber}</div>
-                    <div className="text-white/80">{marker.message}</div>
+                  <div className="flex-1 leading-relaxed text-foreground">
+                    <div className="font-semibold text-foreground">Line {marker.startLineNumber}</div>
+                    <div className="text-muted-foreground">{marker.message}</div>
                   </div>
                 </li>
               );
@@ -231,7 +233,7 @@ function FileEditor() {
         </div>
       )}
 
-      <div className="flex flex-1 min-h-0 overflow-hidden rounded-3xl border border-white/10 bg-slate-950 shadow-[0_20px_120px_rgba(14,165,233,0.12)]">
+      <div className="flex flex-1 min-h-0 overflow-hidden rounded-3xl border border-border bg-card shadow-[0_16px_72px_rgba(0,0,0,0.08)]">
         {isBrowser ? (
           <MonacoEditor
             className="flex-1"
