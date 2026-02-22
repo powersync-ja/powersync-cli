@@ -1,67 +1,30 @@
-import { Link } from '@tanstack/react-router'
-
-import { useState } from 'react'
-import { Home, Menu, X } from 'lucide-react'
+import { Link } from '@tanstack/react-router';
+import { ExternalLink } from 'lucide-react';
 
 export default function Header() {
-  const [isOpen, setIsOpen] = useState(false)
-
   return (
-    <>
-      <header className="p-4 flex items-center bg-gray-800 text-white shadow-lg">
-        <button
-          onClick={() => setIsOpen(true)}
-          className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
-          aria-label="Open menu"
-        >
-          <Menu size={24} />
-        </button>
-        <h1 className="ml-4 text-xl font-semibold">
-          <Link to="/">
-            <img
-              src="/tanstack-word-logo-white.svg"
-              alt="TanStack Logo"
-              className="h-10"
-            />
-          </Link>
-        </h1>
-      </header>
+    <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
+      <div className="mx-auto flex w-full items-center justify-between gap-4 px-8 py-4 text-white">
+        <Link to="/files" className="flex items-center gap-3">
+          <img
+            src="/logo.png"
+            alt="PowerSync Logo"
+            className="flex h-10 w-10 items-center justify-center bg-gradient-to-br from-cyan-500 to-blue-600 text-lg font-black tracking-tight text-white"
+          />
+          <div className="flex flex-col items-start">
+            <p className="text-xs font-semibold uppercase tracking-[0.55em] text-white/60">PowerSync</p>
+            <p className="text-xl font-semibold leading-tight">CLI Config Studio</p>
+          </div>
+        </Link>
 
-      <aside
-        className={`fixed top-0 left-0 h-full w-80 bg-gray-900 text-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out flex flex-col ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
-      >
-        <div className="flex items-center justify-between p-4 border-b border-gray-700">
-          <h2 className="text-xl font-bold">Navigation</h2>
-          <button
-            onClick={() => setIsOpen(false)}
-            className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-            aria-label="Close menu"
-          >
-            <X size={24} />
-          </button>
-        </div>
-
-        <nav className="flex-1 p-4 overflow-y-auto">
-          <Link
-            to="/"
-            onClick={() => setIsOpen(false)}
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-            activeProps={{
-              className:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-            }}
-          >
-            <Home size={20} />
-            <span className="font-medium">Home</span>
-          </Link>
-
-          {/* Demo Links Start */}
-
-          {/* Demo Links End */}
-        </nav>
-      </aside>
-    </>
-  )
+        <a
+          href="https://docs.powersync.com/"
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-white/80 transition hover:border-cyan-400 hover:text-white">
+          Documentation <ExternalLink size={14} />
+        </a>
+      </div>
+    </header>
+  );
 }

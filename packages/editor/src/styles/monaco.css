@@ -1,0 +1,9 @@
+.monaco-editor {
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #0f172a;
+}
+
+.monaco-editor .margin {
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}

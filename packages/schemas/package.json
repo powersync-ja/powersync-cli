@@ -18,21 +18,23 @@
     },
     "./cli-config-schema.json": "./json-schema/cli-config.json",
     "./link-config-schema.json": "./json-schema/cli-config.json",
-    "./service-config-schema.json": "./json-schema/service-config.json"
+    "./service-config-schema.json": "./json-schema/service-config.json",
+    "./sync-config-schema.json": "./json-schema/sync-config.json"
   },
   "scripts": {
     "build": "tsc -b && node dist/scripts/create-schemas.js",
     "clean": "rm -rf dist tsconfig.tsbuildinfo"
   },
   "dependencies": {
-    "ts-codec": "^1.3.0",
+    "@powersync/management-types": "0.0.1",
+    "@powersync/service-schema": "^1.19.2",
+    "@powersync/service-types": "^0.13.3",
     "ajv": "^8.12.0",
     "better-ajv-errors": "^2.0.3",
-    "@powersync/service-types": "^0.13.3",
-    "@powersync/service-schema": "^1.19.2",
-    "@powersync/management-types": "0.0.1"
+    "ts-codec": "^1.3.0"
   },
   "devDependencies": {
+    "@powersync/service-sync-rules": "^0.30.0",
     "@types/node": "^22",
     "shx": "^0.3.3",
     "tsx": "^4",
