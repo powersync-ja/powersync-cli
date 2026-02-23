@@ -3,15 +3,12 @@
 # See Documentation for more information:
 # https://docs.powersync.com/usage/sync-rules
 
-# See https://docs.powersync.com/usage/sync-rules/compatibility for config:edition details
 config:
-  edition: 2
+  edition: 3
 
-# Define sync config to control which data is synced to each user
-# Docs: https://docs.powersync.com/usage/sync-rules
-bucket_definitions:
+streams:
   global:
-    #     Sync config without parameter queries will sync to all users
-    data:
-      #       Sync all rows
+    # Streams without parameters sync the same data to all users
+    auto_subscribe: true
+    queries:
       - SELECT * FROM todos
