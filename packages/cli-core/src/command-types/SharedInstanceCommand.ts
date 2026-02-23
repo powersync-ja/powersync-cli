@@ -91,7 +91,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
       ...DEFAULT_ENSURE_CONFIG_OPTIONS
     };
 
-    const projectDir = this.ensureProjectDirExists(flags);
+    const projectDir = this.ensureProjectDirectory(flags);
     const linkPath = join(projectDir, CLI_FILENAME);
 
     // 1) Context type: from flags/env first, then link file (see class JSDoc for resolution order).

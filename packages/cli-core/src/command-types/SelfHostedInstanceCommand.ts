@@ -58,7 +58,7 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
       ...options
     };
 
-    const projectDir = this.ensureProjectDirExists(flags);
+    const projectDir = this.ensureProjectDirectory(flags);
 
     ensureServiceTypeMatches({
       command: this,

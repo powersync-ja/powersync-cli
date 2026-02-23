@@ -103,7 +103,7 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
       ...options,
       ...DEFAULT_ENSURE_CONFIG_OPTIONS
     };
-    const projectDir = this.ensureProjectDirExists(flags);
+    const projectDir = this.ensureProjectDirectory(flags);
 
     // Check if the service.yaml file is present and has _type: cloud
     ensureServiceTypeMatches({

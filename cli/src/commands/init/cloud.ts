@@ -2,7 +2,6 @@ import { Flags, ux } from '@oclif/core';
 import {
   CLI_FILENAME,
   InstanceCommand,
-  PowerSyncCommand,
   SERVICE_FILENAME,
   SYNC_FILENAME,
   YAML_CLI_SCHEMA,
@@ -18,7 +17,7 @@ import { writeVscodeSettingsForYamlEnv } from '../../api/write-vscode-settings-f
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATES_DIR = join(__dirname, '..', '..', '..', 'templates');
 
-export default class InitCloud extends PowerSyncCommand {
+export default class InitCloud extends InstanceCommand {
   static description =
     'Copy a Cloud template into a config directory (default powersync/). Edit service.yaml then run link cloud and deploy.';
   static examples = [

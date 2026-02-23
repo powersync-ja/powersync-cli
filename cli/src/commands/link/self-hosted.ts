@@ -31,7 +31,7 @@ export default class LinkSelfHosted extends SelfHostedInstanceCommand {
     const { flags } = await this.parse(LinkSelfHosted);
     const { 'api-url': apiUrl, directory } = flags;
 
-    const projectDir = this.ensureProjectDirExists(flags);
+    const projectDir = this.ensureProjectDirectory(flags);
     ensureServiceTypeMatches({
       command: this,
       configRequired: false,

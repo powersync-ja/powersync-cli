@@ -64,7 +64,7 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
 
   async run(): Promise<void> {
     const { flags } = await this.parse(DockerConfigure);
-    const projectDirectory = this.ensureProjectDirExists(flags as SelfHostedInstanceCommandFlags);
+    const projectDirectory = this.ensureProjectDirectory(flags as SelfHostedInstanceCommandFlags);
 
     const targetDockerDir = path.join(projectDirectory, 'docker');
     const modulesDir = path.join(targetDockerDir, 'modules');

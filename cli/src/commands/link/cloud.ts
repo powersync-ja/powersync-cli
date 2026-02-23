@@ -78,7 +78,7 @@ export default class LinkCloud extends CloudInstanceCommand {
         this.styledError({ error, message: 'Failed to create Cloud instance' });
       }
 
-      const projectDir = this.ensureProjectDirExists({ directory });
+      const projectDir = this.ensureProjectDirectory({ directory });
       ensureServiceTypeMatches({
         command: this,
         configRequired: false,

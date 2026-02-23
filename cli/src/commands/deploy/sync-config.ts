@@ -18,8 +18,11 @@ export class DeploySyncConfig extends DeployAll {
    * Deploys only the sync config.
    * Uses existing cloud config state for other fields.
    */
-  protected async deploySyncConfig(params: { cloudConfigState: routes.InstanceConfigResponse }): Promise<void> {
-    const { cloudConfigState } = params;
+  protected async deploySyncConfig(params: {
+    cloudConfigState: routes.InstanceConfigResponse;
+    timeout: number;
+  }): Promise<void> {
+    const { cloudConfigState, timeout } = params;
     const { project } = this;
     const { linked } = project;
 
@@ -37,7 +40,7 @@ export class DeploySyncConfig extends DeployAll {
       });
     }
 
-    return this.withDeploy(async () =>
+    return this.withDeploy(timeout, async () =>
       this.client.deployInstance(
         routes.DeployInstanceRequest.encode({
           ...cloudConfigState,
@@ -71,6 +74,6 @@ export class DeploySyncConfig extends DeployAll {
 
     this.log('Validations completed successfully.\n');
 
-    await this.deploySyncConfig({ cloudConfigState });
+    await this.deploySyncConfig({ cloudConfigState, timeout: flags.timeout });
   }
 }

@@ -63,11 +63,12 @@ export default class DeployAll extends CloudInstanceCommand {
       default: DEFAULT_DEPLOY_TIMEOUT_MS / 1000,
       description:
         'Seconds to wait after scheduling a deploy before timing out while polling status (default 300 seconds).',
-      parse: async (input) => {
+      async parse(input) {
         const value = Number(input);
         if (!Number.isFinite(value) || value <= 0) {
           throw new Error('deploy-timeout must be a positive number of seconds');
         }
+
         return value;
       }
     }),
@@ -255,11 +256,13 @@ export default class DeployAll extends CloudInstanceCommand {
 
   protected async withDeploy(timeoutMs: number, fn: () => Promise<routes.DeployInstanceResponse>): Promise<void> {
     const { client, project } = this;
+
     const spinner = ora({
       prefixText: '\nDeploying instance.\n',
       spinner: 'moon',
       suffixText: '\nThis may take a few minutes.\n'
     });
+
     spinner.start();
 
     try {

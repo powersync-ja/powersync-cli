@@ -23,7 +23,7 @@ export default class MigrateSyncRules extends InstanceCommand {
   async run(): Promise<void> {
     const { flags } = await this.parse(MigrateSyncRules);
 
-    const syncInputPath = flags['input-file'] ?? join(this.ensureProjectDirExists(flags), SYNC_FILENAME);
+    const syncInputPath = flags['input-file'] ?? join(this.ensureProjectDirectory(flags), SYNC_FILENAME);
     const syncOutputPath = flags['output-file'] ?? syncInputPath;
 
     if (
