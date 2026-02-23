@@ -57,8 +57,6 @@ replication:
 #       slot_name_prefix: string
 #       # [optional]
 #       max_pool_size: number
-#       # [optional]
-#       debug_api: boolean
 
 #     -------------------------------------------------------------------------
 #     MongoDB – uncomment this entire block to use (comment out PostgreSQL above)
@@ -80,8 +78,6 @@ replication:
 #       reject_ip_ranges: []
 #       # [optional] Options: off | auto_configure | read_only
 #       post_images: off
-#       # [optional]
-#       debug_api: false
 
 #     -------------------------------------------------------------------------
 #     MySQL – uncomment this entire block to use (comment out PostgreSQL above)
@@ -115,8 +111,6 @@ replication:
 #       reject_ip_ranges: []
 #       # [optional]
 #       binlog_queue_memory_limit: number
-#       # [optional]
-#       debug_api: false
 
 # -----------------------------------------------------------------------------
 # STORAGE – configuration for the storage backend (sync bucket storage). Required for self-hosted.

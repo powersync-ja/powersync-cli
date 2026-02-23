@@ -53,8 +53,6 @@ replication:
 #         secret: !env POWERSYNC_DATABASE_CLIENT_KEY
 #       # [optional]
 #       vpc_endpoint_hostname: string
-#       # [optional]
-#       debug_api: boolean
 
 #     -------------------------------------------------------------------------
 #     MongoDB – uncomment this entire block to use (comment out PostgreSQL above)
@@ -108,8 +106,6 @@ replication:
 #       # [optional]
 #       client_private_key:
 #         secret: !env POWERSYNC_MYSQL_CLIENT_KEY
-#       # [optional]
-#       debug_api: false
 
 #     -------------------------------------------------------------------------
 #     MSSQL – uncomment this entire block to use (comment out PostgreSQL above)
@@ -147,8 +143,6 @@ replication:
 #         pollingIntervalMs: 5000
 #         pollingBatchSize: 1000
 #         trustServerCertificate: false
-#       # [optional]
-#       debug_api: false
 
 # -----------------------------------------------------------------------------
 # CLIENT AUTH (optional) – uncomment this entire block to enable
