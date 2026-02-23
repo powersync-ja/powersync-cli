@@ -22,7 +22,8 @@ export function writeVscodeSettingsForYamlEnv(workspaceRoot: string): void {
   }
 
   const currentSettings = (settings['yaml.customTags'] ?? []) as string[];
-  settings['yaml.customTags'] = [...currentSettings, ...VSCODE_YAML_TAGS];
+  const mergedTags = Array.from(new Set([...currentSettings, ...VSCODE_YAML_TAGS]));
+  settings['yaml.customTags'] = mergedTags;
   mkdirSync(vscodeDir, { recursive: true });
   writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n', 'utf8');
 }
