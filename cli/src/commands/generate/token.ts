@@ -85,8 +85,8 @@ export default class GenerateToken extends SharedInstanceCommand {
     } catch (error) {
       this.styledError({
         error,
-        message: 'Generating a token for self hosted intances requires the configuration to be locally present.',
-        suggestions: [`Ensure that ${join(project.projectDirectory, SERVICE_FILENAME)} exits`]
+        message: 'Generating a token for self hosted instances requires the configuration to be locally present.',
+        suggestions: [`Ensure that ${join(project.projectDirectory, SERVICE_FILENAME)} exists`]
       });
     }
 

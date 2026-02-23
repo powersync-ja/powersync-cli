@@ -70,7 +70,7 @@ const PostgresSourceDatabaseModule: DockerModule = {
 
     serviceConfig.set('replication', replicationConfig);
 
-    const additionalEnviroment = {
+    const additionalEnvironment = {
       PS_DATABASE_USER: 'postgres',
       PS_DATABASE_PASSWORD: 'changeme',
       PS_DATABASE_NAME: 'postgres',
@@ -79,7 +79,7 @@ const PostgresSourceDatabaseModule: DockerModule = {
         'postgresql://${PS_DATABASE_USER}:${PS_DATABASE_PASSWORD}@pg-db:${PS_DATABASE_PORT}/${PS_DATABASE_NAME}'
     };
 
-    return { additionalEnviroment };
+    return { additionalEnvironment };
   }
 };
 

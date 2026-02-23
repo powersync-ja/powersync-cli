@@ -23,11 +23,11 @@ const ExternalBucketStorageModule: DockerModule = {
 
     serviceConfig.set('storage', storageConfig);
 
-    const additionalEnviroment = {
+    const additionalEnvironment = {
       PS_STORAGE_SOURCE_URI: '<set-your-external-postgres-connection-string-in-env>'
     };
 
-    return { additionalEnviroment };
+    return { additionalEnvironment };
   }
 };
 

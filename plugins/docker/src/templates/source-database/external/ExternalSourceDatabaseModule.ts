@@ -7,7 +7,7 @@ const ExternalSourceDatabaseModule: DockerModule = {
   name: 'external',
   type: DockerModuleType.SOURCE_DATABASE,
   apply: async (context: DockerModuleContext) => {
-    const { projectdirectory, serviceConfig } = context;
+    const { projectDirectory: projectdirectory, serviceConfig } = context;
 
     context.command.log(
       ux.colorize(
@@ -18,7 +18,6 @@ const ExternalSourceDatabaseModule: DockerModule = {
 
     const uri = new Scalar('PS_DATA_SOURCE_URI');
     uri.type = 'PLAIN';
-    ``;
     uri.tag = '!env';
 
     const replicationConfig = {
@@ -33,11 +32,11 @@ const ExternalSourceDatabaseModule: DockerModule = {
 
     serviceConfig.set('replication', replicationConfig);
 
-    const additionalEnviroment = {
+    const additionalEnvironment = {
       PS_DATA_SOURCE_URI: '<set-your-external-postgres-connection-string-in-env>'
     };
 
-    return { additionalEnviroment };
+    return { additionalEnvironment };
   }
 };
 

@@ -122,7 +122,7 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
 
     const moduleContext: DockerModuleContext = {
       command: this,
-      projectdirectory: projectDirectory,
+      projectDirectory: projectDirectory,
       composeOutputDirectory: targetDockerDir,
       modulesOutputDirectory: modulesDir,
       mainComposeDocument,
@@ -143,7 +143,7 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
 
       envFileContents += [
         `# ${databaseTemplate.name} Database Config`,
-        ...Object.entries(databaseModuleResponse.additionalEnviroment ?? {}).map(([key, value]) => `${key}=${value}`)
+        ...Object.entries(databaseModuleResponse.additionalEnvironment ?? {}).map(([key, value]) => `${key}=${value}`)
       ].join('\n');
     }
 
@@ -160,7 +160,7 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
         (envFileContents ? '\n\n' : '') +
         [
           `# ${storageTemplate.name} Storage Config`,
-          ...Object.entries(storageModuleResponse.additionalEnviroment ?? {}).map(([key, value]) => `${key}=${value}`)
+          ...Object.entries(storageModuleResponse.additionalEnvironment ?? {}).map(([key, value]) => `${key}=${value}`)
         ].join('\n');
     }
 

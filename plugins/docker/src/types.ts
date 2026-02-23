@@ -10,7 +10,7 @@ export enum DockerModuleType {
 export type DockerModuleContext = {
   /** Invoking command, for logging and output. */
   command: Command;
-  projectdirectory: string;
+  projectDirectory: string;
   /** Directory containing docker-compose.yaml (powersync/docker/). Used for relative include paths. */
   composeOutputDirectory: string;
   modulesOutputDirectory: string;
@@ -20,7 +20,7 @@ export type DockerModuleContext = {
 };
 
 export type DockerModuleConfigResponse = {
-  additionalEnviroment?: Record<string, string>;
+  additionalEnvironment?: Record<string, string>;
 };
 
 export type DockerModule = {

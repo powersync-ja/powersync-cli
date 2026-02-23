@@ -52,7 +52,7 @@ const PostgresBucketStorageModule: DockerModule = {
 
     serviceConfig.set('storage', storageConfig);
 
-    const additionalEnviroment = {
+    const additionalEnvironment = {
       PS_STORAGE_USER: 'postgres',
       PS_STORAGE_PASSWORD: 'changeme',
       PS_STORAGE_DATABASE: 'powersync_storage',
@@ -61,7 +61,7 @@ const PostgresBucketStorageModule: DockerModule = {
         'postgresql://${PS_STORAGE_USER}:${PS_STORAGE_PASSWORD}@pg-storage:${PS_STORAGE_PORT}/${PS_STORAGE_DATABASE}'
     };
 
-    return { additionalEnviroment };
+    return { additionalEnvironment };
   }
 };
 

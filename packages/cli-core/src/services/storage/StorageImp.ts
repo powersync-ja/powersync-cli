@@ -5,20 +5,6 @@ import * as yaml from 'yaml';
 import { createKeychainSecureStorage } from './KeychainSecureStorage.js';
 import { BaseStorage, InsecureStorageConfig, StorageCapabilities, StorageService } from './StorageService.js';
 
-export class InternalStorage implements BaseStorage {
-  getItem(key: string): Promise<string | null> {
-    return Promise.resolve(localStorage.getItem(key));
-  }
-  setItem(key: string, value: string): Promise<void> {
-    localStorage.setItem(key, value);
-    return Promise.resolve();
-  }
-  removeItem(key: string): Promise<void> {
-    localStorage.removeItem(key);
-    return Promise.resolve();
-  }
-}
-
 export const StubSecureStorage: BaseStorage = {
   getItem: () => Promise.reject(new Error('Secure storage is not supported')),
   setItem: () => Promise.reject(new Error('Secure storage is not supported')),

@@ -54,8 +54,8 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
     options: EnsureConfigOptions = DEFAULT_ENSURE_CONFIG_OPTIONS
   ): SelfHostedProject {
     const resolvedOptions = {
-      ...options,
-      ...DEFAULT_ENSURE_CONFIG_OPTIONS
+      ...DEFAULT_ENSURE_CONFIG_OPTIONS,
+      ...options
     };
 
     const projectDir = this.ensureProjectDirExists(flags);

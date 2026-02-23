@@ -11,7 +11,7 @@ export default class Login extends PowerSyncCommand {
   static summary = 'Store auth token for Cloud commands.';
 
   async run(): Promise<void> {
-    this.parse(Login);
+    await this.parse(Login);
 
     const { authentication, storage } = Services;
     const shouldUseInsecureStorage =
@@ -93,7 +93,12 @@ export default class Login extends PowerSyncCommand {
       return token.trim();
     });
 
-    const token = await Promise.race([serverTokenPromise, promptTokenPromise]);
+    const pendingOperations: Promise<string>[] = [promptTokenPromise];
+    if (serverTokenPromise) {
+      pendingOperations.push(serverTokenPromise);
+    }
+
+    const token = await Promise.race(pendingOperations);
 
     if (!token?.trim()) {
       this.styledError({ message: 'Token is required.' });
