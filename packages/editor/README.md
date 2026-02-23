@@ -1,202 +1,66 @@
-Welcome to your new TanStack Start app! 
+# PowerSync CLI Config Studio
 
-# Getting Started
+The PowerSync CLI Config Studio is the Monaco-powered editor that ships with the `powersync edit config` command. It exposes the two YAML files managed by the CLI (`service.yaml` and `sync.yaml`), enforces our official JSON Schemas, and lets you save the result back to your local PowerSync directory without touching the CLI manually.
 
-To run this application:
+## Feature highlights
 
-```bash
-pnpm install
-pnpm dev
-```
+- **Automatic file discovery** – the server functions locate `service.yaml` and `sync.yaml` inside the directory pointed to `POWERSYNC_DIRECTORY` and expose them over TanStack Start server functions.
+- **Schema-aware authoring** – Monaco runs `monaco-yaml` with the schemas from `@powersync/cli-schemas`, so completions, hover docs, and validation all match the CLI contract.
+- **Unsaved change tracking** – changes are stored in an RxJS subject so every route can see which files are pending saves, making the sidebar badges and the editor status consistent.
+- **Actionable validation** – validation markers can be expanded into a details panel that highlights the line and reason that the schema rejected the content.
+- **Reset + Save controls** – users can revert to the upstream file contents or persist the edited version. Saves round-trip through the server function to disk so the CLI immediately sees the change.
 
-# Building For Production
+## How it works
 
-To build this application for production:
+1. The server layer in [`src/utils/files/files.functions.ts`](src/utils/files/files.functions.ts) reads and writes files with Node `fs`, while `SaveFileRequest` in [`src/utils/files/files.ts`](src/utils/files/files.ts) restricts which YAML files can be touched.
+2. `useFiles` and `useTrackedFiles` in [`src/components/hooks/useFiles.ts`](src/components/hooks/useFiles.ts) fetch the latest copy of each file and maintain the in-memory diff state that powers the UI badges.
+3. Monaco is configured in [`src/components/MonacoEditor.tsx`](src/components/MonacoEditor.tsx) to load schemas from [`src/utils/yaml-schemas.ts`](src/utils/yaml-schemas.ts) so validation, formatting, and completions follow the CLI spec.
+4. The sidebar + editor experience lives under [`src/routes/files`](src/routes/files) with `/files` listing every detected config and `/files/$filename` rendering the Monaco instance plus validation details.
 
-```bash
-pnpm build
-```
+## Local development
 
-## Testing
+> The editor talks directly to your filesystem. Always point `POWERSYNC_DIRECTORY` at a test project unless you intend to edit production config files.
 
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
+1. **Install dependencies**
+   ```bash
+   pnpm install
+   ```
+2. **Expose a PowerSync project directory** – export `POWERSYNC_DIRECTORY` to the folder that contains your `service.yaml`/`sync.yaml` files.
+3. **Run the dev server**
+   ```bash
+   # from the repo root
+   POWERSYNC_DIRECTORY=/absolute/path/to/powersync pnpm --filter editor dev
+   ```
+   The dev server runs on http://localhost:3000 by default. Hot reloading works for both React components and server functions.
+4. **Run tests (optional)**
+   ```bash
+   pnpm --filter editor test
+   ```
 
-```bash
-pnpm test
-```
+## Building + distributing to the CLI
 
-## Styling
-
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
-
-### Removing Tailwind CSS
-
-If you prefer not to use Tailwind CSS:
-
-1. Remove the demo pages in `src/routes/demo/`
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Uninstall the packages: `pnpm add @tailwindcss/vite tailwindcss --dev`
-
-
-## Shadcn
-
-Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
+`pnpm --filter editor build` uses Vite/Nitro to emit the production build into `.output/` and then runs [`scripts/copy-editor-dist.mjs`](scripts/copy-editor-dist.mjs) to mirror the artifacts into `plugins/config-edit/editor-dist/`. That folder is what the CLI plugin serves when you run `powersync edit config`.
 
 ```bash
-pnpm dlx shadcn@latest add button
+pnpm --filter editor build
+# copies the contents of packages/editor/.output into plugins/config-edit/editor-dist
 ```
 
+Need to preview the built bundle exactly like the CLI plugin does? Use Vite preview against the copied dist:
 
-
-## Routing
-
-This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
+```bash
+pnpm --filter @powersync/cli-plugin-config-edit exec \
+  vite preview --host 0.0.0.0 --port 4173 --outDir editor-dist
 ```
 
-Then anywhere in your JSX you can use it like so:
+## Using the editor through the CLI plugin
 
-```tsx
-<Link to="/about">About</Link>
+Once the workspace has been built (`pnpm build` at the repo root), the config-edit plugin exposes:
+
+```bash
+powersync edit config --directory ./powersync --host 0.0.0.0 --port 3000
 ```
 
-This will create a link that will navigate to the `/about` route.
+Behind the scenes the command defined in [`plugins/config-edit/src/commands/edit/config.ts`](../../plugins/config-edit/src/commands/edit/config.ts) sets `POWERSYNC_DIRECTORY`, serves `editor-dist` with `vite preview`, and opens your browser automatically. Any changes saved in the editor are written straight to the directory you passed via `--directory`, so the main CLI can immediately consume the updated YAML.
 
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'My App' },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
-})
-```
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-## Server Functions
-
-TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
-
-```tsx
-import { createServerFn } from '@tanstack/react-start'
-
-const getServerTime = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  return new Date().toISOString()
-})
-
-// Use in a component
-function MyComponent() {
-  const [time, setTime] = useState('')
-  
-  useEffect(() => {
-    getServerTime().then(setTime)
-  }, [])
-  
-  return <div>Server time: {time}</div>
-}
-```
-
-## API Routes
-
-You can create API routes by using the `server` property in your route definitions:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
-
-export const Route = createFileRoute('/api/hello')({
-  server: {
-    handlers: {
-      GET: () => json({ message: 'Hello, World!' }),
-    },
-  },
-})
-```
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/people')({
-  loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json()
-  },
-  component: PeopleComponent,
-})
-
-function PeopleComponent() {
-  const data = Route.useLoaderData()
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  )
-}
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
-
-For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
+Refer back to this README whenever you need to adjust scripts, tweak validation behavior, or explain the editor flow to other contributors.

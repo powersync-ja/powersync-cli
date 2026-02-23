@@ -1,15 +1,16 @@
 import { Flags, ux } from '@oclif/core';
-import { SelfHostedInstanceCommand } from '@powersync/cli-core';
+import { InstanceCommand } from '@powersync/cli-core';
 import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import open from 'open';
+import waitPort from 'wait-port';
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-export default class EditConfig extends SelfHostedInstanceCommand {
+export default class EditConfig extends InstanceCommand {
   static summary = 'Open the PowerSync configuration editor (Nitro preview).';
   static description =
     'Sets POWERSYNC_DIRECTORY for the current project and runs the editor Vite preview to edit config files.';
@@ -17,7 +18,7 @@ export default class EditConfig extends SelfHostedInstanceCommand {
   static examples = ['<%= config.bin %> edit config', '<%= config.bin %> edit config --directory ./powersync'];
 
   static flags = {
-    ...SelfHostedInstanceCommand.flags,
+    ...InstanceCommand.flags,
     host: Flags.string({
       description: 'Host to bind the editor preview server.',
       required: false,
@@ -47,12 +48,9 @@ export default class EditConfig extends SelfHostedInstanceCommand {
     this.log(`Editor path: ${editorDir}`);
     this.log(`Serving built editor from: ${targetDist}`);
 
-    const vitePkg = require.resolve('vite/package.json');
-    const viteBin = path.join(path.dirname(vitePkg), 'bin', 'vite.js');
-
     const child = spawn(
-      process.execPath,
-      [viteBin, 'preview', '--host', flags.host, '--port', `${flags.port}`, '--outDir', targetDist],
+      'node',
+      [path.join(targetDist, 'server/index.mjs'), '--host', flags.host, '--port', String(flags.port)],
       {
         cwd: editorDir,
         env,
@@ -63,11 +61,20 @@ export default class EditConfig extends SelfHostedInstanceCommand {
     const urlHost = flags.host === '0.0.0.0' ? 'localhost' : flags.host;
     const previewUrl = `http://${urlHost}:${flags.port}`;
 
-    child.on('spawn', () => {
-      this.log(`Opening ${previewUrl} in your browser...`);
-      void open(previewUrl).catch((err) =>
-        this.warn(`Could not open browser automatically: ${err instanceof Error ? err.message : String(err)}`)
-      );
+    // Wait for the server to be ready before opening the browser
+    child.on('spawn', async () => {
+      this.log('Server starting, waiting for port to become available...');
+      try {
+        await waitPort({
+          host: urlHost,
+          port: flags.port,
+          timeout: 30000
+        });
+        this.log(`Server ready! Opening ${previewUrl} in your browser...`);
+        await open(previewUrl);
+      } catch (err) {
+        this.warn(`Could not open browser automatically: ${err instanceof Error ? err.message : String(err)}`);
+      }
     });
 
     child.on('exit', (code) => {

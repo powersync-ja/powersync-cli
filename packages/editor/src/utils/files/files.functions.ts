@@ -1,7 +1,6 @@
 /**
  * The Backend server provides the front-end with means to read and update certain PowerSync config files.
  */
-import { SERVICE_FILENAME, SYNC_FILENAME } from '@powersync/cli-core';
 import { createServerFn } from '@tanstack/react-start';
 
 import fs from 'fs';
@@ -16,20 +15,20 @@ export const getConfigFiles = createServerFn().handler(async () => {
   return {
     files: [
       {
-        filename: SERVICE_FILENAME,
+        filename: 'service.yaml',
         label: 'Service Config',
         type: 'application/yaml',
-        content: await fs.promises.readFile(path.join(directoryPath, SERVICE_FILENAME), 'utf8').catch((ex) => {
-          console.warn(`Failed to read ${SERVICE_FILENAME}:`, ex);
+        content: await fs.promises.readFile(path.join(directoryPath, 'service.yaml'), 'utf8').catch((ex) => {
+          console.warn(`Failed to read service.yaml:`, ex);
           return '';
         })
       },
       {
-        filename: SYNC_FILENAME,
+        filename: 'sync.yaml',
         label: 'Sync Config',
         type: 'application/yaml',
-        content: await fs.promises.readFile(path.join(directoryPath, SYNC_FILENAME), 'utf8').catch((ex) => {
-          console.warn(`Failed to read ${SYNC_FILENAME}:`, ex);
+        content: await fs.promises.readFile(path.join(directoryPath, 'sync.yaml'), 'utf8').catch((ex) => {
+          console.warn(`Failed to read sync.yaml:`, ex);
           return '';
         })
       }
