@@ -88,10 +88,16 @@ export default class Login extends PowerSyncCommand {
           : 'Enter your API token (https://docs.powersync.com/usage/tools/cli#personal-access-token):'
       },
       { signal: abortController.signal }
-    ).then((token) => {
-      abortController.abort();
-      return token.trim();
-    });
+    )
+      .then((token) => {
+        abortController.abort();
+        return token.trim();
+      })
+      .catch((error) => {
+        // When the browser flow succeeds first, aborting the prompt rejects with AbortError; swallow it.
+        if (abortController.signal.aborted) return '';
+        throw error;
+      });
 
     const pendingOperations: Promise<string>[] = [promptTokenPromise];
     if (serverTokenPromise) {

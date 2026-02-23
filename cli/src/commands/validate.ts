@@ -216,13 +216,15 @@ export default class Validate extends SharedInstanceCommand {
           entry.promise
             .then((res) => {
               testEntries[i].result = res;
-              spinner.text = formatOraMessage(testEntries);
               return res;
             })
             .catch((error) => {
+              // Capture the failure so the spinner can complete and we can report all results together.
               testEntries[i].result = { errors: [String(error)], passed: false };
+              return testEntries[i].result;
+            })
+            .finally(() => {
               spinner.text = formatOraMessage(testEntries);
-              throw error;
             })
         );
         await Promise.all(promises);

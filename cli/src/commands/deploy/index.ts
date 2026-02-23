@@ -1,6 +1,6 @@
 import type { ResolvedCloudCLIConfig } from '@powersync/cli-schemas';
 
-import { ux } from '@oclif/core';
+import { Flags, ux } from '@oclif/core';
 import { CloudInstanceCommand, SERVICE_FILENAME } from '@powersync/cli-core';
 import { PowerSyncManagementClient } from '@powersync/management-client';
 import { routes } from '@powersync/management-types';
@@ -9,13 +9,16 @@ import ora from 'ora';
 import { formatTestConnectionFailure, testCloudConnections } from '../../api/cloud/test-connection.js';
 
 const STATUS_POLL_INTERVAL_MS = 5000;
+const DEFAULT_DEPLOY_TIMEOUT_MS = 5 * 60 * 1000;
 type DeployStatus = 'completed' | 'failed' | 'pending' | 'running';
 
 async function waitForStatusChange(
   client: PowerSyncManagementClient,
   linked: ResolvedCloudCLIConfig,
-  instanceId: string
+  instanceId: string,
+  timeoutMs: number
 ): Promise<DeployStatus> {
+  const startedAt = Date.now();
   for (;;) {
     const result = await client.getInstanceStatus({
       app_id: linked.project_id,
@@ -26,8 +29,14 @@ async function waitForStatusChange(
     const status = operation?.status as DeployStatus | undefined;
     if (status === 'failed' || status === 'completed') return status;
     if (status === undefined) {
-      // No operation or unknown status; trpeat as failed to avoid infinite loop
+      // No operation or unknown status; treat as failed to avoid infinite loop
       return 'failed';
+    }
+
+    if (Date.now() - startedAt >= timeoutMs) {
+      throw new Error(
+        `Deployment did not complete within ${Math.round(timeoutMs / 1000)} seconds. Check instance status and try again.`
+      );
     }
 
     await new Promise<void>((resolve) => {
@@ -50,12 +59,27 @@ export default class DeployAll extends CloudInstanceCommand {
     '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id>'
   ];
   static flags = {
+    'deploy-timeout': Flags.integer({
+      default: DEFAULT_DEPLOY_TIMEOUT_MS / 1000,
+      description:
+        'Seconds to wait after scheduling a deploy before timing out while polling status (default 300 seconds).',
+      parse: async (input) => {
+        const value = Number(input);
+        if (!Number.isFinite(value) || value <= 0) {
+          throw new Error('deploy-timeout must be a positive number of seconds');
+        }
+        return value;
+      }
+    }),
     ...CloudInstanceCommand.flags
   };
   static summary = '[Cloud only] Deploy local config to the linked Cloud instance (connections + auth + sync config).';
 
-  protected async deployAll(params: { cloudConfigState: routes.InstanceConfigResponse }): Promise<void> {
-    const { cloudConfigState } = params;
+  protected async deployAll(params: {
+    cloudConfigState: routes.InstanceConfigResponse;
+    deployTimeoutMs: number;
+  }): Promise<void> {
+    const { cloudConfigState, deployTimeoutMs } = params;
     const { client, project } = this;
     const { linked, syncRulesContent } = project;
     const config = this.serviceConfig;
@@ -65,7 +89,7 @@ export default class DeployAll extends CloudInstanceCommand {
       });
     }
 
-    return this.withDeploy(async () =>
+    return this.withDeploy(deployTimeoutMs, async () =>
       client.deployInstance(
         routes.DeployInstanceRequest.encode({
           // Spread the existing config like name, and program version contraints.
@@ -108,6 +132,8 @@ export default class DeployAll extends CloudInstanceCommand {
       configFileRequired: true
     });
 
+    const deployTimeoutMs = (flags['deploy-timeout'] ?? DEFAULT_DEPLOY_TIMEOUT_MS / 1000) * 1000;
+
     // Parse and store for later
     this.parseConfig(project.projectDirectory);
 
@@ -123,7 +149,7 @@ export default class DeployAll extends CloudInstanceCommand {
 
     this.log('Validations completed successfully.\n');
 
-    await this.deployAll({ cloudConfigState });
+    await this.deployAll({ cloudConfigState, deployTimeoutMs });
   }
 
   protected async testConnections(): Promise<void> {
@@ -227,7 +253,7 @@ export default class DeployAll extends CloudInstanceCommand {
     }
   }
 
-  protected async withDeploy(fn: () => Promise<routes.DeployInstanceResponse>): Promise<void> {
+  protected async withDeploy(timeoutMs: number, fn: () => Promise<routes.DeployInstanceResponse>): Promise<void> {
     const { client, project } = this;
     const spinner = ora({
       prefixText: '\nDeploying instance.\n',
@@ -240,7 +266,7 @@ export default class DeployAll extends CloudInstanceCommand {
       const deployResult = await fn();
       this.log(`Deploy operation has been scheduled. Waiting for completion...`);
 
-      const status = await waitForStatusChange(client, project.linked, deployResult.id);
+      const status = await waitForStatusChange(client, project.linked, deployResult.id, timeoutMs);
       spinner.stop();
 
       if (status === 'completed') {

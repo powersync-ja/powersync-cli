@@ -10,7 +10,7 @@ import {
 import fs, { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Document, isMap, stringify } from 'yaml';
+import { Document, isMap, isSeq, stringify } from 'yaml';
 import { DEV_TOKEN } from '../../constants.js';
 import { TEMPLATES } from '../../templates/templates-index.js';
 import { DockerModuleContext, DockerModuleType } from '../../types.js';
@@ -171,8 +171,20 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
     // Persist environment config
     writeFileSync(dockerEnvFilePath, envFileContents, 'utf8');
 
-    // Set api.tokens in service.yaml for local dev (same token as in link)
-    serviceConfigDocument.set('api', { tokens: [DEV_TOKEN] });
+    // Set api.tokens in service.yaml for local dev (same token as in link) without clobbering existing settings.
+    const apiNode = serviceConfigDocument.get('api');
+    if (isMap(apiNode)) {
+      const existingTokensNode = apiNode.get('tokens');
+      const existingTokens = isSeq(existingTokensNode)
+        ? existingTokensNode.toJSON()
+        : Array.isArray(existingTokensNode)
+          ? existingTokensNode
+          : [];
+      const mergedTokens = Array.from(new Set([...(existingTokens as string[]), DEV_TOKEN]));
+      apiNode.set('tokens', mergedTokens);
+    } else {
+      serviceConfigDocument.set('api', { tokens: [DEV_TOKEN] });
+    }
     writeFileSync(path.join(projectDirectory, SERVICE_FILENAME), stringify(serviceConfigDocument), 'utf8');
     updateLinkPluginsDocker(projectDirectory, projectName);
 
