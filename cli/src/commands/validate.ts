@@ -211,7 +211,7 @@ export default class Validate extends SharedInstanceCommand {
                   return {
                     errors: [
                       `Linked instance is not provisioned. Sync config validation requires a provisioned instance.`,
-                      `Provision the instance and try again.`
+                      `Deploy the instance, with ${ux.colorize('blue', 'powersync deploy')}, before validating sync config.`
                     ],
                     passed: false
                   };

@@ -228,26 +228,39 @@ export default class DeployAll extends CloudInstanceCommand {
 
   protected async validateSyncConfig() {
     const { client, project } = this;
-    const validation = await client
-      .validateSyncRules({
-        app_id: project.linked.project_id,
-        id: project.linked.instance_id,
-        org_id: project.linked.org_id,
-        sync_rules: project.syncRulesContent ?? ''
-      })
-      .catch((error) => {
+    // It might take a while for the instance to be fully provisioned after the deploy, so we retry the validation until it succeeds or we hit the timeout
+    for (let retry = 0; retry < 10; retry++) {
+      const validation = await client
+        .validateSyncRules({
+          app_id: project.linked.project_id,
+          id: project.linked.instance_id,
+          org_id: project.linked.org_id,
+          sync_rules: project.syncRulesContent ?? ''
+        })
+        .catch((error) => {
+          if (retry === 9) {
+            this.styledError({
+              error,
+              message: `Failed to validate sync config for instance ${project.linked.instance_id} in project ${project.linked.project_id} in org ${project.linked.org_id}. Ensure the sync config is valid before deploying.`,
+              suggestions: ['Check your sync config and try again.']
+            });
+          } else {
+            // signal a retry
+            return null;
+          }
+        });
+
+      if (!validation) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        continue;
+      }
+
+      if (validation.errors.length > 0) {
         this.styledError({
-          error,
-          message: `Failed to validate sync config for instance ${project.linked.instance_id} in project ${project.linked.project_id} in org ${project.linked.org_id}. Ensure the sync config is valid before deploying.`,
+          message: `Sync config validation failed for instance. Validation errors:\n${validation.errors.map((error) => error.message).join('\n')}`,
           suggestions: ['Check your sync config and try again.']
         });
-      });
-
-    if (validation.errors.length > 0) {
-      this.styledError({
-        message: `Sync config validation failed for instance. Validation errors:\n${validation.errors.map((error) => error.message).join('\n')}`,
-        suggestions: ['Check your sync config and try again.']
-      });
+      }
     }
   }
 
