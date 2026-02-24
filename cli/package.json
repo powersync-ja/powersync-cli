@@ -75,20 +75,26 @@
     ],
     "topicSeparator": " ",
     "topics": {
+      "deploy": {
+        "description": "[Cloud only] Deploy local config changes to the Cloud instance. Run \"powersync deploy --help\" to list subcommands."
+      },
       "fetch": {
-        "description": "run \"powersync fetch\" to see a list of subcommands"
+        "description": "Inspect Cloud instances and configuration (instances, config, status). Run \"powersync fetch --help\" to list subcommands."
       },
       "generate": {
-        "description": "run \"powersync generate\" to see a list of subcommands"
+        "description": "Generate client artifacts from instance/config data (schema, token). Run \"powersync generate --help\" to list subcommands."
       },
       "init": {
-        "description": "run \"powersync init\" to see a list of subcommands"
+        "description": "Scaffold a new PowerSync project configuration from templates. Run \"powersync init --help\" to list subcommands."
       },
       "link": {
-        "description": "run \"powersync link\" to see a list of subcommands"
+        "description": "Bind this directory to a Cloud or self-hosted instance (writes cli.yaml). Run \"powersync link --help\" to list subcommands."
+      },
+      "migrate": {
+        "description": "Migrate config to newer formats (for example Sync Rules to Sync Streams). Run \"powersync migrate --help\" to list subcommands."
       },
       "pull": {
-        "description": "run \"powersync pull\" to see a list of subcommands"
+        "description": "[Cloud only] Download Cloud instance configuration into local files. Run \"powersync pull --help\" to list subcommands."
       }
     }
   },

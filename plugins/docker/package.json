@@ -40,7 +40,7 @@
     "topicSeparator": " ",
     "topics": {
       "docker": {
-        "description": "Manage self-hosted PowerSync with Docker Compose (configure, reset, start, stop)"
+        "description": "[Self-hosted only] Manage self-hosted PowerSync with Docker Compose (configure, reset, start, stop). Run \"powersync docker --help\" to list subcommands."
       }
     }
   }

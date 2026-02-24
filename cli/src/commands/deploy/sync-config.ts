@@ -12,7 +12,7 @@ export class DeploySyncConfig extends DeployAll {
   static flags = {
     ...DeployAll.flags
   };
-  static summary = '[Cloud only] Deploy local sync config to the linked Cloud instance.';
+  static summary = '[Cloud only] Deploy only local sync config to the linked Cloud instance.';
 
   /**
    * Deploys only the sync config.
