@@ -1,24 +1,19 @@
 import { Config } from '@oclif/core';
 import { captureOutput, runCommand } from '@oclif/test';
-import { PowerSyncManagementClient } from '@powersync/management-client';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import FetchConfigCommand from '../../../src/commands/fetch/config.js';
 import { root } from '../../helpers/root.js';
+import { managementClientMock, resetManagementClientMocks } from '../../setup.js';
 
 const PROJECT_DIR = 'powersync';
 const SERVICE_FILENAME = 'service.yaml';
 
 /** Minimal valid cloud config decodable by ServiceCloudConfig. */
 const MOCK_CONFIG = { _type: 'cloud' as const, name: 'test-instance', region: 'us' };
-
-const mockCloudClient = {
-  deployInstance: vi.fn(),
-  getInstanceConfig: vi.fn()
-};
 
 function writeServiceYaml(projectDir: string, type: 'cloud' | 'self-hosted') {
   writeFileSync(join(projectDir, SERVICE_FILENAME), `_type: ${type}\nregion: us\n`, 'utf8');
@@ -38,16 +33,18 @@ describe('fetch config', () => {
     const args = ['--directory', directory];
     if (opts?.output) args.push('--output', opts.output);
     const cmd = new FetchConfigCommand(args, oclifConfig);
-    cmd.client = mockCloudClient as unknown as PowerSyncManagementClient;
+    cmd.client = managementClientMock as unknown as FetchConfigCommand['client'];
     return captureOutput(() => cmd.run());
   }
 
   beforeEach(() => {
+    resetManagementClientMocks();
+
     origCwd = process.cwd();
     tmpDir = mkdtempSync(join(tmpdir(), 'fetch-config-test-'));
     process.chdir(tmpDir);
-    mockCloudClient.getInstanceConfig.mockReset();
-    mockCloudClient.getInstanceConfig.mockRejectedValue(new Error('network error'));
+    managementClientMock.getInstanceConfig.mockReset();
+    managementClientMock.getInstanceConfig.mockRejectedValue(new Error('network error'));
   });
 
   afterEach(() => {
@@ -89,7 +86,7 @@ describe('fetch config', () => {
     });
 
     it('default output is yaml and prints fetched object (config + optional syncRules) to stdout', async () => {
-      mockCloudClient.getInstanceConfig.mockResolvedValueOnce({ config: MOCK_CONFIG });
+      managementClientMock.getInstanceConfig.mockResolvedValueOnce({ config: MOCK_CONFIG });
       const result = await runFetchConfigDirect();
       expect(result.error).toBeUndefined();
       expect(result.stdout).toContain('config:');
@@ -98,7 +95,7 @@ describe('fetch config', () => {
     });
 
     it('--output yaml prints fetched object as YAML to stdout', async () => {
-      mockCloudClient.getInstanceConfig.mockResolvedValueOnce({ config: MOCK_CONFIG });
+      managementClientMock.getInstanceConfig.mockResolvedValueOnce({ config: MOCK_CONFIG });
       const result = await runFetchConfigDirect({ output: 'yaml' });
       expect(result.error).toBeUndefined();
       expect(result.stdout).toContain('config:');
@@ -107,7 +104,7 @@ describe('fetch config', () => {
     });
 
     it('--output json prints fetched object (config, syncRules) as JSON to stdout', async () => {
-      mockCloudClient.getInstanceConfig.mockResolvedValueOnce({ config: MOCK_CONFIG });
+      managementClientMock.getInstanceConfig.mockResolvedValueOnce({ config: MOCK_CONFIG });
       const result = await runFetchConfigDirect({ output: 'json' });
       expect(result.error).toBeUndefined();
       const parsed = JSON.parse(result.stdout) as { config: typeof MOCK_CONFIG };
@@ -116,7 +113,7 @@ describe('fetch config', () => {
 
     it('--output json includes syncRules when returned', async () => {
       const syncRules = 'bucket_definitions: []\n';
-      mockCloudClient.getInstanceConfig.mockResolvedValueOnce({
+      managementClientMock.getInstanceConfig.mockResolvedValueOnce({
         config: MOCK_CONFIG,
         sync_rules: syncRules
       } as { config: typeof MOCK_CONFIG; sync_rules: string });

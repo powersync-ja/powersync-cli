@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { root } from '../helpers/root.js';
+import { resetManagementClientMocks } from '../setup.js';
 
 const CLI_FILENAME = 'cli.yaml';
 const PROJECT_DIR = 'powersync';
@@ -25,6 +26,8 @@ describe('stop', () => {
   let origPsToken: string | undefined;
 
   beforeEach(() => {
+    resetManagementClientMocks();
+
     origCwd = process.cwd();
     origPsToken = process.env.TOKEN;
     tmpDir = mkdtempSync(join(tmpdir(), 'stop-test-'));

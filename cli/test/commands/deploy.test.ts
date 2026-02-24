@@ -1,36 +1,31 @@
 import { Config } from '@oclif/core';
 import { captureOutput, runCommand } from '@oclif/test';
 import { CLI_FILENAME, SERVICE_FILENAME } from '@powersync/cli-core';
-import { PowerSyncManagementClient } from '@powersync/management-client';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import DeployCommand from '../../src/commands/deploy/index.js';
 import { root } from '../helpers/root.js';
-
-const mockGetInstanceConfig = vi.fn();
-const mockDeployInstance = vi.fn();
-const mockGetInstanceStatus = vi.fn();
+import { managementClientMock, resetManagementClientMocks } from '../setup.js';
 
 /** Run deploy by instantiating the command and calling .run() so the spy on createCloudClient applies. */
 async function runDeployDirect(opts?: { directory?: string }) {
   const directory = opts?.directory ?? PROJECT_DIR;
   const config = await Config.load({ root });
   const cmd = new DeployCommand(['--directory', directory], config);
-  cmd.client = {
-    deployInstance: mockDeployInstance,
-    getInstanceConfig: mockGetInstanceConfig,
-    getInstanceStatus: mockGetInstanceStatus
-  } as unknown as PowerSyncManagementClient;
+  cmd.client = managementClientMock as unknown as DeployCommand['client'];
   return captureOutput(() => cmd.run());
 }
 
 const PROJECT_DIR = 'powersync';
 
 function writeServiceYaml(projectDir: string, type: 'cloud' | 'self-hosted') {
-  const content = type === 'cloud' ? '_type: cloud\nname: test-instance\nregion: us\n' : `_type: ${type}\nregion: us\n`;
+  const content =
+    type === 'cloud'
+      ? '_type: cloud\nname: test-instance\nregion: us\nreplication:\n  connections:\n    - name: default\n      type: postgresql\n      uri: postgres://user:pass@host/db\n'
+      : `_type: ${type}\nregion: us\n`;
   writeFileSync(join(projectDir, SERVICE_FILENAME), content, 'utf8');
 }
 
@@ -45,15 +40,20 @@ describe('deploy', () => {
   let origPsToken: string | undefined;
 
   beforeEach(() => {
+    resetManagementClientMocks();
+
     origCwd = process.cwd();
     origPsToken = process.env.TOKEN;
     tmpDir = mkdtempSync(join(tmpdir(), 'deploy-test-'));
     process.chdir(tmpDir);
     process.env.TOKEN = 'test-token';
-    mockGetInstanceConfig.mockReset();
-    mockDeployInstance.mockReset();
-    mockGetInstanceStatus.mockReset();
-    mockGetInstanceConfig.mockRejectedValue(new Error('network error'));
+    managementClientMock.getInstanceConfig.mockResolvedValue({
+      config: { region: 'us', replication: { connections: [{ name: 'default', type: 'postgresql' }] } },
+      name: 'test-instance',
+      sync_rules: ''
+    });
+    managementClientMock.getInstanceStatus.mockResolvedValue({ operations: [], provisioned: true });
+    managementClientMock.deployInstance.mockRejectedValue(new Error('network error'));
   });
 
   afterEach(() => {

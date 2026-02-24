@@ -109,6 +109,7 @@ async function runSyncRulesTestCloud(project: CloudProject): Promise<ValidationT
   }
 
   const client = createCloudClient();
+
   try {
     const result = await client.validateSyncRules({
       app_id: project.linked.project_id,

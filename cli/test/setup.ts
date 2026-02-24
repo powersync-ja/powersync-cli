@@ -1,4 +1,40 @@
 import { Config } from '@oclif/core';
+import { vi } from 'vitest';
+
+// Normalize env so tests don't inherit real linking values
+delete process.env.INSTANCE_ID;
+delete process.env.ORG_ID;
+delete process.env.PROJECT_ID;
+
+export const managementClientMock = {
+  deactivateInstance: vi.fn(),
+  deployInstance: vi.fn(),
+  getInstanceConfig: vi.fn(),
+  getInstanceStatus: vi.fn(),
+  listRegions: vi.fn(),
+  testConnection: vi.fn(),
+  validateSyncRules: vi.fn()
+};
+
+export function resetManagementClientMocks(): void {
+  managementClientMock.deactivateInstance.mockRejectedValue(new Error('mock deactivate failure'));
+  managementClientMock.deployInstance.mockRejectedValue(new Error('mock deploy failure'));
+  managementClientMock.getInstanceConfig.mockRejectedValue(new Error('mock getInstanceConfig failure'));
+  managementClientMock.getInstanceStatus.mockRejectedValue(new Error('mock getInstanceStatus failure'));
+  managementClientMock.listRegions.mockResolvedValue({ regions: [{ name: 'us' }] });
+  managementClientMock.testConnection.mockResolvedValue({
+    configuration: { success: true },
+    connection: { reachable: true, success: true },
+    success: true
+  });
+  managementClientMock.validateSyncRules.mockResolvedValue({ errors: [] });
+}
+
+resetManagementClientMocks();
+
+vi.mock('@powersync/management-client', () => ({
+  PowerSyncManagementClient: vi.fn().mockImplementation(() => managementClientMock)
+}));
 
 import { root } from './helpers/root.js';
 
