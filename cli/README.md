@@ -148,6 +148,28 @@ Only some CLI commands work with self-hosted instances. Supported commands inclu
 
 - **Plaintext fallback storage**: When secure storage is unavailable, login can store the token in plaintext config (`$XDG_CONFIG_HOME/powersync/config.yaml` or `~/.config/powersync/config.yaml`) only after explicit confirmation.
 
+# OCLIF plugins
+
+The CLI honors standard [OCLIF plugin behavior](https://oclif.io/docs/plugins/), so plugins can register commands or hook into command lifecycles. The bundled Docker plugin (`@powersync/cli-plugin-docker`) is built this way and serves as a reference.
+
+For PowerSync-specific plugins, the optional `@powersync/cli-core` package exposes base command helpers and shared types; the Docker plugin consumes these helpers to add its Docker-focused commands.
+
+You can manage plugins dynamically at runtime:
+
+```sh
+# list installed plugins
+powersync plugins
+
+# install a published plugin
+powersync plugins install @example/powersync-plugin-foo
+
+# link a local plugin during development
+powersync plugins link ../my-plugin
+
+# inspect a plugin
+powersync plugins:inspect @example/powersync-plugin-foo
+```
+
 # Usage
 
 <!-- usage -->
