@@ -24,7 +24,7 @@ CLI for PowerSync
 The PowerSync CLI lets you manage PowerSync instances and run commands (generate schemas, tokens, validate config, fetch status, and more). Support is split into two modes:
 
 - **Cloud** – Full support for [PowerSync Cloud](https://powersync.com). You can create new instances, deploy and pull config from the Dashboard, and run all Cloud commands. Authenticate with **`powersync login`** (or the `TOKEN` env var), then use **`powersync init cloud`** / **`powersync link cloud`** or **`powersync pull instance`** to work with projects.
-- **Self-hosted** – Limited support for your own PowerSync Service. You link to an existing running instance and can run a subset of commands (e.g. **`powersync fetch status`**, **`powersync generate schema`**, **`powersync validate`**). The CLI does not create, deploy to, or pull config from self-hosted instances; you manage the server and its config yourself. A [Docker plugin](../plugins/docker/README.md) is available for local self-hosted development.
+- **Self-hosted** – Limited support for your own PowerSync Service. You link to an existing running instance and can run a subset of commands (e.g. **`powersync fetch status`**, **`powersync generate schema`**, **`powersync validate`**). The CLI does not create, deploy to, or pull config from self-hosted instances; you manage the server and its config yourself. We also expose a [PowerSync Docker topic](../plugins/docker/README.md) for local self-hosted development.
 
 The sections below go into detail for [Cloud](#cloud) and [Self-hosted](#self-hosted).
 
@@ -136,9 +136,9 @@ powersync fetch status
 
 Use `--directory` for a different config folder.
 
-## Docker plugin for local development
+## PowerSync Docker topic for local development
 
-We provide a [Docker plugin](../plugins/docker/README.md) for running a self-hosted stack locally. Use **`powersync docker configure`** then **`powersync docker start`** to run the stack. Use **`powersync docker reset`** only when you need to start from a clean state (stop and remove, then start).
+We expose a [PowerSync Docker topic](../plugins/docker/README.md) for running a self-hosted stack locally. Use **`powersync docker configure`** then **`powersync docker start`** to run the stack. Use **`powersync docker reset`** only when you need to start from a clean state (stop and remove, then start).
 
 ## Command support
 
@@ -150,9 +150,9 @@ Only some CLI commands work with self-hosted instances. Supported commands inclu
 
 # OCLIF plugins
 
-The CLI honors standard [OCLIF plugin behavior](https://oclif.io/docs/plugins/), so plugins can register commands or hook into command lifecycles. The bundled Docker plugin (`@powersync/cli-plugin-docker`) is built this way and serves as a reference.
+The CLI honors standard [OCLIF plugin behavior](https://oclif.io/docs/plugins/), so plugins can register commands or hook into command lifecycles. The bundled PowerSync Docker topic (`@powersync/cli-plugin-docker`) is implemented this way and serves as a reference.
 
-For PowerSync-specific plugins, the optional `@powersync/cli-core` package exposes base command helpers and shared types; the Docker plugin consumes these helpers to add its Docker-focused commands.
+For PowerSync-specific plugins, the optional `@powersync/cli-core` package exposes base command helpers and shared types; the PowerSync Docker topic consumes these helpers to add its Docker-focused commands.
 
 You can manage plugins dynamically at runtime:
 

@@ -1,13 +1,13 @@
-# Using the Docker plugin
+# Using the PowerSync Docker topic
 
-The **docker** plugin adds a `powersync docker` topic for running a self-hosted PowerSync stack with Docker Compose. For general CLI usage (linking, instance resolution, auth), see [usage.md](./usage.md). You create the compose layout once with **`powersync docker configure`**, then use **reset**, **start**, and **stop** to run the stack. Custom configuration is required for each local configuration; the PowerSync container reads **docker/.env** and resolves **`!env`** in **service.yaml** at runtime.
+PowerSync exposes a **docker** topic (`powersync docker`) for running a self-hosted stack with Docker Compose. For general CLI usage (linking, instance resolution, auth), see [usage.md](./usage.md). You create the compose layout once with **`powersync docker configure`**, then use **reset**, **start**, and **stop** to run the stack. Custom configuration is required for each local configuration; the PowerSync container reads **docker/.env** and resolves **`!env`** in **service.yaml** at runtime.
 
 ## Prerequisites
 
 - A self-hosted PowerSync project: **service.yaml** in your config directory (default **powersync/**). Create one with **`powersync init self-hosted`** if needed.
 - Docker and Docker Compose (Compose V2, 2.20.3+ for `include`).
 
-## Local configuration created by the plugin
+## Local configuration created by the Docker topic
 
 Docker commands use the **compose directory** **powersync/docker/** inside your PowerSync config directory. Configure creates:
 
