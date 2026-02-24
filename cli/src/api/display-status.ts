@@ -73,8 +73,7 @@ function formatSyncRulesSection(section: SyncRulesSection, indentLevel: number):
           const repl = table.replication_id?.length ? table.replication_id.join(', ') : '—';
           lines.push(
             `${p}      - ${name} (replication_id: ${repl})`,
-            `${p}        data_queries: ${table.data_queries}`,
-            `${p}        parameter_queries: ${table.parameter_queries}`,
+            `${p}        used_for_replication: ${table.data_queries || table.parameter_queries ? 'yes' : 'no'}`,
             formatErrors(table.errors, indentLevel + 3)
           );
         }
