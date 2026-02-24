@@ -13,15 +13,17 @@ name: My instance
 # Note: This cannot be changed after the initial deployment
 region: us
 
-# [required] replication: database connections for sync
+# -------------------------------------------------------------------------
+# Replication (required): database connections for sync
 # Note: only a single connection is currently supported.
 # Connection: `uri` and `password` are required for a complete connection. Alternatively omit `uri`
 # and provide individual fields (hostname, port, database, username, password, etc.); they are used
 # to construct the connection URI. For MongoDB, `uri` is required.
-replication:
+# -------------------------------------------------------------------------
 #     -------------------------------------------------------------------------
 #     PostgreSQL – uncomment this entire block to use
 #     -------------------------------------------------------------------------
+# replication:
 #  connections:
 #     - type: postgresql
 #       # [optional]
@@ -58,6 +60,7 @@ replication:
 #     MongoDB – uncomment this entire block to use (comment out PostgreSQL above)
 #     uri is required for MongoDB; other fields are optional.
 #     -------------------------------------------------------------------------
+# replication:
 #  connections:
 #     - type: mongodb
 #       uri: mongodb+srv://user:pass@host/db
@@ -81,6 +84,7 @@ replication:
 #     -------------------------------------------------------------------------
 #     MySQL – uncomment this entire block to use (comment out PostgreSQL above)
 #     -------------------------------------------------------------------------
+# replication:
 #  connections:
 #     - type: mysql
 #       # [optional]
@@ -110,6 +114,7 @@ replication:
 #     -------------------------------------------------------------------------
 #     MSSQL – uncomment this entire block to use (comment out PostgreSQL above)
 #     -------------------------------------------------------------------------
+# replication:
 #  connections:
 #     - type: mssql
 #       # [optional]
