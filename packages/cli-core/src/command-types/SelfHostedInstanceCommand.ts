@@ -37,7 +37,7 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
       required: false
     })
   };
-protected _project: null | SelfHostedProject = null;
+  protected _project: null | SelfHostedProject = null;
 
   /**
    * The currently loaded project, including linked instance information and sync config content. Call loadProject() before accessing this property. This is set to the loaded project after calling loadProject() to avoid multiple loads of the same project.

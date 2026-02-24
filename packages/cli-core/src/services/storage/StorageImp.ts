@@ -76,7 +76,7 @@ export class ConfigFileStorage {
 export class StorageImpl implements StorageService {
   protected _configStorage: ConfigFileStorage;
   protected _secureStorage: BaseStorage | null;
-readonly insecureStoragePath = join(
+  readonly insecureStoragePath = join(
     process.env.XDG_CONFIG_HOME ?? join(homedir(), '.config'),
     'powersync',
     'config.yaml'

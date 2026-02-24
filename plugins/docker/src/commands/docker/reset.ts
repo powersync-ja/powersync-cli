@@ -15,7 +15,7 @@ export default class DockerReset extends SelfHostedInstanceCommand {
   static flags = {
     ...SelfHostedInstanceCommand.flags
   };
-static summary = 'Reset the self-hosted PowerSync stack (stop and remove, then start).';
+  static summary = 'Reset the self-hosted PowerSync stack (stop and remove, then start).';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(DockerReset);

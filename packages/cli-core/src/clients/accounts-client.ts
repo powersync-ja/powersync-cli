@@ -38,15 +38,15 @@ export class AccountsHubClientSDKClient<C extends sdk.NetworkClient = sdk.Networ
     method: 'post',
     path: '/api/accounts/v5/organizations/get'
   });
-listOrganizations = sdk.createPaginatedEndpoint(
+  listOrganizations = sdk.createPaginatedEndpoint(
     this.createEndpoint<sdk.PaginationParams & { id?: string }, sdk.PaginationResponse & { objects: Org[] }>({
       method: 'post',
       path: '/api/accounts/v5/organizations/list'
     })
   );
-listProjects = sdk.createPaginatedEndpoint(
+  listProjects = sdk.createPaginatedEndpoint(
     this.createEndpoint<
-      sdk.PaginationParams & { id?: string; org_id?: string; },
+      sdk.PaginationParams & { id?: string; org_id?: string },
       sdk.PaginationResponse & { objects: Project[] }
     >({
       method: 'post',

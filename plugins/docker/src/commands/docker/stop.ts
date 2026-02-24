@@ -18,8 +18,7 @@ export default class DockerStop extends SelfHostedInstanceCommand {
     }),
     remove: Flags.boolean({
       default: false,
-      description:
-        'Remove containers after stopping (docker compose down). By default only stop (docker compose stop).'
+      description: 'Remove containers after stopping (docker compose down). By default only stop (docker compose stop).'
     }),
     'remove-volumes': Flags.boolean({
       default: false,
@@ -27,7 +26,7 @@ export default class DockerStop extends SelfHostedInstanceCommand {
         'Remove named volumes (docker compose down -v). Use to reset database/storage so init scripts run again on next reset. Implies --remove.'
     })
   };
-static summary = 'Stop a PowerSync Docker Compose project by name.';
+  static summary = 'Stop a PowerSync Docker Compose project by name.';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(DockerStop);

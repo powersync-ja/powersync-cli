@@ -7,7 +7,7 @@ export default class Docker extends SelfHostedInstanceCommand {
   static flags = {
     ...SelfHostedInstanceCommand.flags
   };
-static summary =
+  static summary =
     '[Self-hosted only] Manage self-hosted PowerSync with Docker Compose (configure, reset, start, stop).';
 
   async run(): Promise<void> {

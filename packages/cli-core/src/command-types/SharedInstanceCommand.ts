@@ -84,7 +84,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     }),
     ...InstanceCommand.flags
   };
-cloudClient: PowerSyncManagementClient = createCloudClient();
+  cloudClient: PowerSyncManagementClient = createCloudClient();
 
   /**
    * Some commands require contacting a provisioned PowerSync instance.

@@ -42,7 +42,7 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
     'Docker configuration is located in ./powersync/docker/.',
     'Configured projects can be started with "powersync docker start".'
   ].join('\n');
-static examples = [
+  static examples = [
     '<%= config.bin %> <%= command.id %>',
     '<%= config.bin %> <%= command.id %> --database=postgres --storage=postgres'
   ];
@@ -59,7 +59,7 @@ static examples = [
       required: false
     })
   };
-static summary = 'Configures a self hosted project with Docker Compose services.';
+  static summary = 'Configures a self hosted project with Docker Compose services.';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(DockerConfigure);
@@ -87,7 +87,7 @@ static summary = 'Configures a self hosted project with Docker Compose services.
       { name: 'None (do not configure)', value: NONE_OPTION }
     ];
 
-    let {database} = flags;
+    let { database } = flags;
     if (database === undefined) {
       database = await select({
         choices: databaseChoices,
@@ -98,7 +98,7 @@ static summary = 'Configures a self hosted project with Docker Compose services.
       database = undefined;
     }
 
-    let {storage} = flags;
+    let { storage } = flags;
     if (storage === undefined) {
       storage = await select({
         choices: storageChoices,

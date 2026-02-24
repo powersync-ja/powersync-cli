@@ -10,7 +10,7 @@ export default class DockerStart extends SelfHostedInstanceCommand {
   static flags = {
     ...SelfHostedInstanceCommand.flags
   };
-static summary = 'Start the self-hosted PowerSync stack via Docker Compose.';
+  static summary = 'Start the self-hosted PowerSync stack via Docker Compose.';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(DockerStart);
