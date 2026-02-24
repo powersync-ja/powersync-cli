@@ -34,6 +34,7 @@ resetManagementClientMocks();
 
 class MockPowerSyncManagementClient {
   constructor() {
+    // eslint-disable-next-line no-constructor-return
     return managementClientMock;
   }
 }

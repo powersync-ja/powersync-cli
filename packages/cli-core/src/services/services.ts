@@ -5,6 +5,6 @@ const storage = new StorageImpl();
 const authenticationService = new AuthenticationServiceImpl({ storage });
 
 export const Services = {
-  storage,
-  authentication: authenticationService
+  authentication: authenticationService,
+  storage
 };

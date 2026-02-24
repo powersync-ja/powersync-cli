@@ -1,5 +1,6 @@
 import { Flags, ux } from '@oclif/core';
 import fs from 'node:fs';
+
 import { CLI_FILENAME } from '../utils/project-config.js';
 import { HelpGroup } from './HelpGroup.js';
 import { PowerSyncCommand } from './PowerSyncCommand.js';
@@ -22,10 +23,7 @@ export abstract class InstanceCommand extends PowerSyncCommand {
   static flags = {
     ...PowerSyncCommand.flags,
     directory: Flags.string({
-      description:
-        'Directory containing PowerSync config. Defaults to "powersync". This is required if multiple powersync config files are present in subdirectories of the current working directory.',
-      helpGroup: HelpGroup.PROJECT,
-      default: async () => {
+      async default() {
         // Before we default, we need to ensure only 1 linked project is present.
         const directories = fs.readdirSync(process.cwd()).filter((dir) => fs.existsSync(`${dir}/${CLI_FILENAME}`));
         if (directories.length > 1) {
@@ -40,7 +38,10 @@ export abstract class InstanceCommand extends PowerSyncCommand {
         }
 
         return DEFAULT_INSTANCE_DIRECTORY;
-      }
+      },
+      description:
+        'Directory containing PowerSync config. Defaults to "powersync". This is required if multiple powersync config files are present in subdirectories of the current working directory.',
+      helpGroup: HelpGroup.PROJECT
     })
   };
 
@@ -51,6 +52,7 @@ export abstract class InstanceCommand extends PowerSyncCommand {
         message: `Directory "${flags.directory}" not found. Run ${ux.colorize('blue', 'powersync init cloud')} or ${ux.colorize('blue', 'powersync init self-hosted')} first to create the project.`
       });
     }
+
     return projectDir;
   }
 }

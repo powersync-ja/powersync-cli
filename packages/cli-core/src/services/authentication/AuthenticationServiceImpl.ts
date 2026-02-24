@@ -14,7 +14,26 @@ export class AuthenticationServiceImpl implements AuthenticationService {
     this.storage = options.storage;
   }
 
-  async getToken(): Promise<string | null> {
+  async deleteToken(): Promise<void> {
+    if (this.storage.capabilities.supportsSecureStorage) {
+      await this.storage.secureStorage.removeItem(TOKEN_KEY);
+      return;
+    }
+
+    const config = await this.storage.getInsecureConfig();
+    if (!config.auth || config.auth.token === undefined) {
+      return;
+    }
+
+    delete config.auth.token;
+    if (Object.keys(config.auth).length === 0) {
+      delete config.auth;
+    }
+
+    await this.storage.updateInsecureConfig(config);
+  }
+
+  async getToken(): Promise<null | string> {
     if (this.storage.capabilities.supportsSecureStorage) {
       return this.storage.secureStorage.getItem(TOKEN_KEY);
     }
@@ -31,27 +50,9 @@ export class AuthenticationServiceImpl implements AuthenticationService {
 
     const config = await this.storage.getInsecureConfig();
     config.auth = {
-      ...(config.auth ?? {}),
+      ...config.auth,
       token
     };
-    await this.storage.updateInsecureConfig(config);
-  }
-
-  async deleteToken(): Promise<void> {
-    if (this.storage.capabilities.supportsSecureStorage) {
-      await this.storage.secureStorage.removeItem(TOKEN_KEY);
-      return;
-    }
-
-    const config = await this.storage.getInsecureConfig();
-    if (!config.auth || typeof config.auth.token === 'undefined') {
-      return;
-    }
-
-    delete config.auth.token;
-    if (Object.keys(config.auth).length === 0) {
-      delete config.auth;
-    }
     await this.storage.updateInsecureConfig(config);
   }
 }

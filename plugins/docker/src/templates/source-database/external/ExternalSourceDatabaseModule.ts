@@ -1,12 +1,11 @@
 import { ux } from '@oclif/core';
 import path from 'node:path';
 import { Scalar } from 'yaml';
+
 import { DockerModule, DockerModuleContext, DockerModuleType } from '../../../types.js';
 
 const ExternalSourceDatabaseModule: DockerModule = {
-  name: 'external',
-  type: DockerModuleType.SOURCE_DATABASE,
-  apply: async (context: DockerModuleContext) => {
+  async apply(context: DockerModuleContext) {
     const { projectDirectory: projectdirectory, serviceConfig } = context;
 
     context.command.log(
@@ -23,9 +22,9 @@ const ExternalSourceDatabaseModule: DockerModule = {
     const replicationConfig = {
       connections: [
         {
+          sslmode: 'disable',
           type: 'postgresql',
-          uri,
-          sslmode: 'disable'
+          uri
         }
       ]
     };
@@ -37,7 +36,9 @@ const ExternalSourceDatabaseModule: DockerModule = {
     };
 
     return { additionalEnvironment };
-  }
+  },
+  name: 'external',
+  type: DockerModuleType.SOURCE_DATABASE
 };
 
 export default ExternalSourceDatabaseModule;

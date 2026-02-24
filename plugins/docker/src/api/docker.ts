@@ -58,7 +58,6 @@ export function listPowersyncProjectNames(): string[] {
 
 /**
  * Log active PowerSync project names and how to stop them. Use after a failed reset or start.
- * @param excludeProjectName - Current project name to omit from the list (the instance we just tried to use).
  */
 export function logPowersyncProjectsStopHelp(
   command: { log: (msg: string) => void },
@@ -68,7 +67,7 @@ export function logPowersyncProjectsStopHelp(
   if (projectNames.length > 0) {
     command.log('');
     command.log('Other PowerSync Docker project(s) that are running:');
-    projectNames.forEach((name) => command.log(`  - ${name}`));
+    for (const name of projectNames) command.log(`  - ${name}`);
     command.log('');
     command.log('To stop a project: ' + ux.colorize('blue', 'powersync docker stop --project-name=<name>'));
     command.log('Example: ' + ux.colorize('blue', `powersync docker stop --project-name=${projectNames[0]!}`));
@@ -82,8 +81,8 @@ export function logPowersyncProjectsStopHelp(
 export function runDockerComposeStop(projectName: string, execOptions?: { stdio?: 'inherit' | 'pipe' }): void {
   const cmd = `docker compose -p "${projectName}" stop`;
   execSync(cmd, {
-    stdio: execOptions?.stdio ?? 'inherit',
-    cwd: process.cwd()
+    cwd: process.cwd(),
+    stdio: execOptions?.stdio ?? 'inherit'
   });
 }
 
@@ -93,13 +92,13 @@ export function runDockerComposeStop(projectName: string, execOptions?: { stdio?
  */
 export function runDockerComposeDown(
   projectName: string,
-  execOptions?: { stdio?: 'inherit' | 'pipe'; removeVolumes?: boolean }
+  execOptions?: { removeVolumes?: boolean; stdio?: 'inherit' | 'pipe' }
 ): void {
   const v = execOptions?.removeVolumes ? ' -v' : '';
   const cmd = `docker compose -p "${projectName}" down${v}`;
   execSync(cmd, {
-    stdio: execOptions?.stdio ?? 'inherit',
-    cwd: process.cwd()
+    cwd: process.cwd(),
+    stdio: execOptions?.stdio ?? 'inherit'
   });
 }
 
@@ -118,11 +117,12 @@ export function runDockerCompose(
       `Compose file not found: ${composePath}. Run ${ux.colorize('blue', 'powersync docker configure')} to create the docker/ compose dir.`
     );
   }
+
   const composeDir = dirname(composePath);
   const projectFlag = options.projectName ? `-p "${options.projectName}" ` : '';
   const cmd = `docker compose ${projectFlag}-f "${composePath}" ${args.join(' ')}`;
   execSync(cmd, {
-    stdio: execOptions?.stdio ?? 'inherit',
-    cwd: composeDir
+    cwd: composeDir,
+    stdio: execOptions?.stdio ?? 'inherit'
   });
 }

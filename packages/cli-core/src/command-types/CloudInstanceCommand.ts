@@ -8,8 +8,9 @@ import {
 import { PowerSyncManagementClient } from '@powersync/management-client';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { createCloudClient } from '../clients/CloudClient.js';
+
 import { getDefaultOrgId } from '../clients/accounts-client.js';
+import { createCloudClient } from '../clients/CloudClient.js';
 import { ensureServiceTypeMatches, ServiceType } from '../utils/ensureServiceType.js';
 import { env } from '../utils/env.js';
 import { CLI_FILENAME, SERVICE_FILENAME, SYNC_FILENAME } from '../utils/project-config.js';
@@ -18,8 +19,8 @@ import { HelpGroup } from './HelpGroup.js';
 import { DEFAULT_ENSURE_CONFIG_OPTIONS, EnsureConfigOptions, InstanceCommand } from './InstanceCommand.js';
 
 export type CloudProject = {
-  projectDirectory: string;
   linked: ResolvedCloudCLIConfig;
+  projectDirectory: string;
   syncRulesContent?: string;
 };
 
@@ -28,7 +29,7 @@ export type CloudProject = {
  * Use when you need the type of `flags` from `await this.parse(CloudInstanceCommand)`.
  */
 export type CloudInstanceCommandFlags = Interfaces.InferredFlags<
-  typeof CloudInstanceCommand.flags & typeof CloudInstanceCommand.baseFlags
+  typeof CloudInstanceCommand.baseFlags & typeof CloudInstanceCommand.flags
 >;
 
 /**
@@ -55,30 +56,32 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
      */
     ...InstanceCommand.flags,
     'instance-id': Flags.string({
-      description: 'PowerSync Cloud instance ID. Manually passed if the current context has not been linked.',
-      required: false,
       dependsOn: ['project-id'],
-      helpGroup: HelpGroup.CLOUD_PROJECT
+      description: 'PowerSync Cloud instance ID. Manually passed if the current context has not been linked.',
+      helpGroup: HelpGroup.CLOUD_PROJECT,
+      required: false
     }),
     'org-id': Flags.string({
       description:
         'Organization ID (optional). Defaults to the token’s single org when only one is available; pass explicitly if the token has multiple orgs.',
-      required: false,
-      helpGroup: HelpGroup.CLOUD_PROJECT
+      helpGroup: HelpGroup.CLOUD_PROJECT,
+      required: false
     }),
     'project-id': Flags.string({
       description: 'Project ID. Manually passed if the current context has not been linked.',
-      required: false,
-      helpGroup: HelpGroup.CLOUD_PROJECT
+      helpGroup: HelpGroup.CLOUD_PROJECT,
+      required: false
     })
   };
-
+  protected _project: CloudProject | null = null;
   /**
    * Used to interface with the PowerSync Management API for Cloud instances. Automatically created with the token from login (or TOKEN env variable).
    */
   client: PowerSyncManagementClient = createCloudClient();
-
-  protected _project: CloudProject | null = null;
+  /**
+   * The parsed service config from the service.yaml file. Call parseConfig() before accessing this property. This is set to the parsed config after calling parseConfig() to avoid multiple parses of the same config.
+   */
+  protected serviceConfig: null | ServiceCloudConfigDecoded = null;
 
   /**
    * The currently loaded project, including linked instance information and sync config content. Call loadProject() before accessing this property. This is set to the loaded project after calling loadProject() to avoid multiple loads of the same project.
@@ -87,13 +90,26 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
     if (!this._project) {
       throw new Error('Project not loaded. Call loadProject() first.');
     }
+
     return this._project;
   }
 
   /**
-   * The parsed service config from the service.yaml file. Call parseConfig() before accessing this property. This is set to the parsed config after calling parseConfig() to avoid multiple parses of the same config.
+   * Some commands require contacting a provisioned PowerSync instance.
+   * This verifies that the linked instance is provisioned, and shows an error with next steps if it's not.
    */
-  protected serviceConfig: ServiceCloudConfigDecoded | null = null;
+  async ensureProvisioned() {
+    const status = await this.client.getInstanceStatus({
+      app_id: this.project.linked.project_id,
+      id: this.project.linked.instance_id,
+      org_id: this.project.linked.org_id
+    });
+    if (!status.provisioned) {
+      this.styledError({
+        message: `Instance ${this.project.linked.instance_id} is not provisioned. Please provision the instance with ${ux.colorize('blue', 'powersync deploy')} before running this command.`
+      });
+    }
+  }
 
   async loadProject(
     flags: CloudInstanceCommandFlags,
@@ -116,37 +132,37 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
 
     const linkPath = join(projectDir, CLI_FILENAME);
 
-    let linked: ResolvedCloudCLIConfig | null = null;
+    let linked: null | ResolvedCloudCLIConfig = null;
     if (flags['instance-id']) {
       try {
         const org_id = flags['org-id'] ?? env.ORG_ID ?? (await getDefaultOrgId());
         linked = ResolvedCloudCLIConfig.decode({
-          type: 'cloud',
           instance_id: flags['instance-id'],
           org_id,
-          project_id: flags['project-id']!
+          project_id: flags['project-id']!,
+          type: 'cloud'
         });
       } catch (error) {
         // It's only an error if linking is required
         this.styledError({
+          error,
           message:
-            'Linking is required before using this command. Explicitly provided flags were specified, but validation failed.',
-          error
+            'Linking is required before using this command. Explicitly provided flags were specified, but validation failed.'
         });
       }
     } else if (env.INSTANCE_ID) {
       try {
         const org_id = env.ORG_ID ?? (await getDefaultOrgId());
         linked = ResolvedCloudCLIConfig.decode({
-          type: 'cloud',
           instance_id: env.INSTANCE_ID,
           org_id,
-          project_id: env.PROJECT_ID!
+          project_id: env.PROJECT_ID!,
+          type: 'cloud'
         });
       } catch (error) {
         this.styledError({
-          message: 'Failed to parse environment variables as CloudCLIConfig',
-          error
+          error,
+          message: 'Failed to parse environment variables as CloudCLIConfig'
         });
       }
     } else if (existsSync(linkPath)) {
@@ -156,8 +172,8 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
         linked = ResolvedCloudCLIConfig.decode(doc.contents?.toJSON());
       } catch (error) {
         this.styledError({
-          message: `Failed to parse ${CLI_FILENAME} as CloudCLIConfig`,
-          error
+          error,
+          message: `Failed to parse ${CLI_FILENAME} as CloudCLIConfig`
         });
       }
     }
@@ -174,9 +190,10 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
     if (existsSync(syncRulesPath)) {
       syncRulesContent = readFileSync(syncRulesPath, 'utf8');
     }
+
     return (this._project = {
-      projectDirectory: projectDir,
       linked: linked!,
+      projectDirectory: projectDir,
       syncRulesContent
     });
   }
@@ -185,28 +202,13 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
     const servicePath = join(projectDirectory, SERVICE_FILENAME);
     const doc = parseYamlFile(servicePath);
 
-    //validate the config with full schema
+    // validate the config with full schema
     const validationResult = validateCloudConfig(doc.contents?.toJSON());
     if (!validationResult.valid) {
       throw new Error(`Invalid cloud config: ${validationResult.errors?.join('\n')}`);
     }
-    return (this.serviceConfig = ServiceCloudConfig.decode(doc.contents?.toJSON()));
-  }
 
-  /**
-   * Some commands require contacting a provisioned PowerSync instance.
-   * This verifies that the linked instance is provisioned, and shows an error with next steps if it's not.
-   */
-  async ensureProvisioned() {
-    const status = await this.client.getInstanceStatus({
-      app_id: this.project.linked.project_id,
-      id: this.project.linked.instance_id,
-      org_id: this.project.linked.org_id
-    });
-    if (!status.provisioned) {
-      this.styledError({
-        message: `Instance ${this.project.linked.instance_id} is not provisioned. Please provision the instance with ${ux.colorize('blue', 'powersync deploy')} before running this command.`
-      });
-    }
+    this.serviceConfig = ServiceCloudConfig.decode(doc.contents?.toJSON());
+    return this.serviceConfig;
   }
 }

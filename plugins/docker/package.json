@@ -12,7 +12,7 @@
     "oclif.manifest.json"
   ],
   "scripts": {
-    "build": "tsc -b && node ./scripts/copy-template-resources.cjs",
+    "build": "tsc -b && node ./scripts/copy-template-resources.mjs",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "lint": "eslint .",
     "prepack": "oclif manifest"

@@ -1,28 +1,28 @@
 export interface BaseStorage {
-  getItem(key: string): Promise<string | null>;
-  setItem(key: string, value: string): Promise<void>;
+  getItem(key: string): Promise<null | string>;
   removeItem(key: string): Promise<void>;
+  setItem(key: string, value: string): Promise<void>;
 }
 
 export interface StorageCapabilities {
   supportsSecureStorage: boolean;
 }
 
-export type InsecureAuthConfig = {
+export type InsecureAuthConfig = Record<string, unknown> & {
   token?: string;
-} & Record<string, unknown>;
+};
 
-export type InsecureStorageConfig = {
+export type InsecureStorageConfig = Record<string, unknown> & {
   auth?: InsecureAuthConfig;
-} & Record<string, unknown>;
+};
 
 /**
  * General storage interface.
  */
 export interface StorageService {
   capabilities: StorageCapabilities;
-  secureStorage: BaseStorage;
-  insecureStoragePath: string;
   getInsecureConfig(): Promise<InsecureStorageConfig>;
+  insecureStoragePath: string;
+  secureStorage: BaseStorage;
   updateInsecureConfig(config: InsecureStorageConfig): Promise<void>;
 }

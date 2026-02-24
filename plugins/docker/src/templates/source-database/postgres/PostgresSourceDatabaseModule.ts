@@ -3,16 +3,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { isMap, Scalar, YAMLSeq } from 'yaml';
+
 import { DockerModule, DockerModuleContext, DockerModuleType } from '../../../types.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const RESOURCES_DIR = path.join(__dirname, 'resources');
 
 const PostgresSourceDatabaseModule: DockerModule = {
-  name: 'postgres',
-  type: DockerModuleType.SOURCE_DATABASE,
-  apply: async (context: DockerModuleContext) => {
-    const { modulesOutputDirectory, serviceConfig, mainComposeDocument } = context;
+  async apply(context: DockerModuleContext) {
+    const { mainComposeDocument, modulesOutputDirectory, serviceConfig } = context;
 
     context.command.log(
       [
@@ -61,9 +60,9 @@ const PostgresSourceDatabaseModule: DockerModule = {
     const replicationConfig = {
       connections: [
         {
+          sslmode: 'disable',
           type: 'postgresql',
-          uri,
-          sslmode: 'disable'
+          uri
         }
       ]
     };
@@ -71,16 +70,19 @@ const PostgresSourceDatabaseModule: DockerModule = {
     serviceConfig.set('replication', replicationConfig);
 
     const additionalEnvironment = {
-      PS_DATABASE_USER: 'postgres',
-      PS_DATABASE_PASSWORD: 'changeme',
-      PS_DATABASE_NAME: 'postgres',
-      PS_DATABASE_PORT: '5432',
       PS_DATA_SOURCE_URI:
-        'postgresql://${PS_DATABASE_USER}:${PS_DATABASE_PASSWORD}@pg-db:${PS_DATABASE_PORT}/${PS_DATABASE_NAME}'
+        // eslint-disable-next-line no-template-curly-in-string
+        'postgresql://${PS_DATABASE_USER}:${PS_DATABASE_PASSWORD}@pg-db:${PS_DATABASE_PORT}/${PS_DATABASE_NAME}',
+      PS_DATABASE_NAME: 'postgres',
+      PS_DATABASE_PASSWORD: 'changeme',
+      PS_DATABASE_PORT: '5432',
+      PS_DATABASE_USER: 'postgres'
     };
 
     return { additionalEnvironment };
-  }
+  },
+  name: 'postgres',
+  type: DockerModuleType.SOURCE_DATABASE
 };
 
 export default PostgresSourceDatabaseModule;

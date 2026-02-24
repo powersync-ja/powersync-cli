@@ -2,16 +2,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { isMap, Scalar, YAMLSeq } from 'yaml';
+
 import { DockerModule, DockerModuleContext, DockerModuleType } from '../../../types.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const RESOURCES_DIR = path.join(__dirname, 'resources');
 
 const PostgresBucketStorageModule: DockerModule = {
-  name: 'postgres',
-  type: DockerModuleType.STORAGE,
-  apply: async (context: DockerModuleContext) => {
-    const { modulesOutputDirectory, serviceConfig, mainComposeDocument } = context;
+  async apply(context: DockerModuleContext) {
+    const { mainComposeDocument, modulesOutputDirectory, serviceConfig } = context;
     const moduleOutputDirectory = path.join(modulesOutputDirectory, 'storage-postgres');
 
     fs.mkdirSync(moduleOutputDirectory, { recursive: true });
@@ -45,24 +44,27 @@ const PostgresBucketStorageModule: DockerModule = {
     uri.tag = '!env';
 
     const storageConfig = {
+      sslmode: 'disable',
       type: 'postgresql',
-      uri,
-      sslmode: 'disable'
+      uri
     };
 
     serviceConfig.set('storage', storageConfig);
 
     const additionalEnvironment = {
-      PS_STORAGE_USER: 'postgres',
-      PS_STORAGE_PASSWORD: 'changeme',
       PS_STORAGE_DATABASE: 'powersync_storage',
+      PS_STORAGE_PASSWORD: 'changeme',
       PS_STORAGE_PORT: '5433',
       PS_STORAGE_SOURCE_URI:
-        'postgresql://${PS_STORAGE_USER}:${PS_STORAGE_PASSWORD}@pg-storage:${PS_STORAGE_PORT}/${PS_STORAGE_DATABASE}'
+        // eslint-disable-next-line no-template-curly-in-string
+        'postgresql://${PS_STORAGE_USER}:${PS_STORAGE_PASSWORD}@pg-storage:${PS_STORAGE_PORT}/${PS_STORAGE_DATABASE}',
+      PS_STORAGE_USER: 'postgres'
     };
 
     return { additionalEnvironment };
-  }
+  },
+  name: 'postgres',
+  type: DockerModuleType.STORAGE
 };
 
 export default PostgresBucketStorageModule;

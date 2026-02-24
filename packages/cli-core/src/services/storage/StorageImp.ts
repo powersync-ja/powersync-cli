@@ -2,13 +2,14 @@ import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import * as yaml from 'yaml';
+
 import { createKeychainSecureStorage } from './KeychainSecureStorage.js';
 import { BaseStorage, InsecureStorageConfig, StorageCapabilities, StorageService } from './StorageService.js';
 
 export const StubSecureStorage: BaseStorage = {
   getItem: () => Promise.reject(new Error('Secure storage is not supported')),
-  setItem: () => Promise.reject(new Error('Secure storage is not supported')),
-  removeItem: () => Promise.reject(new Error('Secure storage is not supported'))
+  removeItem: () => Promise.reject(new Error('Secure storage is not supported')),
+  setItem: () => Promise.reject(new Error('Secure storage is not supported'))
 };
 
 function isObjectRecord(value: unknown): value is Record<string, unknown> {
@@ -20,7 +21,7 @@ function isValidInsecureConfig(config: unknown): config is InsecureStorageConfig
     return false;
   }
 
-  if (typeof config.auth === 'undefined') {
+  if (config.auth === undefined) {
     return true;
   }
 
@@ -28,7 +29,7 @@ function isValidInsecureConfig(config: unknown): config is InsecureStorageConfig
     return false;
   }
 
-  if (typeof config.auth.token !== 'undefined' && typeof config.auth.token !== 'string') {
+  if (config.auth.token !== undefined && typeof config.auth.token !== 'string') {
     return false;
   }
 
@@ -52,6 +53,7 @@ export class ConfigFileStorage {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
         return {};
       }
+
       throw error;
     }
   }
@@ -72,14 +74,20 @@ export class ConfigFileStorage {
 }
 
 export class StorageImpl implements StorageService {
-  protected _secureStorage: BaseStorage | null;
   protected _configStorage: ConfigFileStorage;
-
-  readonly insecureStoragePath = join(
+  protected _secureStorage: BaseStorage | null;
+readonly insecureStoragePath = join(
     process.env.XDG_CONFIG_HOME ?? join(homedir(), '.config'),
     'powersync',
     'config.yaml'
   );
+
+  constructor() {
+    this._configStorage = new ConfigFileStorage(this.insecureStoragePath);
+
+    // Secure storage is only supported on macOS for now
+    this._secureStorage = process.platform === 'darwin' ? createKeychainSecureStorage() : null;
+  }
 
   get capabilities(): StorageCapabilities {
     return {
@@ -97,16 +105,5 @@ export class StorageImpl implements StorageService {
 
   async updateInsecureConfig(config: InsecureStorageConfig): Promise<void> {
     await this._configStorage.updateConfig(config);
-  }
-
-  constructor() {
-    this._configStorage = new ConfigFileStorage(this.insecureStoragePath);
-
-    // Secure storage is only supported on macOS for now
-    if (process.platform === 'darwin') {
-      this._secureStorage = createKeychainSecureStorage();
-    } else {
-      this._secureStorage = null;
-    }
   }
 }

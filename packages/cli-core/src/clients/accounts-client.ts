@@ -3,12 +3,13 @@
  */
 
 /**
- * @fileoverview API client for AccountsHub service
+ * @file API client for AccountsHub service
  * @module lib/api/clients/AccountsHubClient
  */
 
 import * as sdk from '@journeyapps-labs/common-sdk';
 import { ux } from '@oclif/core';
+
 import { Services } from '../services/services.js';
 import { env } from '../utils/env.js';
 
@@ -34,24 +35,22 @@ export type Project = {
 
 export class AccountsHubClientSDKClient<C extends sdk.NetworkClient = sdk.NetworkClient> extends sdk.SDKClient<C> {
   getOrganization = this.createEndpoint<{ id: string }, Org>({
-    path: '/api/accounts/v5/organizations/get',
-    method: 'post'
+    method: 'post',
+    path: '/api/accounts/v5/organizations/get'
   });
-
-  listOrganizations = sdk.createPaginatedEndpoint(
+listOrganizations = sdk.createPaginatedEndpoint(
     this.createEndpoint<sdk.PaginationParams & { id?: string }, sdk.PaginationResponse & { objects: Org[] }>({
-      path: '/api/accounts/v5/organizations/list',
-      method: 'post'
+      method: 'post',
+      path: '/api/accounts/v5/organizations/list'
     })
   );
-
-  listProjects = sdk.createPaginatedEndpoint(
+listProjects = sdk.createPaginatedEndpoint(
     this.createEndpoint<
-      sdk.PaginationParams & { org_id?: string; id?: string },
+      sdk.PaginationParams & { id?: string; org_id?: string; },
       sdk.PaginationResponse & { objects: Project[] }
     >({
-      path: '/api/accounts/v5/apps/list',
-      method: 'post'
+      method: 'post',
+      path: '/api/accounts/v5/apps/list'
     })
   );
 }
@@ -68,6 +67,7 @@ export async function createAccountsHubClient(): Promise<AccountsHubClientSDKCli
       `Not logged in. Run ${ux.colorize('blue', 'powersync login')} to authenticate (you will be prompted for your token), or provide the ${ux.colorize('blue', 'TOKEN')} environment variable.`
     );
   }
+
   return new AccountsHubClientSDKClient({
     client: sdk.createWebNetworkClient({
       headers: () => ({
@@ -93,10 +93,12 @@ export async function getDefaultOrgId(): Promise<string> {
       'No organizations found for the current token. Pass --org-id explicitly or use a token that has access to an organization.'
     );
   }
+
   if (total > 1) {
     throw new Error(
       `Token has access to multiple organizations (${total}). Pass ${ux.colorize('blue', '--org-id')} to specify which one.`
     );
   }
+
   return organizations[0].id;
 }

@@ -15,6 +15,7 @@ import {
 import { PowerSyncManagementClient } from '@powersync/management-client';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+
 import { getDefaultOrgId } from '../clients/accounts-client.js';
 import { createCloudClient } from '../clients/CloudClient.js';
 import { ensureServiceTypeMatches, ServiceType } from '../utils/ensureServiceType.js';
@@ -27,7 +28,7 @@ import { DEFAULT_ENSURE_CONFIG_OPTIONS, EnsureConfigOptions, InstanceCommand } f
 import { SelfHostedProject } from './SelfHostedInstanceCommand.js';
 
 export type SharedInstanceCommandFlags = Interfaces.InferredFlags<
-  typeof SharedInstanceCommand.flags & typeof SharedInstanceCommand.baseFlags
+  typeof SharedInstanceCommand.baseFlags & typeof SharedInstanceCommand.flags
 >;
 
 /**
@@ -58,33 +59,49 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     'api-url': Flags.string({
       description:
         '[Self-hosted] PowerSync API URL. When set, context is treated as self-hosted (exclusive with --instance-id). Resolved: flag → API_URL → cli.yaml.',
-      required: false,
-      helpGroup: HelpGroup.SELF_HOSTED_PROJECT,
       // Can't use this flag with cloud flags
-      exclusive: ['instance-id', 'org-id', 'project-id']
+      exclusive: ['instance-id', 'org-id', 'project-id'],
+      helpGroup: HelpGroup.SELF_HOSTED_PROJECT,
+      required: false
     }),
     'instance-id': Flags.string({
+      dependsOn: ['project-id'],
       description:
         '[Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud (exclusive with --api-url). Resolved: flag → INSTANCE_ID → cli.yaml.',
-      required: false,
       helpGroup: HelpGroup.CLOUD_PROJECT,
-      dependsOn: ['project-id']
+      required: false
     }),
     'org-id': Flags.string({
       description:
         '[Cloud] Organization ID (optional). Defaults to the token’s single org when only one is available; pass explicitly if the token has multiple orgs. Resolved: flag → ORG_ID → cli.yaml.',
-      required: false,
-      helpGroup: HelpGroup.CLOUD_PROJECT
+      helpGroup: HelpGroup.CLOUD_PROJECT,
+      required: false
     }),
     'project-id': Flags.string({
       description: '[Cloud] Project ID. Resolved: flag → PROJECT_ID → cli.yaml.',
-      required: false,
-      helpGroup: HelpGroup.CLOUD_PROJECT
+      helpGroup: HelpGroup.CLOUD_PROJECT,
+      required: false
     }),
     ...InstanceCommand.flags
   };
+cloudClient: PowerSyncManagementClient = createCloudClient();
 
-  cloudClient: PowerSyncManagementClient = createCloudClient();
+  /**
+   * Some commands require contacting a provisioned PowerSync instance.
+   * This verifies that the linked instance is provisioned, and shows an error with next steps if it's not.
+   */
+  async ensureCloudProvisioned(project: CloudProject) {
+    const status = await this.cloudClient.getInstanceStatus({
+      app_id: project.linked.project_id,
+      id: project.linked.instance_id,
+      org_id: project.linked.org_id
+    });
+    if (!status.provisioned) {
+      this.styledError({
+        message: `Instance ${project.linked.instance_id} is not provisioned. Please provision the instance with ${ux.colorize('blue', 'powersync deploy')} before running this command.`
+      });
+    }
+  }
 
   async loadProject(
     flags: SharedInstanceCommandFlags,
@@ -107,7 +124,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
       this.styledError({ message: 'Cannot use both cloud and self-hosted inputs. Use one or the other.' });
     }
 
-    let projectType: ServiceType | null = hasSelfHostedInputs
+    let projectType: null | ServiceType = hasSelfHostedInputs
       ? ServiceType.SELF_HOSTED
       : hasCloudInstanceInputs
         ? ServiceType.CLOUD
@@ -136,7 +153,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     }
 
     // 2) Per-field: flags → env → link file (see class JSDoc).
-    let cliConfig: ResolvedCloudCLIConfig | ResolvedSelfHostedCLIConfig | null = null;
+    let cliConfig: null | ResolvedCloudCLIConfig | ResolvedSelfHostedCLIConfig = null;
     if (projectType === 'self-hosted') {
       const _rawSelfHostedCLIConfig = (rawCLIConfig as SelfHostedCLIConfig) ?? { type: 'self-hosted' };
       try {
@@ -146,7 +163,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
           api_url: flags['api-url'] ?? env.API_URL ?? _rawSelfHostedCLIConfig.api_url!
         });
       } catch (error) {
-        this.styledError({ message: linkMissingErrorMessage, error });
+        this.styledError({ error, message: linkMissingErrorMessage });
       }
     } else {
       const _rawCloudCLIConfig = (rawCLIConfig as CloudCLIConfig) ?? { type: 'cloud' };
@@ -155,6 +172,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
         if (org_id == null && (flags['instance-id'] || env.INSTANCE_ID)) {
           org_id = await getDefaultOrgId();
         }
+
         cliConfig = ResolvedCloudCLIConfig.decode({
           ..._rawCloudCLIConfig,
           instance_id: flags['instance-id'] ?? env.INSTANCE_ID ?? _rawCloudCLIConfig.instance_id!,
@@ -162,7 +180,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
           project_id: flags['project-id'] ?? env.PROJECT_ID ?? _rawCloudCLIConfig.project_id!
         });
       } catch (error) {
-        this.styledError({ message: linkMissingErrorMessage, error });
+        this.styledError({ error, message: linkMissingErrorMessage });
       }
     }
 
@@ -193,14 +211,15 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
 
     if (projectType === ServiceType.CLOUD) {
       return {
-        projectDirectory: projectDir,
         linked: cliConfig as ResolvedCloudCLIConfig,
+        projectDirectory: projectDir,
         syncRulesContent
       };
     }
+
     return {
-      projectDirectory: projectDir,
       linked: cliConfig as ResolvedSelfHostedCLIConfig,
+      projectDirectory: projectDir,
       syncRulesContent
     };
   }
@@ -209,11 +228,12 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     const servicePath = join(projectDirectory, SERVICE_FILENAME);
     const doc = parseYamlFile(servicePath);
 
-    //validate the config with full schema
+    // validate the config with full schema
     const validationResult = validateCloudConfig(doc.contents?.toJSON());
     if (!validationResult.valid) {
       throw new Error(`Invalid cloud config: ${validationResult.errors?.join('\n')}`);
     }
+
     return ServiceCloudConfig.decode(doc.contents?.toJSON());
   }
 
@@ -221,28 +241,12 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     const servicePath = join(projectDirectory, SERVICE_FILENAME);
     const doc = parseYamlFile(servicePath);
 
-    //validate the config with full schema
+    // validate the config with full schema
     const validationResult = validateSelfHostedConfig(doc.contents?.toJSON());
     if (!validationResult.valid) {
       throw new Error(`Invalid self-hosted config: ${validationResult.errors?.join('\n')}`);
     }
-    return ServiceSelfHostedConfig.decode(doc.contents?.toJSON());
-  }
 
-  /**
-   * Some commands require contacting a provisioned PowerSync instance.
-   * This verifies that the linked instance is provisioned, and shows an error with next steps if it's not.
-   */
-  async ensureCloudProvisioned(project: CloudProject) {
-    const status = await this.cloudClient.getInstanceStatus({
-      app_id: project.linked.project_id,
-      id: project.linked.instance_id,
-      org_id: project.linked.org_id
-    });
-    if (!status.provisioned) {
-      this.styledError({
-        message: `Instance ${project.linked.instance_id} is not provisioned. Please provision the instance with ${ux.colorize('blue', 'powersync deploy')} before running this command.`
-      });
-    }
+    return ServiceSelfHostedConfig.decode(doc.contents?.toJSON());
   }
 }

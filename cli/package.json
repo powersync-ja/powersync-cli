@@ -30,14 +30,10 @@
     "yaml": "^2"
   },
   "devDependencies": {
-    "@eslint/compat": "^1",
     "@oclif/prettier-config": "^0.2.1",
     "@oclif/test": "^4",
     "@types/lodash": "^4.17.23",
     "@types/node": "^24",
-    "eslint": "^9",
-    "eslint-config-oclif": "^6",
-    "eslint-config-prettier": "^10",
     "oclif": "^4",
     "shx": "^0.3.3",
     "ts-node": "^10",

@@ -1,5 +1,6 @@
-import { PowerSyncDatabase, createBaseLogger } from '@powersync/node';
+import { createBaseLogger, PowerSyncDatabase } from '@powersync/node';
 import 'dotenv/config';
+
 import { DemoConnector } from './connector.js';
 import { AppSchema } from './schema.js';
 
@@ -7,20 +8,22 @@ async function main() {
   const logger = createBaseLogger();
   logger.useDefaults();
   const db = new PowerSyncDatabase({
-    schema: AppSchema,
     database: {
       dbFilename: 'powersync.db'
-    }
+    },
+    schema: AppSchema
   });
 
   db.registerListener({
-    statusChanged: (status) => {
+    statusChanged(status) {
       if (status.dataFlowStatus.downloadError) {
         logger.error('Download error:', status.dataFlowStatus.downloadError);
       }
+
       if (status.dataFlowStatus.uploadError) {
         logger.error('Upload error:', status.dataFlowStatus.uploadError);
       }
+
       if (status.dataFlowStatus.downloadProgress) {
         logger.info('Download progress:', status.dataFlowStatus.downloadProgress);
       }
@@ -45,7 +48,7 @@ async function main() {
   db.close();
 }
 
-main().catch((err) => {
-  console.error(err);
+main().catch((error) => {
+  console.error(error);
   process.exit(1);
 });
