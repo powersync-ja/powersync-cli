@@ -108,7 +108,7 @@ async function runSyncRulesTestCloud(project: CloudProject): Promise<ValidationT
     return { errors: ['No sync.yaml found or empty.'], passed: false };
   }
 
-  const client = await createCloudClient();
+  const client = createCloudClient();
   try {
     const result = await client.validateSyncRules({
       app_id: project.linked.project_id,
@@ -195,7 +195,31 @@ export default class Validate extends SharedInstanceCommand {
       ...(isCloud
         ? [
             { name: Tests.TEST_CONNECTIONS, run: () => this.runConnectionTestCloud(project as CloudProject) },
-            { name: Tests.SYNC_RULES, run: () => runSyncRulesTestCloud(project as CloudProject) }
+            {
+              name: Tests.SYNC_RULES,
+              async run() {
+                // We can only validate sync rules against a provisioned instance, so ensure that's the case before running the test.
+                const client = createCloudClient();
+                const cloudProject = project as CloudProject;
+
+                const status = await client.getInstanceStatus({
+                  app_id: cloudProject.linked.project_id,
+                  id: cloudProject.linked.instance_id,
+                  org_id: cloudProject.linked.org_id
+                });
+                if (!status.provisioned) {
+                  return {
+                    errors: [
+                      `Linked instance is not provisioned. Sync config validation requires a provisioned instance.`,
+                      `Provision the instance and try again.`
+                    ],
+                    passed: false
+                  };
+                }
+
+                return runSyncRulesTestCloud(project as CloudProject);
+              }
+            }
           ]
         : [{ name: Tests.SYNC_RULES, run: () => runSyncRulesTestSelfHosted(project as SelfHostedProject) }])
     ];

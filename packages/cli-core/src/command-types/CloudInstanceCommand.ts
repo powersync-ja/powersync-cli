@@ -1,4 +1,4 @@
-import { Flags, Interfaces } from '@oclif/core';
+import { Flags, Interfaces, ux } from '@oclif/core';
 import {
   ResolvedCloudCLIConfig,
   ServiceCloudConfig,
@@ -191,5 +191,22 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
       throw new Error(`Invalid cloud config: ${validationResult.errors?.join('\n')}`);
     }
     return (this.serviceConfig = ServiceCloudConfig.decode(doc.contents?.toJSON()));
+  }
+
+  /**
+   * Some commands require contacting a provisioned PowerSync instance.
+   * This verifies that the linked instance is provisioned, and shows an error with next steps if it's not.
+   */
+  async ensureProvisioned() {
+    const status = await this.client.getInstanceStatus({
+      app_id: this.project.linked.project_id,
+      id: this.project.linked.instance_id,
+      org_id: this.project.linked.org_id
+    });
+    if (!status.provisioned) {
+      this.styledError({
+        message: `Instance ${this.project.linked.instance_id} is not provisioned. Please provision the instance with ${ux.colorize('blue', 'powersync deploy')} before running this command.`
+      });
+    }
   }
 }

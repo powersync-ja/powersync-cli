@@ -1,4 +1,4 @@
-import { Flags, Interfaces } from '@oclif/core';
+import { Flags, Interfaces, ux } from '@oclif/core';
 import {
   CLIConfig,
   CloudCLIConfig,
@@ -12,9 +12,11 @@ import {
   validateCloudConfig,
   validateSelfHostedConfig
 } from '@powersync/cli-schemas';
+import { PowerSyncManagementClient } from '@powersync/management-client';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { getDefaultOrgId } from '../clients/accounts-client.js';
+import { createCloudClient } from '../clients/CloudClient.js';
 import { ensureServiceTypeMatches, ServiceType } from '../utils/ensureServiceType.js';
 import { env } from '../utils/env.js';
 import { CLI_FILENAME, SERVICE_FILENAME, SYNC_FILENAME } from '../utils/project-config.js';
@@ -81,6 +83,8 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     }),
     ...InstanceCommand.flags
   };
+
+  cloudClient: PowerSyncManagementClient = createCloudClient();
 
   async loadProject(
     flags: SharedInstanceCommandFlags,
@@ -181,6 +185,12 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
       syncRulesContent = readFileSync(syncRulesPath, 'utf8');
     }
 
+    if (!existsSync(join(projectDir, SERVICE_FILENAME)) && resolvedOptions.configFileRequired) {
+      this.styledError({
+        message: `Config file "${SERVICE_FILENAME}" not found in directory "${projectDir}". This command requires a config file to run. Please create one and try again.`
+      });
+    }
+
     if (projectType === ServiceType.CLOUD) {
       return {
         projectDirectory: projectDir,
@@ -217,5 +227,22 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
       throw new Error(`Invalid self-hosted config: ${validationResult.errors?.join('\n')}`);
     }
     return ServiceSelfHostedConfig.decode(doc.contents?.toJSON());
+  }
+
+  /**
+   * Some commands require contacting a provisioned PowerSync instance.
+   * This verifies that the linked instance is provisioned, and shows an error with next steps if it's not.
+   */
+  async ensureCloudProvisioned(project: CloudProject) {
+    const status = await this.cloudClient.getInstanceStatus({
+      app_id: project.linked.project_id,
+      id: project.linked.instance_id,
+      org_id: project.linked.org_id
+    });
+    if (!status.provisioned) {
+      this.styledError({
+        message: `Instance ${project.linked.instance_id} is not provisioned. Please provision the instance with ${ux.colorize('blue', 'powersync deploy')} before running this command.`
+      });
+    }
   }
 }

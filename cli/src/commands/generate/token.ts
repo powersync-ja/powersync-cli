@@ -93,7 +93,18 @@ export default class GenerateToken extends SharedInstanceCommand {
     const usableKeys = instanceConfig.client_auth?.jwks?.keys?.filter((key) => key.alg === 'HS256') ?? [];
     if (usableKeys.length === 0) {
       this.styledError({
-        message: 'No usable keys found in the config file. Please add a shared secret to the config file.'
+        message: [
+          `No usable keys found in the config file.`,
+          `Please add a shared secret to the config file.`,
+          `Secrets should be added to the client_auth->jwks->keys array in the config file, for example:`,
+          `client_auth:`,
+          `  jwks:`,
+          `    keys:`,
+          `      - kty: oct`,
+          `        alg: HS256`,
+          `        kid: my-key-id`,
+          `        k: base64-encoded-secret-here`
+        ].join('\n')
       });
     }
 

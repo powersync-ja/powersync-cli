@@ -1,49 +1,10 @@
-import type { ResolvedCloudCLIConfig } from '@powersync/cli-schemas';
-
 import { Flags, ux } from '@oclif/core';
 import { CloudInstanceCommand, SERVICE_FILENAME } from '@powersync/cli-core';
-import { PowerSyncManagementClient } from '@powersync/management-client';
 import { routes } from '@powersync/management-types';
 import ora from 'ora';
 
 import { formatTestConnectionFailure, testCloudConnections } from '../../api/cloud/test-connection.js';
-
-const STATUS_POLL_INTERVAL_MS = 5000;
-const DEFAULT_DEPLOY_TIMEOUT_MS = 5 * 60 * 1000;
-type DeployStatus = 'completed' | 'failed' | 'pending' | 'running';
-
-async function waitForStatusChange(
-  client: PowerSyncManagementClient,
-  linked: ResolvedCloudCLIConfig,
-  instanceId: string,
-  timeoutMs: number
-): Promise<DeployStatus> {
-  const startedAt = Date.now();
-  for (;;) {
-    const result = await client.getInstanceStatus({
-      app_id: linked.project_id,
-      id: instanceId,
-      org_id: linked.org_id
-    });
-    const operation = result.operations?.[0];
-    const status = operation?.status as DeployStatus | undefined;
-    if (status === 'failed' || status === 'completed') return status;
-    if (status === undefined) {
-      // No operation or unknown status; treat as failed to avoid infinite loop
-      return 'failed';
-    }
-
-    if (Date.now() - startedAt >= timeoutMs) {
-      throw new Error(
-        `Deployment did not complete within ${Math.round(timeoutMs / 1000)} seconds. Check instance status and try again.`
-      );
-    }
-
-    await new Promise<void>((resolve) => {
-      setTimeout(resolve, STATUS_POLL_INTERVAL_MS);
-    });
-  }
-}
+import { DEFAULT_DEPLOY_TIMEOUT_MS, waitForOperationStatusChange } from '../../api/cloud/wait-for-operation.js';
 
 /**
  * Deploys the sync config and service configuration
@@ -79,8 +40,9 @@ export default class DeployAll extends CloudInstanceCommand {
   protected async deployAll(params: {
     cloudConfigState: routes.InstanceConfigResponse;
     deployTimeoutMs: number;
+    updateSyncConfig: boolean;
   }): Promise<void> {
-    const { cloudConfigState, deployTimeoutMs } = params;
+    const { cloudConfigState, deployTimeoutMs, updateSyncConfig } = params;
     const { client, project } = this;
     const { linked, syncRulesContent } = project;
     const config = this.serviceConfig;
@@ -102,7 +64,7 @@ export default class DeployAll extends CloudInstanceCommand {
           config: config as any,
           // Allow updating the instance name
           name: config.name,
-          sync_rules: syncRulesContent
+          sync_rules: updateSyncConfig ? syncRulesContent : cloudConfigState.sync_rules
         })
       )
     );
@@ -144,13 +106,49 @@ export default class DeployAll extends CloudInstanceCommand {
     // Start of validations
     this.log('Performing validations before deploy...');
 
+    const instanceStatus = await this.client
+      .getInstanceStatus({
+        app_id: project.linked.project_id,
+        id: project.linked.instance_id,
+        org_id: project.linked.org_id
+      })
+      .catch((error) => {
+        this.styledError({
+          error,
+          message: `Failed to get status for instance ${project.linked.instance_id} in project ${project.linked.project_id} in org ${project.linked.org_id}.`,
+          suggestions: ['Check your network connection and try again.', 'If the problem persists, contact support.']
+        });
+      });
+
+    const requiresReprovision = instanceStatus.provisioned === false;
+    const syncConfigHasChanges = project.syncRulesContent !== cloudConfigState.sync_rules;
+
     await this.validateServiceConfig({ cloudConfigState });
     await this.testConnections();
+
+    this.log('\tValidating sync config...');
+    /**
+     * At this point we know the instances is deprovisioned, and the current config is valid.
+     * We can't verify the sync config yet - since that requires a provisioned instance.
+     * We will attempt to deploy the config without the sync config first,
+     * if that succeeds, then we will validate the sync config and deploy again with the sync config.
+     */
+    if (requiresReprovision && syncConfigHasChanges) {
+      this.log(
+        [
+          `The instance is ${ux.colorize('yellow', 'not currently provisioned')} and we have detected changes to the sync config.`,
+          `To ensure the instance is successfully provisioned with a valid config, we will first deploy without the sync config, then validate and deploy again with the sync config.`
+        ].join('\n')
+      );
+
+      await this.deployAll({ cloudConfigState, deployTimeoutMs, updateSyncConfig: false });
+    }
+
     await this.validateSyncConfig();
 
     this.log('Validations completed successfully.\n');
 
-    await this.deployAll({ cloudConfigState, deployTimeoutMs });
+    await this.deployAll({ cloudConfigState, deployTimeoutMs, updateSyncConfig: syncConfigHasChanges });
   }
 
   protected async testConnections(): Promise<void> {
@@ -230,7 +228,6 @@ export default class DeployAll extends CloudInstanceCommand {
 
   protected async validateSyncConfig() {
     const { client, project } = this;
-    this.log('\tValidating sync config...');
     const validation = await client
       .validateSyncRules({
         app_id: project.linked.project_id,
@@ -269,7 +266,13 @@ export default class DeployAll extends CloudInstanceCommand {
       const deployResult = await fn();
       this.log(`Deploy operation has been scheduled. Waiting for completion...`);
 
-      const status = await waitForStatusChange(client, project.linked, deployResult.id, timeoutMs);
+      const status = await waitForOperationStatusChange({
+        client,
+        instanceId: deployResult.id,
+        linked: project.linked,
+        operationId: deployResult.operation_id,
+        timeoutMs
+      });
       spinner.stop();
 
       if (status === 'completed') {
