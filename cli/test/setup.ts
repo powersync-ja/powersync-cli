@@ -32,8 +32,14 @@ export function resetManagementClientMocks(): void {
 
 resetManagementClientMocks();
 
+class MockPowerSyncManagementClient {
+  constructor() {
+    return managementClientMock;
+  }
+}
+
 vi.mock('@powersync/management-client', () => ({
-  PowerSyncManagementClient: vi.fn().mockImplementation(() => managementClientMock)
+  PowerSyncManagementClient: MockPowerSyncManagementClient
 }));
 
 import { root } from './helpers/root.js';
