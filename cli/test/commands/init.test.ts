@@ -30,7 +30,7 @@ describe('init', () => {
     await runCommand('init cloud', { root });
     const projectDir = join(tmpDir, 'powersync');
     const serviceYamlPath = join(projectDir, 'service.yaml');
-    const syncYamlPath = join(projectDir, 'sync.yaml');
+    const syncYamlPath = join(projectDir, 'sync-config.yaml');
     expect(existsSync(serviceYamlPath)).toBe(true);
     expect(existsSync(syncYamlPath)).toBe(true);
     expect(readFileSync(serviceYamlPath, 'utf8')).toContain(YAML_SERVICE_SCHEMA);
@@ -61,7 +61,7 @@ describe('init', () => {
     });
     const projectDir = join(tmpDir, CUSTOM_DIR);
     const serviceYamlPath = join(projectDir, 'service.yaml');
-    const syncYamlPath = join(projectDir, 'sync.yaml');
+    const syncYamlPath = join(projectDir, 'sync-config.yaml');
     expect(existsSync(serviceYamlPath)).toBe(true);
     expect(existsSync(syncYamlPath)).toBe(true);
     expect(readFileSync(serviceYamlPath, 'utf8')).toContain(YAML_SERVICE_SCHEMA);
@@ -79,7 +79,7 @@ describe('init', () => {
     await runCommand(`init self-hosted --directory=${CUSTOM_DIR}`, { root });
     const projectDir = join(tmpDir, CUSTOM_DIR);
     const serviceYamlPath = join(projectDir, 'service.yaml');
-    const syncYamlPath = join(projectDir, 'sync.yaml');
+    const syncYamlPath = join(projectDir, 'sync-config.yaml');
     expect(existsSync(serviceYamlPath)).toBe(true);
     expect(existsSync(syncYamlPath)).toBe(true);
     expect(readFileSync(serviceYamlPath, 'utf8')).toContain(YAML_SERVICE_SCHEMA);

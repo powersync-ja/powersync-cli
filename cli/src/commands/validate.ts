@@ -105,7 +105,7 @@ async function runSyncRulesTestCloud(project: CloudProject): Promise<ValidationT
   const syncRulesContent =
     project.syncRulesContent ?? (existsSync(syncRulesPath) ? readFileSync(syncRulesPath, 'utf8') : undefined);
   if (!syncRulesContent?.trim()) {
-    return { errors: ['No sync.yaml found or empty.'], passed: false };
+    return { errors: ['No sync-config.yaml found or empty.'], passed: false };
   }
 
   const client = createCloudClient();
@@ -138,7 +138,7 @@ async function runSyncRulesTestSelfHosted(project: SelfHostedProject): Promise<V
   const syncRulesPath = join(project.projectDirectory, SYNC_FILENAME);
   const syncRulesContent = existsSync(syncRulesPath) ? readFileSync(syncRulesPath, 'utf8') : undefined;
   if (!syncRulesContent?.trim()) {
-    return { errors: ['No sync.yaml found or empty.'], passed: false };
+    return { errors: ['No sync-config.yaml found or empty.'], passed: false };
   }
 
   const client = createSelfHostedClient({

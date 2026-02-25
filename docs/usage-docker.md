@@ -12,7 +12,7 @@ PowerSync exposes a **docker** topic (`powersync docker`) for running a self-hos
 Docker commands use the **compose directory** **powersync/docker/** inside your PowerSync config directory. Configure creates:
 
 - **powersync/docker/** – Compose project root.
-  - **docker-compose.yaml** – Main compose (from template); modules add their own includes and the PowerSync service. Uses **env_file: .env**; mounts **service.yaml** and **sync.yaml**.
+  - **docker-compose.yaml** – Main compose (from template); modules add their own includes and the PowerSync service. Uses **env_file: .env**; mounts **service.yaml** and **sync-config.yaml**.
   - **.env** – Merged from template env (defaults; no manual setup required for basic use).
   - **modules/** – Database and storage modules (e.g. **database-postgres/**, **storage-postgres/**), each with compose partials and **init-scripts** where applicable.
 

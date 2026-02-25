@@ -1,6 +1,6 @@
 # Basic Cloud Pull Example
 
-This example was created by pulling an existing PowerSync Cloud instance with **`powersync pull instance`**. You do not need to run **`powersync init`** first: **`pull instance`** with your instance IDs creates the config directory, writes `cli.yaml`, and downloads `service.yaml` and `sync.yaml`.
+This example was created by pulling an existing PowerSync Cloud instance with **`powersync pull instance`**. You do not need to run **`powersync init`** first: **`pull instance`** with your instance IDs creates the config directory, writes `cli.yaml`, and downloads `service.yaml` and `sync-config.yaml`.
 
 Log in (`powersync login`) or set the `TOKEN` environment variable, then run:
 

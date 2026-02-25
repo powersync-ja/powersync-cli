@@ -96,7 +96,7 @@ The instance **name** and **region** are taken from your local `service.yaml`; s
 
 ## Using an existing Cloud instance
 
-For an instance that already exists (e.g. created in the Dashboard), there is no need to run **init** or create a placeholder config. Run **`powersync pull instance`** with the instance identifiers (from the PowerSync Dashboard URL or **`powersync fetch instances`**). The command creates the config directory if needed, writes **`cli.yaml`** (the link), and downloads **`service.yaml`** and **`sync.yaml`** from the cloud. Then edit the files as needed and run **`powersync deploy`** to push changes.
+For an instance that already exists (e.g. created in the Dashboard), there is no need to run **init** or create a placeholder config. Run **`powersync pull instance`** with the instance identifiers (from the PowerSync Dashboard URL or **`powersync fetch instances`**). The command creates the config directory if needed, writes **`cli.yaml`** (the link), and downloads **`service.yaml`** and **`sync-config.yaml`** from the cloud. Then edit the files as needed and run **`powersync deploy`** to push changes.
 
 ```bash
 powersync login

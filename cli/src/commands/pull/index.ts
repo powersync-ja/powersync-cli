@@ -5,7 +5,7 @@ export default class Pull extends Command {
     'Download current config from PowerSync Cloud into local YAML files. Use pull instance; pass --instance-id and --project-id when the directory is not yet linked (--org-id is optional when the token has a single organization).';
   static examples = ['<%= config.bin %> <%= command.id %>'];
   static hidden = true;
-  static summary = '[Cloud only] Download Cloud config into local service.yaml and sync.yaml.';
+  static summary = '[Cloud only] Download Cloud config into local service.yaml and sync-config.yaml.';
 
   async run(): Promise<void> {
     await this.parse(Pull);

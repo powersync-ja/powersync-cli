@@ -18,7 +18,7 @@ services:
       - .env
     volumes:
       - ../service.yaml:/config/service.yaml
-      - ../sync.yaml:/config/sync.yaml
+      - ../sync-config.yaml:/config/sync-config.yaml
     environment:
       POWERSYNC_CONFIG_PATH: /config/service.yaml
       NODE_OPTIONS: --max-old-space-size=1000

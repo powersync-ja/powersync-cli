@@ -35,7 +35,7 @@ The sections below go into detail for [Cloud](#cloud) and [Self-hosted](#self-ho
 
 # Cloud
 
-The CLI supports **PowerSync Cloud** for creating instances, deploying config, pulling config, and running commands. Cloud workflows use a **config directory** (default `powersync/`) containing **`service.yaml`**, **`sync.yaml`**, and optionally **`cli.yaml`** (the link file written by **powersync link cloud**). All PowerSync YAML files support the **`!env`** custom tag (e.g. `!env MY_VAR` or `!env MY_VAR::number`) for secrets and environment-specific values.
+The CLI supports **PowerSync Cloud** for creating instances, deploying config, pulling config, and running commands. Cloud workflows use a **config directory** (default `powersync/`) containing **`service.yaml`**, **`sync-config.yaml`**, and optionally **`cli.yaml`** (the link file written by **powersync link cloud**). All PowerSync YAML files support the **`!env`** custom tag (e.g. `!env MY_VAR` or `!env MY_VAR::number`) for secrets and environment-specific values.
 
 ## Login
 
@@ -74,12 +74,12 @@ Use `--directory` for a different config folder. The **powersync init cloud** co
 
 ## Using an existing instance (pull)
 
-Run **`powersync pull instance`** with the instance identifiers (from the PowerSync Dashboard URL or **`powersync fetch instances`**). This creates the config directory, writes **`cli.yaml`**, and downloads **`service.yaml`** and **`sync.yaml`**. Edit as needed, then run **`powersync deploy`**.
+Run **`powersync pull instance`** with the instance identifiers (from the PowerSync Dashboard URL or **`powersync fetch instances`**). This creates the config directory, writes **`cli.yaml`**, and downloads **`service.yaml`** and **`sync-config.yaml`**. Edit as needed, then run **`powersync deploy`**.
 
 ```sh
 powersync login
 powersync pull instance --project-id=<project-id> --instance-id=<instance-id>   # add --org-id if multiple orgs
-  # then edit powersync/service.yaml and sync.yaml as needed
+  # then edit powersync/service.yaml and sync-config.yaml as needed
 powersync deploy
 ```
 
@@ -130,7 +130,7 @@ The CLI resolves **`!env TOKEN`** from the `TOKEN` environment variable at runti
 
 ## Creating a self-hosted project and limitations
 
-Run **`powersync init self-hosted`** to scaffold a config directory. Edit **`service.yaml`** with your instance details and use **`!env`** for secrets. This gives you a **partial** project: the CLI does not create or provision a self-hosted instance. You must already have a running PowerSync API. The CLI cannot deploy config to or pull config from a self-hosted instance; you manage **`service.yaml`** and **`sync.yaml`** on the server yourself. Use the CLI to link (**`powersync link self-hosted --api-url <url>`**), then run the supported commands (e.g. **`powersync fetch status`**, **`powersync generate schema`**) against that API.
+Run **`powersync init self-hosted`** to scaffold a config directory. Edit **`service.yaml`** with your instance details and use **`!env`** for secrets. This gives you a **partial** project: the CLI does not create or provision a self-hosted instance. You must already have a running PowerSync API. The CLI cannot deploy config to or pull config from a self-hosted instance; you manage **`service.yaml`** and **`sync-config.yaml`** on the server yourself. Use the CLI to link (**`powersync link self-hosted --api-url <url>`**), then run the supported commands (e.g. **`powersync fetch status`**, **`powersync generate schema`**) against that API.
 
 ```sh
 powersync init self-hosted
@@ -890,7 +890,7 @@ USAGE
   $ powersync migrate sync-rules [--input-file <value>] [--output-file <value>] [--directory <value>]
 
 FLAGS
-  --input-file=<value>   Path to the input sync rules file. Defaults to the project sync.yaml file.
+  --input-file=<value>   Path to the input sync rules file. Defaults to the project sync-config.yaml file.
   --output-file=<value>  Path to the output sync streams file. Defaults to overwrite the input file.
 
 PROJECT FLAGS
@@ -1198,7 +1198,7 @@ _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/
 
 ## `powersync pull instance`
 
-Pull an existing Cloud instance: link and download config into local service.yaml and sync.yaml.
+Pull an existing Cloud instance: link and download config into local service.yaml and sync-config.yaml.
 
 ```
 USAGE
@@ -1216,10 +1216,10 @@ CLOUD_PROJECT FLAGS
   --project-id=<value>   Project ID. Manually passed if the current context has not been linked.
 
 DESCRIPTION
-  Pull an existing Cloud instance: link and download config into local service.yaml and sync.yaml.
+  Pull an existing Cloud instance: link and download config into local service.yaml and sync-config.yaml.
 
   Fetch an existing Cloud instance by ID: create the config directory if needed, write cli.yaml, and download
-  service.yaml and sync.yaml. Pass --instance-id and --project-id when the directory is not yet linked; --org-id is
+  service.yaml and sync-config.yaml. Pass --instance-id and --project-id when the directory is not yet linked; --org-id is
   optional when the token has a single organization. Cloud only.
 
 EXAMPLES

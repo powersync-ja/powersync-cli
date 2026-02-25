@@ -22,8 +22,8 @@
     "@oclif/core": "^4",
     "@powersync/cli-core": "workspace:*",
     "@powersync/cli-schemas": "workspace:*",
-    "@powersync/service-types": "^0.13.3",
-    "@powersync/service-schema": "^1.19.2",
+    "@powersync/service-types": "0.0.0-dev-20260225093637",
+    "@powersync/service-schema": "0.0.0-dev-20260225093637",
     "yaml": "^2"
   },
   "devDependencies": {

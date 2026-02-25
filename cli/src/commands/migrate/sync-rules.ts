@@ -9,7 +9,7 @@ export default class MigrateSyncRules extends InstanceCommand {
   static description = 'Migrates Sync Rules to Sync Streams';
   static flags = {
     'input-file': Flags.string({
-      description: 'Path to the input sync rules file. Defaults to the project sync.yaml file.',
+      description: 'Path to the input sync rules file. Defaults to the project sync-config.yaml file.',
       required: false
     }),
     'output-file': Flags.string({

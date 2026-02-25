@@ -22,7 +22,7 @@
     "@powersync/management-client": "0.0.1",
     "@powersync/management-types": "0.0.1",
     "@powersync/service-sync-rules": "^0.30.0",
-    "@powersync/service-types": "^0.13.3",
+    "@powersync/service-types": "0.0.0-dev-20260225093637",
     "fastify": "^5.0.0",
     "jose": "^6.1.3",
     "lodash": "^4.17.23",
