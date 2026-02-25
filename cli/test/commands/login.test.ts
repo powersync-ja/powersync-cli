@@ -122,9 +122,12 @@ describe('login', () => {
       address: 'http://127.0.0.1:54321',
       tokenPromise: Promise.resolve('server-token')
     });
-    mockedPassword.mockImplementationOnce((_opts, context?: { signal?: AbortSignal }) => new Promise<string>((_resolve, reject) => {
-        context?.signal?.addEventListener('abort', () => reject(new Error('AbortError')), { once: true });
-      }));
+    mockedPassword.mockImplementationOnce(
+      (_opts, context?: { signal?: AbortSignal }) =>
+        new Promise<string>((_resolve, reject) => {
+          context?.signal?.addEventListener('abort', () => reject(new Error('AbortError')), { once: true });
+        })
+    );
 
     const result = await runLoginDirect();
 
