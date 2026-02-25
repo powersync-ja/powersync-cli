@@ -32,7 +32,7 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
   static flags = {
     ...InstanceCommand.flags,
     'api-url': Flags.string({
-      description: 'PowerSync API URL. Resolved: flag → API_URL environment variable → cli.yaml.',
+      description: 'PowerSync API URL. Resolved: flag → cli.yaml → API_URL environment variable.',
       helpGroup: HelpGroup.SELF_HOSTED_PROJECT,
       required: false
     })
@@ -80,7 +80,7 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
       }
     }
 
-    const api_url = flags['api-url'] ?? env.API_URL ?? (rawLink?.api_url as string | undefined);
+    const api_url = flags['api-url'] ?? (rawLink?.api_url as string | undefined) ?? env.API_URL;
     const api_key = env.TOKEN ?? (rawLink?.api_key as string | undefined);
 
     let linked: null | ResolvedSelfHostedCLIConfig = null;

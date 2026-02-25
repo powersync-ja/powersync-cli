@@ -37,9 +37,9 @@ export type CloudInstanceCommandFlags = Interfaces.InferredFlags<
  *
  * Instance context (instance_id, org_id, project_id) is resolved in this order:
  * 1. Command-line flags (--instance-id, --org-id, --project-id)
- * 2. Environment variables (INSTANCE_ID, ORG_ID, PROJECT_ID)
- * 3. If org_id is still missing: token's single org (via accounts API); error if multiple orgs.
- * 4. Linked config from cli.yaml
+ * 2. Linked config from cli.yaml
+ * 3. Environment variables (INSTANCE_ID, ORG_ID, PROJECT_ID)
+ * 4. If org_id is still missing: token's single org (via accounts API); error if multiple orgs.
  *
  * @example
  * # Use linked project (cli.yaml)
@@ -52,7 +52,7 @@ export type CloudInstanceCommandFlags = Interfaces.InferredFlags<
 export abstract class CloudInstanceCommand extends InstanceCommand {
   static flags = {
     /**
-     * Instance ID, org ID, and project ID are resolved in order: flags → env (INSTANCE_ID, ORG_ID, PROJECT_ID) → cli.yaml.
+     * Instance ID, org ID, and project ID are resolved in order: flags → cli.yaml → env (INSTANCE_ID, ORG_ID, PROJECT_ID).
      */
     ...InstanceCommand.flags,
     'instance-id': Flags.string({
@@ -133,49 +133,43 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
     const linkPath = join(projectDir, CLI_FILENAME);
 
     let linked: null | ResolvedCloudCLIConfig = null;
-    if (flags['instance-id']) {
+    let rawLink: null | Record<string, unknown> = null;
+
+    if (existsSync(linkPath)) {
       try {
-        const org_id = flags['org-id'] ?? env.ORG_ID ?? (await getDefaultOrgId());
-        linked = ResolvedCloudCLIConfig.decode({
-          instance_id: flags['instance-id'],
-          org_id,
-          project_id: flags['project-id']!,
-          type: 'cloud'
-        });
-      } catch (error) {
-        // It's only an error if linking is required
-        this.styledError({
-          error,
-          message:
-            'Linking is required before using this command. Explicitly provided flags were specified, but validation failed.'
-        });
-      }
-    } else if (env.INSTANCE_ID) {
-      try {
-        const org_id = env.ORG_ID ?? (await getDefaultOrgId());
-        linked = ResolvedCloudCLIConfig.decode({
-          instance_id: env.INSTANCE_ID,
-          org_id,
-          project_id: env.PROJECT_ID!,
-          type: 'cloud'
-        });
-      } catch (error) {
-        this.styledError({
-          error,
-          message: 'Failed to parse environment variables as CloudCLIConfig'
-        });
-      }
-    } else if (existsSync(linkPath)) {
-      try {
-        const linkPath = join(projectDir, CLI_FILENAME);
         const doc = parseYamlFile(linkPath);
-        linked = ResolvedCloudCLIConfig.decode(doc.contents?.toJSON());
+        rawLink = doc.contents?.toJSON() as Record<string, unknown>;
       } catch (error) {
         this.styledError({
           error,
           message: `Failed to parse ${CLI_FILENAME} as CloudCLIConfig`
         });
       }
+    }
+
+    try {
+      const instance_id = flags['instance-id'] ?? (rawLink?.instance_id as string | undefined) ?? env.INSTANCE_ID;
+      const project_id = flags['project-id'] ?? (rawLink?.project_id as string | undefined) ?? env.PROJECT_ID;
+      let org_id = flags['org-id'] ?? (rawLink?.org_id as string | undefined) ?? env.ORG_ID;
+
+      if (org_id == null && instance_id != null) {
+        org_id = await getDefaultOrgId();
+      }
+
+      if (instance_id != null || project_id != null || org_id != null) {
+        linked = ResolvedCloudCLIConfig.decode({
+          instance_id: instance_id!,
+          org_id: org_id!,
+          project_id: project_id!,
+          type: 'cloud'
+        });
+      }
+    } catch (error) {
+      this.styledError({
+        error,
+        message:
+          'Linking is required before using this command. Provide flags, link the project (cli.yaml), or set environment variables.'
+      });
     }
 
     if (!linked) {
@@ -191,11 +185,13 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
       syncRulesContent = readFileSync(syncRulesPath, 'utf8');
     }
 
-    return (this._project = {
+    this._project = {
       linked: linked!,
       projectDirectory: projectDir,
       syncRulesContent
-    });
+    };
+
+    return this._project;
   }
 
   parseConfig(projectDirectory: string): ServiceCloudConfigDecoded {
