@@ -37,6 +37,10 @@ Use separate config directories (e.g. `powersync`, `powersync-dev`, `powersync-s
 powersync deploy --directory=powersync          # production (linked in powersync/cli.yaml)
 powersync deploy --directory=powersync-dev     # dev (linked in powersync-dev/cli.yaml)
 powersync deploy --directory=powersync-staging # staging (linked in powersync-staging/cli.yaml)
+
+# Optional targeted deploys:
+powersync deploy service-config --directory=powersync   # service.yaml only (keeps cloud sync config)
+powersync deploy sync-config --directory=powersync      # sync-config.yaml only
 ```
 
 **Single directory and link file, with `!env` substitution**
@@ -90,7 +94,17 @@ powersync link cloud --create --project-id=<project-id>
 # If your token has multiple orgs: add --org-id=<org-id>
 powersync validate
 powersync deploy
+
+# Optional targeted deploys:
+powersync deploy service-config
+powersync deploy sync-config
 ```
+
+Deploy command modes:
+
+- `powersync deploy` — deploy both service config and sync config.
+- `powersync deploy service-config` — deploy only service config changes, without updating sync config.
+- `powersync deploy sync-config` — deploy only sync config changes.
 
 The instance **name** and **region** are taken from your local `service.yaml`; set them before running `powersync link cloud --create` if you want a specific display name and region.
 
@@ -108,7 +122,13 @@ powersync pull instance --project-id=<project-id> --instance-id=<instance-id>
 # Edit the YAML files in powersync/ as needed
 powersync validate
 powersync deploy
+
+# Optional targeted deploys:
+powersync deploy service-config
+powersync deploy sync-config
 ```
+
+When you only changed one file, prefer a targeted deploy command to reduce unnecessary updates.
 
 If the config directory already exists and is linked, you can run **`powersync pull instance`** without passing IDs to refresh the local config from the cloud.
 
@@ -202,7 +222,7 @@ If you decline this prompt, login exits without storing a token. Use `TOKEN` in 
 
 # Supplying Linking Information for Cloud and Self-Hosted Commands
 
-Cloud and self-hosted commands need instance (and for Cloud, org and project) identifiers. **Cloud only:** `powersync deploy`, `powersync destroy`, `powersync stop`, `powersync fetch config`, `powersync pull instance`. **Both:** `powersync fetch status`, `powersync generate schema`, `powersync generate token`, `powersync validate`. The same three methods apply: the CLI uses the first that is available for each field (flags override environment variables, environment variables override link file). For Cloud, **org_id is optional**: when not set via flags, env, or link file, the CLI fetches the token’s organizations and uses the single org if there is exactly one; if the token has multiple orgs, the command errors and you must pass `--org-id` (or set `ORG_ID`).
+Cloud and self-hosted commands need instance (and for Cloud, org and project) identifiers. **Cloud only:** `powersync deploy`, `powersync deploy service-config`, `powersync deploy sync-config`, `powersync destroy`, `powersync stop`, `powersync fetch config`, `powersync pull instance`. **Both:** `powersync fetch status`, `powersync generate schema`, `powersync generate token`, `powersync validate`. The same three methods apply: the CLI uses the first that is available for each field (flags override environment variables, environment variables override link file). For Cloud, **org_id is optional**: when not set via flags, env, or link file, the CLI fetches the token’s organizations and uses the single org if there is exactly one; if the token has multiple orgs, the command errors and you must pass `--org-id` (or set `ORG_ID`).
 
 1. **Flags**
    - **Cloud:** `--instance-id`, `--project-id` (required when using instance-id), `--org-id` (optional; defaults to token’s single org)

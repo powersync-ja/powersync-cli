@@ -231,6 +231,7 @@ See [docs/usage.md](../docs/usage.md) for full usage and resolution order (flags
 - [`powersync autocomplete [SHELL]`](#powersync-autocomplete-shell)
 - [`powersync commands`](#powersync-commands)
 - [`powersync deploy`](#powersync-deploy)
+- [`powersync deploy service-config`](#powersync-deploy-service-config)
 - [`powersync deploy sync-config`](#powersync-deploy-sync-config)
 - [`powersync destroy`](#powersync-destroy)
 - [`powersync docker configure`](#powersync-docker-configure)
@@ -354,6 +355,7 @@ DESCRIPTION
   Deploy local config (service.yaml, sync config) to the linked PowerSync Cloud instance.
   Validates connections and sync config before deploying.
   See also powersync deploy sync-config to deploy only sync config changes.
+  See also powersync deploy service-config to deploy only service config changes.
 
 EXAMPLES
   $ powersync deploy
@@ -362,6 +364,43 @@ EXAMPLES
 ```
 
 _See code: [src/commands/deploy/index.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/deploy/index.ts)_
+
+## `powersync deploy service-config`
+
+[Cloud only] Deploy only local service config to the linked Cloud instance.
+
+```
+USAGE
+  $ powersync deploy service-config [--deploy-timeout <value>] [--directory <value>] [--instance-id <value> --project-id
+    <value>] [--org-id <value>]
+
+FLAGS
+  --deploy-timeout=<value>  [default: 300] Seconds to wait after scheduling a deploy before timing out while polling
+                            status (default 300 seconds).
+
+PROJECT FLAGS
+  --directory=<value>  [default: powersync] Directory containing PowerSync config. Defaults to "powersync". This is
+                       required if multiple powersync config files are present in subdirectories of the current working
+                       directory.
+
+CLOUD_PROJECT FLAGS
+  --instance-id=<value>  PowerSync Cloud instance ID. Manually passed if the current context has not been linked.
+  --org-id=<value>       Organization ID (optional). Defaults to the token’s single org when only one is available; pass
+                         explicitly if the token has multiple orgs.
+  --project-id=<value>   Project ID. Manually passed if the current context has not been linked.
+
+DESCRIPTION
+  [Cloud only] Deploy only local service config to the linked Cloud instance.
+
+  Deploy only service config changes (without sync config updates).
+
+EXAMPLES
+  $ powersync deploy service-config
+
+  $ powersync deploy service-config --instance-id=<id> --project-id=<id>
+```
+
+_See code: [src/commands/deploy/service-config.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/deploy/service-config.ts)_
 
 ## `powersync deploy sync-config`
 

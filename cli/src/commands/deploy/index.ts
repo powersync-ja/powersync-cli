@@ -1,5 +1,6 @@
 import { Flags, ux } from '@oclif/core';
 import { CloudInstanceCommand, SERVICE_FILENAME } from '@powersync/cli-core';
+import { ServiceCloudConfigDecoded } from '@powersync/cli-schemas';
 import { routes } from '@powersync/management-types';
 import ora from 'ora';
 
@@ -13,7 +14,8 @@ export default class DeployAll extends CloudInstanceCommand {
   static description = [
     'Deploy local config (service.yaml, sync config) to the linked PowerSync Cloud instance.',
     'Validates connections and sync config before deploying.',
-    `See also ${ux.colorize('blue', 'powersync deploy sync-config')} to deploy only sync config changes.`
+    `See also ${ux.colorize('blue', 'powersync deploy sync-config')} to deploy only sync config changes.`,
+    `See also ${ux.colorize('blue', 'powersync deploy service-config')} to deploy only service config changes.`
   ].join('\n');
   static examples = [
     '<%= config.bin %> <%= command.id %>',
@@ -85,6 +87,23 @@ export default class DeployAll extends CloudInstanceCommand {
           message: `Failed to get existing config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}. Ensure the instance has been created before deploying.`
         });
       });
+  }
+
+  override parseConfig(projectDirectory: string): ServiceCloudConfigDecoded {
+    const config = super.parseConfig(projectDirectory);
+
+    /**
+     * This is a temporary hack to maintain compatibilty with the PowerSync Dashboard.
+     * The dashboard requires replication connections to have a name field set.
+     * This is not enforced by the management service.
+     */
+    for (const [index, connection] of config.replication?.connections?.entries() ?? []) {
+      if (!connection.name) {
+        connection.name = `Default${index > 0 ? `_${index}` : ''}`;
+      }
+    }
+
+    return config;
   }
 
   async run(): Promise<void> {
