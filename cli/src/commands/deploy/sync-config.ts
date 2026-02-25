@@ -94,7 +94,7 @@ export class DeploySyncConfig extends DeployAll {
 
     if (!instanceStatus.provisioned) {
       this.log(
-        `The instance is not currently provisioned. Triggering a deploy in order to reprovision. This may take a few minutes.`
+        `\nThe instance is not currently provisioned. Triggering a deploy in order to reprovision. This may take a few minutes.\n`
       );
       // Don't yet update the sync config since the instance is not provisioned, but deploy to trigger provisioning
       await this.deployAll({ cloudConfigState, deployTimeoutMs: flags.timeout, updateSyncConfig: false });

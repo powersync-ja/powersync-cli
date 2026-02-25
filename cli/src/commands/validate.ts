@@ -236,7 +236,7 @@ export default class Validate extends SharedInstanceCommand {
       case 'human': {
         this.log('Running validation tests...');
 
-        const spinner = ora({ text: formatOraMessage(testEntries) }).start();
+        const spinner = ora({ discardStdin: false, text: formatOraMessage(testEntries) }).start();
         const promises = testEntries.map((entry, i) =>
           entry.promise
             .then((res) => {

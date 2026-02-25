@@ -71,6 +71,7 @@ export default class FetchInstances extends Command {
     let spinnerStarted = false;
 
     const spinner = ora({
+      discardStdin: false,
       stream: process.stdout,
       text: 'Fetching instances...'
     });

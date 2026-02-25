@@ -29,6 +29,7 @@ export default class Stop extends CloudInstanceCommand {
     const { client } = this;
 
     const spinner = ora({
+      discardStdin: false,
       prefixText: `\nStopping instance ${ux.colorize('blue', linked.instance_id)} in project ${ux.colorize('blue', linked.project_id)} in org ${ux.colorize('blue', linked.org_id)}\n`,
       spinner: 'moon',
       suffixText: '\nThis may take a few minutes.\n'

@@ -45,6 +45,20 @@ export default class DeployAll extends CloudInstanceCommand {
     updateSyncConfig: boolean;
   }): Promise<void> {
     const { cloudConfigState, deployTimeoutMs, updateSyncConfig } = params;
+
+    return this.withDeploy(deployTimeoutMs, async () =>
+      this.deployInstanceConfig({
+        cloudConfigState,
+        updateSyncConfig
+      })
+    );
+  }
+
+  protected async deployInstanceConfig(params: {
+    cloudConfigState: routes.InstanceConfigResponse;
+    updateSyncConfig: boolean;
+  }): Promise<routes.DeployInstanceResponse> {
+    const { cloudConfigState, updateSyncConfig } = params;
     const { client, project } = this;
     const { linked, syncRulesContent } = project;
     const config = this.serviceConfig;
@@ -54,21 +68,19 @@ export default class DeployAll extends CloudInstanceCommand {
       });
     }
 
-    return this.withDeploy(deployTimeoutMs, async () =>
-      client.deployInstance(
-        routes.DeployInstanceRequest.encode({
-          // Spread the existing config like name, and program version contraints.
-          // Should we allow specifying these in the config file?
-          ...cloudConfigState,
-          app_id: linked.project_id,
-          // The encoding will ensure the correct typing
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          config: config as any,
-          // Allow updating the instance name
-          name: config.name,
-          sync_rules: updateSyncConfig ? syncRulesContent : cloudConfigState.sync_rules
-        })
-      )
+    return client.deployInstance(
+      routes.DeployInstanceRequest.encode({
+        // Spread the existing config like name, and program version contraints.
+        // Should we allow specifying these in the config file?
+        ...cloudConfigState,
+        app_id: linked.project_id,
+        // The encoding will ensure the correct typing
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        config: config as any,
+        // Allow updating the instance name
+        name: config.name,
+        sync_rules: updateSyncConfig ? syncRulesContent : cloudConfigState.sync_rules
+      })
     );
   }
 
@@ -104,6 +116,50 @@ export default class DeployAll extends CloudInstanceCommand {
     }
 
     return config;
+  }
+
+  protected async provision(params: {
+    cloudConfigState: routes.InstanceConfigResponse;
+    deployTimeoutMs: number;
+    indentationLevel: number;
+  }): Promise<void> {
+    const { cloudConfigState, deployTimeoutMs, indentationLevel } = params;
+
+    const indentation = '\t'.repeat(Math.max(0, indentationLevel));
+    const spinner = ora({
+      discardStdin: false,
+      prefixText: `\n${indentation}Initial provision: deploying without sync config to validate sync rules before final deploy...\n`,
+      spinner: 'moon',
+      suffixText: `\n${indentation}This may take a few minutes.\n`
+    });
+
+    spinner.start();
+
+    try {
+      const deployResult = await this.deployInstanceConfig({
+        cloudConfigState,
+        updateSyncConfig: false
+      });
+
+      await this.waitForDeployCompletion({
+        deployResult,
+        indentation,
+        logCompletionMessage: false,
+        logScheduledMessage: false,
+        timeoutMs: deployTimeoutMs
+      });
+
+      spinner.stop();
+    } catch (error) {
+      spinner.stop();
+      const { linked } = this.project;
+
+      this.styledError({
+        error,
+        message: `Failed to deploy changes to instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`,
+        suggestions: ['Check your network connection and try again.', 'If the problem persists, contact support.']
+      });
+    }
   }
 
   async run(): Promise<void> {
@@ -160,7 +216,11 @@ export default class DeployAll extends CloudInstanceCommand {
         ].join('\n')
       );
 
-      await this.deployAll({ cloudConfigState, deployTimeoutMs, updateSyncConfig: false });
+      await this.provision({
+        cloudConfigState,
+        deployTimeoutMs,
+        indentationLevel: 1
+      });
     }
 
     await this.validateSyncConfig();
@@ -285,11 +345,53 @@ export default class DeployAll extends CloudInstanceCommand {
     }
   }
 
-  protected async withDeploy(timeoutMs: number, fn: () => Promise<routes.DeployInstanceResponse>): Promise<void> {
+  protected async waitForDeployCompletion(params: {
+    deployResult: routes.DeployInstanceResponse;
+    indentation?: string;
+    logCompletionMessage?: boolean;
+    logScheduledMessage?: boolean;
+    timeoutMs: number;
+  }): Promise<void> {
+    const {
+      deployResult,
+      indentation = '',
+      logCompletionMessage = true,
+      logScheduledMessage = true,
+      timeoutMs
+    } = params;
     const { client, project } = this;
 
+    if (logScheduledMessage) {
+      this.log(`${indentation}Deploy operation has been scheduled. Waiting for completion...`);
+    }
+
+    const status = await waitForOperationStatusChange({
+      client,
+      instanceId: deployResult.id,
+      linked: project.linked,
+      operationId: deployResult.operation_id,
+      timeoutMs
+    });
+
+    if (status === 'completed') {
+      if (!logCompletionMessage) {
+        return;
+      }
+
+      this.log(ux.colorize('green', 'Deployment operation completed successfully!'));
+    } else {
+      this.styledError({
+        message: `Deploy failed. Check instance diagnostics for details, for example: ${ux.colorize('blue', 'powersync fetch status')}`
+      });
+    }
+  }
+
+  protected async withDeploy(timeoutMs: number, fn: () => Promise<routes.DeployInstanceResponse>): Promise<void> {
+    const { project } = this;
+
     const spinner = ora({
-      prefixText: '\nDeploying instance.\n',
+      discardStdin: false,
+      prefixText: '\nDeploying instance...\n',
       spinner: 'moon',
       suffixText: '\nThis may take a few minutes.\n'
     });
@@ -298,24 +400,8 @@ export default class DeployAll extends CloudInstanceCommand {
 
     try {
       const deployResult = await fn();
-      this.log(`Deploy operation has been scheduled. Waiting for completion...`);
-
-      const status = await waitForOperationStatusChange({
-        client,
-        instanceId: deployResult.id,
-        linked: project.linked,
-        operationId: deployResult.operation_id,
-        timeoutMs
-      });
+      await this.waitForDeployCompletion({ deployResult, timeoutMs });
       spinner.stop();
-
-      if (status === 'completed') {
-        this.log(ux.colorize('green', 'Deployment operation completed successfully!'));
-      } else {
-        this.styledError({
-          message: `Deploy failed. Check instance diagnostics for details, for example: ${ux.colorize('blue', 'powersync fetch status')}`
-        });
-      }
     } catch (error) {
       spinner.stop();
       this.styledError({
