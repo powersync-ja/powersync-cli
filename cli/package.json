@@ -1,5 +1,5 @@
 {
-  "name": "@powersync/cli",
+  "name": "powersync",
   "description": "A CLI for managing PowerSync instances",
   "version": "0.0.0",
   "author": "POWERSYNC",

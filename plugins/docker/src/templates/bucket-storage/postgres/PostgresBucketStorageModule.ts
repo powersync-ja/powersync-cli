@@ -51,15 +51,17 @@ const PostgresBucketStorageModule: DockerModule = {
 
     serviceConfig.set('storage', storageConfig);
 
+    /* eslint-disable perfectionist/sort-objects */
     const additionalEnvironment = {
       PS_STORAGE_DATABASE: 'powersync_storage',
       PS_STORAGE_PASSWORD: 'changeme',
       PS_STORAGE_PORT: '5433',
+      PS_STORAGE_USER: 'postgres',
       PS_STORAGE_SOURCE_URI:
         // eslint-disable-next-line no-template-curly-in-string
-        'postgresql://${PS_STORAGE_USER}:${PS_STORAGE_PASSWORD}@pg-storage:${PS_STORAGE_PORT}/${PS_STORAGE_DATABASE}',
-      PS_STORAGE_USER: 'postgres'
+        'postgresql://${PS_STORAGE_USER}:${PS_STORAGE_PASSWORD}@pg-storage:${PS_STORAGE_PORT}/${PS_STORAGE_DATABASE}'
     };
+    /* eslint-enable perfectionist/sort-objects */
 
     return { additionalEnvironment };
   },

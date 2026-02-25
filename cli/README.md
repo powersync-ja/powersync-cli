@@ -1,4 +1,4 @@
-# @powersync/cli
+# powersync
 
 CLI for PowerSync
 

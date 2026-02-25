@@ -3,7 +3,7 @@
   "private": true,
   "description": "PowerSync CLI monorepo",
   "devDependencies": {
-    "@powersync/cli": "workspace:*",
+    "powersync": "workspace:*",
     "husky": "^9.1.7",
     "prettier": "^3.0.0",
     "tsx": "^4",

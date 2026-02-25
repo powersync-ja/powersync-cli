@@ -69,15 +69,17 @@ const PostgresSourceDatabaseModule: DockerModule = {
 
     serviceConfig.set('replication', replicationConfig);
 
+    /* eslint-disable perfectionist/sort-objects */
     const additionalEnvironment = {
-      PS_DATA_SOURCE_URI:
-        // eslint-disable-next-line no-template-curly-in-string
-        'postgresql://${PS_DATABASE_USER}:${PS_DATABASE_PASSWORD}@pg-db:${PS_DATABASE_PORT}/${PS_DATABASE_NAME}',
       PS_DATABASE_NAME: 'postgres',
       PS_DATABASE_PASSWORD: 'changeme',
       PS_DATABASE_PORT: '5432',
-      PS_DATABASE_USER: 'postgres'
+      PS_DATABASE_USER: 'postgres',
+      PS_DATA_SOURCE_URI:
+        // eslint-disable-next-line no-template-curly-in-string
+        'postgresql://${PS_DATABASE_USER}:${PS_DATABASE_PASSWORD}@pg-db:${PS_DATABASE_PORT}/${PS_DATABASE_NAME}'
     };
+    /* eslint-enable perfectionist/sort-objects */
 
     return { additionalEnvironment };
   },
