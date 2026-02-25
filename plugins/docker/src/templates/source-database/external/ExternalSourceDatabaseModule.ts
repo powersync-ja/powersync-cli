@@ -6,12 +6,12 @@ import { DockerModule, DockerModuleContext, DockerModuleType } from '../../../ty
 
 const ExternalSourceDatabaseModule: DockerModule = {
   async apply(context: DockerModuleContext) {
-    const { projectDirectory: projectdirectory, serviceConfig } = context;
+    const { projectDirectory, serviceConfig } = context;
 
     context.command.log(
       ux.colorize(
         'yellow',
-        `Using external replication database. Set PS_DATA_SOURCE_URI in ${path.join(projectdirectory, 'docker', '.env')} to your PostgreSQL connection string before deploying.`
+        `Using external replication database. Set PS_DATA_SOURCE_URI in ${path.join(projectDirectory, 'docker', '.env')} to your PostgreSQL connection string before deploying.`
       )
     );
 
