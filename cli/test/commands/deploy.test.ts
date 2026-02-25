@@ -99,7 +99,7 @@ describe('deploy', () => {
     writeServiceYaml(projectDir, 'cloud');
     writeFileSync(join(projectDir, CLI_FILENAME), 'type: cloud\n', 'utf8');
     const result = await runCommand('deploy', { root });
-    expect(result.error?.message).toMatch(/Failed to parse cli\.yaml as CloudCLIConfig/);
+    expect(result.error?.message).toContain('Linking is required before using this command.');
     expect(result.error?.oclif?.exit).toBe(1);
   });
 
