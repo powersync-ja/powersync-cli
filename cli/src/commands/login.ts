@@ -105,7 +105,10 @@ export default class Login extends PowerSyncCommand {
     }
 
     const tokenResults = await Promise.allSettled(pendingOperations);
-    const token = tokenResults.find((result) => result.status === 'fulfilled')?.value;
+    const promptToken = tokenResults[0]?.status === 'fulfilled' ? tokenResults[0].value.trim() : '';
+    const serverToken =
+      serverTokenPromise && tokenResults[1]?.status === 'fulfilled' ? tokenResults[1].value.trim() : '';
+    const token = serverToken || promptToken;
 
     if (!token?.trim()) {
       this.styledError({ message: 'Token is required.' });
