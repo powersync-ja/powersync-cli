@@ -104,7 +104,8 @@ export default class Login extends PowerSyncCommand {
       pendingOperations.push(serverTokenPromise);
     }
 
-    const token = await Promise.race(pendingOperations);
+    const tokenResults = await Promise.allSettled(pendingOperations);
+    const token = tokenResults.find((result) => result.status === 'fulfilled')?.value;
 
     if (!token?.trim()) {
       this.styledError({ message: 'Token is required.' });
