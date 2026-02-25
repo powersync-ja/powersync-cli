@@ -8,7 +8,8 @@ CLI for PowerSync
 
 <!-- toc -->
 
-- [@powersync/cli](#powersynccli)
+- [powersync](#powersync)
+- [Getting Started](#getting-started)
 - [Overview](#overview)
 - [Cloud](#cloud)
 - [Self-hosted](#self-hosted)
@@ -23,6 +24,18 @@ CLI for PowerSync
 - [Usage](#usage)
 - [Commands](#commands)
 <!-- tocstop -->
+
+# Getting Started
+
+Install globally or run via `npx`:
+
+```bash
+npm install -g powersync
+```
+
+```bash
+npx powersync --version
+```
 
 # Overview
 
@@ -180,11 +193,11 @@ powersync plugins:inspect @example/powersync-plugin-foo
 <!-- usage -->
 
 ```sh-session
-$ npm install -g @powersync/cli
+$ npm install -g powersync
 $ powersync COMMAND
 running command...
 $ powersync (--version)
-@powersync/cli/0.0.0 darwin-arm64 node-v24.13.0
+powersync/0.0.0 darwin-arm64 node-v24.13.0
 $ powersync --help [COMMAND]
 USAGE
   $ powersync COMMAND
@@ -215,6 +228,8 @@ See [docs/usage.md](../docs/usage.md) for full usage and resolution order (flags
 
 <!-- commands -->
 
+- [`powersync autocomplete [SHELL]`](#powersync-autocomplete-shell)
+- [`powersync commands`](#powersync-commands)
 - [`powersync deploy`](#powersync-deploy)
 - [`powersync deploy sync-config`](#powersync-deploy-sync-config)
 - [`powersync destroy`](#powersync-destroy)
@@ -248,6 +263,66 @@ See [docs/usage.md](../docs/usage.md) for full usage and resolution order (flags
 - [`powersync pull instance`](#powersync-pull-instance)
 - [`powersync stop`](#powersync-stop)
 - [`powersync validate`](#powersync-validate)
+
+## `powersync autocomplete [SHELL]`
+
+Display autocomplete installation instructions.
+
+```
+USAGE
+  $ powersync autocomplete [SHELL] [-r]
+
+ARGUMENTS
+  [SHELL]  (zsh|bash|powershell) Shell type
+
+FLAGS
+  -r, --refresh-cache  Refresh cache (ignores displaying instructions)
+
+DESCRIPTION
+  Display autocomplete installation instructions.
+
+EXAMPLES
+  $ powersync autocomplete
+
+  $ powersync autocomplete bash
+
+  $ powersync autocomplete zsh
+
+  $ powersync autocomplete powershell
+
+  $ powersync autocomplete --refresh-cache
+```
+
+_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v3.2.40/src/commands/autocomplete/index.ts)_
+
+## `powersync commands`
+
+List all powersync commands.
+
+```
+USAGE
+  $ powersync commands [--json] [-c id|plugin|summary|type... | --tree] [--deprecated] [-x | ] [--hidden]
+    [--no-truncate | ] [--sort id|plugin|summary|type | ]
+
+FLAGS
+  -c, --columns=<option>...  Only show provided columns (comma-separated).
+                             <options: id|plugin|summary|type>
+  -x, --extended             Show extra columns.
+      --deprecated           Show deprecated commands.
+      --hidden               Show hidden commands.
+      --no-truncate          Do not truncate output.
+      --sort=<option>        [default: id] Property to sort by.
+                             <options: id|plugin|summary|type>
+      --tree                 Show tree of commands.
+
+GLOBAL FLAGS
+  --json  Format output as json.
+
+DESCRIPTION
+  List all powersync commands.
+```
+
+_See code: [@oclif/plugin-commands](https://github.com/oclif/plugin-commands/blob/v4.1.40/src/commands/commands.ts)_
 
 ## `powersync deploy`
 
@@ -1219,8 +1294,8 @@ DESCRIPTION
   Pull an existing Cloud instance: link and download config into local service.yaml and sync-config.yaml.
 
   Fetch an existing Cloud instance by ID: create the config directory if needed, write cli.yaml, and download
-  service.yaml and sync-config.yaml. Pass --instance-id and --project-id when the directory is not yet linked; --org-id is
-  optional when the token has a single organization. Cloud only.
+  service.yaml and sync-config.yaml. Pass --instance-id and --project-id when the directory is not yet linked; --org-id
+  is optional when the token has a single organization. Cloud only.
 
 EXAMPLES
   $ powersync pull instance
