@@ -5,8 +5,9 @@
  */
 import { copyFileSync, cpSync, existsSync, mkdirSync, readdirSync, statSync } from 'node:fs';
 import { relative as _relative, basename, dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const __dirname = dirname(new URL(import.meta.url).pathname);
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const srcTemplates = join(__dirname, '..', 'src', 'templates');
 const distTemplates = join(__dirname, '..', 'dist', 'templates');
 
