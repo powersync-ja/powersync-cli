@@ -36,7 +36,7 @@
     "@oclif/test": "^4",
     "@types/lodash": "^4.17.23",
     "@types/node": "^24",
-    "oclif": "^4",
+    "oclif": "4.22.73",
     "shx": "^0.3.3",
     "ts-node": "^10",
     "tsx": "^4",
@@ -70,6 +70,9 @@
     "bin": "powersync",
     "dirname": "powersync",
     "commands": "./dist/commands",
+    "macos": {
+      "identifier": "com.powersync.cli"
+    },
     "plugins": [
       "@oclif/plugin-help",
       "@oclif/plugin-plugins",

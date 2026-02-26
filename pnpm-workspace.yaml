@@ -1,4 +1,7 @@
 packages:
   - cli
-  - 'packages/*'
-  - 'plugins/*'
+  - packages/*
+  - plugins/*
+
+patchedDependencies:
+  oclif@4.22.73: patches/oclif@4.22.73.patch
