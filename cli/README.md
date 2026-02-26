@@ -288,6 +288,7 @@ See [docs/usage.md](../docs/usage.md) for full usage and resolution order (flags
 - [`powersync plugins unlink [PLUGIN]`](#powersync-plugins-unlink-plugin)
 - [`powersync plugins update`](#powersync-plugins-update)
 - [`powersync pull instance`](#powersync-pull-instance)
+- [`powersync status`](#powersync-status)
 - [`powersync stop`](#powersync-stop)
 - [`powersync validate`](#powersync-validate)
 
@@ -1369,6 +1370,51 @@ EXAMPLES
 ```
 
 _See code: [src/commands/pull/instance.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/pull/instance.ts)_
+
+## `powersync status`
+
+Show instance diagnostics (connections, sync config, replication).
+
+```
+USAGE
+  $ powersync status [--output human|json|yaml] [--api-url <value> | --instance-id <value> | --org-id
+    <value> | --project-id <value>] [--directory <value>]
+
+FLAGS
+  --output=<option>  [default: human] Output format: human-readable, json, or yaml.
+                     <options: human|json|yaml>
+
+SELF_HOSTED_PROJECT FLAGS
+  --api-url=<value>  [Self-hosted] PowerSync API URL. When set, context is treated as self-hosted (exclusive with
+                     --instance-id). Resolved: flag → cli.yaml → API_URL.
+
+PROJECT FLAGS
+  --directory=<value>  [default: powersync] Directory containing PowerSync config. Defaults to "powersync". This is
+                       required if multiple powersync config files are present in subdirectories of the current working
+                       directory.
+
+CLOUD_PROJECT FLAGS
+  --instance-id=<value>  [Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud
+                         (exclusive with --api-url). Resolved: flag → cli.yaml → INSTANCE_ID.
+  --org-id=<value>       [Cloud] Organization ID (optional). Defaults to the token’s single org when only one is
+                         available; pass explicitly if the token has multiple orgs. Resolved: flag → cli.yaml → ORG_ID.
+  --project-id=<value>   [Cloud] Project ID. Resolved: flag → cli.yaml → PROJECT_ID.
+
+DESCRIPTION
+  Show instance diagnostics (connections, sync config, replication).
+
+  Fetch instance diagnostics: connection status, active and deploying sync config, replication state. Output as
+  human-readable, JSON, or YAML. Cloud and self-hosted.
+
+EXAMPLES
+  $ powersync status
+
+  $ powersync status --output=json
+
+  $ powersync status --instance-id=<id> --project-id=<id>
+```
+
+_See code: [src/commands/status.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/status.ts)_
 
 ## `powersync stop`
 
