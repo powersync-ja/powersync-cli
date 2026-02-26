@@ -36,7 +36,7 @@ export default class Destroy extends CloudInstanceCommand {
     spinner.start();
 
     try {
-      const deactivateResult = await client.deactivateInstance({
+      const deactivateResult = await client.destroyInstance({
         app_id: linked.project_id,
         id: linked.instance_id,
         org_id: linked.org_id

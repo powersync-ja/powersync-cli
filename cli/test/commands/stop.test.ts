@@ -129,6 +129,17 @@ describe('stop', () => {
       writeLinkYaml(projectDir, { instance_id: INSTANCE_ID, org_id: ORG_ID, project_id: PROJECT_ID });
     });
 
+    it('calls deactivateInstance on the management client', async () => {
+      await runStopDirect(['--confirm=yes']);
+
+      expect(managementClientMock.deactivateInstance).toHaveBeenCalledTimes(1);
+      expect(managementClientMock.deactivateInstance).toHaveBeenCalledWith({
+        app_id: PROJECT_ID,
+        id: INSTANCE_ID,
+        org_id: ORG_ID
+      });
+    });
+
     it('attempts stop and errors with exit 1 when client fails', async () => {
       const result = await runStopDirect(['--confirm=yes']);
       expect(result.error).toBeDefined();

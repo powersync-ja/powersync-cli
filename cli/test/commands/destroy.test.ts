@@ -129,6 +129,17 @@ describe('destroy', () => {
       writeLinkYaml(projectDir, { instance_id: INSTANCE_ID, org_id: ORG_ID, project_id: PROJECT_ID });
     });
 
+    it('calls destroyInstance on the management client', async () => {
+      await runDestroyDirect(['--confirm=yes']);
+
+      expect(managementClientMock.destroyInstance).toHaveBeenCalledTimes(1);
+      expect(managementClientMock.destroyInstance).toHaveBeenCalledWith({
+        app_id: PROJECT_ID,
+        id: INSTANCE_ID,
+        org_id: ORG_ID
+      });
+    });
+
     it('attempts destroy and errors with exit 1 when client fails', async () => {
       const result = await runDestroyDirect(['--confirm=yes']);
       expect(result.error).toBeDefined();
