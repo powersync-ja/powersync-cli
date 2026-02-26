@@ -8,7 +8,7 @@ import {
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { ensureServiceTypeMatches, ServiceType } from '../utils/ensureServiceType.js';
+import { ensureServiceTypeMatches, ServiceType } from '../utils/ensure-service-type.js';
 import { env } from '../utils/env.js';
 import { CLI_FILENAME, SERVICE_FILENAME } from '../utils/project-config.js';
 import { parseYamlFile } from '../utils/yaml.js';

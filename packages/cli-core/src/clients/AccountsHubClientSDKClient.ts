@@ -10,7 +10,7 @@
 import * as sdk from '@journeyapps-labs/common-sdk';
 import { ux } from '@oclif/core';
 
-import { Services } from '../services/services.js';
+import { Services } from '../services/Services.js';
 import { env } from '../utils/env.js';
 
 /**

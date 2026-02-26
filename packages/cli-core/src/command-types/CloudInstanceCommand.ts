@@ -9,9 +9,9 @@ import { PowerSyncManagementClient } from '@powersync/management-client';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { getDefaultOrgId } from '../clients/accounts-client.js';
-import { createCloudClient } from '../clients/CloudClient.js';
-import { ensureServiceTypeMatches, ServiceType } from '../utils/ensureServiceType.js';
+import { getDefaultOrgId } from '../clients/AccountsHubClientSDKClient.js';
+import { createCloudClient } from '../clients/create-cloud-client.js';
+import { ensureServiceTypeMatches, ServiceType } from '../utils/ensure-service-type.js';
 import { env } from '../utils/env.js';
 import { OBJECT_ID_REGEX } from '../utils/object-id.js';
 import { CLI_FILENAME, SERVICE_FILENAME, SYNC_FILENAME } from '../utils/project-config.js';
