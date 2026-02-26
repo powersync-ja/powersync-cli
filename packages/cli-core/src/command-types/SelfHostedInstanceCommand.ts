@@ -105,10 +105,11 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
       });
     }
 
-    return {
+    this._project = {
       linked: linked!,
       projectDirectory: projectDir
     };
+    return this._project;
   }
 
   parseConfig(projectDirectory: string): ServiceSelfHostedConfigDecoded {
