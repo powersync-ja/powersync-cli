@@ -36,7 +36,7 @@ export abstract class PowerSyncCommand extends Command {
 
     this.error(ux.colorize('red', displayMessage), {
       ...(error instanceof Error ? error : {}),
-      code: journeyError?.errorData?.code ?? 'UNKNOWN_ERROR',
+      ...(journeyError?.errorData?.code && { code: journeyError.errorData.code }),
       exit: exitCode,
       message: journeyErrorMessage ?? message,
       ...(suggestions?.length && { suggestions })

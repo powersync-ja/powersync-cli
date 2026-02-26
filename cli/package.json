@@ -111,9 +111,10 @@
     "postpack": "shx rm -f oclif.manifest.json",
     "posttest": "pnpm run lint",
     "pretest": "pnpm run build",
-    "prepack": "oclif manifest && oclif readme",
+    "readme:generate": "oclif readme && pnpm exec prettier --write README.md",
+    "prepack": "oclif manifest && pnpm run readme:generate",
     "test": "vitest",
-    "version": "oclif readme && git add README.md"
+    "version": "pnpm run readme:generate && git add README.md"
   },
   "types": "dist/index.d.ts"
 }

@@ -308,7 +308,7 @@ export default class DeployAll extends CloudInstanceCommand {
   protected async validateSyncConfig() {
     const { client, project } = this;
     // It might take a while for the instance to be fully provisioned after the deploy, so we retry the validation until it succeeds or we hit the timeout
-    for (let retry = 0; retry < 10; retry++) {
+    for (let retry = 0; retry < 100; retry++) {
       const validation = await client
         .validateSyncRules({
           app_id: project.linked.project_id,
