@@ -56,6 +56,7 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
   ): SelfHostedProject {
     const resolvedOptions = {
       ...DEFAULT_ENSURE_CONFIG_OPTIONS,
+      // Keep this order so call-site options override defaults.
       ...options
     };
 

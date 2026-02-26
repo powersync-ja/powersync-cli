@@ -109,8 +109,9 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     options: EnsureConfigOptions = DEFAULT_ENSURE_CONFIG_OPTIONS
   ): Promise<CloudProject | SelfHostedProject> {
     const resolvedOptions = {
-      ...options,
-      ...DEFAULT_ENSURE_CONFIG_OPTIONS
+      ...DEFAULT_ENSURE_CONFIG_OPTIONS,
+      // Keep this order so call-site options override defaults.
+      ...options
     };
 
     const projectDir = this.ensureProjectDirectory(flags);
