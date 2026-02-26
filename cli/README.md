@@ -85,6 +85,32 @@ powersync deploy
 
 Use `--directory` for a different config folder. The **powersync init cloud** command has a `--vscode` flag to configure your workspace for YAML custom tag support.
 
+## Cloud secrets format (`service.yaml`)
+
+For Cloud config, secret-backed fields use an object shape. For example, the replication connection password is configured as `replication.connections[].password`.
+
+Use `secret: !env ...` when you want to provide the value from an environment variable during deploy:
+
+```yaml
+replication:
+  connections:
+    - type: postgresql
+      password:
+        secret: !env POWERSYNC_DATABASE_PASSWORD
+```
+
+After an initial deploy, you can keep using the same stored value by switching to `secret_ref` and referencing the default password secret:
+
+```yaml
+replication:
+  connections:
+    - type: postgresql
+      password:
+        secret_ref: default_password
+```
+
+This avoids re-supplying the raw password in subsequent deploys while reusing the previously stored secret.
+
 ## Using an existing instance (pull)
 
 Run **`powersync pull instance`** with the instance identifiers (from the PowerSync Dashboard URL or **`powersync fetch instances`**). This creates the config directory, writes **`cli.yaml`**, and downloads **`service.yaml`** and **`sync-config.yaml`**. Edit as needed, then run **`powersync deploy`**.
