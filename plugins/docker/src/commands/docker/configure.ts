@@ -23,7 +23,7 @@ const MAIN_COMPOSE_TEMPLATE_PATH = path.join(__dirname, '../../templates/main-co
 const DOCKER_DEV_API_URL = 'http://localhost:8080';
 
 /**
- * Docker Compose project name: [a-z0-9][a-z0-9_.-]*. Derived from the project direcotry name.
+ * Docker Compose project name: [a-z0-9][a-z0-9_.-]*. Derived from the project directory name.
  */
 function composeProjectName(projectDirectory: string): string {
   // The project name is the directory name of the parent directory.
