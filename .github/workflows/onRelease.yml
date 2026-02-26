@@ -35,6 +35,9 @@ jobs:
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
+      - name: Install NSIS (Windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: choco install nsis.portable --no-progress -y
       - name: Build installer
         run: pnpm -C cli exec oclif ${{ matrix.command }}
       - name: Upload installer artifact
