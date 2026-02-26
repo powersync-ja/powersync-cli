@@ -7,6 +7,7 @@ delete process.env.ORG_ID;
 delete process.env.PROJECT_ID;
 
 export const managementClientMock = {
+  createInstance: vi.fn(),
   deactivateInstance: vi.fn(),
   deployInstance: vi.fn(),
   getInstanceConfig: vi.fn(),
@@ -17,6 +18,7 @@ export const managementClientMock = {
 };
 
 export function resetManagementClientMocks(): void {
+  managementClientMock.createInstance.mockResolvedValue({ id: 'inst-created' });
   managementClientMock.deactivateInstance.mockRejectedValue(new Error('mock deactivate failure'));
   managementClientMock.deployInstance.mockRejectedValue(new Error('mock deploy failure'));
   managementClientMock.getInstanceConfig.mockRejectedValue(new Error('mock getInstanceConfig failure'));

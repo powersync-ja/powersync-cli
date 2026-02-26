@@ -9,8 +9,9 @@ import {
   SelfHostedInstanceCommand,
   ServiceType
 } from '@powersync/cli-core';
-import { writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { Document } from 'yaml';
 
 export default class LinkSelfHosted extends SelfHostedInstanceCommand {
   static description = [
@@ -31,7 +32,30 @@ export default class LinkSelfHosted extends SelfHostedInstanceCommand {
     const { flags } = await this.parse(LinkSelfHosted);
     const { 'api-url': apiUrl, directory } = flags;
 
-    const projectDir = this.ensureProjectDirectory(flags);
+    const projectDir = this.resolveProjectDir(flags);
+    if (!existsSync(projectDir)) {
+      mkdirSync(projectDir, { recursive: true });
+    }
+
+    const defaultApiKey = '!env TOKEN';
+
+    // If running non-interactively, default to !env TOKEN instead of prompting.
+    const shouldPromptForApiKey = !env.TOKEN && Boolean(process.stdin.isTTY);
+    const apiKey = shouldPromptForApiKey
+      ? await input({
+          default: '!env TOKEN',
+          message: 'API key (default: !env TOKEN — read from TOKEN when running commands):'
+        })
+      : defaultApiKey;
+
+    // Preserve comments
+    const linkPath = join(projectDir, CLI_FILENAME);
+    const doc = existsSync(linkPath) ? parseYamlFile(linkPath) : new Document();
+    doc.set('type', 'self-hosted');
+    doc.set('api_url', apiUrl);
+    doc.set('api_key', apiKey.trim() || '!env TOKEN');
+    writeFileSync(linkPath, doc.toString(), 'utf8');
+
     ensureServiceTypeMatches({
       command: this,
       configRequired: false,
@@ -39,24 +63,6 @@ export default class LinkSelfHosted extends SelfHostedInstanceCommand {
       expectedType: ServiceType.SELF_HOSTED,
       projectDir
     });
-
-    const defaultApiKey = '!env TOKEN';
-
-    // If an environment variable is provided, then we should inject it at runtime.
-    const apiKey = env.TOKEN
-      ? defaultApiKey
-      : await input({
-          default: '!env TOKEN',
-          message: 'API key (default: !env TOKEN — read from TOKEN when running commands):'
-        });
-
-    // Preserve comments
-    const linkPath = join(projectDir, CLI_FILENAME);
-    const doc = parseYamlFile(linkPath);
-    doc.set('type', 'self-hosted');
-    doc.set('api_url', apiUrl);
-    doc.set('api_key', apiKey.trim() || '!env TOKEN');
-    writeFileSync(linkPath, doc.toString(), 'utf8');
 
     this.log(ux.colorize('green', `Updated ${directory}/${CLI_FILENAME} with self-hosted link.`));
   }

@@ -100,6 +100,7 @@ export default class LinkCloud extends CloudInstanceCommand {
       });
     }
 
+    writeCloudLink(projectDirectory, { instanceId, orgId, projectId });
     ensureServiceTypeMatches({
       command: this,
       configRequired: false,
@@ -107,8 +108,6 @@ export default class LinkCloud extends CloudInstanceCommand {
       expectedType: ServiceType.CLOUD,
       projectDir: projectDirectory
     });
-
-    writeCloudLink(projectDirectory, { instanceId, orgId, projectId });
     this.log(ux.colorize('green', `Updated ${directory}/${CLI_FILENAME} with Cloud instance link.`));
   }
 }
