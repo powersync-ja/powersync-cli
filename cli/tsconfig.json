@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
     "declaration": true,
-    "module": "Node16",
+    "module": "Node18",
     "outDir": "dist",
     "rootDir": "src",
     "strict": true,
     "target": "es2022",
-    "moduleResolution": "node16",
+    "resolveJsonModule": true,
+    "moduleResolution": "nodenext",
     "types": ["node"],
     "composite": true,
     "paths": {
