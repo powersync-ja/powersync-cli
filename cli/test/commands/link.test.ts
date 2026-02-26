@@ -13,7 +13,7 @@ import { root } from '../helpers/root.js';
 import { managementClientMock, resetManagementClientMocks } from '../setup.js';
 
 vi.mock('@inquirer/prompts', () => ({
-  input: vi.fn(() => Promise.resolve('!env TOKEN')),
+  input: vi.fn(() => Promise.resolve('!env PS_ADMIN_TOKEN')),
   password: vi.fn(() => Promise.resolve('test-token'))
 }));
 
@@ -257,7 +257,7 @@ type: cloud
 
     beforeEach(() => {
       origCwd = process.cwd();
-      origPsToken = process.env.TOKEN;
+      origPsToken = process.env.PS_ADMIN_TOKEN;
       tmpDir = mkdtempSync(join(tmpdir(), 'link-test-'));
       process.chdir(tmpDir);
     });
@@ -265,16 +265,16 @@ type: cloud
     afterEach(() => {
       process.chdir(origCwd);
       if (origPsToken === undefined) {
-        delete process.env.TOKEN;
+        delete process.env.PS_ADMIN_TOKEN;
       } else {
-        process.env.TOKEN = origPsToken;
+        process.env.PS_ADMIN_TOKEN = origPsToken;
       }
 
       if (tmpDir && existsSync(tmpDir)) rmSync(tmpDir, { recursive: true });
     });
 
     it('creates directory and cli.yaml when directory does not exist', async () => {
-      process.env.TOKEN = 'secret';
+      process.env.PS_ADMIN_TOKEN = 'secret';
       const result = await runCommand('link self-hosted --api-url=https://ps.example.com', { root });
       expect(result.error).toBeUndefined();
       const linkPath = join(tmpDir, PROJECT_DIR, CLI_FILENAME);
@@ -282,14 +282,14 @@ type: cloud
       const linkYaml = parseYaml(readFileSync(linkPath, 'utf8'));
       expect(linkYaml.type).toBe('self-hosted');
       expect(linkYaml.api_url).toBe('https://ps.example.com');
-      expect(linkYaml.api_key).toBe('!env TOKEN');
+      expect(linkYaml.api_key).toBe('!env PS_ADMIN_TOKEN');
     });
 
     it('errors when service.yaml _type does not match (cloud)', async () => {
       const projectDir = join(tmpDir, PROJECT_DIR);
       mkdirSync(projectDir, { recursive: true });
       writeServiceYaml(projectDir, 'cloud');
-      process.env.TOKEN = 'k';
+      process.env.PS_ADMIN_TOKEN = 'k';
       const result = await runCommand('link self-hosted --api-url=https://x.com', { root });
       expect(result.error?.message).toMatch(/has `_type: cloud` but this command requires `_type: self-hosted`/);
       expect(result.error?.oclif?.exit).toBe(1);
@@ -299,7 +299,7 @@ type: cloud
       const projectDir = join(tmpDir, PROJECT_DIR);
       mkdirSync(projectDir, { recursive: true });
       writeServiceYaml(projectDir, 'self-hosted');
-      process.env.TOKEN = 'my-token';
+      process.env.PS_ADMIN_TOKEN = 'my-token';
       const { stdout } = await runLinkSelfHostedDirect(['--api-url=https://sync.example.com']);
       expect(stdout).toContain(`Updated ${PROJECT_DIR}/${CLI_FILENAME} with self-hosted link.`);
       const linkPath = join(tmpDir, PROJECT_DIR, CLI_FILENAME);
@@ -307,7 +307,7 @@ type: cloud
       const linkYaml = parseYaml(readFileSync(linkPath, 'utf8'));
       expect(linkYaml.type).toBe('self-hosted');
       expect(linkYaml.api_url).toBe('https://sync.example.com');
-      expect(linkYaml.api_key).toBe('!env TOKEN');
+      expect(linkYaml.api_key).toBe('!env PS_ADMIN_TOKEN');
     });
 
     it('updates existing cli.yaml and preserves comments', async () => {
@@ -319,21 +319,21 @@ type: cloud
 type: self-hosted
 `;
       writeFileSync(linkPath, withComments, 'utf8');
-      process.env.TOKEN = 'new-key';
+      process.env.PS_ADMIN_TOKEN = 'new-key';
       await runLinkSelfHostedDirect(['--api-url=https://new.example.com']);
       const content = readFileSync(linkPath, 'utf8');
       expect(content).toContain('# Self-hosted config');
       const linkYaml = parseYaml(content);
       expect(linkYaml.type).toBe('self-hosted');
       expect(linkYaml.api_url).toBe('https://new.example.com');
-      expect(linkYaml.api_key).toBe('!env TOKEN');
+      expect(linkYaml.api_key).toBe('!env PS_ADMIN_TOKEN');
     });
 
     it('respects --directory flag', async () => {
       const customDir = 'my-powersync';
       mkdirSync(join(tmpDir, customDir), { recursive: true });
       writeServiceYaml(join(tmpDir, customDir), 'self-hosted');
-      process.env.TOKEN = 'k';
+      process.env.PS_ADMIN_TOKEN = 'k';
       const { stdout } = await runLinkSelfHostedDirect([`--directory=${customDir}`, '--api-url=https://example.com']);
       expect(stdout).toContain(`Updated ${customDir}/${CLI_FILENAME}`);
       const linkYaml = parseYaml(readFileSync(join(tmpDir, customDir, CLI_FILENAME), 'utf8'));

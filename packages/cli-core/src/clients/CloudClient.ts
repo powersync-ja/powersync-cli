@@ -22,10 +22,10 @@ export function createCloudClient(): PowerSyncManagementClient {
      */
     client: sdk.createWebNetworkClient({
       async headers() {
-        const token = env.TOKEN || (await Services.authentication.getToken());
+        const token = env.PS_ADMIN_TOKEN || (await Services.authentication.getToken());
         if (!token) {
           throw new Error(
-            `Not logged in. Run ${ux.colorize('blue', 'powersync login')} to authenticate (you will be prompted for your token), or provide the ${ux.colorize('blue', 'TOKEN')} environment variable.`
+            `Not logged in. Run ${ux.colorize('blue', 'powersync login')} to authenticate (you will be prompted for your token), or provide the ${ux.colorize('blue', 'PS_ADMIN_TOKEN')} environment variable.`
           );
         }
 

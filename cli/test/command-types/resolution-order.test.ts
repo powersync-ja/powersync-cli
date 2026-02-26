@@ -15,7 +15,7 @@ type EnvSnapshot = {
   INSTANCE_ID: string | undefined;
   ORG_ID: string | undefined;
   PROJECT_ID: string | undefined;
-  TOKEN: string | undefined;
+  PS_ADMIN_TOKEN: string | undefined;
 };
 
 const IDS = {
@@ -62,7 +62,7 @@ describe('instance resolution order', () => {
       INSTANCE_ID: env.INSTANCE_ID,
       ORG_ID: env.ORG_ID,
       PROJECT_ID: env.PROJECT_ID,
-      TOKEN: env.TOKEN
+      PS_ADMIN_TOKEN: env.PS_ADMIN_TOKEN
     };
   });
 
@@ -71,8 +71,8 @@ describe('instance resolution order', () => {
     env.API_URL = envSnapshot.API_URL;
     env.INSTANCE_ID = envSnapshot.INSTANCE_ID;
     env.ORG_ID = envSnapshot.ORG_ID;
+    env.PS_ADMIN_TOKEN = envSnapshot.PS_ADMIN_TOKEN;
     env.PROJECT_ID = envSnapshot.PROJECT_ID;
-    env.TOKEN = envSnapshot.TOKEN;
     vi.restoreAllMocks();
     rmSync(tmpRoot, { force: true, recursive: true });
   });
@@ -160,7 +160,7 @@ describe('instance resolution order', () => {
     );
 
     env.API_URL = 'https://env.example.com';
-    env.TOKEN = 'env-token';
+    env.PS_ADMIN_TOKEN = 'env-token';
 
     const loadProjectSpy = vi.spyOn(SharedInstanceCommand.prototype, 'loadProject');
     vi.spyOn(FetchStatusCommand.prototype, 'getSelfHostedStatus').mockRejectedValue(new Error('expected-test-failure'));

@@ -132,4 +132,4 @@ powersync validate
 powersync generate schema --output=ts --output-path=./schema.ts
 ```
 
-You can override **--api-url** (and set **TOKEN** in the environment) on individual commands if needed.
+You can override **--api-url** (and set **PS_ADMIN_TOKEN** in the environment) on individual commands if needed.

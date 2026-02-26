@@ -6,7 +6,7 @@ import { startPATLoginServer } from '../api/login-server.js';
 
 export default class Login extends PowerSyncCommand {
   static description =
-    'Store a PowerSync auth token (PAT) in secure storage so later Cloud commands run without passing a token. If secure storage is unavailable, login can optionally store it in a local config file. Use TOKEN env var for CI or scripts instead.';
+    'Store a PowerSync auth token (PAT) in secure storage so later Cloud commands run without passing a token. If secure storage is unavailable, login can optionally store it in a local config file. Use PS_ADMIN_TOKEN env var for CI or scripts instead.';
   static examples = ['<%= config.bin %> <%= command.id %>'];
   static summary = 'Store auth token for Cloud commands.';
 
@@ -18,12 +18,12 @@ export default class Login extends PowerSyncCommand {
       !storage.capabilities.supportsSecureStorage &&
       (await confirm({
         default: false,
-        message: `Keychain storage is unavailable on this platform. Store token in plaintext at ${storage.insecureStoragePath}? Set the ${ux.colorize('blue', 'TOKEN')} environment variable instead to avoid this.`
+        message: `Keychain storage is unavailable on this platform. Store token in plaintext at ${storage.insecureStoragePath}? Set the ${ux.colorize('blue', 'PS_ADMIN_TOKEN')} environment variable instead to avoid this.`
       }));
 
     if (!storage.capabilities.supportsSecureStorage && !shouldUseInsecureStorage) {
       this.log(
-        `Login cancelled. Use ${ux.colorize('blue', 'TOKEN')} environment variable for commands, or rerun login and allow local fallback storage.`
+        `Login cancelled. Use ${ux.colorize('blue', 'PS_ADMIN_TOKEN')} environment variable for commands, or rerun login and allow local fallback storage.`
       );
       this.exit(0);
     }

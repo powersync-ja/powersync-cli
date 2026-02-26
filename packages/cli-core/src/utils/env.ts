@@ -10,7 +10,7 @@ export type ENV = {
   INSTANCE_ID?: string;
   ORG_ID?: string;
   PROJECT_ID?: string;
-  TOKEN?: string;
+  PS_ADMIN_TOKEN?: string;
 };
 
 export const env: ENV = {
@@ -21,5 +21,5 @@ export const env: ENV = {
   INSTANCE_ID: process.env.INSTANCE_ID,
   ORG_ID: process.env.ORG_ID,
   PROJECT_ID: process.env.PROJECT_ID,
-  TOKEN: process.env.TOKEN
+  PS_ADMIN_TOKEN: process.env.PS_ADMIN_TOKEN
 };

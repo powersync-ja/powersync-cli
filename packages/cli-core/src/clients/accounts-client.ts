@@ -61,10 +61,10 @@ export class AccountsHubClientSDKClient<C extends sdk.NetworkClient = sdk.Networ
  */
 export async function createAccountsHubClient(): Promise<AccountsHubClientSDKClient> {
   const { authentication } = Services;
-  const token = env.TOKEN || (await authentication.getToken());
+  const token = env.PS_ADMIN_TOKEN || (await authentication.getToken());
   if (!token) {
     throw new Error(
-      `Not logged in. Run ${ux.colorize('blue', 'powersync login')} to authenticate (you will be prompted for your token), or provide the ${ux.colorize('blue', 'TOKEN')} environment variable.`
+      `Not logged in. Run ${ux.colorize('blue', 'powersync login')} to authenticate (you will be prompted for your token), or provide the ${ux.colorize('blue', 'PS_ADMIN_TOKEN')} environment variable.`
     );
   }
 

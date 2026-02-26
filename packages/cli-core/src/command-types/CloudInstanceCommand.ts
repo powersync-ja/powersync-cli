@@ -76,7 +76,7 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
   };
   protected _project: CloudProject | null = null;
   /**
-   * Used to interface with the PowerSync Management API for Cloud instances. Automatically created with the token from login (or TOKEN env variable).
+   * Used to interface with the PowerSync Management API for Cloud instances. Automatically created with the token from login (or PS_ADMIN_TOKEN env variable).
    */
   client: PowerSyncManagementClient = createCloudClient();
   /**

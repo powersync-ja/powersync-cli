@@ -41,7 +41,7 @@ npx powersync --version
 
 The PowerSync CLI lets you manage PowerSync instances and run commands (generate schemas, tokens, validate config, fetch status, and more). Support is split into two modes:
 
-- **Cloud** – Full support for [PowerSync Cloud](https://powersync.com). You can create new instances, deploy and pull config from the Dashboard, and run all Cloud commands. Authenticate with **`powersync login`** (or the `TOKEN` env var), then use **`powersync init cloud`** / **`powersync link cloud`** or **`powersync pull instance`** to work with projects.
+- **Cloud** – Full support for [PowerSync Cloud](https://powersync.com). You can create new instances, deploy and pull config from the Dashboard, and run all Cloud commands. Authenticate with **`powersync login`** (or the `PS_ADMIN_TOKEN` env var), then use **`powersync init cloud`** / **`powersync link cloud`** or **`powersync pull instance`** to work with projects.
 - **Self-hosted** – Limited support for your own PowerSync Service. You link to an existing running instance and can run a subset of commands (e.g. **`powersync fetch status`**, **`powersync generate schema`**, **`powersync validate`**). The CLI does not create, deploy to, or pull config from self-hosted instances; you manage the server and its config yourself. We also expose a [PowerSync Docker topic](../plugins/docker/README.md) for local self-hosted development.
 
 The sections below go into detail for [Cloud](#cloud) and [Self-hosted](#self-hosted).
@@ -62,10 +62,10 @@ Run **`powersync login`**. You can either open a browser to create a token in th
 - If you decline, login exits without storing a token.
 
 **2. Environment variable (CI, scripts, or non-persistent use)**  
-Set **`TOKEN`** to your PAT. The CLI uses **`TOKEN`** when set; otherwise it uses the token from **`powersync login`**. Example:
+Set **`PS_ADMIN_TOKEN`** to your PAT. The CLI uses **`PS_ADMIN_TOKEN`** when set; otherwise it uses the token from **`powersync login`**. Example:
 
 ```sh
-export TOKEN=your-personal-access-token
+export PS_ADMIN_TOKEN=your-personal-access-token
 powersync fetch instances --project-id=<project-id>
 ```
 
@@ -156,16 +156,16 @@ api:
     - dev-token-do-not-use-in-production # or use !env MY_API_TOKEN for secrets
 ```
 
-Then tell the CLI which token to use when running commands. Run **`powersync link self-hosted --api-url <url>`** to write **`cli.yaml`** with the API URL, and either set the **`TOKEN`** environment variable or set **`api_key`** in **`cli.yaml`**:
+Then tell the CLI which token to use when running commands. Run **`powersync link self-hosted --api-url <url>`** to write **`cli.yaml`** with the API URL, and either set the **`PS_ADMIN_TOKEN`** environment variable or set **`api_key`** in **`cli.yaml`**:
 
 ```yaml
 # powersync/cli.yaml (self-hosted)
 type: self-hosted
 api_url: https://powersync.example.com
-api_key: !env TOKEN # or a literal value matching one of the tokens in service.yaml
+api_key: !env PS_ADMIN_TOKEN # or a literal value matching one of the tokens in service.yaml
 ```
 
-The CLI resolves **`!env TOKEN`** from the `TOKEN` environment variable at runtime. If both are set, the environment variable takes precedence.
+The CLI resolves **`!env PS_ADMIN_TOKEN`** from the `PS_ADMIN_TOKEN` environment variable at runtime. If both are set, the environment variable takes precedence.
 
 ## Creating a self-hosted project and limitations
 
@@ -236,7 +236,7 @@ USAGE
 
 You can supply instance and auth context via environment variables (useful for CI or scripts):
 
-- **`TOKEN`** — PowerSync personal access token for Cloud commands. [Learn more](https://docs.powersync.com/usage/tools/cli#personal-access-token).
+- **`PS_ADMIN_TOKEN`** — PowerSync personal access token for Cloud commands. [Learn more](https://docs.powersync.com/usage/tools/cli#personal-access-token).
 - **`ORG_ID`** — Organization ID (optional for Cloud). Omit when your token has a single organization; required when it has multiple.
 - **`PROJECT_ID`** — Project ID (Cloud).
 - **`INSTANCE_ID`** — Instance ID (Cloud). Get IDs from the [PowerSync Dashboard](https://dashboard.powersync.com) or **`powersync fetch instances`**.
@@ -245,7 +245,7 @@ You can supply instance and auth context via environment variables (useful for C
 Example (Cloud):
 
 ```sh
-TOKEN=your-token PROJECT_ID=456 INSTANCE_ID=789 powersync fetch status
+PS_ADMIN_TOKEN=your-token PROJECT_ID=456 INSTANCE_ID=789 powersync fetch status
 ```
 
 See [docs/usage.md](../docs/usage.md) for full usage and resolution order (flags, env, cli.yaml).
@@ -971,7 +971,7 @@ DESCRIPTION
   Link to a self-hosted PowerSync instance by API URL.
 
   Links a self hosted PowerSync instance by API URL.
-  API Keys can be specified via input or specified in the TOKEN environment variable.
+  API Keys can be specified via input or specified in the PS_ADMIN_TOKEN environment variable.
 
 EXAMPLES
   $ powersync link self-hosted --api-url=https://powersync.example.com
@@ -991,8 +991,8 @@ DESCRIPTION
   Store auth token for Cloud commands.
 
   Store a PowerSync auth token (PAT) in secure storage so later Cloud commands run without passing a token. If secure
-  storage is unavailable, login can optionally store it in a local config file. Use TOKEN env var for CI or scripts
-  instead.
+  storage is unavailable, login can optionally store it in a local config file. Use PS_ADMIN_TOKEN env var for CI or
+  scripts instead.
 
 EXAMPLES
   $ powersync login

@@ -45,18 +45,18 @@ describe('stop', () => {
     resetManagementClientMocks();
 
     origCwd = process.cwd();
-    origPsToken = process.env.TOKEN;
+    origPsToken = process.env.PS_ADMIN_TOKEN;
     tmpDir = mkdtempSync(join(tmpdir(), 'stop-test-'));
     process.chdir(tmpDir);
-    process.env.TOKEN = 'test-token';
+    process.env.PS_ADMIN_TOKEN = 'test-token';
   });
 
   afterEach(() => {
     process.chdir(origCwd);
     if (origPsToken === undefined) {
-      delete process.env.TOKEN;
+      delete process.env.PS_ADMIN_TOKEN;
     } else {
-      process.env.TOKEN = origPsToken;
+      process.env.PS_ADMIN_TOKEN = origPsToken;
     }
 
     if (tmpDir && existsSync(tmpDir)) rmSync(tmpDir, { recursive: true });

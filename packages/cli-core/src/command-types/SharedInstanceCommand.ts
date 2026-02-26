@@ -171,7 +171,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
       try {
         cliConfig = ResolvedSelfHostedCLIConfig.decode({
           ..._rawSelfHostedCLIConfig,
-          api_key: env.TOKEN ?? _rawSelfHostedCLIConfig.api_key!,
+          api_key: env.PS_ADMIN_TOKEN ?? _rawSelfHostedCLIConfig.api_key!,
           api_url: flags['api-url'] ?? _rawSelfHostedCLIConfig.api_url! ?? env.API_URL
         });
       } catch (error) {

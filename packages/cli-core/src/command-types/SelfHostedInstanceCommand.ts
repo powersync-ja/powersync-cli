@@ -81,7 +81,7 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
     }
 
     const api_url = flags['api-url'] ?? (rawLink?.api_url as string | undefined) ?? env.API_URL;
-    const api_key = env.TOKEN ?? (rawLink?.api_key as string | undefined);
+    const api_key = env.PS_ADMIN_TOKEN ?? (rawLink?.api_key as string | undefined);
 
     let linked: null | ResolvedSelfHostedCLIConfig = null;
     try {
@@ -94,13 +94,14 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
     } catch (error) {
       this.styledError({
         error,
-        message: 'Linking is required. Set API_URL and TOKEN, or link the project first (cli.yaml).'
+        message: 'Linking is required. Set API_URL and PS_ADMIN_TOKEN, or link the project first (cli.yaml).'
       });
     }
 
     if (!linked) {
       this.styledError({
-        message: 'Linking is required for this command. Set API_URL and TOKEN, or link the project first (cli.yaml).'
+        message:
+          'Linking is required for this command. Set API_URL and PS_ADMIN_TOKEN, or link the project first (cli.yaml).'
       });
     }
 

@@ -16,7 +16,7 @@ import { Document } from 'yaml';
 export default class LinkSelfHosted extends SelfHostedInstanceCommand {
   static description = [
     `Links a self hosted PowerSync instance by API URL.`,
-    `API Keys can be specified via input or specified in the TOKEN environment variable.`
+    `API Keys can be specified via input or specified in the PS_ADMIN_TOKEN environment variable.`
   ].join('\n');
   static examples = ['<%= config.bin %> <%= command.id %> --api-url=https://powersync.example.com'];
   static flags = {
@@ -37,14 +37,14 @@ export default class LinkSelfHosted extends SelfHostedInstanceCommand {
       mkdirSync(projectDir, { recursive: true });
     }
 
-    const defaultApiKey = '!env TOKEN';
+    const defaultApiKey = '!env PS_ADMIN_TOKEN';
 
-    // If running non-interactively, default to !env TOKEN instead of prompting.
-    const shouldPromptForApiKey = !env.TOKEN && Boolean(process.stdin.isTTY);
+    // If running non-interactively, default to !env PS_ADMIN_TOKEN instead of prompting.
+    const shouldPromptForApiKey = !env.PS_ADMIN_TOKEN && Boolean(process.stdin.isTTY);
     const apiKey = shouldPromptForApiKey
       ? await input({
-          default: '!env TOKEN',
-          message: 'API key (default: !env TOKEN — read from TOKEN when running commands):'
+          default: '!env PS_ADMIN_TOKEN',
+          message: 'API key (default: !env PS_ADMIN_TOKEN — read from PS_ADMIN_TOKEN when running commands):'
         })
       : defaultApiKey;
 
@@ -53,7 +53,7 @@ export default class LinkSelfHosted extends SelfHostedInstanceCommand {
     const doc = existsSync(linkPath) ? parseYamlFile(linkPath) : new Document();
     doc.set('type', 'self-hosted');
     doc.set('api_url', apiUrl);
-    doc.set('api_key', apiKey.trim() || '!env TOKEN');
+    doc.set('api_key', apiKey.trim() || '!env PS_ADMIN_TOKEN');
     writeFileSync(linkPath, doc.toString(), 'utf8');
 
     ensureServiceTypeMatches({

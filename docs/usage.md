@@ -16,10 +16,10 @@ For commands that don’t require locally stored config (or when you don’t wan
 
 - **Inline as flags**
   - **Cloud:** `--instance-id`, `--project-id`, and optionally `--org-id`. If `--org-id` (and `ORG_ID`) are omitted, the CLI uses the token’s single organization when the token has access to exactly one; if the token has multiple orgs, you must pass `--org-id` (or set `ORG_ID`).
-  - **Self-hosted:** `--api-url` (API key is not accepted via flags; use link command or `TOKEN` env var)
+  - **Self-hosted:** `--api-url` (API key is not accepted via flags; use link command or `PS_ADMIN_TOKEN` env var)
 - **Environment variables**
   - **Cloud:** `INSTANCE_ID`, `PROJECT_ID`, and optionally `ORG_ID` (same default behaviour as above when omitted)
-  - **Self-hosted:** `API_URL`, `TOKEN` (token used as API key)
+  - **Self-hosted:** `API_URL`, `PS_ADMIN_TOKEN` (token used as API key)
 
 That lets you run one-off or scripted operations (e.g. generating a development token, generating client side schemas) without creating or using a `powersync/` folder or a link file.
 
@@ -61,7 +61,7 @@ Or for self-hosted:
 ```yaml
 type: self-hosted
 api_url: !env API_URL
-api_key: !env TOKEN
+api_key: !env PS_ADMIN_TOKEN
 ```
 
 In **service.yaml** (or other config), use `!env` for secrets and environment-specific values such as database URLs:
@@ -80,7 +80,7 @@ The sections below split usage by **Cloud** and **Self-hosted**, then provide re
 
 # Cloud usage
 
-Authentication is usually the first step. Use `powersync login` to store a token, or set the `TOKEN` environment variable. Storage behavior depends on platform capabilities and your login choice; see [Authentication (Tokens)](#authentication-tokens) for details.
+Authentication is usually the first step. Use `powersync login` to store a token, or set the `PS_ADMIN_TOKEN` environment variable. Storage behavior depends on platform capabilities and your login choice; see [Authentication (Tokens)](#authentication-tokens) for details.
 
 ## Creating a new Cloud instance
 
@@ -166,13 +166,13 @@ Once your self-hosted instance is deployed and reachable, you can **link** it an
 
 ```bash
 powersync link self-hosted --api-url=https://your-powersync.example.com
-# You will be prompted for the API key, or set TOKEN so the link file can use !env TOKEN
+# You will be prompted for the API key, or set PS_ADMIN_TOKEN so the link file can use !env PS_ADMIN_TOKEN
 powersync generate schema
 powersync generate token
 # ... other supported commands
 ```
 
-Use `--api-url` with link file or `API_URL` and `TOKEN` when you prefer not to link; see [Supplying linking information](#supplying-linking-information-for-cloud-and-self-hosted-commands) below.
+Use `--api-url` with link file or `API_URL` and `PS_ADMIN_TOKEN` when you prefer not to link; see [Supplying linking information](#supplying-linking-information-for-cloud-and-self-hosted-commands) below.
 
 ---
 
@@ -180,7 +180,7 @@ Use `--api-url` with link file or `API_URL` and `TOKEN` when you prefer not to l
 
 Cloud commands need an auth token (e.g. a PowerSync PAT). The CLI uses the first available source:
 
-1. **Environment variable** — `TOKEN`
+1. **Environment variable** — `PS_ADMIN_TOKEN`
 2. **Stored via login**
 
 - **Secure storage** when available (for example, macOS Keychain)
@@ -189,14 +189,14 @@ Cloud commands need an auth token (e.g. a PowerSync PAT). The CLI uses the first
 **Environment variable** — useful for CI, scripts, or one-off runs:
 
 ```bash
-export TOKEN=your-token-here
+export PS_ADMIN_TOKEN=your-token-here
 powersync stop --confirm=yes
 ```
 
 Inline:
 
 ```bash
-TOKEN=your-token-here powersync fetch config --output=json
+PS_ADMIN_TOKEN=your-token-here powersync fetch config --output=json
 ```
 
 **Stored via login** — convenient for local use; token is reused by later commands:
@@ -216,7 +216,7 @@ $XDG_CONFIG_HOME/powersync/config.yaml
 ~/.config/powersync/config.yaml
 ```
 
-If you decline this prompt, login exits without storing a token. Use `TOKEN` in that case.
+If you decline this prompt, login exits without storing a token. Use `PS_ADMIN_TOKEN` in that case.
 
 `powersync logout` removes the stored token from whichever backend is active (secure storage or config-file fallback).
 
@@ -229,7 +229,9 @@ Cloud and self-hosted commands need instance (and for Cloud, org and project) id
    - **Self-hosted:** `--api-url` only (API key from env or link file only)
 2. **Environment variables**
    - **Cloud:** `INSTANCE_ID`, `PROJECT_ID`, and optionally `ORG_ID` (same default as above)
-   - **Self-hosted:** `API_URL`, `TOKEN` (API key)
+
+- **Self-hosted:** `API_URL`, `PS_ADMIN_TOKEN` (API key)
+
 3. **cli.yaml** — a `powersync/cli.yaml` file in the project (written by `powersync link cloud` or `powersync link self-hosted`)
 
 ---
@@ -250,7 +252,7 @@ powersync stop --confirm=yes \
 # If your token has multiple orgs: add --org-id=<org-id>
 ```
 
-**Self-hosted:** Set `TOKEN` (or use a linked project with API key in cli.yaml), then:
+**Self-hosted:** Set `PS_ADMIN_TOKEN` (or use a linked project with API key in cli.yaml), then:
 
 ```bash
 powersync fetch status --api-url=https://powersync.example.com
@@ -262,7 +264,7 @@ You can use a different project directory with `--directory`:
 # Cloud (add --org-id=... only if your token has multiple orgs)
 powersync stop --confirm=yes --directory=my-powersync --instance-id=... --project-id=...
 
-# Self-hosted (API key from TOKEN or cli.yaml)
+# Self-hosted (API key from PS_ADMIN_TOKEN or cli.yaml)
 powersync fetch status --directory=my-powersync --api-url=https://...
 ```
 
@@ -314,7 +316,7 @@ powersync fetch config --output=json
 
 ```bash
 export API_URL=https://powersync.example.com
-export TOKEN=your-api-key
+export PS_ADMIN_TOKEN=your-api-key
 
 powersync fetch status --output=json
 ```
@@ -326,7 +328,7 @@ Inline for a single command:
 INSTANCE_ID=... PROJECT_ID=... powersync stop --confirm=yes
 
 # Self-hosted
-API_URL=https://... TOKEN=... powersync fetch status --output=json
+API_URL=https://... PS_ADMIN_TOKEN=... powersync fetch status --output=json
 ```
 
 **Note:** Environment variables are only used when neither flags nor `cli.yaml` provide linking information.

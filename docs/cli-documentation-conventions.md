@@ -27,7 +27,7 @@ For grouped commands (e.g. `fetch`, `generate`, `init`, `link`, `pull`, `migrate
 ## README
 
 - The CLI README (`cli/README.md`) uses oclif markers: `<!-- toc -->`, `<!-- usage -->`, `<!-- commands -->`. Content between these is replaced by `oclif readme` (run on `prepack` and `version`). Do not hand-edit the generated command blocks.
-- An **Environment variables** section (after the usage block) documents `TOKEN`, `ORG_ID`, `PROJECT_ID`, `INSTANCE_ID`, and `API_URL` for script/CI use, with a short example.
+- An **Environment variables** section (after the usage block) documents `PS_ADMIN_TOKEN`, `ORG_ID`, `PROJECT_ID`, `INSTANCE_ID`, and `API_URL` for script/CI use, with a short example.
 
 ## Regenerating command docs
 
