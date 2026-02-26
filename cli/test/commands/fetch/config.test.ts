@@ -7,16 +7,25 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import FetchConfigCommand from '../../../src/commands/fetch/config.js';
 import { root } from '../../helpers/root.js';
-import { managementClientMock, resetManagementClientMocks } from '../../setup.js';
+import { managementClientMock, MOCK_CLOUD_IDS, resetManagementClientMocks } from '../../setup.js';
 
 const PROJECT_DIR = 'powersync';
+const CLI_FILENAME = 'cli.yaml';
 const SERVICE_FILENAME = 'service.yaml';
+const INSTANCE_ID = MOCK_CLOUD_IDS.instanceId;
+const ORG_ID = MOCK_CLOUD_IDS.orgId;
+const PROJECT_ID = MOCK_CLOUD_IDS.projectId;
 
 /** Minimal valid cloud config decodable by ServiceCloudConfig. */
 const MOCK_CONFIG = { _type: 'cloud' as const, name: 'test-instance', region: 'us' };
 
 function writeServiceYaml(projectDir: string, type: 'cloud' | 'self-hosted') {
   writeFileSync(join(projectDir, SERVICE_FILENAME), `_type: ${type}\nregion: us\n`, 'utf8');
+}
+
+function writeLinkYaml(projectDir: string, opts: { instance_id: string; org_id: string; project_id: string }) {
+  const content = `type: cloud\ninstance_id: ${opts.instance_id}\norg_id: ${opts.org_id}\nproject_id: ${opts.project_id}\n`;
+  writeFileSync(join(projectDir, CLI_FILENAME), content, 'utf8');
 }
 
 describe('fetch config', () => {
@@ -72,16 +81,14 @@ describe('fetch config', () => {
     beforeEach(async () => {
       const projectDir = join(tmpDir, PROJECT_DIR);
       mkdirSync(projectDir, { recursive: true });
-      await runCommand('link cloud --instance-id=inst-1 --org-id=org-1 --project-id=proj-1', {
-        root
-      });
+      writeLinkYaml(projectDir, { instance_id: INSTANCE_ID, org_id: ORG_ID, project_id: PROJECT_ID });
     });
 
     it('errors with exit 1 when client fails', async () => {
       const result = await runFetchConfigDirect();
       expect(result.error?.oclif?.exit).toBe(1);
       expect(result.error?.message).toMatch(
-        /Failed to fetch config for instance inst-1 in project proj-1 in org org-1/
+        new RegExp(`Failed to fetch config for instance ${INSTANCE_ID} in project ${PROJECT_ID} in org ${ORG_ID}`)
       );
     });
 

@@ -1,10 +1,18 @@
 import { ResolvedCloudCLIConfig, ServiceCloudConfig, ServiceCloudConfigDecoded } from '@powersync/cli-schemas';
 import { PowerSyncManagementClient } from '@powersync/management-client';
+import { routes } from '@powersync/management-types';
 
 export type FetchedCloudConfig = {
   config: ServiceCloudConfigDecoded;
   syncRules?: string;
 };
+
+export function decodeFetchedCloudConfig(instanceConfig: routes.InstanceConfigResponse): FetchedCloudConfig {
+  const configFromCloud = { _type: 'cloud', name: instanceConfig.name, ...instanceConfig.config };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const config = ServiceCloudConfig.decode(configFromCloud as any);
+  return { config, syncRules: instanceConfig.sync_rules };
+}
 
 /**
  * Fetches instance config from PowerSync Cloud and decodes it.
@@ -18,8 +26,5 @@ export async function fetchCloudConfig(
     id: linked.instance_id,
     org_id: linked.org_id
   });
-  const configFromCloud = { _type: 'cloud', name: instanceConfig.name, ...instanceConfig.config };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const config = ServiceCloudConfig.decode(configFromCloud as any);
-  return { config, syncRules: instanceConfig.sync_rules };
+  return decodeFetchedCloudConfig(instanceConfig);
 }

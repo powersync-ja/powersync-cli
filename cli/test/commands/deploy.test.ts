@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import DeployCommand from '../../src/commands/deploy/index.js';
 import { root } from '../helpers/root.js';
-import { managementClientMock, resetManagementClientMocks } from '../setup.js';
+import { managementClientMock, MOCK_CLOUD_IDS, resetManagementClientMocks } from '../setup.js';
 
 /** Run deploy by instantiating the command and calling .run() so the spy on createCloudClient applies. */
 async function runDeployDirect(opts?: { directory?: string }) {
@@ -20,6 +20,9 @@ async function runDeployDirect(opts?: { directory?: string }) {
 }
 
 const PROJECT_DIR = 'powersync';
+const INSTANCE_ID = MOCK_CLOUD_IDS.instanceId;
+const ORG_ID = MOCK_CLOUD_IDS.orgId;
+const PROJECT_ID = MOCK_CLOUD_IDS.projectId;
 
 function writeServiceYaml(projectDir: string, type: 'cloud' | 'self-hosted') {
   const content =
@@ -108,11 +111,10 @@ describe('deploy', () => {
     const projectDir = join(tmpDir, customDir);
     mkdirSync(projectDir, { recursive: true });
     writeServiceYaml(projectDir, 'cloud');
-    await runCommand(`link cloud --directory=${customDir} --instance-id=i --org-id=o --project-id=p`, { root });
+    writeLinkYaml(projectDir, { instance_id: INSTANCE_ID, org_id: ORG_ID, project_id: PROJECT_ID });
     const result = await runCommand(`deploy --directory=${customDir}`, { root });
     expect(result.error).toBeDefined();
-    // Fails with API error when token available, or keychain error when not
-    expect(result.error?.message).toMatch(/instance i.*project p.*org o|Could not find password/);
+    expect(result.error?.message).toMatch(new RegExp(`instance ${INSTANCE_ID}.*project ${PROJECT_ID}.*org ${ORG_ID}`));
   });
 
   describe('with valid cloud project', () => {
@@ -120,13 +122,15 @@ describe('deploy', () => {
       const projectDir = join(tmpDir, PROJECT_DIR);
       mkdirSync(projectDir, { recursive: true });
       writeServiceYaml(projectDir, 'cloud');
-      await runCommand('link cloud --instance-id=inst-1 --org-id=org-1 --project-id=proj-1', { root });
+      writeLinkYaml(projectDir, { instance_id: INSTANCE_ID, org_id: ORG_ID, project_id: PROJECT_ID });
     });
 
     it('attempts deploy and errors with exit 1 when client fails', async () => {
       const result = await runDeployDirect();
       expect(result.error).toBeDefined();
-      expect(result.error?.message).toMatch(/Failed to .* instance inst-1 in project proj-1 in org org-1/);
+      expect(result.error?.message).toMatch(
+        new RegExp(`Failed to .* instance ${INSTANCE_ID} in project ${PROJECT_ID} in org ${ORG_ID}`)
+      );
     });
   });
 });

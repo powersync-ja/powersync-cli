@@ -18,6 +18,24 @@ type EnvSnapshot = {
   TOKEN: string | undefined;
 };
 
+const IDS = {
+  cli: {
+    instance: '699f191ade6e1187bd89815b',
+    org: '4ffabc821ea10f9b2a000001',
+    project: '699ef9c371c56d0007320543'
+  },
+  env: {
+    instance: '699f191ade6e1187bd89815c',
+    org: '4ffabc821ea10f9b2a000002',
+    project: '699ef9c371c56d0007320544'
+  },
+  flag: {
+    instance: '699f191ade6e1187bd89815d',
+    org: '4ffabc821ea10f9b2a000003',
+    project: '699ef9c371c56d0007320545'
+  }
+};
+
 describe('instance resolution order', () => {
   let oclifConfig: Config;
   let tmpRoot: string;
@@ -66,37 +84,68 @@ describe('instance resolution order', () => {
     writeFileSync(join(projectDir, 'service.yaml'), '_type: cloud\n', 'utf8');
     writeFileSync(
       cliPath,
-      ['type: cloud', 'instance_id: cli-inst', 'org_id: cli-org', 'project_id: cli-proj', ''].join('\n'),
+      [
+        'type: cloud',
+        `instance_id: ${IDS.cli.instance}`,
+        `org_id: ${IDS.cli.org}`,
+        `project_id: ${IDS.cli.project}`,
+        ''
+      ].join('\n'),
       'utf8'
     );
 
-    env.INSTANCE_ID = 'env-inst';
-    env.ORG_ID = 'env-org';
-    env.PROJECT_ID = 'env-proj';
+    env.INSTANCE_ID = IDS.env.instance;
+    env.ORG_ID = IDS.env.org;
+    env.PROJECT_ID = IDS.env.project;
 
     const loadProjectSpy = vi.spyOn(CloudInstanceCommand.prototype, 'loadProject');
 
-    await runDestroyDirect(['--confirm=yes', '--instance-id=flag-inst', '--org-id=flag-org', '--project-id=flag-proj']);
+    await runDestroyDirect([
+      '--confirm=yes',
+      `--instance-id=${IDS.flag.instance}`,
+      `--org-id=${IDS.flag.org}`,
+      `--project-id=${IDS.flag.project}`
+    ]);
     expect(loadProjectSpy).toHaveBeenCalledTimes(1);
     const fromFlag = await loadProjectSpy.mock.results[0]!.value;
-    expect(fromFlag.linked.instance_id).toBe('flag-inst');
-    expect(fromFlag.linked.org_id).toBe('flag-org');
-    expect(fromFlag.linked.project_id).toBe('flag-proj');
+    expect(fromFlag.linked.instance_id).toBe(IDS.flag.instance);
+    expect(fromFlag.linked.org_id).toBe(IDS.flag.org);
+    expect(fromFlag.linked.project_id).toBe(IDS.flag.project);
 
     await runDestroyDirect(['--confirm=yes']);
     expect(loadProjectSpy).toHaveBeenCalledTimes(2);
     const fromCli = await loadProjectSpy.mock.results[1]!.value;
-    expect(fromCli.linked.instance_id).toBe('cli-inst');
-    expect(fromCli.linked.org_id).toBe('cli-org');
-    expect(fromCli.linked.project_id).toBe('cli-proj');
+    expect(fromCli.linked.instance_id).toBe(IDS.cli.instance);
+    expect(fromCli.linked.org_id).toBe(IDS.cli.org);
+    expect(fromCli.linked.project_id).toBe(IDS.cli.project);
 
     rmSync(cliPath, { force: true });
     await runDestroyDirect(['--confirm=yes']);
     expect(loadProjectSpy).toHaveBeenCalledTimes(3);
     const fromEnv = await loadProjectSpy.mock.results[2]!.value;
-    expect(fromEnv.linked.instance_id).toBe('env-inst');
-    expect(fromEnv.linked.org_id).toBe('env-org');
-    expect(fromEnv.linked.project_id).toBe('env-proj');
+    expect(fromEnv.linked.instance_id).toBe(IDS.env.instance);
+    expect(fromEnv.linked.org_id).toBe(IDS.env.org);
+    expect(fromEnv.linked.project_id).toBe(IDS.env.project);
+  });
+
+  it('CloudInstanceCommand rejects invalid cloud BSON ObjectID values', async () => {
+    const projectDir = join(tmpRoot, 'powersync');
+    mkdirSync(projectDir, { recursive: true });
+    writeFileSync(join(projectDir, 'service.yaml'), '_type: cloud\n', 'utf8');
+    writeFileSync(
+      join(projectDir, 'cli.yaml'),
+      [
+        'type: cloud',
+        'instance_id: invalid/instance',
+        `org_id: ${IDS.cli.org}`,
+        `project_id: ${IDS.cli.project}`,
+        ''
+      ].join('\n'),
+      'utf8'
+    );
+
+    const { error } = await runDestroyDirect(['--confirm=yes']);
+    expect(error?.message).toContain('Invalid --instance-id');
   });
 
   it('SharedInstanceCommand resolves self-hosted api_url as flag → cli.yaml → env', async () => {
@@ -143,38 +192,44 @@ describe('instance resolution order', () => {
     writeFileSync(join(projectDir, 'service.yaml'), '_type: cloud\n', 'utf8');
     writeFileSync(
       cliPath,
-      ['type: cloud', 'instance_id: cli-inst', 'org_id: cli-org', 'project_id: cli-proj', ''].join('\n'),
+      [
+        'type: cloud',
+        `instance_id: ${IDS.cli.instance}`,
+        `org_id: ${IDS.cli.org}`,
+        `project_id: ${IDS.cli.project}`,
+        ''
+      ].join('\n'),
       'utf8'
     );
 
     env.API_URL = 'https://env-self-hosted.example.com';
-    env.INSTANCE_ID = 'env-inst';
-    env.ORG_ID = 'env-org';
-    env.PROJECT_ID = 'env-proj';
+    env.INSTANCE_ID = IDS.env.instance;
+    env.ORG_ID = IDS.env.org;
+    env.PROJECT_ID = IDS.env.project;
 
     const loadProjectSpy = vi.spyOn(SharedInstanceCommand.prototype, 'loadProject');
     vi.spyOn(FetchStatusCommand.prototype, 'getCloudStatus').mockRejectedValue(new Error('expected-test-failure'));
 
     await runFetchStatusDirect([
       '--output=json',
-      '--instance-id=flag-inst',
-      '--org-id=flag-org',
-      '--project-id=flag-proj'
+      `--instance-id=${IDS.flag.instance}`,
+      `--org-id=${IDS.flag.org}`,
+      `--project-id=${IDS.flag.project}`
     ]);
     expect(loadProjectSpy).toHaveBeenCalledTimes(1);
     const fromCli = await loadProjectSpy.mock.results[0]!.value;
     expect(fromCli.linked.type).toBe('cloud');
-    expect(fromCli.linked.instance_id).toBe('flag-inst');
-    expect(fromCli.linked.org_id).toBe('flag-org');
-    expect(fromCli.linked.project_id).toBe('flag-proj');
+    expect(fromCli.linked.instance_id).toBe(IDS.flag.instance);
+    expect(fromCli.linked.org_id).toBe(IDS.flag.org);
+    expect(fromCli.linked.project_id).toBe(IDS.flag.project);
 
     await runFetchStatusDirect(['--output=json']);
     expect(loadProjectSpy).toHaveBeenCalledTimes(2);
     const fromLink = await loadProjectSpy.mock.results[1]!.value;
     expect(fromLink.linked.type).toBe('cloud');
-    expect(fromLink.linked.instance_id).toBe('cli-inst');
-    expect(fromLink.linked.org_id).toBe('cli-org');
-    expect(fromLink.linked.project_id).toBe('cli-proj');
+    expect(fromLink.linked.instance_id).toBe(IDS.cli.instance);
+    expect(fromLink.linked.org_id).toBe(IDS.cli.org);
+    expect(fromLink.linked.project_id).toBe(IDS.cli.project);
 
     rmSync(cliPath, { force: true });
     env.API_URL = undefined;
@@ -182,8 +237,8 @@ describe('instance resolution order', () => {
     expect(loadProjectSpy).toHaveBeenCalledTimes(3);
     const fromEnv = await loadProjectSpy.mock.results[2]!.value;
     expect(fromEnv.linked.type).toBe('cloud');
-    expect(fromEnv.linked.instance_id).toBe('env-inst');
-    expect(fromEnv.linked.org_id).toBe('env-org');
-    expect(fromEnv.linked.project_id).toBe('env-proj');
+    expect(fromEnv.linked.instance_id).toBe(IDS.env.instance);
+    expect(fromEnv.linked.org_id).toBe(IDS.env.org);
+    expect(fromEnv.linked.project_id).toBe(IDS.env.project);
   });
 });

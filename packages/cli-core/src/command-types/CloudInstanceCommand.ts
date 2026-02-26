@@ -13,6 +13,7 @@ import { getDefaultOrgId } from '../clients/accounts-client.js';
 import { createCloudClient } from '../clients/CloudClient.js';
 import { ensureServiceTypeMatches, ServiceType } from '../utils/ensureServiceType.js';
 import { env } from '../utils/env.js';
+import { OBJECT_ID_REGEX } from '../utils/object-id.js';
 import { CLI_FILENAME, SERVICE_FILENAME, SYNC_FILENAME } from '../utils/project-config.js';
 import { parseYamlFile } from '../utils/yaml.js';
 import { HelpGroup } from './HelpGroup.js';
@@ -147,22 +148,13 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
       }
     }
 
-    try {
-      const instance_id = flags['instance-id'] ?? (rawLink?.instance_id as string | undefined) ?? env.INSTANCE_ID;
-      const project_id = flags['project-id'] ?? (rawLink?.project_id as string | undefined) ?? env.PROJECT_ID;
-      let org_id = flags['org-id'] ?? (rawLink?.org_id as string | undefined) ?? env.ORG_ID;
+    const instance_id = flags['instance-id'] ?? (rawLink?.instance_id as string | undefined) ?? env.INSTANCE_ID;
+    const project_id = flags['project-id'] ?? (rawLink?.project_id as string | undefined) ?? env.PROJECT_ID;
+    let org_id = flags['org-id'] ?? (rawLink?.org_id as string | undefined) ?? env.ORG_ID;
 
+    try {
       if (org_id == null && instance_id != null) {
         org_id = await getDefaultOrgId();
-      }
-
-      if (instance_id != null || project_id != null || org_id != null) {
-        linked = ResolvedCloudCLIConfig.decode({
-          instance_id: instance_id!,
-          org_id: org_id!,
-          project_id: project_id!,
-          type: 'cloud'
-        });
       }
     } catch (error) {
       this.styledError({
@@ -170,6 +162,27 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
         message:
           'Linking is required before using this command. Provide flags, link the project (cli.yaml), or set environment variables.'
       });
+    }
+
+    if (instance_id != null || project_id != null || org_id != null) {
+      this.ensureObjectIdIfPresent(instance_id, '--instance-id');
+      this.ensureObjectIdIfPresent(org_id, '--org-id');
+      this.ensureObjectIdIfPresent(project_id, '--project-id');
+
+      try {
+        linked = ResolvedCloudCLIConfig.decode({
+          instance_id: instance_id!,
+          org_id: org_id!,
+          project_id: project_id!,
+          type: 'cloud'
+        });
+      } catch (error) {
+        this.styledError({
+          error,
+          message:
+            'Linking is required before using this command. Provide flags, link the project (cli.yaml), or set environment variables.'
+        });
+      }
     }
 
     if (!linked) {
@@ -206,5 +219,20 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
 
     this.serviceConfig = ServiceCloudConfig.decode(doc.contents?.toJSON());
     return this.serviceConfig;
+  }
+
+  private ensureObjectIdIfPresent(
+    value: string | undefined,
+    flagName: '--instance-id' | '--org-id' | '--project-id'
+  ): void {
+    if (value == null) {
+      return;
+    }
+
+    if (!OBJECT_ID_REGEX.test(value)) {
+      this.styledError({
+        message: `Invalid ${flagName} "${value}". Expected a BSON ObjectID (24 hex characters).`
+      });
+    }
   }
 }

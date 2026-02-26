@@ -1,5 +1,6 @@
 import { Config } from '@oclif/core';
 import { captureOutput, runCommand } from '@oclif/test';
+import * as cliCore from '@powersync/cli-core';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -19,6 +20,18 @@ vi.mock('@inquirer/prompts', () => ({
 const CLI_FILENAME = 'cli.yaml';
 const PROJECT_DIR = 'powersync';
 const SERVICE_FILENAME = 'service.yaml';
+const ORG_ID = '64b3f8e1a2c4d5e6f7080912';
+const PROJECT_ID = '68978b01db7a810006d795f2';
+const INSTANCE_ID = '690cf75c96a2ff4fd98b160a';
+
+const accountsClientMock = {
+  getOrganization: vi.fn(),
+  listProjects: vi.fn()
+};
+
+vi.spyOn(cliCore, 'createAccountsHubClient').mockImplementation(
+  async () => accountsClientMock as unknown as Awaited<ReturnType<typeof cliCore.createAccountsHubClient>>
+);
 
 function writeServiceYaml(projectDir: string, type: 'cloud' | 'self-hosted') {
   writeFileSync(join(projectDir, SERVICE_FILENAME), `_type: ${type}\n`, 'utf8');
@@ -57,6 +70,12 @@ describe('link', () => {
 
     beforeEach(() => {
       resetManagementClientMocks();
+      accountsClientMock.getOrganization.mockResolvedValue({ id: ORG_ID, label: 'Test Org' });
+      accountsClientMock.listProjects.mockResolvedValue({
+        objects: [{ id: PROJECT_ID, name: 'Test Project' }],
+        total: 1
+      });
+      managementClientMock.getInstanceConfig.mockResolvedValue({});
       origCwd = process.cwd();
       tmpDir = mkdtempSync(join(tmpdir(), 'link-test-'));
       process.chdir(tmpDir);
@@ -68,57 +87,68 @@ describe('link', () => {
     });
 
     it('creates directory and cli.yaml when directory does not exist', async () => {
-      const result = await runCommand('link cloud --instance-id=inst --org-id=org --project-id=proj', { root });
-      expect(result.error).toBeUndefined();
+      const { error } = await runLinkCloudDirect([
+        `--instance-id=${INSTANCE_ID}`,
+        `--org-id=${ORG_ID}`,
+        `--project-id=${PROJECT_ID}`
+      ]);
+      expect(error).toBeUndefined();
       const linkPath = join(tmpDir, PROJECT_DIR, CLI_FILENAME);
       expect(existsSync(linkPath)).toBe(true);
       const linkYaml = parseYaml(readFileSync(linkPath, 'utf8'));
       expect(linkYaml.type).toBe('cloud');
-      expect(linkYaml.instance_id).toBe('inst');
-      expect(linkYaml.org_id).toBe('org');
-      expect(linkYaml.project_id).toBe('proj');
+      expect(linkYaml.instance_id).toBe(INSTANCE_ID);
+      expect(linkYaml.org_id).toBe(ORG_ID);
+      expect(linkYaml.project_id).toBe(PROJECT_ID);
     });
 
     it('creates custom directory and cli.yaml when custom directory does not exist', async () => {
       const customDir = 'custom-powersync';
-      const result = await runCommand(
-        `link cloud --directory=${customDir} --instance-id=inst --org-id=org --project-id=proj`,
-        { root }
-      );
-      expect(result.error).toBeUndefined();
+      const { error } = await runLinkCloudDirect([
+        `--directory=${customDir}`,
+        `--instance-id=${INSTANCE_ID}`,
+        `--org-id=${ORG_ID}`,
+        `--project-id=${PROJECT_ID}`
+      ]);
+      expect(error).toBeUndefined();
       const linkPath = join(tmpDir, customDir, CLI_FILENAME);
       expect(existsSync(linkPath)).toBe(true);
       const linkYaml = parseYaml(readFileSync(linkPath, 'utf8'));
       expect(linkYaml.type).toBe('cloud');
-      expect(linkYaml.instance_id).toBe('inst');
-      expect(linkYaml.org_id).toBe('org');
-      expect(linkYaml.project_id).toBe('proj');
+      expect(linkYaml.instance_id).toBe(INSTANCE_ID);
+      expect(linkYaml.org_id).toBe(ORG_ID);
+      expect(linkYaml.project_id).toBe(PROJECT_ID);
     });
 
     it('errors when service.yaml _type does not match (self-hosted)', async () => {
       const projectDir = join(tmpDir, PROJECT_DIR);
       mkdirSync(projectDir, { recursive: true });
       writeServiceYaml(projectDir, 'self-hosted');
-      const result = await runCommand('link cloud --instance-id=inst --org-id=o --project-id=p', { root });
-      expect(result.error?.message).toMatch(/has `_type: self-hosted` but this command requires `_type: cloud`/);
-      expect(result.error?.oclif?.exit).toBe(1);
+      const { error } = await runLinkCloudDirect([
+        `--instance-id=${INSTANCE_ID}`,
+        `--org-id=${ORG_ID}`,
+        `--project-id=${PROJECT_ID}`
+      ]);
+      expect(error?.message).toMatch(/has `_type: self-hosted` but this command requires `_type: cloud`/);
     });
 
     it('creates cli.yaml with cloud config when directory exists and service _type is cloud', async () => {
       const projectDir = join(tmpDir, PROJECT_DIR);
       mkdirSync(projectDir, { recursive: true });
       writeServiceYaml(projectDir, 'cloud');
-      const { stdout } = await runCommand('link cloud --instance-id=inst-1 --org-id=org-1 --project-id=proj-1', {
-        root
-      });
+      const { stdout } = await runLinkCloudDirect([
+        `--instance-id=${INSTANCE_ID}`,
+        `--org-id=${ORG_ID}`,
+        `--project-id=${PROJECT_ID}`
+      ]);
       expect(stdout).toContain(`Updated ${PROJECT_DIR}/${CLI_FILENAME} with Cloud instance link.`);
       const linkPath = join(tmpDir, PROJECT_DIR, CLI_FILENAME);
       expect(existsSync(linkPath)).toBe(true);
       const linkYaml = parseYaml(readFileSync(linkPath, 'utf8'));
       expect(linkYaml.type).toBe('cloud');
-      expect(linkYaml.instance_id).toBe('inst-1');
-      expect(linkYaml.org_id).toBe('org-1');
-      expect(linkYaml.project_id).toBe('proj-1');
+      expect(linkYaml.instance_id).toBe(INSTANCE_ID);
+      expect(linkYaml.org_id).toBe(ORG_ID);
+      expect(linkYaml.project_id).toBe(PROJECT_ID);
     });
 
     it('creates and links cloud instance when directory exists and --create is used', async () => {
@@ -126,20 +156,24 @@ describe('link', () => {
       mkdirSync(projectDir, { recursive: true });
       writeValidCloudServiceYaml(projectDir);
       managementClientMock.listRegions.mockResolvedValueOnce({ regions: [{ name: 'us' }] });
-      managementClientMock.createInstance.mockResolvedValueOnce({ id: 'inst-new' });
+      managementClientMock.createInstance.mockResolvedValueOnce({ id: INSTANCE_ID });
 
-      const { error, stdout } = await runLinkCloudDirect(['--create', '--org-id=org-1', '--project-id=proj-1']);
+      const { error, stdout } = await runLinkCloudDirect([
+        '--create',
+        `--org-id=${ORG_ID}`,
+        `--project-id=${PROJECT_ID}`
+      ]);
 
       expect(error).toBeUndefined();
-      expect(stdout).toContain(`Created Cloud instance inst-new and updated ${PROJECT_DIR}/${CLI_FILENAME}.`);
+      expect(stdout).toContain(`Created Cloud instance ${INSTANCE_ID} and updated ${PROJECT_DIR}/${CLI_FILENAME}.`);
 
       const linkPath = join(tmpDir, PROJECT_DIR, CLI_FILENAME);
       expect(existsSync(linkPath)).toBe(true);
       const linkYaml = parseYaml(readFileSync(linkPath, 'utf8'));
       expect(linkYaml.type).toBe('cloud');
-      expect(linkYaml.instance_id).toBe('inst-new');
-      expect(linkYaml.org_id).toBe('org-1');
-      expect(linkYaml.project_id).toBe('proj-1');
+      expect(linkYaml.instance_id).toBe(INSTANCE_ID);
+      expect(linkYaml.org_id).toBe(ORG_ID);
+      expect(linkYaml.project_id).toBe(PROJECT_ID);
     });
 
     it('updates existing cli.yaml and preserves comments', async () => {
@@ -152,29 +186,67 @@ describe('link', () => {
 type: cloud
 `;
       writeFileSync(linkPath, withComments, 'utf8');
-      await runCommand('link cloud --instance-id=new-inst --org-id=new-org --project-id=new-proj', { root });
+      await runLinkCloudDirect([`--instance-id=${INSTANCE_ID}`, `--org-id=${ORG_ID}`, `--project-id=${PROJECT_ID}`]);
       const content = readFileSync(linkPath, 'utf8');
       expect(content).toContain('# Managed by PowerSync CLI');
       expect(content).toContain('# Run powersync link --help for info');
       const linkYaml = parseYaml(content);
       expect(linkYaml.type).toBe('cloud');
-      expect(linkYaml.instance_id).toBe('new-inst');
-      expect(linkYaml.org_id).toBe('new-org');
-      expect(linkYaml.project_id).toBe('new-proj');
+      expect(linkYaml.instance_id).toBe(INSTANCE_ID);
+      expect(linkYaml.org_id).toBe(ORG_ID);
+      expect(linkYaml.project_id).toBe(PROJECT_ID);
     });
 
     it('respects --directory flag', async () => {
       const customDir = 'my-powersync';
       mkdirSync(join(tmpDir, customDir), { recursive: true });
       writeServiceYaml(join(tmpDir, customDir), 'cloud');
-      const { stdout } = await runCommand(
-        `link cloud --directory=${customDir} --instance-id=i --org-id=o --project-id=p`,
-        { root }
-      );
+      const { stdout } = await runLinkCloudDirect([
+        `--directory=${customDir}`,
+        `--instance-id=${INSTANCE_ID}`,
+        `--org-id=${ORG_ID}`,
+        `--project-id=${PROJECT_ID}`
+      ]);
       expect(stdout).toContain(`Updated ${customDir}/${CLI_FILENAME}`);
       const linkYaml = parseYaml(readFileSync(join(tmpDir, customDir, CLI_FILENAME), 'utf8'));
       expect(linkYaml.type).toBe('cloud');
-      expect(linkYaml.instance_id).toBe('i');
+      expect(linkYaml.instance_id).toBe(INSTANCE_ID);
+    });
+
+    it('errors for invalid ObjectID flag values', async () => {
+      const { error } = await runLinkCloudDirect([
+        `--instance-id=${INSTANCE_ID}`,
+        `--org-id=${ORG_ID}`,
+        '--project-id=invalid/project-id'
+      ]);
+      expect(error?.message).toContain('Invalid --project-id');
+    });
+
+    it('errors when project does not exist in the organization', async () => {
+      accountsClientMock.listProjects.mockResolvedValueOnce({ objects: [], total: 0 });
+
+      const { error } = await runLinkCloudDirect([
+        `--instance-id=${INSTANCE_ID}`,
+        `--org-id=${ORG_ID}`,
+        `--project-id=${PROJECT_ID}`
+      ]);
+
+      expect(error?.message).toContain(`Project ${PROJECT_ID} was not found in organization ${ORG_ID}`);
+      expect(error?.message).not.toContain(', ::');
+    });
+
+    it('errors when instance does not exist and --create is not used', async () => {
+      managementClientMock.getInstanceConfig.mockRejectedValueOnce(new Error('not found'));
+
+      const { error } = await runLinkCloudDirect([
+        `--instance-id=${INSTANCE_ID}`,
+        `--org-id=${ORG_ID}`,
+        `--project-id=${PROJECT_ID}`
+      ]);
+
+      expect(error?.message).toContain(
+        `Instance ${INSTANCE_ID} was not found in project ${PROJECT_ID} in organization ${ORG_ID}`
+      );
     });
   });
 
