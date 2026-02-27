@@ -79,7 +79,6 @@ jobs:
             cli/dist/**/*.tar.gz
             cli/dist/**/*.tar.xz
       - name: Upload tarballs to autoupdate host (S3)
-        if: ${{ secrets.AWS_ACCESS_KEY_ID != '' && secrets.AWS_SECRET_ACCESS_KEY != '' && secrets.AWS_REGION != '' }}
         run: pnpm -C cli exec oclif upload tarballs --root cli --xz
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
