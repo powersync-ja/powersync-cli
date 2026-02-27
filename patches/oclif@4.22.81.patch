@@ -1,26 +1,45 @@
 diff --git a/lib/commands/pack/win.js b/lib/commands/pack/win.js
-index 9a255a011cbbfb34a337f67bcbabbbffdaf65c11..59cdbd47450e659317bdb9deee18c015d4a41ed3 100644
+index 9a255a011cbbfb34a337f67bcbabbbffdaf65c11..8b3d11b5b1f2e3487f67915f64873e9cb62929eb 100644
 --- a/lib/commands/pack/win.js
 +++ b/lib/commands/pack/win.js
-@@ -332,7 +332,9 @@ the CLI should already exist in a directory named after the CLI that is the root
+@@ -332,7 +332,21 @@ the CLI should already exist in a directory named after the CLI that is the root
                      : []),
              ]);
              await (0, fs_extra_1.move)(buildConfig.workspace({ arch, platform: 'win32' }), node_path_1.default.join(installerBase, 'client'));
 -            await exec(`makensis "${installerBase}/${config.bin}.nsi" | grep -v "\\[compress\\]" | grep -v "^File: Descending to"`);
-+            await exec(`makensis "${config.bin}.nsi" | grep -v "\\[compress\\]" | grep -v "^File: Descending to"`, {
-+                cwd: installerBase,
-+            });
++            let makensisOutput = '';
++            let makensisErrorOutput = '';
++            try {
++                const { stderr, stdout } = await exec(`makensis "${config.bin}.nsi"`, {
++                    cwd: installerBase,
++                });
++                makensisOutput = stdout;
++                makensisErrorOutput = stderr;
++            }
++            catch (error) {
++                const commandError = error;
++                const stderr = commandError?.stderr ?? '';
++                const stdout = commandError?.stdout ?? '';
++                throw new Error(`NSIS command failed in ${installerBase}.\nstdout:\n${stdout}\nstderr:\n${stderr}`);
++            }
              const templateKey = (0, upload_util_1.templateShortKey)('win32', {
                  arch,
                  bin: config.bin,
-@@ -340,7 +342,11 @@ the CLI should already exist in a directory named after the CLI that is the root
+@@ -340,7 +354,18 @@ the CLI should already exist in a directory named after the CLI that is the root
                  version: config.version,
              });
              const o = buildConfig.dist(`win32/${templateKey}`);
 -            await (0, fs_extra_1.move)(node_path_1.default.join(installerBase, 'installer.exe'), o);
 +            const installerPath = node_path_1.default.join(installerBase, 'installer.exe');
 +            if (!(await (0, fs_extra_1.pathExists)(installerPath))) {
-+                throw new Error(`NSIS did not output installer.exe in ${installerBase}`);
++                const files = await (0, promises_1.readdir)(installerBase, { recursive: true });
++                const fileList = files.map((f) => f.toString()).slice(0, 200).join('\n');
++                const outputDir = node_path_1.default.dirname(o);
++                const outputDirExists = await (0, fs_extra_1.pathExists)(outputDir);
++                const outputDirFiles = outputDirExists
++                    ? (await (0, promises_1.readdir)(outputDir, { recursive: true })).map((f) => f.toString()).slice(0, 200).join('\n')
++                    : '(output directory does not exist yet)';
++                throw new Error(`NSIS did not output installer.exe in ${installerBase}.\nstdout:\n${makensisOutput}\nstderr:\n${makensisErrorOutput}\ninstallerBase files:\n${fileList}\noutputDir (${outputDir}) files:\n${outputDirFiles}`);
 +            }
 +            await (0, fs_extra_1.move)(installerPath, o);
              const { windows } = config.pjson.oclif;
