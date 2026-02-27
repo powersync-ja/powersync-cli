@@ -54,6 +54,26 @@ index 9a255a011cbbfb34a337f67bcbabbbffdaf65c11..006b8eb0ee5432825cf48287c5e46077
              const { windows } = config.pjson.oclif;
              if (windows && windows.name && windows.keypath) {
                  await signWindows(o, arch, config, windows);
+diff --git a/lib/commands/promote.js b/lib/commands/promote.js
+index 680417fe220d77f81ae239130c4ba55602b09497..a16b2db7237f152036434b8ee202d7d35b1bd6b2 100644
+--- a/lib/commands/promote.js
++++ b/lib/commands/promote.js
+@@ -80,11 +80,14 @@ class Promote extends core_1.Command {
+         };
+         if (!s3Config.bucket)
+             this.error('Cannot determine S3 bucket for promotion');
++        // Buckets with Object Ownership = bucket-owner-enforced reject ACL headers.
++        // Only pass ACL when explicitly configured in package.json.
++        const resolvedAcl = typeof s3Config.acl === 'string' ? s3Config.acl.trim() : undefined;
+         const awsDefaults = {
+-            ACL: s3Config.acl ?? client_s3_1.ObjectCannedACL.public_read,
+             Bucket: s3Config.bucket,
+             CacheControl: indexDefaults.maxAge,
+             MetadataDirective: client_s3_1.MetadataDirective.REPLACE,
++            ...(resolvedAcl ? { ACL: resolvedAcl } : {}),
+         };
+         const cloudBucketCommitKey = (shortKey) => node_path_1.default.posix.join(s3Config.bucket, (0, upload_util_1.commitAWSDir)(flags.version, flags.sha, s3Config), shortKey);
+         const cloudChannelKey = (shortKey) => node_path_1.default.posix.join((0, upload_util_1.channelAWSDir)(flags.channel, s3Config), shortKey);
 diff --git a/lib/commands/upload/tarballs.js b/lib/commands/upload/tarballs.js
 index 1ee76bdc4297e515879ebe6489ad42af632bb6f4..bea8d7379a52005806983b04526cd02030bc6edd 100644
 --- a/lib/commands/upload/tarballs.js
@@ -130,3 +150,21 @@ index cbae61146324ef6ac0935c625b7858007ac238d1..4f3f145fc148ef9b76c61b27f99db6b7
      else {
          const lockpath = (0, node_fs_1.existsSync)(node_path_1.default.join(c.root, 'package-lock.json'))
              ? node_path_1.default.join(c.root, 'package-lock.json')
+diff --git a/lib/version-indexes.js b/lib/version-indexes.js
+index 5d9686f486b1e9f5acf375f9e6a0eb06a3ca407f..ab3b55d02b81e74e2817fd686aa909bb91f05503 100644
+--- a/lib/version-indexes.js
++++ b/lib/version-indexes.js
+@@ -105,11 +105,12 @@ const appendToIndex = async (input) => {
+         [version]: originalUrl.replace(s3Config.bucket, s3Config.host),
+     }, s3Config.indexVersionLimit), { spaces: 2 });
+     // put the file back in the same place
++    const resolvedAcl = typeof s3Config.acl === 'string' ? s3Config.acl.trim() : undefined;
+     await aws_1.default.s3.uploadFile(jsonFileName, {
+-        ACL: s3Config.acl ?? client_s3_1.ObjectCannedACL.public_read,
+         Bucket: s3Config.bucket,
+         CacheControl: maxAge,
+         Key: key,
++        ...(resolvedAcl ? { ACL: resolvedAcl } : {}),
+     }, {
+         dryRun: input.dryRun,
+     });

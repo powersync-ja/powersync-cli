@@ -85,3 +85,10 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ vars.AWS_REGION }}
           AWS_DEFAULT_REGION: ${{ vars.AWS_REGION }}
+      - name: Promote uploaded build and generate indexes
+        run: pnpm -C cli exec oclif promote --root . --version $(node -p "require('./package.json').version") --sha ${GITHUB_SHA::7} --channel stable --indexes --xz --ignore-missing
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          AWS_DEFAULT_REGION: ${{ vars.AWS_REGION }}

@@ -290,6 +290,7 @@ See [docs/usage.md](../docs/usage.md) for full usage and resolution order (flags
 - [`powersync pull instance`](#powersync-pull-instance)
 - [`powersync status`](#powersync-status)
 - [`powersync stop`](#powersync-stop)
+- [`powersync update [CHANNEL]`](#powersync-update-channel)
 - [`powersync validate`](#powersync-validate)
 
 ## `powersync autocomplete [SHELL]`
@@ -1452,6 +1453,44 @@ EXAMPLES
 ```
 
 _See code: [src/commands/stop.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/stop.ts)_
+
+## `powersync update [CHANNEL]`
+
+update the powersync CLI
+
+```
+USAGE
+  $ powersync update [CHANNEL] [--force |  | [-a | -v <value> | -i]] [-b ]
+
+FLAGS
+  -a, --available        See available versions.
+  -b, --verbose          Show more details about the available versions.
+  -i, --interactive      Interactively select version to install. This is ignored if a channel is provided.
+  -v, --version=<value>  Install a specific version.
+      --force            Force a re-download of the requested version.
+
+DESCRIPTION
+  update the powersync CLI
+
+EXAMPLES
+  Update to the stable channel:
+
+    $ powersync update stable
+
+  Update to a specific version:
+
+    $ powersync update --version 1.0.0
+
+  Interactively select version:
+
+    $ powersync update --interactive
+
+  See available versions:
+
+    $ powersync update --available
+```
+
+_See code: [@oclif/plugin-update](https://github.com/oclif/plugin-update/blob/v4.7.19/src/commands/update.ts)_
 
 ## `powersync validate`
 
