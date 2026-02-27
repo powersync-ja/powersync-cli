@@ -31,9 +31,16 @@ jobs:
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
-      - name: Install NSIS (Windows)
+      - name: Install Windows packaging dependencies
         if: ${{ matrix.os == 'windows-latest' }}
-        run: choco install nsis.portable --no-progress -y
+        run: choco install nsis.portable 7zip grep --no-progress -y
+      - name: Verify Windows packaging dependencies
+        if: ${{ matrix.os == 'windows-latest' }}
+        shell: pwsh
+        run: |
+          where.exe makensis
+          where.exe 7z
+          where.exe grep
       - name: Build installer
         run: pnpm -C cli exec oclif ${{ matrix.command }}
       - name: Upload installer artifact
