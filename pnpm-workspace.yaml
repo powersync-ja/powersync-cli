@@ -4,4 +4,4 @@ packages:
   - plugins/*
 
 patchedDependencies:
-  oclif@4.22.73: patches/oclif@4.22.73.patch
+  oclif@4.22.81: patches/oclif@4.22.81.patch
