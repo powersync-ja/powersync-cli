@@ -18,7 +18,7 @@ jobs:
             artifact_name: macos-pkg
             artifact_path: cli/dist/**/*.pkg
           - os: windows-latest
-            command: pack win
+            command: pack win --targets win32-x64
             artifact_name: windows-installer
             artifact_path: cli/dist/**/*.exe
           - os: ubuntu-latest
