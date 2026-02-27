@@ -54,6 +54,25 @@ index 9a255a011cbbfb34a337f67bcbabbbffdaf65c11..006b8eb0ee5432825cf48287c5e46077
              const { windows } = config.pjson.oclif;
              if (windows && windows.name && windows.keypath) {
                  await signWindows(o, arch, config, windows);
+diff --git a/lib/commands/upload/tarballs.js b/lib/commands/upload/tarballs.js
+index 1ee76bdc4297e515879ebe6489ad42af632bb6f4..bea8d7379a52005806983b04526cd02030bc6edd 100644
+--- a/lib/commands/upload/tarballs.js
++++ b/lib/commands/upload/tarballs.js
+@@ -76,9 +76,13 @@ class UploadTarballs extends core_1.Command {
+                     suggestions: [`Run "oclif pack --target ${target.platform}-${target.arch}" before uploading`],
+                 });
+         }
++        // Buckets with Object Ownership = bucket-owner-enforced reject ACL headers.
++        // Only pass ACL when the CLI config explicitly sets one.
++        const resolvedAcl = typeof s3Config.acl === 'string' ? s3Config.acl.trim() : undefined;
+         const S3Options = {
+-            ACL: s3Config.acl || 'public-read',
+             Bucket: s3Config.bucket,
++            // Omitting ACL avoids AccessControlListNotSupported on modern S3 buckets.
++            ...(resolvedAcl ? { ACL: resolvedAcl } : {}),
+         };
+         const uploadTarball = async (options) => {
+             const shortKeyInputs = {
 diff --git a/lib/tarballs/build.js b/lib/tarballs/build.js
 index cbae61146324ef6ac0935c625b7858007ac238d1..4f3f145fc148ef9b76c61b27f99db6b7eb734b58 100644
 --- a/lib/tarballs/build.js
