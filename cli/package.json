@@ -73,6 +73,14 @@
     "macos": {
       "identifier": "com.powersync.cli"
     },
+    "update": {
+      "s3": {
+        "bucket": "powersync-cli-staging",
+        "host": "https://powersync-cli-staging.s3.eu-west-1.amazonaws.com",
+        "folder": "releases",
+        "xz": true
+      }
+    },
     "plugins": [
       "@oclif/plugin-help",
       "@oclif/plugin-plugins",
