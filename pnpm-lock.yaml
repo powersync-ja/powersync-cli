@@ -6,7 +6,7 @@ settings:
 
 patchedDependencies:
   oclif@4.22.81:
-    hash: c65a6e90cff71c48bb5fcfcfd20202cff1f8442cb7acc9351f16030fd7773bda
+    hash: d7611116be81ba94f719e117a337297f42fd3d8dc50f92170eb1bafb26e08914
     path: patches/oclif@4.22.81.patch
 
 importers:
@@ -121,7 +121,7 @@ importers:
         version: 24.10.10
       oclif:
         specifier: 4.22.81
-        version: 4.22.81(patch_hash=c65a6e90cff71c48bb5fcfcfd20202cff1f8442cb7acc9351f16030fd7773bda)(@types/node@24.10.10)
+        version: 4.22.81(patch_hash=d7611116be81ba94f719e117a337297f42fd3d8dc50f92170eb1bafb26e08914)(@types/node@24.10.10)
       shx:
         specifier: ^0.3.3
         version: 0.3.4
@@ -10183,7 +10183,7 @@ snapshots:
       - aws-crt
       - supports-color
 
-  oclif@4.22.81(patch_hash=c65a6e90cff71c48bb5fcfcfd20202cff1f8442cb7acc9351f16030fd7773bda)(@types/node@24.10.10):
+  oclif@4.22.81(patch_hash=d7611116be81ba94f719e117a337297f42fd3d8dc50f92170eb1bafb26e08914)(@types/node@24.10.10):
     dependencies:
       '@aws-sdk/client-cloudfront': 3.999.0
       '@aws-sdk/client-s3': 3.999.0

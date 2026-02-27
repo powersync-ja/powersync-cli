@@ -1,7 +1,16 @@
 diff --git a/lib/commands/pack/win.js b/lib/commands/pack/win.js
-index 9a255a011cbbfb34a337f67bcbabbbffdaf65c11..8b3d11b5b1f2e3487f67915f64873e9cb62929eb 100644
+index 9a255a011cbbfb34a337f67bcbabbbffdaf65c11..006b8eb0ee5432825cf48287c5e4607754ef4ee0 100644
 --- a/lib/commands/pack/win.js
 +++ b/lib/commands/pack/win.js
+@@ -91,7 +91,7 @@ ${customization}
+ Section "${config.name} CLI \${VERSION}"
+   SetOutPath $INSTDIR
+   File /r bin
+-  File /r client
++    File /r client
+ 
+   ; Use explicit System32/Sysnative path to cmd.exe for security
+   StrCpy $0 "$WINDIR\\System32\\cmd.exe"  ; Try System32 first
 @@ -332,7 +332,21 @@ the CLI should already exist in a directory named after the CLI that is the root
                      : []),
              ]);

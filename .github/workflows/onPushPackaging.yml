@@ -29,6 +29,10 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
+      - name: Configure pnpm linker for Windows packaging
+        if: ${{ matrix.os == 'windows-latest' }}
+        shell: pwsh
+        run: Set-Content -Path cli/.npmrc -Value "node-linker=hoisted"
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
       - name: Install Windows packaging dependencies
