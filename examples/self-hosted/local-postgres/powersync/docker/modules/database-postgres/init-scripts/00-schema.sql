@@ -1,4 +1,4 @@
--- Add your schema here: CREATE TABLE statements for tables referenced in sync.yaml.
+-- Add your schema here: CREATE TABLE statements for tables referenced in sync-config.yaml.
 -- This file runs before 01-powersync-publication.sql. The publication "powersync"
 -- should include these tables (see 01-powersync-publication.sql).
 --

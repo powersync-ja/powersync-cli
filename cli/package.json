@@ -1,5 +1,5 @@
 {
-  "name": "@powersync/cli",
+  "name": "powersync",
   "description": "A CLI for managing PowerSync instances",
   "version": "0.0.0",
   "author": "POWERSYNC",
@@ -11,8 +11,11 @@
     "@fastify/cors": "^10.0.0",
     "@inquirer/prompts": "^7.2.0",
     "@oclif/core": "^4",
+    "@oclif/plugin-autocomplete": "^3.2.40",
+    "@oclif/plugin-commands": "^4.1.40",
     "@oclif/plugin-help": "^6",
     "@oclif/plugin-plugins": "^5",
+    "@powersync-community/sync-config-rewriter": "^0.1.1",
     "@powersync/cli-core": "workspace:*",
     "@powersync/cli-plugin-docker": "workspace:*",
     "@powersync/cli-plugin-config-edit": "workspace:*",
@@ -20,25 +23,20 @@
     "@powersync/management-client": "0.0.1",
     "@powersync/management-types": "0.0.1",
     "@powersync/service-sync-rules": "^0.30.0",
-    "@powersync/service-types": "^0.13.3",
-    "@powersync-community/sync-config-rewriter": "^0.1.1",
+    "@powersync/service-types": "0.0.0-dev-20260225093637",
+    "fastify": "^5.0.0",
     "jose": "^6.1.3",
     "lodash": "^4.17.23",
-    "fastify": "^5.0.0",
     "open": "^11.0.0",
     "ora": "^9.0.0",
     "ts-codec": "^1.3.0",
     "yaml": "^2"
   },
   "devDependencies": {
-    "@eslint/compat": "^1",
     "@oclif/prettier-config": "^0.2.1",
     "@oclif/test": "^4",
     "@types/lodash": "^4.17.23",
     "@types/node": "^24",
-    "eslint": "^9",
-    "eslint-config-oclif": "^6",
-    "eslint-config-prettier": "^10",
     "oclif": "^4",
     "shx": "^0.3.3",
     "ts-node": "^10",
@@ -77,24 +75,32 @@
       "@oclif/plugin-help",
       "@oclif/plugin-plugins",
       "@powersync/cli-plugin-docker",
-      "@powersync/cli-plugin-config-edit"
+      "@powersync/cli-plugin-config-edit",
+      "@oclif/plugin-autocomplete",
+      "@oclif/plugin-commands"
     ],
     "topicSeparator": " ",
     "topics": {
+      "deploy": {
+        "description": "[Cloud only] Deploy local config changes to the Cloud instance. Run \"powersync deploy --help\" to list subcommands."
+      },
       "fetch": {
-        "description": "run \"powersync fetch\" to see a list of subcommands"
+        "description": "Inspect Cloud instances and configuration (instances, config, status). Run \"powersync fetch --help\" to list subcommands."
       },
       "generate": {
-        "description": "run \"powersync generate\" to see a list of subcommands"
+        "description": "Generate client artifacts from instance/config data (schema, token). Run \"powersync generate --help\" to list subcommands."
       },
       "init": {
-        "description": "run \"powersync init\" to see a list of subcommands"
+        "description": "Scaffold a new PowerSync project configuration from templates. Run \"powersync init --help\" to list subcommands."
       },
       "link": {
-        "description": "run \"powersync link\" to see a list of subcommands"
+        "description": "Bind this directory to a Cloud or self-hosted instance (writes cli.yaml). Run \"powersync link --help\" to list subcommands."
+      },
+      "migrate": {
+        "description": "Migrate config to newer formats (for example Sync Rules to Sync Streams). Run \"powersync migrate --help\" to list subcommands."
       },
       "pull": {
-        "description": "run \"powersync pull\" to see a list of subcommands"
+        "description": "[Cloud only] Download Cloud instance configuration into local files. Run \"powersync pull --help\" to list subcommands."
       }
     }
   },
@@ -102,14 +108,15 @@
   "scripts": {
     "dev": "tsx bin/dev.js",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
-    "build": "tsc -b",
+    "build": "tsc -b && pnpm prepack",
     "lint": "eslint",
     "postpack": "shx rm -f oclif.manifest.json",
     "posttest": "pnpm run lint",
     "pretest": "pnpm run build",
-    "prepack": "oclif manifest && oclif readme",
+    "readme:generate": "oclif readme && pnpm exec prettier --write README.md",
+    "prepack": "oclif manifest && pnpm run readme:generate",
     "test": "vitest",
-    "version": "oclif readme && git add README.md"
+    "version": "pnpm run readme:generate && git add README.md"
   },
   "types": "dist/index.d.ts"
 }

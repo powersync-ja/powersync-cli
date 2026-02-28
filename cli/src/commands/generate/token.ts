@@ -85,15 +85,26 @@ export default class GenerateToken extends SharedInstanceCommand {
     } catch (error) {
       this.styledError({
         error,
-        message: 'Generating a token for self hosted intances requires the configuration to be locally present.',
-        suggestions: [`Ensure that ${join(project.projectDirectory, SERVICE_FILENAME)} exits`]
+        message: 'Generating a token for self hosted instances requires the configuration to be locally present.',
+        suggestions: [`Ensure that ${join(project.projectDirectory, SERVICE_FILENAME)} exists`]
       });
     }
 
     const usableKeys = instanceConfig.client_auth?.jwks?.keys?.filter((key) => key.alg === 'HS256') ?? [];
     if (usableKeys.length === 0) {
       this.styledError({
-        message: 'No usable keys found in the config file. Please add a shared secret to the config file.'
+        message: [
+          `No usable keys found in the config file.`,
+          `Please add a shared secret to the config file.`,
+          `Secrets should be added to the client_auth->jwks->keys array in the config file, for example:`,
+          `client_auth:`,
+          `  jwks:`,
+          `    keys:`,
+          `      - kty: oct`,
+          `        alg: HS256`,
+          `        kid: my-key-id`,
+          `        k: base64-encoded-secret-here`
+        ].join('\n')
       });
     }
 

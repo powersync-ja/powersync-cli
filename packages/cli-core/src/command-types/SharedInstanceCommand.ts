@@ -1,4 +1,4 @@
-import { Flags, Interfaces } from '@oclif/core';
+import { Flags, Interfaces, ux } from '@oclif/core';
 import {
   CLIConfig,
   CloudCLIConfig,
@@ -12,10 +12,13 @@ import {
   validateCloudConfig,
   validateSelfHostedConfig
 } from '@powersync/cli-schemas';
+import { PowerSyncManagementClient } from '@powersync/management-client';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { getDefaultOrgId } from '../clients/accounts-client.js';
-import { ensureServiceTypeMatches, ServiceType } from '../utils/ensureServiceType.js';
+
+import { getDefaultOrgId } from '../clients/AccountsHubClientSDKClient.js';
+import { createCloudClient } from '../clients/create-cloud-client.js';
+import { ensureServiceTypeMatches, ServiceType } from '../utils/ensure-service-type.js';
 import { env } from '../utils/env.js';
 import { CLI_FILENAME, SERVICE_FILENAME, SYNC_FILENAME } from '../utils/project-config.js';
 import { parseYamlFile } from '../utils/yaml.js';
@@ -25,7 +28,7 @@ import { DEFAULT_ENSURE_CONFIG_OPTIONS, EnsureConfigOptions, InstanceCommand } f
 import { SelfHostedProject } from './SelfHostedInstanceCommand.js';
 
 export type SharedInstanceCommandFlags = Interfaces.InferredFlags<
-  typeof SharedInstanceCommand.flags & typeof SharedInstanceCommand.baseFlags
+  typeof SharedInstanceCommand.baseFlags & typeof SharedInstanceCommand.flags
 >;
 
 /**
@@ -34,12 +37,13 @@ export type SharedInstanceCommandFlags = Interfaces.InferredFlags<
  * Resolution order:
  *
  * 1. **Context (cloud vs self-hosted)** — Cannot mix both.
- *    - Cloud: if any of --instance-id, INSTANCE_ID, --org-id, --project-id are set.
- *    - Self-hosted: if --api-url or API_URL is set.
- *    - If neither set: type is taken from cli.yaml (if present).
+ *    - First from flags.
+ *    - Then from cli.yaml (if present).
+ *    - Then from environment variables.
  *
  * 2. **Per-field values** (instance_id, org_id, project_id for cloud; api_url, api_key for self-hosted):
- *    - Cloud: flags → env → cli.yaml. Self-hosted: api_url from flag → env → cli.yaml; api_key from env → cli.yaml only (no flag).
+ *    - Cloud: flags → cli.yaml → env.
+ *    - Self-hosted: api_url from flag → cli.yaml → env; api_key from env → cli.yaml only (no flag).
  *
  * @example
  * # Use linked project (cli.yaml determines cloud vs self-hosted)
@@ -55,61 +59,79 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
   static flags = {
     'api-url': Flags.string({
       description:
-        '[Self-hosted] PowerSync API URL. When set, context is treated as self-hosted (exclusive with --instance-id). Resolved: flag → API_URL → cli.yaml.',
-      required: false,
-      helpGroup: HelpGroup.SELF_HOSTED_PROJECT,
+        '[Self-hosted] PowerSync API URL. When set, context is treated as self-hosted (exclusive with --instance-id). Resolved: flag → cli.yaml → API_URL.',
       // Can't use this flag with cloud flags
-      exclusive: ['instance-id', 'org-id', 'project-id']
+      exclusive: ['instance-id', 'org-id', 'project-id'],
+      helpGroup: HelpGroup.SELF_HOSTED_PROJECT,
+      required: false
     }),
     'instance-id': Flags.string({
+      dependsOn: ['project-id'],
       description:
-        '[Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud (exclusive with --api-url). Resolved: flag → INSTANCE_ID → cli.yaml.',
-      required: false,
+        '[Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud (exclusive with --api-url). Resolved: flag → cli.yaml → INSTANCE_ID.',
       helpGroup: HelpGroup.CLOUD_PROJECT,
-      dependsOn: ['project-id']
+      required: false
     }),
     'org-id': Flags.string({
       description:
-        '[Cloud] Organization ID (optional). Defaults to the token’s single org when only one is available; pass explicitly if the token has multiple orgs. Resolved: flag → ORG_ID → cli.yaml.',
-      required: false,
-      helpGroup: HelpGroup.CLOUD_PROJECT
+        '[Cloud] Organization ID (optional). Defaults to the token’s single org when only one is available; pass explicitly if the token has multiple orgs. Resolved: flag → cli.yaml → ORG_ID.',
+      helpGroup: HelpGroup.CLOUD_PROJECT,
+      required: false
     }),
     'project-id': Flags.string({
-      description: '[Cloud] Project ID. Resolved: flag → PROJECT_ID → cli.yaml.',
-      required: false,
-      helpGroup: HelpGroup.CLOUD_PROJECT
+      description: '[Cloud] Project ID. Resolved: flag → cli.yaml → PROJECT_ID.',
+      helpGroup: HelpGroup.CLOUD_PROJECT,
+      required: false
     }),
     ...InstanceCommand.flags
   };
+  cloudClient: PowerSyncManagementClient = createCloudClient();
+
+  /**
+   * Some commands require contacting a provisioned PowerSync instance.
+   * This verifies that the linked instance is provisioned, and shows an error with next steps if it's not.
+   */
+  async ensureCloudProvisioned(project: CloudProject) {
+    const status = await this.cloudClient.getInstanceStatus({
+      app_id: project.linked.project_id,
+      id: project.linked.instance_id,
+      org_id: project.linked.org_id
+    });
+    if (!status.provisioned) {
+      this.styledError({
+        message: `Instance ${project.linked.instance_id} is not provisioned. Please provision the instance with ${ux.colorize('blue', 'powersync deploy')} before running this command.`
+      });
+    }
+  }
 
   async loadProject(
     flags: SharedInstanceCommandFlags,
     options: EnsureConfigOptions = DEFAULT_ENSURE_CONFIG_OPTIONS
   ): Promise<CloudProject | SelfHostedProject> {
     const resolvedOptions = {
-      ...options,
-      ...DEFAULT_ENSURE_CONFIG_OPTIONS
+      ...DEFAULT_ENSURE_CONFIG_OPTIONS,
+      // Keep this order so call-site options override defaults.
+      ...options
     };
 
-    const projectDir = this.ensureProjectDirExists(flags);
+    const projectDir = this.ensureProjectDirectory(flags);
     const linkPath = join(projectDir, CLI_FILENAME);
 
-    // 1) Context type: from flags/env first, then link file (see class JSDoc for resolution order).
-    const hasCloudInstanceInputs =
-      flags['instance-id'] || env.INSTANCE_ID || flags['org-id'] || env.ORG_ID || flags['project-id'];
-    const hasSelfHostedInputs = flags['api-url'] || env.API_URL;
+    // 1) Context type: flags first, then link file, then env (see class JSDoc for resolution order).
+    const hasCloudFlagInputs = flags['instance-id'] || flags['org-id'] || flags['project-id'];
+    const hasSelfHostedFlagInputs = flags['api-url'];
 
-    if (hasCloudInstanceInputs && hasSelfHostedInputs) {
+    if (hasCloudFlagInputs && hasSelfHostedFlagInputs) {
       this.styledError({ message: 'Cannot use both cloud and self-hosted inputs. Use one or the other.' });
     }
 
-    let projectType: ServiceType | null = hasSelfHostedInputs
+    let projectType: null | ServiceType = hasSelfHostedFlagInputs
       ? ServiceType.SELF_HOSTED
-      : hasCloudInstanceInputs
+      : hasCloudFlagInputs
         ? ServiceType.CLOUD
         : null;
 
-    // If type not set by flags/env, use link file type (if present).
+    // If type not set by flags, use link file type (if present).
     let rawCLIConfig: CLIConfig | null = null;
     if (existsSync(linkPath)) {
       const doc = parseYamlFile(linkPath);
@@ -119,6 +141,18 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
       } else if (rawCLIConfig.type === 'cloud') {
         projectType = ServiceType.CLOUD;
       }
+    }
+
+    // If type still not set, use env inputs.
+    if (!projectType) {
+      const hasCloudEnvInputs = env.INSTANCE_ID || env.ORG_ID || env.PROJECT_ID;
+      const hasSelfHostedEnvInputs = env.API_URL;
+
+      if (hasCloudEnvInputs && hasSelfHostedEnvInputs) {
+        this.styledError({ message: 'Cannot use both cloud and self-hosted inputs. Use one or the other.' });
+      }
+
+      projectType = hasSelfHostedEnvInputs ? ServiceType.SELF_HOSTED : hasCloudEnvInputs ? ServiceType.CLOUD : null;
     }
 
     const linkMissingErrorMessage = [
@@ -131,34 +165,35 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
       this.styledError({ message: linkMissingErrorMessage });
     }
 
-    // 2) Per-field: flags → env → link file (see class JSDoc).
-    let cliConfig: ResolvedCloudCLIConfig | ResolvedSelfHostedCLIConfig | null = null;
+    // 2) Per-field: flags → link file → env (see class JSDoc).
+    let cliConfig: null | ResolvedCloudCLIConfig | ResolvedSelfHostedCLIConfig = null;
     if (projectType === 'self-hosted') {
       const _rawSelfHostedCLIConfig = (rawCLIConfig as SelfHostedCLIConfig) ?? { type: 'self-hosted' };
       try {
         cliConfig = ResolvedSelfHostedCLIConfig.decode({
           ..._rawSelfHostedCLIConfig,
-          api_key: env.TOKEN ?? _rawSelfHostedCLIConfig.api_key!,
-          api_url: flags['api-url'] ?? env.API_URL ?? _rawSelfHostedCLIConfig.api_url!
+          api_key: env.PS_ADMIN_TOKEN ?? _rawSelfHostedCLIConfig.api_key!,
+          api_url: flags['api-url'] ?? _rawSelfHostedCLIConfig.api_url! ?? env.API_URL
         });
       } catch (error) {
-        this.styledError({ message: linkMissingErrorMessage, error });
+        this.styledError({ error, message: linkMissingErrorMessage });
       }
     } else {
       const _rawCloudCLIConfig = (rawCLIConfig as CloudCLIConfig) ?? { type: 'cloud' };
       try {
-        let org_id = flags['org-id'] ?? env.ORG_ID ?? _rawCloudCLIConfig.org_id;
+        let org_id = flags['org-id'] ?? _rawCloudCLIConfig.org_id ?? env.ORG_ID;
         if (org_id == null && (flags['instance-id'] || env.INSTANCE_ID)) {
           org_id = await getDefaultOrgId();
         }
+
         cliConfig = ResolvedCloudCLIConfig.decode({
           ..._rawCloudCLIConfig,
-          instance_id: flags['instance-id'] ?? env.INSTANCE_ID ?? _rawCloudCLIConfig.instance_id!,
+          instance_id: flags['instance-id'] ?? _rawCloudCLIConfig.instance_id! ?? env.INSTANCE_ID,
           org_id: org_id!,
-          project_id: flags['project-id'] ?? env.PROJECT_ID ?? _rawCloudCLIConfig.project_id!
+          project_id: flags['project-id'] ?? _rawCloudCLIConfig.project_id! ?? env.PROJECT_ID
         });
       } catch (error) {
-        this.styledError({ message: linkMissingErrorMessage, error });
+        this.styledError({ error, message: linkMissingErrorMessage });
       }
     }
 
@@ -181,16 +216,23 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
       syncRulesContent = readFileSync(syncRulesPath, 'utf8');
     }
 
+    if (!existsSync(join(projectDir, SERVICE_FILENAME)) && resolvedOptions.configFileRequired) {
+      this.styledError({
+        message: `Config file "${SERVICE_FILENAME}" not found in directory "${projectDir}". This command requires a config file to run. Please create one and try again.`
+      });
+    }
+
     if (projectType === ServiceType.CLOUD) {
       return {
-        projectDirectory: projectDir,
         linked: cliConfig as ResolvedCloudCLIConfig,
+        projectDirectory: projectDir,
         syncRulesContent
       };
     }
+
     return {
-      projectDirectory: projectDir,
       linked: cliConfig as ResolvedSelfHostedCLIConfig,
+      projectDirectory: projectDir,
       syncRulesContent
     };
   }
@@ -199,11 +241,12 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     const servicePath = join(projectDirectory, SERVICE_FILENAME);
     const doc = parseYamlFile(servicePath);
 
-    //validate the config with full schema
+    // validate the config with full schema
     const validationResult = validateCloudConfig(doc.contents?.toJSON());
     if (!validationResult.valid) {
       throw new Error(`Invalid cloud config: ${validationResult.errors?.join('\n')}`);
     }
+
     return ServiceCloudConfig.decode(doc.contents?.toJSON());
   }
 
@@ -211,11 +254,12 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     const servicePath = join(projectDirectory, SERVICE_FILENAME);
     const doc = parseYamlFile(servicePath);
 
-    //validate the config with full schema
+    // validate the config with full schema
     const validationResult = validateSelfHostedConfig(doc.contents?.toJSON());
     if (!validationResult.valid) {
       throw new Error(`Invalid self-hosted config: ${validationResult.errors?.join('\n')}`);
     }
+
     return ServiceSelfHostedConfig.decode(doc.contents?.toJSON());
   }
 }

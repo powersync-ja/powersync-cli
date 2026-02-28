@@ -1,7 +1,8 @@
 import * as sdk from '@journeyapps-labs/common-sdk';
 import { ux } from '@oclif/core';
 import { PowerSyncManagementClient } from '@powersync/management-client';
-import { Services } from '../services/services.js';
+
+import { Services } from '../services/Services.js';
 import { env } from '../utils/env.js';
 
 /**
@@ -20,13 +21,14 @@ export function createCloudClient(): PowerSyncManagementClient {
      * Node.js exposes fetch as a global, so we can use it directly without importing it.
      */
     client: sdk.createWebNetworkClient({
-      headers: async () => {
-        const token = env.TOKEN || (await Services.authentication.getToken());
+      async headers() {
+        const token = env.PS_ADMIN_TOKEN || (await Services.authentication.getToken());
         if (!token) {
           throw new Error(
-            `Not logged in. Run ${ux.colorize('blue', 'powersync login')} to authenticate (you will be prompted for your token), or provide the ${ux.colorize('blue', 'TOKEN')} environment variable.`
+            `Not logged in. Run ${ux.colorize('blue', 'powersync login')} to authenticate (you will be prompted for your token), or provide the ${ux.colorize('blue', 'PS_ADMIN_TOKEN')} environment variable.`
           );
         }
+
         return {
           Authorization: `Bearer ${token}`
         };

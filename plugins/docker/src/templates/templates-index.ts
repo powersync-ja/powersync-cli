@@ -6,6 +6,6 @@ import PostgresSourceDatabaseModule from './source-database/postgres/PostgresSou
 
 export const TEMPLATES: Record<DockerModuleType, DockerModule[]> = {
   [DockerModuleType.BACKEND]: [],
-  [DockerModuleType.STORAGE]: [PostgresBucketStorageModule, ExternalBucketStorageModule],
-  [DockerModuleType.SOURCE_DATABASE]: [PostgresSourceDatabaseModule, ExternalSourceDatabaseModule]
+  [DockerModuleType.SOURCE_DATABASE]: [PostgresSourceDatabaseModule, ExternalSourceDatabaseModule],
+  [DockerModuleType.STORAGE]: [PostgresBucketStorageModule, ExternalBucketStorageModule]
 };

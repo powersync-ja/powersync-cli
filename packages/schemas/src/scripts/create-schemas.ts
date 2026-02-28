@@ -2,6 +2,7 @@ import _SyncSchema from '@powersync/service-sync-rules/schema/sync_rules.json' w
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
 import { CLIConfigSchema } from '../CLIConfig.js';
 import { ServiceConfigSchema } from '../ServiceConfig.js';
 

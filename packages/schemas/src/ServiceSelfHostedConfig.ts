@@ -14,8 +14,8 @@ function mergeObjectSchemas(
   const required = [...new Set([...baseRequired, ...extRequired])];
   return {
     ...base,
-    type: 'object',
     properties: { ...baseProps, ...extProps },
+    type: 'object',
     ...(required.length > 0 ? { required } : {})
   };
 }

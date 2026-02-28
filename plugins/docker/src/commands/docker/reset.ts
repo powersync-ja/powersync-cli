@@ -1,5 +1,6 @@
 import { ux } from '@oclif/core';
 import { SelfHostedInstanceCommand, type SelfHostedInstanceCommandFlags } from '@powersync/cli-core';
+
 import {
   getDockerProjectName,
   logPowersyncProjectsStopHelp,
@@ -8,14 +9,13 @@ import {
 } from '../../docker.js';
 
 export default class DockerReset extends SelfHostedInstanceCommand {
-  static summary = 'Reset the self-hosted PowerSync stack (stop and remove, then start).';
   static description =
     'Run `docker compose down` then `docker compose up -d --wait`: stops and removes containers, then starts the stack and waits for services (including PowerSync) to be healthy. Use when you want a clean bring-up (e.g. after config changes). Use `powersync fetch status` to debug running instances.';
   static examples = ['<%= config.bin %> <%= command.id %>'];
-
   static flags = {
     ...SelfHostedInstanceCommand.flags
   };
+  static summary = 'Reset the self-hosted PowerSync stack (stop and remove, then start).';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(DockerReset);
@@ -38,10 +38,11 @@ export default class DockerReset extends SelfHostedInstanceCommand {
     this.log('Starting containers...');
     try {
       runDockerCompose(opts, ['up', '-d', '--wait']);
-    } catch (err) {
+    } catch (error) {
       logPowersyncProjectsStopHelp(this, opts.projectName);
-      throw err;
+      throw error;
     }
+
     this.log(`\n\nTip: use "${ux.colorize('blue', 'powersync fetch status')}" to debug the running instance.`);
   }
 }

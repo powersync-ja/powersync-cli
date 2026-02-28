@@ -45,6 +45,14 @@ The workspace is split into the main CLI, shared **packages**, and optional **pl
 
 Workspace roots are listed in [pnpm-workspace.yaml](./pnpm-workspace.yaml): `cli`, `packages/*`, `plugins/*`.
 
+## OCLIF plugins
+
+We rely on standard [OCLIF plugin loading](https://oclif.io/docs/plugins/) so plugins can register new commands or hook into command execution. The main CLI ships with a Docker plugin under [plugins/docker](./plugins/docker), and any other OCLIF-compatible plugin can be installed the same way.
+
+For PowerSync-specific plugins, the optional [@powersync/cli-core](./packages/cli-core) package exposes base command helpers and shared types. The Docker plugin consumes these helpers and adds Docker-focused commands as a reference implementation.
+
+Users can manage their own installed plugins dynamically at runtime. Run `powersync plugins --help` for install, uninstall, and inspection options.
+
 ## Getting started
 
 ```bash

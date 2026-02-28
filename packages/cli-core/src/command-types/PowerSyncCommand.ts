@@ -1,11 +1,12 @@
 import { JourneyError } from '@journeyapps-labs/micro-errors';
 import { Command, ux } from '@oclif/core';
 import { join } from 'node:path';
+
 export type StyledErrorParams = {
-  error?: any;
+  error?: Error | unknown;
+  exitCode?: number;
   message: string;
   suggestions?: string[];
-  exitCode?: number;
 };
 
 /** Base command for operations that target a PowerSync project directory (e.g. link, init). */
@@ -30,14 +31,14 @@ export abstract class PowerSyncCommand extends Command {
     const journeyErrorMessage = journeyError ? JSON.stringify(journeyError.toJSON(), null, '\t') : undefined;
 
     const errorDetails =
-      journeyErrorMessage ?? (error != null ? (error instanceof Error ? error.message : String(error)) : '');
+      journeyErrorMessage ?? (error == null ? '' : error instanceof Error ? error.message : String(error));
     const displayMessage = errorDetails ? `${message}, :: ${errorDetails}` : message;
 
     this.error(ux.colorize('red', displayMessage), {
       ...(error instanceof Error ? error : {}),
-      code: journeyError?.errorData?.code ?? 'UNKNOWN_ERROR',
-      message: journeyErrorMessage ?? message,
+      ...(journeyError?.errorData?.code && { code: journeyError.errorData.code }),
       exit: exitCode,
+      message: journeyErrorMessage ?? message,
       ...(suggestions?.length && { suggestions })
     });
   }

@@ -1,7 +1,6 @@
 # See https://docs.powersync.com/sync/advanced/compatibility
 config:
-  edition: 2
-  sync_config_compiler: true
+  edition: 3
 
 # Define Sync Streams to control which data is synced to each user
 # Docs: https://docs.powersync.com/sync/streams/overview

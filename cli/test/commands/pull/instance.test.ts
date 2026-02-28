@@ -1,5 +1,6 @@
 import { Config } from '@oclif/core';
 import { captureOutput } from '@oclif/test';
+import * as cliCore from '@powersync/cli-core';
 import { PowerSyncManagementClient } from '@powersync/management-client';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -8,9 +9,13 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite
 
 import PullInstanceCommand from '../../../src/commands/pull/instance.js';
 import { root } from '../../helpers/root.js';
+import { MOCK_CLOUD_IDS } from '../../setup.js';
 
 const PROJECT_DIR = 'powersync';
 const SERVICE_FILENAME = 'service.yaml';
+const INSTANCE_ID = MOCK_CLOUD_IDS.instanceId;
+const ORG_ID = MOCK_CLOUD_IDS.orgId;
+const PROJECT_ID = MOCK_CLOUD_IDS.projectId;
 
 /** Minimal valid cloud config decodable by ServiceCloudConfig. */
 const MOCK_CONFIG = { _type: 'cloud' as const, name: 'test-instance', region: 'us' };
@@ -19,6 +24,15 @@ const mockCloudClient = {
   deployInstance: vi.fn(),
   getInstanceConfig: vi.fn()
 };
+
+const accountsClientMock = {
+  getOrganization: vi.fn(),
+  listProjects: vi.fn()
+};
+
+vi.spyOn(cliCore, 'createAccountsHubClient').mockImplementation(
+  async () => accountsClientMock as unknown as Awaited<ReturnType<typeof cliCore.createAccountsHubClient>>
+);
 
 function writeServiceYaml(projectDir: string, type: 'cloud' | 'self-hosted') {
   writeFileSync(join(projectDir, SERVICE_FILENAME), `_type: ${type}\nregion: us\n`, 'utf8');
@@ -55,6 +69,11 @@ describe('pull instance', () => {
     process.chdir(tmpDir);
     mockCloudClient.getInstanceConfig.mockReset();
     mockCloudClient.getInstanceConfig.mockRejectedValue(new Error('network error'));
+    accountsClientMock.getOrganization.mockResolvedValue({ id: ORG_ID, label: 'Test Org' });
+    accountsClientMock.listProjects.mockResolvedValue({
+      objects: [{ id: PROJECT_ID, name: 'Test Project' }],
+      total: 1
+    });
   });
 
   afterEach(() => {
@@ -74,9 +93,9 @@ describe('pull instance', () => {
     expect(existsSync(projectDir)).toBe(false);
     mockCloudClient.getInstanceConfig.mockResolvedValueOnce({ config: MOCK_CONFIG });
     const result = await runPullInstanceDirect({
-      instanceId: 'inst-1',
-      orgId: 'org-1',
-      projectId: 'proj-1'
+      instanceId: INSTANCE_ID,
+      orgId: ORG_ID,
+      projectId: PROJECT_ID
     });
     expect(result.error).toBeUndefined();
     expect(existsSync(projectDir)).toBe(true);
@@ -103,13 +122,13 @@ describe('pull instance', () => {
     // No service.yaml; ensureServiceTypeMatches allows missing when configFileRequired is false
     mockCloudClient.getInstanceConfig.mockResolvedValueOnce({ config: MOCK_CONFIG });
     const result = await runPullInstanceDirect({
-      instanceId: 'inst-1',
-      orgId: 'org-1',
-      projectId: 'proj-1'
+      instanceId: INSTANCE_ID,
+      orgId: ORG_ID,
+      projectId: PROJECT_ID
     });
     expect(result.error).toBeUndefined();
     expect(existsSync(join(projectDir, 'cli.yaml'))).toBe(true);
-    expect(readFileSync(join(projectDir, 'cli.yaml'), 'utf8')).toContain('instance_id: inst-1');
+    expect(readFileSync(join(projectDir, 'cli.yaml'), 'utf8')).toContain(`instance_id: ${INSTANCE_ID}`);
     expect(result.stdout).toContain('Created');
     expect(result.stdout).toContain('cli.yaml');
     expect(result.stdout).toContain(`Wrote ${SERVICE_FILENAME}`);
@@ -123,7 +142,7 @@ describe('pull instance', () => {
       mkdirSync(projectDir, { recursive: true });
       writeFileSync(
         join(projectDir, 'cli.yaml'),
-        'type: cloud\ninstance_id: inst-1\norg_id: org-1\nproject_id: proj-1\n',
+        `type: cloud\ninstance_id: ${INSTANCE_ID}\norg_id: ${ORG_ID}\nproject_id: ${PROJECT_ID}\n`,
         'utf8'
       );
     });
@@ -141,7 +160,19 @@ describe('pull instance', () => {
     it('errors when client fails', async () => {
       const result = await runPullInstanceDirect();
       expect(result.error?.oclif?.exit).toBe(1);
-      expect(result.error?.message).toMatch(/Failed to fetch config/);
+      expect(result.error?.message).toMatch(/Instance .* was not found in project .* in organization .*/);
+    });
+
+    it('errors when organization does not exist', async () => {
+      accountsClientMock.getOrganization.mockRejectedValueOnce(new Error('not found'));
+      const result = await runPullInstanceDirect();
+      expect(result.error?.message).toContain(`Organization ${ORG_ID} was not found or is not accessible`);
+    });
+
+    it('errors when project does not exist in the organization', async () => {
+      accountsClientMock.listProjects.mockResolvedValueOnce({ objects: [], total: 0 });
+      const result = await runPullInstanceDirect();
+      expect(result.error?.message).toContain(`Project ${PROJECT_ID} was not found in organization ${ORG_ID}`);
     });
   });
 });

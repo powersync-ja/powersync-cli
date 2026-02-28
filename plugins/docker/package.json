@@ -12,7 +12,7 @@
     "oclif.manifest.json"
   ],
   "scripts": {
-    "build": "tsc -b && node ./scripts/copy-template-resources.cjs",
+    "build": "tsc -b && node ./scripts/copy-template-resources.mjs",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "lint": "eslint .",
     "prepack": "oclif manifest"
@@ -22,8 +22,8 @@
     "@oclif/core": "^4",
     "@powersync/cli-core": "workspace:*",
     "@powersync/cli-schemas": "workspace:*",
-    "@powersync/service-types": "^0.13.3",
-    "@powersync/service-schema": "^1.19.2",
+    "@powersync/service-types": "0.0.0-dev-20260225093637",
+    "@powersync/service-schema": "0.0.0-dev-20260225093637",
     "yaml": "^2"
   },
   "devDependencies": {
@@ -40,7 +40,7 @@
     "topicSeparator": " ",
     "topics": {
       "docker": {
-        "description": "Manage self-hosted PowerSync with Docker Compose (configure, reset, start, stop)"
+        "description": "[Self-hosted only] Manage self-hosted PowerSync with Docker Compose (configure, reset, start, stop). Run \"powersync docker --help\" to list subcommands."
       }
     }
   }

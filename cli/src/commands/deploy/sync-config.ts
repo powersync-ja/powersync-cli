@@ -12,14 +12,17 @@ export class DeploySyncConfig extends DeployAll {
   static flags = {
     ...DeployAll.flags
   };
-  static summary = '[Cloud only] Deploy local sync config to the linked Cloud instance.';
+  static summary = '[Cloud only] Deploy only local sync config to the linked Cloud instance.';
 
   /**
    * Deploys only the sync config.
    * Uses existing cloud config state for other fields.
    */
-  protected async deploySyncConfig(params: { cloudConfigState: routes.InstanceConfigResponse }): Promise<void> {
-    const { cloudConfigState } = params;
+  protected async deploySyncConfig(params: {
+    cloudConfigState: routes.InstanceConfigResponse;
+    timeout: number;
+  }): Promise<void> {
+    const { cloudConfigState, timeout } = params;
     const { project } = this;
     const { linked } = project;
 
@@ -37,7 +40,7 @@ export class DeploySyncConfig extends DeployAll {
       });
     }
 
-    return this.withDeploy(async () =>
+    return this.withDeploy(timeout, async () =>
       this.client.deployInstance(
         routes.DeployInstanceRequest.encode({
           ...cloudConfigState,
@@ -59,18 +62,50 @@ export class DeploySyncConfig extends DeployAll {
       configFileRequired: false
     });
 
+    const { linked } = project;
     this.parseConfig(project.projectDirectory);
 
     // The existing config is required to deploy changes. The instance should have been created already.
     const cloudConfigState = await this.loadCloudConfigState();
 
+    // We use the cloud config as the "local config for this"
+    this.serviceConfig = {
+      _type: linked.type,
+      name: cloudConfigState.name,
+      region: cloudConfigState.config!.region!,
+      ...cloudConfigState.config,
+      ...linked
+    };
     this.log('Performing validations before deploy...');
 
+    const instanceStatus = await this.client
+      .getInstanceStatus({
+        app_id: project.linked.project_id,
+        id: project.linked.instance_id,
+        org_id: project.linked.org_id
+      })
+      .catch((error) => {
+        this.styledError({
+          error,
+          message: `Failed to get status for instance ${project.linked.instance_id} in project ${project.linked.project_id} in org ${project.linked.org_id}.`,
+          suggestions: ['Check your network connection and try again.', 'If the problem persists, contact support.']
+        });
+      });
+
+    if (!instanceStatus.provisioned) {
+      this.log(
+        `\nThe instance is not currently provisioned. Triggering a deploy in order to reprovision. This may take a few minutes.\n`
+      );
+      // Don't yet update the sync config since the instance is not provisioned, but deploy to trigger provisioning
+      await this.deployAll({ cloudConfigState, deployTimeoutMs: flags.timeout, updateSyncConfig: false });
+    }
+
     // Validate sync config
+    this.log('\tValidating sync config...');
     await this.validateSyncConfig();
 
     this.log('Validations completed successfully.\n');
 
-    await this.deploySyncConfig({ cloudConfigState });
+    await this.deploySyncConfig({ cloudConfigState, timeout: flags.timeout });
   }
 }

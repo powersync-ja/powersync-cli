@@ -1,7 +1,6 @@
-import * as t from 'ts-codec';
-
 import { BasePowerSyncHostedConfig } from '@powersync/management-types';
 import { configFile } from '@powersync/service-types';
+import * as t from 'ts-codec';
 
 export const ServiceCloudConfig = BasePowerSyncHostedConfig.and(
   t.object({

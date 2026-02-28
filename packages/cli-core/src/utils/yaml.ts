@@ -24,37 +24,45 @@ export const YAML_CLI_SCHEMA = /* yaml */ `
  * by using the syntax !env PS_MONGO_PORT::number or !env PS_USE_SUPABASE::boolean
  */
 export const YamlEnvTag: yaml.ScalarTag = {
-  tag: '!env',
   resolve(envName: string, onError: (error: string) => void) {
     const [name, type = 'string'] = envName.split('::');
-    let value = process.env[name];
-    if (typeof value == 'undefined') {
+    const value = process.env[name];
+    if (value === undefined) {
       onError(
         `Attempted to substitute environment variable "${envName}" which is undefined. Set this variable on the environment.`
       );
       return envName;
     }
+
     switch (type) {
-      case 'string':
-        return value;
+      case 'boolean': {
+        if (value?.toLowerCase() === 'true') return true;
+        if (value?.toLowerCase() === 'false') return false;
+        onError(`Environment variable "${envName}" is not a boolean. Expected "true" or "false", got "${value}".`);
+        return envName;
+      }
+
       case 'number': {
         const numberValue = Number(value);
         if (Number.isNaN(numberValue)) {
           onError(`Environment variable "${envName}" is not a valid number. Got: "${value}".`);
           return envName;
         }
+
         return numberValue;
       }
-      case 'boolean':
-        if (value?.toLowerCase() == 'true') return true;
-        if (value?.toLowerCase() == 'false') return false;
-        onError(`Environment variable "${envName}" is not a boolean. Expected "true" or "false", got "${value}".`);
-        return envName;
-      default:
+
+      case 'string': {
+        return value;
+      }
+
+      default: {
         onError(`Environment variable "${envName}" has an invalid type suffix "${type}".`);
         return envName;
+      }
     }
-  }
+  },
+  tag: '!env'
 };
 
 const YAML_PARSE_OPTIONS = { customTags: [YamlEnvTag] };

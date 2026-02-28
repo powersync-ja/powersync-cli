@@ -18,7 +18,7 @@ local-postgres/
 │   │           └── postgres.storage.compose.yaml
 │   ├── cli.yaml        # Instance link (api_url, api_key)
 │   ├── service.yaml     # Service config (connections, auth)
-│   └── sync.yaml        # Sync config
+│   └── sync-config.yaml        # Sync config
 └── README.md
 ```
 
@@ -49,7 +49,7 @@ Create files in `powersync/docker/modules/database-postgres/init-scripts/`:
 
 ### 4. Update sync config
 
-Ensure `powersync/sync.yaml` includes rules for your tables (e.g. `SELECT * FROM todos` in a bucket).
+Ensure `powersync/sync-config.yaml` includes rules for your tables (e.g. `SELECT * FROM todos` in a bucket).
 
 ### 5. Start the PowerSync stack
 

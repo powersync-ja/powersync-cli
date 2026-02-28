@@ -17,18 +17,17 @@ This document describes how we document commands and help text in the PowerSync 
 - Use sentence case (e.g. "Optionally write instance information to a file." not "Optionally Write...").
 - For optional/override flags, mention resolution order when helpful (e.g. "Resolved: flag → INSTANCE_ID → cli.yaml.").
 
-## Topics (package.json)
+## Topic index commands
 
-In `cli/package.json`, under `oclif.topics`, add an entry for each topic (e.g. `fetch`, `generate`, `init`, `link`, `pull`, `deploy`) with a description that directs users to run the topic command to see subcommands, e.g.:
+For grouped commands (e.g. `fetch`, `generate`, `init`, `link`, `pull`, `migrate`), use an `index.ts` command that prints available subcommands when run directly.
 
-```json
-"fetch": { "description": "run \"powersync fetch\" to see a list of subcommands" }
-```
+- Mark these index commands as hidden (`static hidden = true`) so they do not appear as separate entries in generated command lists.
+- Add matching `oclif.topics` entries in `cli/package.json` with a short purpose summary plus guidance in this form: `... Run "powersync <topic> --help" to list subcommands.`
 
 ## README
 
 - The CLI README (`cli/README.md`) uses oclif markers: `<!-- toc -->`, `<!-- usage -->`, `<!-- commands -->`. Content between these is replaced by `oclif readme` (run on `prepack` and `version`). Do not hand-edit the generated command blocks.
-- An **Environment variables** section (after the usage block) documents `TOKEN`, `ORG_ID`, `PROJECT_ID`, `INSTANCE_ID`, and `API_URL` for script/CI use, with a short example.
+- An **Environment variables** section (after the usage block) documents `PS_ADMIN_TOKEN`, `ORG_ID`, `PROJECT_ID`, `INSTANCE_ID`, and `API_URL` for script/CI use, with a short example.
 
 ## Regenerating command docs
 

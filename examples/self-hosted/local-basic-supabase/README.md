@@ -12,7 +12,7 @@ local-basic-supabase/
 │   │   └── .env         # (created at runtime; DB credentials)
 │   ├── cli.yaml        # Instance link (api_url, api_key)
 │   ├── service.yaml     # Service config (connections, auth)
-│   └── sync.yaml        # Sync config
+│   └── sync-config.yaml        # Sync config
 ├── supabase/            # Local Supabase config
 │   ├── config.toml
 │   └── migrations/
@@ -74,7 +74,7 @@ CREATE PUBLICATION powersync FOR ALL TABLES;
 
 ### 6. Update sync config
 
-Ensure `powersync/sync.yaml` includes rules for the `todos` table (e.g. `SELECT * FROM todos` in a bucket).
+Ensure `powersync/sync-config.yaml` includes rules for the `todos` table (e.g. `SELECT * FROM todos` in a bucket).
 
 ### 7. Start the PowerSync stack
 

@@ -7,170 +7,140 @@
 # -----------------------------------------------------------------------------
 
 _type: cloud
-name: My instance
+name: my-cli-instance
 
 # region (required): deployment region, e.g. us
 # Note: This cannot be changed after the initial deployment
 region: us
 
-# [required] replication: database connections for sync
+# -------------------------------------------------------------------------
+# Replication (required): database connections for sync
 # Note: only a single connection is currently supported.
 # Connection: `uri` and `password` are required for a complete connection. Alternatively omit `uri`
 # and provide individual fields (hostname, port, database, username, password, etc.); they are used
 # to construct the connection URI. For MongoDB, `uri` is required.
-replication:
+# -------------------------------------------------------------------------
 #     -------------------------------------------------------------------------
 #     PostgreSQL – uncomment this entire block to use
 #     -------------------------------------------------------------------------
+# replication:
 #  connections:
 #     - type: postgresql
+#       # Connection string (recommended). Omit and use hostname/port/database/username/password instead if you prefer.
 #       # [optional]
-#       uri: string
+#       uri: postgresql://user:pass@host:5432/dbname
 #       password:
 #         secret: !env POWERSYNC_DATABASE_PASSWORD
-#       # [optional]
+#       # [optional] Alternative to uri: individual connection parameters.
 #       hostname: example.com
-#       # [optional]
-#       database: one
-#       # [optional]
-#       username: postgres
-#       # [optional]
 #       port: 5432
-#       # [optional]
+#       database: one
+#       username: postgres
+#       # [optional] Connection identifiers.
 #       name: string
-#       # [optional]
 #       id: string
-#       # [optional]
 #       tag: string
-#       # [optional] Options: verify-full | verify-ca
+#       # [optional] TLS mode. Options: verify-full | verify-ca. Default: verify-full. Use verify-full for production.
 #       sslmode: verify-full
-#       # [optional]
+#       # [optional] TLS certificates (PEM). Required for verify-ca; optional for verify-full.
 #       cacert: string
-#       # [optional]
 #       client_certificate: string
-#       # [optional]
 #       client_private_key:
 #         secret: !env POWERSYNC_DATABASE_CLIENT_KEY
-#       # [optional]
+#       # [optional] Cloud VPC endpoint hostname.
 #       vpc_endpoint_hostname: string
-#       # [optional]
-#       debug_api: boolean
 
 #     -------------------------------------------------------------------------
-#     MongoDB – uncomment this entire block to use (comment out PostgreSQL above)
+#     MongoDB – uncomment this entire block to use (comment out PostgreSQL above).
 #     uri is required for MongoDB; other fields are optional.
 #     -------------------------------------------------------------------------
+# replication:
 #  connections:
 #     - type: mongodb
+#       # Connection string (required for MongoDB).
 #       uri: mongodb+srv://user:pass@host/db
 #       password:
 #         secret: !env POWERSYNC_MONGODB_PASSWORD
-#       # [optional]
-#       name: string
-#       # [optional]
-#       id: string
-#       # [optional]
-#       tag: string
-#       # [optional]
+#       # [optional] Connection parameters (if not in URI).
 #       username: string
-#       # [optional]
 #       database: string
-#       # [optional] Options: off | auto_configure | read_only
+#       # [optional] Connection identifiers.
+#       name: string
+#       id: string
+#       tag: string
+#       # [optional] Change-data-capture mode. Options: off | auto_configure | read_only. Default: off.
 #       post_images: off
-#       # [optional]
+#       # [optional] Cloud VPC endpoint hostname.
 #       vpc_endpoint_hostname: string
 
 #     -------------------------------------------------------------------------
-#     MySQL – uncomment this entire block to use (comment out PostgreSQL above)
+#     MySQL – uncomment this entire block to use (comment out PostgreSQL above).
 #     -------------------------------------------------------------------------
+# replication:
 #  connections:
 #     - type: mysql
-#       # [optional]
+#       # [optional] Connection string. Omit and use hostname/port/database/username/password instead if you prefer.
 #       uri: string
 #       password:
 #         secret: !env POWERSYNC_MYSQL_PASSWORD
-#       # [optional]
+#       # [optional] Alternative to uri: individual connection parameters.
 #       hostname: db.example.com
-#       # [optional]
 #       port: 3306
-#       # [optional]
 #       database: mydb
-#       # [optional]
 #       username: sync
-#       # [optional]
+#       # [optional] Connection identifiers.
 #       name: string
-#       # [optional]
 #       id: string
-#       # [optional]
 #       tag: string
-#       # [optional]
+#       # [optional] TLS client certificate and key (PEM).
 #       client_certificate: string
-#       # [optional]
 #       client_private_key:
 #         secret: !env POWERSYNC_MYSQL_CLIENT_KEY
-#       # [optional]
-#       debug_api: false
 
 #     -------------------------------------------------------------------------
-#     MSSQL – uncomment this entire block to use (comment out PostgreSQL above)
+#     MSSQL – uncomment this entire block to use (comment out PostgreSQL above).
 #     -------------------------------------------------------------------------
+# replication:
 #  connections:
 #     - type: mssql
-#       # [optional]
+#       # [optional] Connection string. Omit and use hostname/port/database/schema/username/password instead if you prefer.
 #       uri: string
 #       password:
 #         secret: !env POWERSYNC_MSSQL_PASSWORD
-#       # [optional]
+#       # [optional] Alternative to uri: individual connection parameters.
 #       hostname: sql.example.com
-#       # [optional]
 #       port: 1433
-#       # [optional]
 #       database: mydb
-#       # [optional]
 #       schema: dbo
-#       # [optional]
 #       username: sync
-#       # [optional]
+#       # [optional] Connection identifiers.
 #       name: string
-#       # [optional]
 #       id: string
-#       # [optional]
 #       tag: string
-#       # [optional] Options: default | azure-active-directory-password | azure-active-directory-service-principal-secret
+#       # [optional] Auth type. Options: default | azure-active-directory-password | azure-active-directory-service-principal-secret.
 #       authentication:
 #         type: default
 #         options:
 #           password:
 #             secret: !env POWERSYNC_MSSQL_PASSWORD
-#       # [optional]
+#       # [optional] Polling and TLS options.
 #       additionalConfig:
 #         pollingIntervalMs: 5000
 #         pollingBatchSize: 1000
 #         trustServerCertificate: false
-#       # [optional]
-#       debug_api: false
 
 # -----------------------------------------------------------------------------
 # CLIENT AUTH (optional) – uncomment this entire block to enable
 # -----------------------------------------------------------------------------
 # client_auth:
-
-#   # [optional] PowerSync will use the same JWT secret as Supabase.
+#   # [optional] Use the same JWT secret as Supabase. Default: false.
 #   supabase: false
-
-#   # [optional] Legacy: If your Supabase project does not use the new JWT signing keys, you must provide your project's legacy JWT secret to use Supabase Auth. Get it from your project's API settings in the Supabase Dashboard.
+#   # [optional] Legacy: provide your Supabase project's legacy JWT secret from API settings in the Supabase Dashboard if not using new JWT signing keys.
 #   supabase_jwt_secret:
 #     secret: !env POWERSYNC_SUPABASE_JWT_SECRET
-
-#   # [optional] Additional audiences to accept when validating incoming JWT tokens (the instance domain is always accepted)
-#   additional_audiences: []
-
-#   # [optional] Enables development tokens to be generated and accepted by the instance
-#   allow_temporary_tokens: false
-
-#   # [optional] URL to a JSON Web Key Set (JWKS) endpoint; the instance fetches public keys from this URL to verify JWT signatures from clients.
+#   # [optional] JWKS URL; instance fetches public keys to verify JWT signatures.
 #   jwks_uri: https://example.com/jwks.json
-#   # [optional] Inline JSON Web Key Set; provide keys directly instead of (or in addition to) jwks_uri to verify JWT signatures.
+#   # [optional] Inline JWKS; provide keys directly instead of or in addition to jwks_uri.
 #   jwks:
 #     keys:
 #       HMAC (symmetric) – Options: HS256 | HS384 | HS512
@@ -198,3 +168,7 @@ replication:
 #         crv: Ed25519
 #         x: "<base64url-public-key>"
 #         alg: EdDSA
+#   # [optional] Additional audiences to accept (instance domain is always accepted). Default: [].
+#   additional_audiences: []
+#   # [optional] Allow development/temporary tokens. Default: false.
+#   allow_temporary_tokens: false

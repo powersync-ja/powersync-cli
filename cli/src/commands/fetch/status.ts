@@ -1,11 +1,5 @@
 import { Flags } from '@oclif/core';
-import {
-  CloudProject,
-  createCloudClient,
-  createSelfHostedClient,
-  SelfHostedProject,
-  SharedInstanceCommand
-} from '@powersync/cli-core';
+import { CloudProject, createSelfHostedClient, SelfHostedProject, SharedInstanceCommand } from '@powersync/cli-core';
 import { Document } from 'yaml';
 
 import { DiagnosticsResponse, formatDiagnosticsHuman } from '../../api/display-status.js';
@@ -30,7 +24,8 @@ export default class FetchStatus extends SharedInstanceCommand {
 
   async getCloudStatus(project: CloudProject): Promise<DiagnosticsResponse> {
     const { linked } = project;
-    const client = await createCloudClient();
+    const client = this.cloudClient;
+    await this.ensureCloudProvisioned(project);
     return client.getInstanceDiagnostics({
       app_id: linked.project_id,
       id: linked.instance_id,

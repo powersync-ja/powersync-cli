@@ -61,9 +61,9 @@ storage:
 # SYNC CONFIG – configuration for synchronization rules that define data access patterns
 # -----------------------------------------------------------------------------
 # One of path or content is supported. path is used in this example.
-sync_rules:
+sync_config:
   #   Path to the sync config YAML file.
-  path: sync.yaml
+  path: sync-config.yaml
 #   Inline sync config content as a string (use this or path, not both).
 #   content: string
 #   Whether to exit the process if there is an error parsing sync config.

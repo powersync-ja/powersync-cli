@@ -1,4 +1,5 @@
 import type { PowerSyncBackendConnector } from '@powersync/node';
+
 import { generateToken } from './auth.js';
 
 const POWERSYNC_URL = process.env.POWERSYNC_URL ?? 'http://localhost:8080';
@@ -14,10 +15,11 @@ export class DemoConnector implements PowerSyncBackendConnector {
     if (!secret) {
       throw new Error('PS_CLIENT_AUTH_KEY is required. Load from .env (see README).');
     }
+
     const token = await generateToken({
       endpoint: POWERSYNC_URL,
-      userId: USER_ID,
-      secret
+      secret,
+      userId: USER_ID
     });
 
     console.log('token', token);

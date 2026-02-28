@@ -115,4 +115,25 @@ describe('login', () => {
     expect(authentication.deleteToken).toHaveBeenCalledTimes(1);
     expect(result.error?.message).toContain('Invalid token. Please try again.');
   });
+
+  it('uses browser token when prompt is aborted by race', async () => {
+    mockedConfirm.mockResolvedValueOnce(true); // openBrowser
+    mockedStartPATLoginServer.mockResolvedValue({
+      address: 'http://127.0.0.1:54321',
+      tokenPromise: Promise.resolve('server-token')
+    });
+    mockedPassword.mockImplementationOnce(
+      (_opts, context?: { signal?: AbortSignal }) =>
+        new Promise<string>((_resolve, reject) => {
+          context?.signal?.addEventListener('abort', () => reject(new Error('AbortError')), { once: true });
+        })
+    );
+
+    const result = await runLoginDirect();
+
+    expect(result.error).toBeUndefined();
+    expect(authentication.setToken).toHaveBeenCalledWith('server-token');
+    expect(authentication.deleteToken).not.toHaveBeenCalled();
+    expect(result.stdout).toContain('Token stored successfully.');
+  });
 });

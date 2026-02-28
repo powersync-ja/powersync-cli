@@ -1,5 +1,5 @@
-import { ServiceCloudConfigSchema } from './cloud.js';
-import { ServiceSelfHostedConfigSchema } from './self-hosted.js';
+import { ServiceCloudConfigSchema } from './ServiceCloudConfig.js';
+import { ServiceSelfHostedConfigSchema } from './ServiceSelfHostedConfig.js';
 
 /** JSON Schema for service config: discriminated union on _type ('cloud' | 'self-hosted'). */
 export const ServiceConfigSchema = {

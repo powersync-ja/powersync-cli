@@ -4,13 +4,14 @@ import {
   CLI_FILENAME,
   parseYamlDocumentPreserveTags,
   SelfHostedInstanceCommand,
-  SERVICE_FILENAME,
-  type SelfHostedInstanceCommandFlags
+  type SelfHostedInstanceCommandFlags,
+  SERVICE_FILENAME
 } from '@powersync/cli-core';
 import fs, { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Document, isMap, stringify } from 'yaml';
+import { Document, isMap, isSeq, stringify } from 'yaml';
+
 import { DEV_TOKEN } from '../../constants.js';
 import { TEMPLATES } from '../../templates/templates-index.js';
 import { DockerModuleContext, DockerModuleType } from '../../types.js';
@@ -22,22 +23,20 @@ const MAIN_COMPOSE_TEMPLATE_PATH = path.join(__dirname, '../../templates/main-co
 const DOCKER_DEV_API_URL = 'http://localhost:8080';
 
 /**
- * Docker Compose project name: [a-z0-9][a-z0-9_.-]*. Derived from the project direcotry name.
+ * Docker Compose project name: [a-z0-9][a-z0-9_.-]*. Derived from the project directory name.
  */
 function composeProjectName(projectDirectory: string): string {
   // The project name is the directory name of the parent directory.
   const raw = path.basename(path.resolve(projectDirectory, '../'));
   const sanitized = raw
     .toLowerCase()
-    .replace(/[^a-z0-9_.-]+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
+    .replaceAll(/[^a-z0-9_.-]+/g, '-')
+    .replaceAll(/-+/g, '-')
+    .replaceAll(/^-|-$/g, '');
   return `powersync_${sanitized}`;
 }
 
 export default class DockerConfigure extends SelfHostedInstanceCommand {
-  static summary = 'Configures a self hosted project with Docker Compose services.';
-
   static description = [
     'Configures a self hosted project with Docker Compose services.',
     'Docker configuration is located in ./powersync/docker/.',
@@ -47,24 +46,24 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
     '<%= config.bin %> <%= command.id %>',
     '<%= config.bin %> <%= command.id %> --database=postgres --storage=postgres'
   ];
-
   static flags = {
     ...SelfHostedInstanceCommand.flags,
     database: Flags.string({
       description: 'Database module for replication source. Omit to be prompted.',
-      required: false,
-      options: [...TEMPLATES[DockerModuleType.SOURCE_DATABASE].map((t) => t.name), NONE_OPTION]
+      options: [...TEMPLATES[DockerModuleType.SOURCE_DATABASE].map((t) => t.name), NONE_OPTION],
+      required: false
     }),
     storage: Flags.string({
       description: 'Storage module for PowerSync bucket metadata. Omit to be prompted.',
-      required: false,
-      options: [...TEMPLATES[DockerModuleType.STORAGE].map((t) => t.name), NONE_OPTION]
+      options: [...TEMPLATES[DockerModuleType.STORAGE].map((t) => t.name), NONE_OPTION],
+      required: false
     })
   };
+  static summary = 'Configures a self hosted project with Docker Compose services.';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(DockerConfigure);
-    const projectDirectory = this.ensureProjectDirExists(flags as SelfHostedInstanceCommandFlags);
+    const projectDirectory = this.ensureProjectDirectory(flags as SelfHostedInstanceCommandFlags);
 
     const targetDockerDir = path.join(projectDirectory, 'docker');
     const modulesDir = path.join(targetDockerDir, 'modules');
@@ -88,23 +87,23 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
       { name: 'None (do not configure)', value: NONE_OPTION }
     ];
 
-    let database: string | undefined = flags.database;
+    let { database } = flags;
     if (database === undefined) {
       database = await select({
-        message: 'Select a database module for a replication source. Use external to configure an existing database.',
-        choices: databaseChoices
+        choices: databaseChoices,
+        message: 'Select a database module for a replication source. Use external to configure an existing database.'
       });
       if (database === NONE_OPTION) database = undefined;
     } else if (database === NONE_OPTION) {
       database = undefined;
     }
 
-    let storage: string | undefined = flags.storage;
+    let { storage } = flags;
     if (storage === undefined) {
       storage = await select({
+        choices: storageChoices,
         message:
-          'Select a storage module for PowerSync bucket metadata. Use external to configure an existing database.',
-        choices: storageChoices
+          'Select a storage module for PowerSync bucket metadata. Use external to configure an existing database.'
       });
       if (storage === NONE_OPTION) storage = undefined;
     } else if (storage === NONE_OPTION) {
@@ -122,10 +121,10 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
 
     const moduleContext: DockerModuleContext = {
       command: this,
-      projectdirectory: projectDirectory,
       composeOutputDirectory: targetDockerDir,
-      modulesOutputDirectory: modulesDir,
       mainComposeDocument,
+      modulesOutputDirectory: modulesDir,
+      projectDirectory,
       serviceConfig: serviceConfigDocument
     };
 
@@ -139,11 +138,12 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
       if (!databaseTemplate) {
         this.error(ux.colorize('red', `Database template ${database} not found.`), { exit: 1 });
       }
+
       const databaseModuleResponse = await databaseTemplate.apply(moduleContext);
 
       envFileContents += [
         `# ${databaseTemplate.name} Database Config`,
-        ...Object.entries(databaseModuleResponse.additionalEnviroment ?? {}).map(([key, value]) => `${key}=${value}`)
+        ...Object.entries(databaseModuleResponse.additionalEnvironment ?? {}).map(([key, value]) => `${key}=${value}`)
       ].join('\n');
     }
 
@@ -154,13 +154,14 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
       if (!storageTemplate) {
         this.error(`Storage template ${storage} not found.`, { exit: 1 });
       }
+
       const storageModuleResponse = await storageTemplate.apply(moduleContext);
 
       envFileContents +=
         (envFileContents ? '\n\n' : '') +
         [
           `# ${storageTemplate.name} Storage Config`,
-          ...Object.entries(storageModuleResponse.additionalEnviroment ?? {}).map(([key, value]) => `${key}=${value}`)
+          ...Object.entries(storageModuleResponse.additionalEnvironment ?? {}).map(([key, value]) => `${key}=${value}`)
         ].join('\n');
     }
 
@@ -171,8 +172,21 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
     // Persist environment config
     writeFileSync(dockerEnvFilePath, envFileContents, 'utf8');
 
-    // Set api.tokens in service.yaml for local dev (same token as in link)
-    serviceConfigDocument.set('api', { tokens: [DEV_TOKEN] });
+    // Set api.tokens in service.yaml for local dev (same token as in link) without clobbering existing settings.
+    const apiNode = serviceConfigDocument.get('api');
+    if (isMap(apiNode)) {
+      const existingTokensNode = apiNode.get('tokens');
+      const existingTokens = isSeq(existingTokensNode)
+        ? existingTokensNode.toJSON()
+        : Array.isArray(existingTokensNode)
+          ? existingTokensNode
+          : [];
+      const mergedTokens = [...new Set([DEV_TOKEN, ...(existingTokens as string[])])];
+      apiNode.set('tokens', mergedTokens);
+    } else {
+      serviceConfigDocument.set('api', { tokens: [DEV_TOKEN] });
+    }
+
     writeFileSync(path.join(projectDirectory, SERVICE_FILENAME), stringify(serviceConfigDocument), 'utf8');
     updateLinkPluginsDocker(projectDirectory, projectName);
 
@@ -202,5 +216,6 @@ function updateLinkPluginsDocker(projectDirectory: string, projectName: string):
   } else {
     linkDocument.set('plugins', { docker: { project_name: projectName } });
   }
+
   writeFileSync(linkPath, stringify(linkDocument), 'utf8');
 }

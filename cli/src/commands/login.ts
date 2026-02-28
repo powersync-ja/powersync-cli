@@ -6,24 +6,24 @@ import { startPATLoginServer } from '../api/login-server.js';
 
 export default class Login extends PowerSyncCommand {
   static description =
-    'Store a PowerSync auth token (PAT) in secure storage so later Cloud commands run without passing a token. If secure storage is unavailable, login can optionally store it in a local config file. Use TOKEN env var for CI or scripts instead.';
+    'Store a PowerSync auth token (PAT) in secure storage so later Cloud commands run without passing a token. If secure storage is unavailable, login can optionally store it in a local config file. Use PS_ADMIN_TOKEN env var for CI or scripts instead.';
   static examples = ['<%= config.bin %> <%= command.id %>'];
   static summary = 'Store auth token for Cloud commands.';
 
   async run(): Promise<void> {
-    this.parse(Login);
+    await this.parse(Login);
 
     const { authentication, storage } = Services;
     const shouldUseInsecureStorage =
       !storage.capabilities.supportsSecureStorage &&
       (await confirm({
         default: false,
-        message: `Keychain storage is unavailable on this platform. Store token in plaintext at ${storage.insecureStoragePath}? Set the ${ux.colorize('blue', 'TOKEN')} environment variable instead to avoid this.`
+        message: `Keychain storage is unavailable on this platform. Store token in plaintext at ${storage.insecureStoragePath}? Set the ${ux.colorize('blue', 'PS_ADMIN_TOKEN')} environment variable instead to avoid this.`
       }));
 
     if (!storage.capabilities.supportsSecureStorage && !shouldUseInsecureStorage) {
       this.log(
-        `Login cancelled. Use ${ux.colorize('blue', 'TOKEN')} environment variable for commands, or rerun login and allow local fallback storage.`
+        `Login cancelled. Use ${ux.colorize('blue', 'PS_ADMIN_TOKEN')} environment variable for commands, or rerun login and allow local fallback storage.`
       );
       this.exit(0);
     }
@@ -88,12 +88,27 @@ export default class Login extends PowerSyncCommand {
           : 'Enter your API token (https://docs.powersync.com/usage/tools/cli#personal-access-token):'
       },
       { signal: abortController.signal }
-    ).then((token) => {
-      abortController.abort();
-      return token.trim();
-    });
+    )
+      .then((token) => {
+        abortController.abort();
+        return token.trim();
+      })
+      .catch((error) => {
+        // When the browser flow succeeds first, aborting the prompt rejects with AbortError; swallow it.
+        if (abortController.signal.aborted) return '';
+        throw error;
+      });
 
-    const token = await Promise.race([serverTokenPromise, promptTokenPromise]);
+    const pendingOperations: Promise<string>[] = [promptTokenPromise];
+    if (serverTokenPromise) {
+      pendingOperations.push(serverTokenPromise);
+    }
+
+    const tokenResults = await Promise.allSettled(pendingOperations);
+    const promptToken = tokenResults[0]?.status === 'fulfilled' ? tokenResults[0].value.trim() : '';
+    const serverToken =
+      serverTokenPromise && tokenResults[1]?.status === 'fulfilled' ? tokenResults[1].value.trim() : '';
+    const token = serverToken || promptToken;
 
     if (!token?.trim()) {
       this.styledError({ message: 'Token is required.' });

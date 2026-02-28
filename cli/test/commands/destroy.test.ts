@@ -1,14 +1,20 @@
-import { runCommand } from '@oclif/test';
+import { Config } from '@oclif/core';
+import { captureOutput, runCommand } from '@oclif/test';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
+import DestroyCommand from '../../src/commands/destroy.js';
 import { root } from '../helpers/root.js';
+import { managementClientMock, MOCK_CLOUD_IDS, resetManagementClientMocks } from '../setup.js';
 
 const CLI_FILENAME = 'cli.yaml';
 const PROJECT_DIR = 'powersync';
 const SERVICE_FILENAME = 'service.yaml';
+const INSTANCE_ID = MOCK_CLOUD_IDS.instanceId;
+const ORG_ID = MOCK_CLOUD_IDS.orgId;
+const PROJECT_ID = MOCK_CLOUD_IDS.projectId;
 
 function writeServiceYaml(projectDir: string, type: 'cloud' | 'self-hosted') {
   writeFileSync(join(projectDir, SERVICE_FILENAME), `_type: ${type}\nregion: us\n`, 'utf8');
@@ -20,24 +26,37 @@ function writeLinkYaml(projectDir: string, opts: { instance_id: string; org_id: 
 }
 
 describe('destroy', () => {
+  let oclifConfig: Config;
   let tmpDir: string;
   let origCwd: string;
   let origPsToken: string | undefined;
 
+  beforeAll(async () => {
+    oclifConfig = await Config.load({ root });
+  });
+
+  async function runDestroyDirect(args: string[]) {
+    const cmd = new DestroyCommand(args, oclifConfig);
+    cmd.client = managementClientMock as unknown as DestroyCommand['client'];
+    return captureOutput(() => cmd.run());
+  }
+
   beforeEach(() => {
+    resetManagementClientMocks();
+
     origCwd = process.cwd();
-    origPsToken = process.env.TOKEN;
+    origPsToken = process.env.PS_ADMIN_TOKEN;
     tmpDir = mkdtempSync(join(tmpdir(), 'destroy-test-'));
     process.chdir(tmpDir);
-    process.env.TOKEN = 'test-token';
+    process.env.PS_ADMIN_TOKEN = 'test-token';
   });
 
   afterEach(() => {
     process.chdir(origCwd);
     if (origPsToken === undefined) {
-      delete process.env.TOKEN;
+      delete process.env.PS_ADMIN_TOKEN;
     } else {
-      process.env.TOKEN = origPsToken;
+      process.env.PS_ADMIN_TOKEN = origPsToken;
     }
 
     if (tmpDir && existsSync(tmpDir)) rmSync(tmpDir, { recursive: true });
@@ -47,7 +66,7 @@ describe('destroy', () => {
     const projectDir = join(tmpDir, PROJECT_DIR);
     mkdirSync(projectDir, { recursive: true });
     writeServiceYaml(projectDir, 'cloud');
-    await runCommand('link cloud --instance-id=i --org-id=o --project-id=p', { root });
+    writeLinkYaml(projectDir, { instance_id: INSTANCE_ID, org_id: ORG_ID, project_id: PROJECT_ID });
     const result = await runCommand('destroy', { root });
     expect(result.error?.message).toContain('Destruction requires confirmation.');
     expect(result.error?.message).toContain('--confirm=yes');
@@ -85,7 +104,7 @@ describe('destroy', () => {
     writeServiceYaml(projectDir, 'cloud');
     writeFileSync(join(projectDir, CLI_FILENAME), 'type: cloud\n', 'utf8');
     const result = await runCommand('destroy --confirm=yes', { root });
-    expect(result.error?.message).toMatch(/Failed to parse cli\.yaml as CloudCLIConfig/);
+    expect(result.error?.message).toContain('Linking is required before using this command.');
     expect(result.error?.oclif?.exit).toBe(1);
   });
 
@@ -94,13 +113,12 @@ describe('destroy', () => {
     const projectDir = join(tmpDir, customDir);
     mkdirSync(projectDir, { recursive: true });
     writeServiceYaml(projectDir, 'cloud');
-    await runCommand(`link cloud --directory=${customDir} --instance-id=i --org-id=o --project-id=p`, {
-      root
-    });
-    const result = await runCommand(`destroy --directory=${customDir} --confirm=yes`, { root });
+    writeLinkYaml(projectDir, { instance_id: INSTANCE_ID, org_id: ORG_ID, project_id: PROJECT_ID });
+    const result = await runDestroyDirect([`--directory=${customDir}`, '--confirm=yes']);
     expect(result.error).toBeDefined();
-    // Fails with API error when token available, or keychain error when not
-    expect(result.error?.message).toMatch(/instance i.*project p.*org o|Could not find password/);
+    expect(result.error?.message).toMatch(
+      new RegExp(`Failed to destroy instance ${INSTANCE_ID} in project ${PROJECT_ID} in org ${ORG_ID}`)
+    );
   });
 
   describe('with valid cloud project', () => {
@@ -108,17 +126,25 @@ describe('destroy', () => {
       const projectDir = join(tmpDir, PROJECT_DIR);
       mkdirSync(projectDir, { recursive: true });
       writeServiceYaml(projectDir, 'cloud');
-      await runCommand('link cloud --instance-id=inst-1 --org-id=org-1 --project-id=proj-1', {
-        root
+      writeLinkYaml(projectDir, { instance_id: INSTANCE_ID, org_id: ORG_ID, project_id: PROJECT_ID });
+    });
+
+    it('calls destroyInstance on the management client', async () => {
+      await runDestroyDirect(['--confirm=yes']);
+
+      expect(managementClientMock.destroyInstance).toHaveBeenCalledTimes(1);
+      expect(managementClientMock.destroyInstance).toHaveBeenCalledWith({
+        app_id: PROJECT_ID,
+        id: INSTANCE_ID,
+        org_id: ORG_ID
       });
     });
 
     it('attempts destroy and errors with exit 1 when client fails', async () => {
-      const result = await runCommand('destroy --confirm=yes', { root });
+      const result = await runDestroyDirect(['--confirm=yes']);
       expect(result.error).toBeDefined();
-      // Fails with API error when token available, or keychain error when not
       expect(result.error?.message).toMatch(
-        /Failed to destroy instance inst-1 in project proj-1 in org org-1|Could not find password/
+        new RegExp(`Failed to destroy instance ${INSTANCE_ID} in project ${PROJECT_ID} in org ${ORG_ID}`)
       );
     });
   });

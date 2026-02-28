@@ -13,7 +13,8 @@ import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { stringify } from 'yaml';
 
-import { fetchCloudConfig } from '../../api/cloud/fetch-cloud-config.js';
+import { decodeFetchedCloudConfig } from '../../api/cloud/fetch-cloud-config.js';
+import { validateCloudLinkConfig } from '../../api/cloud/validate-cloud-link-config.js';
 import { writeCloudLink } from '../../api/cloud/write-cloud-link.js';
 
 const SERVICE_FETCHED_FILENAME = 'service-fetched.yaml';
@@ -26,7 +27,7 @@ const PULL_CONFIG_HEADER = `# PowerSync Cloud config (fetched from cloud)
 
 export default class PullInstance extends CloudInstanceCommand {
   static description =
-    'Fetch an existing Cloud instance by ID: create the config directory if needed, write cli.yaml, and download service.yaml and sync.yaml. Pass --instance-id and --project-id when the directory is not yet linked; --org-id is optional when the token has a single organization. Cloud only.';
+    'Fetch an existing Cloud instance by ID: create the config directory if needed, write cli.yaml, and download service.yaml and sync-config.yaml. Pass --instance-id and --project-id when the directory is not yet linked; --org-id is optional when the token has a single organization. Cloud only.';
   static examples = [
     '<%= config.bin %> <%= command.id %>',
     '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id>',
@@ -35,7 +36,8 @@ export default class PullInstance extends CloudInstanceCommand {
   static flags = {
     ...CloudInstanceCommand.flags
   };
-  static summary = 'Pull an existing Cloud instance: link and download config into local service.yaml and sync.yaml.';
+  static summary =
+    'Pull an existing Cloud instance: link and download config into local service.yaml and sync-config.yaml.';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(PullInstance);
@@ -77,18 +79,34 @@ export default class PullInstance extends CloudInstanceCommand {
     }
 
     const { linked } = await this.loadProject(flags);
-    const { client } = this;
+
+    let instanceConfig;
+    try {
+      const validationResult = await validateCloudLinkConfig({
+        cloudClient: this.client,
+        input: {
+          instanceId: linked.instance_id,
+          orgId: linked.org_id,
+          projectId: linked.project_id
+        },
+        validateInstance: true
+      });
+      instanceConfig = validationResult.instanceConfig;
+    } catch (error) {
+      this.styledError({ message: error instanceof Error ? error.message : String(error) });
+    }
+
+    if (!instanceConfig) {
+      this.styledError({
+        message: `Instance ${linked.instance_id} was not found in project ${linked.project_id} in organization ${linked.org_id}, or is not accessible with the current token.`
+      });
+    }
 
     this.log(
       `Fetching config for instance ${ux.colorize('blue', linked.instance_id)} in project ${ux.colorize('blue', linked.project_id)} in org ${ux.colorize('blue', linked.org_id)}...`
     );
 
-    const fetched = await fetchCloudConfig(client, linked).catch((error) => {
-      this.styledError({
-        error,
-        message: `Failed to fetch config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}`
-      });
-    });
+    const fetched = decodeFetchedCloudConfig(instanceConfig);
 
     const serviceExists = existsSync(join(projectDir, SERVICE_FILENAME));
     const syncExists = existsSync(join(projectDir, SYNC_FILENAME));

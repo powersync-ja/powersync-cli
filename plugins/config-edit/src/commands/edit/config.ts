@@ -1,39 +1,35 @@
 import { Flags, ux } from '@oclif/core';
 import { InstanceCommand } from '@powersync/cli-core';
 import { spawn } from 'node:child_process';
-import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import open from 'open';
 import waitPort from 'wait-port';
 
-const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default class EditConfig extends InstanceCommand {
-  static summary = 'Open the PowerSync configuration editor (Nitro preview).';
   static description =
     'Sets POWERSYNC_DIRECTORY for the current project and runs the editor Vite preview to edit config files.';
-
   static examples = ['<%= config.bin %> edit config', '<%= config.bin %> edit config --directory ./powersync'];
-
   static flags = {
     ...InstanceCommand.flags,
     host: Flags.string({
+      default: '0.0.0.0',
       description: 'Host to bind the editor preview server.',
-      required: false,
-      default: '0.0.0.0'
+      required: false
     }),
     port: Flags.integer({
+      default: 3000,
       description: 'Port for the editor preview server.',
-      required: false,
-      default: 3000
+      required: false
     })
   };
+  static summary = 'Open the PowerSync configuration editor (Nitro preview).';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(EditConfig);
-    const projectDir = this.ensureProjectDirExists(flags);
+    const projectDir = this.ensureProjectDirectory(flags);
 
     const editorDir = path.resolve(__dirname, '../../..');
     const targetDist = path.join(editorDir, 'editor-dist');
@@ -68,12 +64,12 @@ export default class EditConfig extends InstanceCommand {
         await waitPort({
           host: urlHost,
           port: flags.port,
-          timeout: 30000
+          timeout: 30_000
         });
         this.log(`Server ready! Opening ${previewUrl} in your browser...`);
         await open(previewUrl);
-      } catch (err) {
-        this.warn(`Could not open browser automatically: ${err instanceof Error ? err.message : String(err)}`);
+      } catch (error) {
+        this.warn(`Could not open browser automatically: ${error instanceof Error ? error.message : String(error)}`);
       }
     });
 

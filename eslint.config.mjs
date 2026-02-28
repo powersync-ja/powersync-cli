@@ -8,6 +8,7 @@ const gitignorePath = path.resolve(path.dirname(fileURLToPath(import.meta.url)),
 
 export default [
   includeIgnoreFile(gitignorePath),
+  { ignores: ['examples/**'] },
   ...oclif,
   prettier,
   {
@@ -17,7 +18,8 @@ export default [
       'n/no-unsupported-features/node-builtins': 'off',
       'no-await-in-loop': 'off',
       'no-eq-null': 'off',
-      'no-multi-assign': 'off'
+      'no-multi-assign': 'off',
+      'unicorn/filename-case': 'off'
     }
   }
 ];

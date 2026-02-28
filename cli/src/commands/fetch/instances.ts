@@ -71,6 +71,7 @@ export default class FetchInstances extends Command {
     let spinnerStarted = false;
 
     const spinner = ora({
+      discardStdin: false,
       stream: process.stdout,
       text: 'Fetching instances...'
     });
@@ -139,7 +140,7 @@ export default class FetchInstances extends Command {
           this.log(`\t${ux.colorize('blue', 'Project: ')} ${project.name} ${ux.colorize('gray', `id: ${project.id}`)}`);
           for (const instance of sortBy(project.instances, 'name')) {
             this.log(
-              `\t\t${ux.colorize('blue', 'Instance: ')} ${instance.name} ${ux.colorize('gray', `id: ${instance.id}`)} ${ux.colorize('gray', `has_config: ${instance.has_config}`)} ${ux.colorize('gray', `deployable: ${instance.deployable}`)}`
+              `\t\t${ux.colorize('blue', 'Instance: ')} ${instance.name} ${ux.colorize('gray', `id: ${instance.id}`)} ${ux.colorize('gray', `has_config: ${instance.has_config}`)} ${ux.colorize('gray', `is_provisioned: ${instance.deployable}`)}`
             );
           }
         }

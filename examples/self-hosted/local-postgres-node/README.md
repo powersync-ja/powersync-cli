@@ -11,7 +11,7 @@ local-postgres-node/
 │   ├── docker/
 │   ├── cli.yaml
 │   ├── service.yaml     # client_auth with HS256 jwks
-│   └── sync.yaml
+│   └── sync-config.yaml
 ├── src/                 # Node.js app
 │   ├── auth.ts          # JWT signing with shared secret
 │   ├── connector.ts     # PowerSync backend connector

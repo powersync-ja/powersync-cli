@@ -10,6 +10,7 @@ import {
 } from '@powersync/cli-core';
 
 import { createCloudInstance } from '../../api/cloud/create-cloud-instance.js';
+import { validateCloudLinkConfig } from '../../api/cloud/validate-cloud-link-config.js';
 import { writeCloudLink } from '../../api/cloud/write-cloud-link.js';
 
 export default class LinkCloud extends CloudInstanceCommand {
@@ -62,6 +63,16 @@ export default class LinkCloud extends CloudInstanceCommand {
         });
       }
 
+      try {
+        await validateCloudLinkConfig({
+          cloudClient: this.client,
+          input: { orgId, projectId },
+          validateInstance: false
+        });
+      } catch (error) {
+        this.styledError({ message: error instanceof Error ? error.message : String(error) });
+      }
+
       const config = this.parseConfig(projectDirectory);
       const { client } = this;
 
@@ -78,7 +89,7 @@ export default class LinkCloud extends CloudInstanceCommand {
         this.styledError({ error, message: 'Failed to create Cloud instance' });
       }
 
-      const projectDir = this.ensureProjectDirExists({ directory });
+      const projectDir = this.ensureProjectDirectory({ directory });
       ensureServiceTypeMatches({
         command: this,
         configRequired: false,
@@ -100,6 +111,17 @@ export default class LinkCloud extends CloudInstanceCommand {
       });
     }
 
+    try {
+      await validateCloudLinkConfig({
+        cloudClient: this.client,
+        input: { instanceId, orgId, projectId },
+        validateInstance: true
+      });
+    } catch (error) {
+      this.styledError({ message: error instanceof Error ? error.message : String(error) });
+    }
+
+    writeCloudLink(projectDirectory, { instanceId, orgId, projectId });
     ensureServiceTypeMatches({
       command: this,
       configRequired: false,
@@ -107,8 +129,6 @@ export default class LinkCloud extends CloudInstanceCommand {
       expectedType: ServiceType.CLOUD,
       projectDir: projectDirectory
     });
-
-    writeCloudLink(projectDirectory, { instanceId, orgId, projectId });
     this.log(ux.colorize('green', `Updated ${directory}/${CLI_FILENAME} with Cloud instance link.`));
   }
 }

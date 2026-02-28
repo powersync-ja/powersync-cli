@@ -1,10 +1,9 @@
 import { Scalar } from 'yaml';
+
 import { DockerModule, DockerModuleContext, DockerModuleType } from '../../../types.js';
 
 const ExternalBucketStorageModule: DockerModule = {
-  name: 'external',
-  type: DockerModuleType.STORAGE,
-  apply: async (context: DockerModuleContext) => {
+  async apply(context: DockerModuleContext) {
     const { serviceConfig } = context;
 
     context.command.log(
@@ -16,19 +15,21 @@ const ExternalBucketStorageModule: DockerModule = {
     uri.tag = '!env';
 
     const storageConfig = {
+      sslmode: 'disable',
       type: 'postgresql',
-      uri,
-      sslmode: 'disable'
+      uri
     };
 
     serviceConfig.set('storage', storageConfig);
 
-    const additionalEnviroment = {
+    const additionalEnvironment = {
       PS_STORAGE_SOURCE_URI: '<set-your-external-postgres-connection-string-in-env>'
     };
 
-    return { additionalEnviroment };
-  }
+    return { additionalEnvironment };
+  },
+  name: 'external',
+  type: DockerModuleType.STORAGE
 };
 
 export default ExternalBucketStorageModule;

@@ -26,12 +26,12 @@
     "clean": "rm -rf dist tsconfig.tsbuildinfo"
   },
   "dependencies": {
-    "@powersync/management-types": "0.0.1",
-    "@powersync/service-schema": "^1.19.2",
-    "@powersync/service-types": "^0.13.3",
     "ajv": "^8.12.0",
     "better-ajv-errors": "^2.0.3",
-    "ts-codec": "^1.3.0"
+    "ts-codec": "^1.3.0",
+    "@powersync/service-types": "0.0.0-dev-20260225093637",
+    "@powersync/service-schema": "0.0.0-dev-20260225093637",
+    "@powersync/management-types": "0.0.1"
   },
   "devDependencies": {
     "@powersync/service-sync-rules": "^0.30.0",

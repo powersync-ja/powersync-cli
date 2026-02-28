@@ -11,4 +11,4 @@ export const SERVICE_FILENAME = 'service.yaml';
 /**
  * The filename used to store the sync config.
  */
-export const SYNC_FILENAME = 'sync.yaml';
+export const SYNC_FILENAME = 'sync-config.yaml';

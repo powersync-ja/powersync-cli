@@ -9,7 +9,7 @@ const SERVICE_NAME = 'PowerSync CLI';
 export function createKeychainSecureStorage(): BaseStorage {
   const keychainPromise = import('keychain').then((m) => m.default ?? m);
   return {
-    async getItem(key: string): Promise<string | null> {
+    async getItem(key: string): Promise<null | string> {
       const keychain = await keychainPromise;
       return new Promise((resolve, reject) => {
         keychain.getPassword(
@@ -26,22 +26,14 @@ export function createKeychainSecureStorage(): BaseStorage {
                 resolve(null);
                 return;
               }
+
               reject(err);
               return;
             }
+
             resolve(password ?? null);
           }
         );
-      });
-    },
-
-    async setItem(key: string, value: string): Promise<void> {
-      const keychain = await keychainPromise;
-      return new Promise((resolve, reject) => {
-        keychain.setPassword({ account: key, service: SERVICE_NAME, password: value }, (err: Error | null) => {
-          if (err) reject(err);
-          else resolve();
-        });
       });
     },
 
@@ -49,6 +41,16 @@ export function createKeychainSecureStorage(): BaseStorage {
       const keychain = await keychainPromise;
       return new Promise((resolve, reject) => {
         keychain.deletePassword({ account: key, service: SERVICE_NAME }, (err: Error | null) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
+    },
+
+    async setItem(key: string, value: string): Promise<void> {
+      const keychain = await keychainPromise;
+      return new Promise((resolve, reject) => {
+        keychain.setPassword({ account: key, password: value, service: SERVICE_NAME }, (err: Error | null) => {
           if (err) reject(err);
           else resolve();
         });

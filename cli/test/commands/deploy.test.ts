@@ -1,36 +1,34 @@
 import { Config } from '@oclif/core';
 import { captureOutput, runCommand } from '@oclif/test';
 import { CLI_FILENAME, SERVICE_FILENAME } from '@powersync/cli-core';
-import { PowerSyncManagementClient } from '@powersync/management-client';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import DeployCommand from '../../src/commands/deploy/index.js';
 import { root } from '../helpers/root.js';
-
-const mockGetInstanceConfig = vi.fn();
-const mockDeployInstance = vi.fn();
-const mockGetInstanceStatus = vi.fn();
+import { managementClientMock, MOCK_CLOUD_IDS, resetManagementClientMocks } from '../setup.js';
 
 /** Run deploy by instantiating the command and calling .run() so the spy on createCloudClient applies. */
 async function runDeployDirect(opts?: { directory?: string }) {
   const directory = opts?.directory ?? PROJECT_DIR;
   const config = await Config.load({ root });
   const cmd = new DeployCommand(['--directory', directory], config);
-  cmd.client = {
-    deployInstance: mockDeployInstance,
-    getInstanceConfig: mockGetInstanceConfig,
-    getInstanceStatus: mockGetInstanceStatus
-  } as unknown as PowerSyncManagementClient;
+  cmd.client = managementClientMock as unknown as DeployCommand['client'];
   return captureOutput(() => cmd.run());
 }
 
 const PROJECT_DIR = 'powersync';
+const INSTANCE_ID = MOCK_CLOUD_IDS.instanceId;
+const ORG_ID = MOCK_CLOUD_IDS.orgId;
+const PROJECT_ID = MOCK_CLOUD_IDS.projectId;
 
 function writeServiceYaml(projectDir: string, type: 'cloud' | 'self-hosted') {
-  const content = type === 'cloud' ? '_type: cloud\nname: test-instance\nregion: us\n' : `_type: ${type}\nregion: us\n`;
+  const content =
+    type === 'cloud'
+      ? '_type: cloud\nname: test-instance\nregion: us\nreplication:\n  connections:\n    - name: default\n      type: postgresql\n      uri: postgres://user:pass@host/db\n'
+      : `_type: ${type}\nregion: us\n`;
   writeFileSync(join(projectDir, SERVICE_FILENAME), content, 'utf8');
 }
 
@@ -45,23 +43,28 @@ describe('deploy', () => {
   let origPsToken: string | undefined;
 
   beforeEach(() => {
+    resetManagementClientMocks();
+
     origCwd = process.cwd();
-    origPsToken = process.env.TOKEN;
+    origPsToken = process.env.PS_ADMIN_TOKEN;
     tmpDir = mkdtempSync(join(tmpdir(), 'deploy-test-'));
     process.chdir(tmpDir);
-    process.env.TOKEN = 'test-token';
-    mockGetInstanceConfig.mockReset();
-    mockDeployInstance.mockReset();
-    mockGetInstanceStatus.mockReset();
-    mockGetInstanceConfig.mockRejectedValue(new Error('network error'));
+    process.env.PS_ADMIN_TOKEN = 'test-token';
+    managementClientMock.getInstanceConfig.mockResolvedValue({
+      config: { region: 'us', replication: { connections: [{ name: 'default', type: 'postgresql' }] } },
+      name: 'test-instance',
+      sync_rules: ''
+    });
+    managementClientMock.getInstanceStatus.mockResolvedValue({ operations: [], provisioned: true });
+    managementClientMock.deployInstance.mockRejectedValue(new Error('network error'));
   });
 
   afterEach(() => {
     process.chdir(origCwd);
     if (origPsToken === undefined) {
-      delete process.env.TOKEN;
+      delete process.env.PS_ADMIN_TOKEN;
     } else {
-      process.env.TOKEN = origPsToken;
+      process.env.PS_ADMIN_TOKEN = origPsToken;
     }
 
     if (tmpDir && existsSync(tmpDir)) rmSync(tmpDir, { recursive: true });
@@ -99,7 +102,7 @@ describe('deploy', () => {
     writeServiceYaml(projectDir, 'cloud');
     writeFileSync(join(projectDir, CLI_FILENAME), 'type: cloud\n', 'utf8');
     const result = await runCommand('deploy', { root });
-    expect(result.error?.message).toMatch(/Failed to parse cli\.yaml as CloudCLIConfig/);
+    expect(result.error?.message).toContain('Linking is required before using this command.');
     expect(result.error?.oclif?.exit).toBe(1);
   });
 
@@ -108,11 +111,10 @@ describe('deploy', () => {
     const projectDir = join(tmpDir, customDir);
     mkdirSync(projectDir, { recursive: true });
     writeServiceYaml(projectDir, 'cloud');
-    await runCommand(`link cloud --directory=${customDir} --instance-id=i --org-id=o --project-id=p`, { root });
+    writeLinkYaml(projectDir, { instance_id: INSTANCE_ID, org_id: ORG_ID, project_id: PROJECT_ID });
     const result = await runCommand(`deploy --directory=${customDir}`, { root });
     expect(result.error).toBeDefined();
-    // Fails with API error when token available, or keychain error when not
-    expect(result.error?.message).toMatch(/instance i.*project p.*org o|Could not find password/);
+    expect(result.error?.message).toMatch(new RegExp(`instance ${INSTANCE_ID}.*project ${PROJECT_ID}.*org ${ORG_ID}`));
   });
 
   describe('with valid cloud project', () => {
@@ -120,13 +122,15 @@ describe('deploy', () => {
       const projectDir = join(tmpDir, PROJECT_DIR);
       mkdirSync(projectDir, { recursive: true });
       writeServiceYaml(projectDir, 'cloud');
-      await runCommand('link cloud --instance-id=inst-1 --org-id=org-1 --project-id=proj-1', { root });
+      writeLinkYaml(projectDir, { instance_id: INSTANCE_ID, org_id: ORG_ID, project_id: PROJECT_ID });
     });
 
     it('attempts deploy and errors with exit 1 when client fails', async () => {
       const result = await runDeployDirect();
       expect(result.error).toBeDefined();
-      expect(result.error?.message).toMatch(/Failed to .* instance inst-1 in project proj-1 in org org-1/);
+      expect(result.error?.message).toMatch(
+        new RegExp(`Failed to .* instance ${INSTANCE_ID} in project ${PROJECT_ID} in org ${ORG_ID}`)
+      );
     });
   });
 });

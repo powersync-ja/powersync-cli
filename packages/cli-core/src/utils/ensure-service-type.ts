@@ -1,6 +1,7 @@
 import { ux } from '@oclif/core';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
+
 import { PowerSyncCommand } from '../command-types/PowerSyncCommand.js';
 import { SERVICE_FILENAME } from './project-config.js';
 import { parseYamlFile } from './yaml.js';
@@ -31,6 +32,7 @@ export function ensureServiceTypeMatches(options: EnsureServiceTypeMatchesOption
         message: `${SERVICE_FILENAME} in "${directoryLabel}" is missing. Add \`_type: ${expectedType}\` for this command.`
       });
     }
+
     return;
   }
 

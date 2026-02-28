@@ -10,7 +10,7 @@ example-name/
 │   ├── docker/          # Docker Compose for PowerSync
 │   ├── cli.yaml        # Instance link (api_url, api_key)
 │   ├── service.yaml     # Service config (connections, auth)
-│   └── sync.yaml        # Sync config
+│   └── sync-config.yaml        # Sync config
 └── ...
 ```
 

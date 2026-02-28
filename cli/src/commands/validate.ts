@@ -105,10 +105,11 @@ async function runSyncRulesTestCloud(project: CloudProject): Promise<ValidationT
   const syncRulesContent =
     project.syncRulesContent ?? (existsSync(syncRulesPath) ? readFileSync(syncRulesPath, 'utf8') : undefined);
   if (!syncRulesContent?.trim()) {
-    return { errors: ['No sync.yaml found or empty.'], passed: false };
+    return { errors: ['No sync-config.yaml found or empty.'], passed: false };
   }
 
-  const client = await createCloudClient();
+  const client = createCloudClient();
+
   try {
     const result = await client.validateSyncRules({
       app_id: project.linked.project_id,
@@ -137,7 +138,7 @@ async function runSyncRulesTestSelfHosted(project: SelfHostedProject): Promise<V
   const syncRulesPath = join(project.projectDirectory, SYNC_FILENAME);
   const syncRulesContent = existsSync(syncRulesPath) ? readFileSync(syncRulesPath, 'utf8') : undefined;
   if (!syncRulesContent?.trim()) {
-    return { errors: ['No sync.yaml found or empty.'], passed: false };
+    return { errors: ['No sync-config.yaml found or empty.'], passed: false };
   }
 
   const client = createSelfHostedClient({
@@ -195,7 +196,31 @@ export default class Validate extends SharedInstanceCommand {
       ...(isCloud
         ? [
             { name: Tests.TEST_CONNECTIONS, run: () => this.runConnectionTestCloud(project as CloudProject) },
-            { name: Tests.SYNC_RULES, run: () => runSyncRulesTestCloud(project as CloudProject) }
+            {
+              name: Tests.SYNC_RULES,
+              async run() {
+                // We can only validate sync rules against a provisioned instance, so ensure that's the case before running the test.
+                const client = createCloudClient();
+                const cloudProject = project as CloudProject;
+
+                const status = await client.getInstanceStatus({
+                  app_id: cloudProject.linked.project_id,
+                  id: cloudProject.linked.instance_id,
+                  org_id: cloudProject.linked.org_id
+                });
+                if (!status.provisioned) {
+                  return {
+                    errors: [
+                      `Linked instance is not provisioned. Sync config validation requires a provisioned instance.`,
+                      `Deploy the instance, with ${ux.colorize('blue', 'powersync deploy')}, before validating sync config.`
+                    ],
+                    passed: false
+                  };
+                }
+
+                return runSyncRulesTestCloud(project as CloudProject);
+              }
+            }
           ]
         : [{ name: Tests.SYNC_RULES, run: () => runSyncRulesTestSelfHosted(project as SelfHostedProject) }])
     ];
@@ -211,18 +236,20 @@ export default class Validate extends SharedInstanceCommand {
       case 'human': {
         this.log('Running validation tests...');
 
-        const spinner = ora({ text: formatOraMessage(testEntries) }).start();
+        const spinner = ora({ discardStdin: false, text: formatOraMessage(testEntries) }).start();
         const promises = testEntries.map((entry, i) =>
           entry.promise
             .then((res) => {
               testEntries[i].result = res;
-              spinner.text = formatOraMessage(testEntries);
               return res;
             })
             .catch((error) => {
+              // Capture the failure so the spinner can complete and we can report all results together.
               testEntries[i].result = { errors: [String(error)], passed: false };
+              return testEntries[i].result;
+            })
+            .finally(() => {
               spinner.text = formatOraMessage(testEntries);
-              throw error;
             })
         );
         await Promise.all(promises);
