@@ -560,7 +560,7 @@ DESCRIPTION
 
   Run `docker compose down` then `docker compose up -d --wait`: stops and removes containers, then starts the stack and
   waits for services (including PowerSync) to be healthy. Use when you want a clean bring-up (e.g. after config
-  changes). Use `powersync fetch status` to debug running instances.
+  changes). Use `powersync status` to debug running instances.
 
 EXAMPLES
   $ powersync docker reset
@@ -586,7 +586,7 @@ DESCRIPTION
   Start the self-hosted PowerSync stack via Docker Compose.
 
   Runs `docker compose up -d --wait` for the project docker/ compose file; waits for services (including PowerSync) to
-  be healthy. Use `powersync fetch status` to debug running instances.
+  be healthy. Use `powersync status` to debug running instances.
 
 EXAMPLES
   $ powersync docker start
