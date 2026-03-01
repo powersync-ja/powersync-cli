@@ -21,6 +21,6 @@ powersync deploy
 This project can be used with any of the cloud cli commands e.g.
 
 ```bash
-powersync fetch status
+powersync status
 powersync generate schema --output-path=schema.ts --output=ts
 ```

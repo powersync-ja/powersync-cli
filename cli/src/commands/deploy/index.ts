@@ -381,7 +381,7 @@ export default class DeployAll extends CloudInstanceCommand {
       this.log(ux.colorize('green', 'Deployment operation completed successfully!'));
     } else {
       this.styledError({
-        message: `Deploy failed. Check instance diagnostics for details, for example: ${ux.colorize('blue', 'powersync fetch status')}`
+        message: `Deploy failed. Check instance diagnostics for details, for example: ${ux.colorize('blue', 'powersync status')}`
       });
     }
   }

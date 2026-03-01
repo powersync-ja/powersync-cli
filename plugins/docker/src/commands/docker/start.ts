@@ -5,7 +5,7 @@ import { getDockerProjectName, logPowersyncProjectsStopHelp, runDockerCompose } 
 
 export default class DockerStart extends SelfHostedInstanceCommand {
   static description =
-    'Runs `docker compose up -d --wait` for the project docker/ compose file; waits for services (including PowerSync) to be healthy. Use `powersync fetch status` to debug running instances.';
+    'Runs `docker compose up -d --wait` for the project docker/ compose file; waits for services (including PowerSync) to be healthy. Use `powersync status` to debug running instances.';
   static examples = ['<%= config.bin %> <%= command.id %>'];
   static flags = {
     ...SelfHostedInstanceCommand.flags
@@ -26,6 +26,6 @@ export default class DockerStart extends SelfHostedInstanceCommand {
       throw error;
     }
 
-    this.log(`\n\nTip: use "${ux.colorize('blue', 'powersync fetch status')}" to debug the running instance.`);
+    this.log(`\n\nTip: use "${ux.colorize('blue', 'powersync status')}" to debug the running instance.`);
   }
 }

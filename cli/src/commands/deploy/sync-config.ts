@@ -1,6 +1,7 @@
 import { ux } from '@oclif/core/ux';
 import { routes } from '@powersync/management-types';
 
+import { DEFAULT_DEPLOY_TIMEOUT_MS } from '../../api/cloud/wait-for-operation.js';
 import DeployAll from './index.js';
 
 export class DeploySyncConfig extends DeployAll {
@@ -65,6 +66,8 @@ export class DeploySyncConfig extends DeployAll {
     const { linked } = project;
     this.parseConfig(project.projectDirectory);
 
+    const deployTimeoutMs = (flags['deploy-timeout'] ?? DEFAULT_DEPLOY_TIMEOUT_MS / 1000) * 1000;
+
     // The existing config is required to deploy changes. The instance should have been created already.
     const cloudConfigState = await this.loadCloudConfigState();
 
@@ -97,7 +100,7 @@ export class DeploySyncConfig extends DeployAll {
         `\nThe instance is not currently provisioned. Triggering a deploy in order to reprovision. This may take a few minutes.\n`
       );
       // Don't yet update the sync config since the instance is not provisioned, but deploy to trigger provisioning
-      await this.deployAll({ cloudConfigState, deployTimeoutMs: flags.timeout, updateSyncConfig: false });
+      await this.deployAll({ cloudConfigState, deployTimeoutMs, updateSyncConfig: false });
     }
 
     // Validate sync config
@@ -106,6 +109,6 @@ export class DeploySyncConfig extends DeployAll {
 
     this.log('Validations completed successfully.\n');
 
-    await this.deploySyncConfig({ cloudConfigState, timeout: flags.timeout });
+    await this.deploySyncConfig({ cloudConfigState, timeout: deployTimeoutMs });
   }
 }
