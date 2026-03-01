@@ -16,9 +16,9 @@ import { PowerSyncManagementClient } from '@powersync/management-client';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { getDefaultOrgId } from '../clients/accounts-client.js';
-import { createCloudClient } from '../clients/CloudClient.js';
-import { ensureServiceTypeMatches, ServiceType } from '../utils/ensureServiceType.js';
+import { getDefaultOrgId } from '../clients/AccountsHubClientSDKClient.js';
+import { createCloudClient } from '../clients/create-cloud-client.js';
+import { ensureServiceTypeMatches, ServiceType } from '../utils/ensure-service-type.js';
 import { env } from '../utils/env.js';
 import { CLI_FILENAME, SERVICE_FILENAME, SYNC_FILENAME } from '../utils/project-config.js';
 import { parseYamlFile } from '../utils/yaml.js';
@@ -109,8 +109,9 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     options: EnsureConfigOptions = DEFAULT_ENSURE_CONFIG_OPTIONS
   ): Promise<CloudProject | SelfHostedProject> {
     const resolvedOptions = {
-      ...options,
-      ...DEFAULT_ENSURE_CONFIG_OPTIONS
+      ...DEFAULT_ENSURE_CONFIG_OPTIONS,
+      // Keep this order so call-site options override defaults.
+      ...options
     };
 
     const projectDir = this.ensureProjectDirectory(flags);

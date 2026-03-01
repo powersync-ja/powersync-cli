@@ -8,6 +8,7 @@ export default class Logout extends PowerSyncCommand {
   static summary = 'Remove stored auth token.';
 
   async run(): Promise<void> {
+    await this.parse(Logout);
     const { authentication } = Services;
 
     const token = await authentication.getToken();

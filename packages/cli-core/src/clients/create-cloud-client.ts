@@ -2,7 +2,7 @@ import * as sdk from '@journeyapps-labs/common-sdk';
 import { ux } from '@oclif/core';
 import { PowerSyncManagementClient } from '@powersync/management-client';
 
-import { Services } from '../services/services.js';
+import { Services } from '../services/Services.js';
 import { env } from '../utils/env.js';
 
 /**

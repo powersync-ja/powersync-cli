@@ -36,7 +36,7 @@ export default class Destroy extends CloudInstanceCommand {
     spinner.start();
 
     try {
-      const deactivateResult = await client.deactivateInstance({
+      const deactivateResult = await client.destroyInstance({
         app_id: linked.project_id,
         id: linked.instance_id,
         org_id: linked.org_id
@@ -56,7 +56,7 @@ export default class Destroy extends CloudInstanceCommand {
         this.log(ux.colorize('green', 'Instance destroyed successfully.'));
       } else {
         this.styledError({
-          message: `Operation failed. Check instance diagnostics for details, for example: ${ux.colorize('blue', 'powersync fetch status')}`
+          message: `Operation failed. Check instance diagnostics for details, for example: ${ux.colorize('blue', 'powersync status')}`
         });
       }
     } catch (error) {
