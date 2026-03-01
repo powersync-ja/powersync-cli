@@ -72,17 +72,20 @@ importers:
         specifier: workspace:*
         version: link:../packages/schemas
       '@powersync/management-client':
-        specifier: 0.0.1
-        version: 0.0.1(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
+        specifier: ^0.0.4
+        version: 0.0.4(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
       '@powersync/management-types':
-        specifier: 0.0.1
-        version: 0.0.1(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
+        specifier: ^0.0.3
+        version: 0.0.3(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
       '@powersync/service-sync-rules':
-        specifier: ^0.30.0
-        version: 0.30.0
+        specifier: ^0.32.0
+        version: 0.32.0
       '@powersync/service-types':
-        specifier: 0.0.0-dev-20260225093637
-        version: 0.0.0-dev-20260225093637
+        specifier: ^0.15.0
+        version: 0.15.0
+      bson:
+        specifier: ^7.2.0
+        version: 7.2.0
       fastify:
         specifier: ^5.0.0
         version: 5.7.4
@@ -151,14 +154,14 @@ importers:
         specifier: workspace:*
         version: link:../schemas
       '@powersync/management-client':
-        specifier: 0.0.1
-        version: 0.0.1(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)
+        specifier: ^0.0.4
+        version: 0.0.4(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)
       '@powersync/management-types':
-        specifier: 0.0.1
-        version: 0.0.1(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)
+        specifier: ^0.0.3
+        version: 0.0.3(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)
       '@powersync/service-client':
-        specifier: 0.0.2
-        version: 0.0.2(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)
+        specifier: ^0.0.3
+        version: 0.0.3(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)
       keychain:
         specifier: ^1.5.0
         version: 1.5.0
@@ -181,6 +184,9 @@ importers:
       '@monaco-editor/react':
         specifier: ^4.7.0
         version: 4.7.0(monaco-editor@0.52.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@powersync/cli-core':
+        specifier: workspace:*
+        version: link:../cli-core
       '@powersync/cli-schemas':
         specifier: workspace:*
         version: link:../schemas
@@ -223,6 +229,9 @@ importers:
       lucide-react:
         specifier: ^0.561.0
         version: 0.561.0(react@19.2.4)
+      minimatch:
+        specifier: ^5.0.0
+        version: 5.1.6
       monaco-editor:
         specifier: 0.52.0
         version: 0.52.0
@@ -297,14 +306,14 @@ importers:
   packages/schemas:
     dependencies:
       '@powersync/management-types':
-        specifier: 0.0.1
-        version: 0.0.1(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)
+        specifier: ^0.0.3
+        version: 0.0.3(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)
       '@powersync/service-schema':
-        specifier: 0.0.0-dev-20260225093637
-        version: 0.0.0-dev-20260225093637
+        specifier: ^1.20.0
+        version: 1.20.0
       '@powersync/service-types':
-        specifier: 0.0.0-dev-20260225093637
-        version: 0.0.0-dev-20260225093637
+        specifier: ^0.15.0
+        version: 0.15.0
       ajv:
         specifier: ^8.12.0
         version: 8.17.1
@@ -316,8 +325,8 @@ importers:
         version: 1.3.0
     devDependencies:
       '@powersync/service-sync-rules':
-        specifier: ^0.30.0
-        version: 0.30.0
+        specifier: ^0.32.0
+        version: 0.32.0
       '@types/node':
         specifier: ^22
         version: 22.19.7
@@ -377,11 +386,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/schemas
       '@powersync/service-schema':
-        specifier: 0.0.0-dev-20260225093637
-        version: 0.0.0-dev-20260225093637
+        specifier: ^1.20.0
+        version: 1.20.0
       '@powersync/service-types':
-        specifier: 0.0.0-dev-20260225093637
-        version: 0.0.0-dev-20260225093637
+        specifier: ^0.15.0
+        version: 0.15.0
       yaml:
         specifier: ^2
         version: 2.8.2
@@ -1477,50 +1486,41 @@ packages:
   '@powersync-community/sync-config-rewriter@0.1.1':
     resolution: {integrity: sha512-kFPslWetKrsD2eTl9ag9zQ7Buskc8SXKJW08swC7xwcZ/agYTy3jzR7ZYjqSwOwkcXtb9mJ42RgmaiVRJHKBSw==}
 
-  '@powersync/lib-services-framework@0.7.14':
-    resolution: {integrity: sha512-beQyt75NMkiRiZOqcLGuKnCnPzwe59hCO9GjUn8Ox70PQoXncIw/9W7A9OiECQkRnWKuzX5LVarUrMnm6GCh0A==}
+  '@powersync/lib-services-framework@0.8.3':
+    resolution: {integrity: sha512-qiAXwvXePJ1rfISSmMUy72zZhAHZio4zX6meZXO+PdweN7+UX3Dpbn258XqqguYLPBua0tO5wL3oq6WxFHp4iw==}
 
-  '@powersync/management-client@0.0.1':
-    resolution: {integrity: sha512-km7tP4ZhQbUEat6E7Mey2f8kmQvu5Qrhj7Xfsdrwp0yymr+0gNGDdGd7L4Mwqy5vvwMWAqiYoaGr6DLjSTk7BA==}
+  '@powersync/management-client@0.0.4':
+    resolution: {integrity: sha512-u6RpwNEUN1wsMqE/NsUL4i9LnJmod7/B9vH/hjwp7HWyLg8B9vNqxpgSd/4B+miJ3HI0nmdFXDsCPkhFtlceLA==}
 
-  '@powersync/management-types@0.0.1':
-    resolution: {integrity: sha512-kDvIpaBeRsjz7oU8abMUN4XriMVuwgtQET7vdlYHonzh7ceqID64KwM6zBdXJ2ljURQ9G1E0hdmwjzvn8cQn3g==}
+  '@powersync/management-types@0.0.3':
+    resolution: {integrity: sha512-OZ7xs7faDAZFIJO+l09SaXZHNuoFnoPUUVMGJpkYUpucB9a4AhO96pO+v8T/tKmOXqeNPySce+gExRQx3Ngokw==}
 
-  '@powersync/service-client@0.0.2':
-    resolution: {integrity: sha512-UUOGNuYFplmBS2PhrR6KQnQZejtgPnmYtgqg6qMyllRYj7Ctmfzu3ydqAQgpb8PpAQPCfOKV1Q62y1Rejknpfg==}
+  '@powersync/service-client@0.0.3':
+    resolution: {integrity: sha512-K83tOFdjRyFh76c4CKViRFyGJfBH9wSvtOvF2PxtbajAIPMzZEeunpnFj3vphx8CQyrDFWkR8/1Qa0BiCo30xQ==}
 
-  '@powersync/service-core@1.18.2':
-    resolution: {integrity: sha512-5ffw+V2KybJI0zDeLYSoOrhZNZRBldJfCysZ8Ht0kYwYwvRcdWH558K5YHqFYxao3yszTmOMLJuseUs4Aq5k7w==}
+  '@powersync/service-core@1.20.0':
+    resolution: {integrity: sha512-VVTGKDwT2VNonlrZOF/6JysbDDP8P8PHbURa9wU+TnWj7/1wde4zooClhbz9+XNYBUeVeu2oNEQ9M41jdCttsw==}
 
-  '@powersync/service-errors@0.3.6':
-    resolution: {integrity: sha512-dLbh8E+VyaKiOSwoqeYledFq3Fiz90SOkTzi2Ej4Wo1L9jBcuT2TZDRMIw2bQc27UQ6iXAZp8pEvS8lhfx5gWw==}
+  '@powersync/service-errors@0.3.7':
+    resolution: {integrity: sha512-2GQRHV9D6aasRMatOs89iqedjJKt1090ltiEQreA3J1E1ezMZyxEw/0+idQSMSY+7IGpvnABi3tc4kkqr/Y5aw==}
 
   '@powersync/service-jsonbig@0.17.12':
     resolution: {integrity: sha512-ilssJP6I+v8LfBCIwRJlKZhuxVT7pGhYg/B2+xsodVRRmTkyRDpmBpV+RlabksbtR1H0G3aXm5AtNYwmfblBkQ==}
 
-  '@powersync/service-module-mssql@0.1.2':
-    resolution: {integrity: sha512-tMYOHtXdnwVs0hXgs9Rh+EYXI9QjjXguTOnX6LeEWxu+WayMOK5FhLUxbdAi5bMYV27Xu86jTofhkgdIbrn9Pg==}
+  '@powersync/service-module-mssql@0.4.0':
+    resolution: {integrity: sha512-jTAjQJLnfW4g3iV/OO6KRpkh7RUujdjyk3uYob6t7tneICivh0KW4H6ZvRK+c5xFiaAWvpM7jPjAywGMz13yMg==}
 
-  '@powersync/service-rsocket-router@0.2.11':
-    resolution: {integrity: sha512-ChnVdoXestJGLd6vfwITkMvYwmOyEnKyZmfQf1ByuyfRi3sM+FByy6QGTgcKx14GxCMEU0aanf0Q5zOPhAvp4Q==}
+  '@powersync/service-rsocket-router@0.2.15':
+    resolution: {integrity: sha512-diiukOxBqlv3+ecT0yAzP8ZY6H7BnrtsC7diiPiqS2K26IVzVTl55L2oZdmCHZvN/K5f9HuOC3BWF3rMvqzo0w==}
 
-  '@powersync/service-schema@0.0.0-dev-20260225093637':
-    resolution: {integrity: sha512-A7pV3HcOjXP3PoMNiQXwu9BoAqRKLjqSgP+9rbvzxokZF+5axnhKGHKH9UVlcRGjt2DZ0PASMtBYRJiljaHNkA==}
+  '@powersync/service-schema@1.20.0':
+    resolution: {integrity: sha512-y3qdf0LjURJ6yo+uxLA+g7MaS/OQRul3iyqn6u02GGAYPk9/iZuAhoTxKl+hTwY16vDUvs49XQt3hpCFC8u4Mg==}
 
-  '@powersync/service-sync-rules@0.29.10':
-    resolution: {integrity: sha512-z26aJVvTVeYhFuopItQEwU3snS0BfTrPRA6PWkpfgN6RAEOCzb0oj8L/D3RM4w0k6FqyxEQb7/TI11YAUv7Lrg==}
+  '@powersync/service-sync-rules@0.32.0':
+    resolution: {integrity: sha512-KGISJPucXcPBJ5mhtYrR9xZmjR/VV3gkwGnAColxFy0MdFc+9Qq/2aZpNJsAWHTpGKKlcX0OuOBbsS/anXeWRg==}
 
-  '@powersync/service-sync-rules@0.30.0':
-    resolution: {integrity: sha512-3ud6ZICdI1d86OWRMGLJMWvkzd32oZxwNa9QGyqvrJUJ8S0UjLC6Pl3xYVHehC8X8S1dNMr2YQjrAPfpJTgjmw==}
-
-  '@powersync/service-types@0.0.0-dev-20260225093637':
-    resolution: {integrity: sha512-4nkt9lGg/85A+U0XjeRe/0JLaEJ6dSzn1FdvfXXaftHvjJNIRLpTAw1jYLKEwQ+tCOFu9HlH5LdXqRiEeO+Isw==}
-
-  '@powersync/service-types@0.13.3':
-    resolution: {integrity: sha512-4QLFpvuZlAo3aBBfBvN/K1r8cvY7iRm7H2USuGFBLATq8onL33njPpho/ps2sm4LxPhwlQcUU0ApywAHajhCzg==}
-
-  '@powersync/service-types@0.14.0':
-    resolution: {integrity: sha512-fb5nUWWdoP13CQqJZrmSwt6W3DyINbc9nGfKe3rPOiPJlsMQZ6ea7ePKzPurHtFhgu628ThKQAQJ+q4R8+Ylfw==}
+  '@powersync/service-types@0.15.0':
+    resolution: {integrity: sha512-wIdHCT+vhwoJAMZ414/dwG8fd51+fEWnPbwShkwNE5XTwA0UGOT8aGyVZqzT8PT0sVos5famYYqG203Mjb7q6g==}
 
   '@protobufjs/aspromise@1.1.2':
     resolution: {integrity: sha512-j+gKExEuLmKwvz3OgROXtrJ2UG2x8Ch2YZUxahh+s1F2HZ+wAceUNLkvy6zKCPVRkU++ZWQrdxsUeQXmcg4uoQ==}
@@ -3053,6 +3053,10 @@ packages:
   bson@6.10.4:
     resolution: {integrity: sha512-WIsKqkSC0ABoBJuT1LEX+2HEvNmNKKgnTAyd0fL8qzK4SH2i9NXg+t08YtdZp/V9IZ33cxe3iV4yM0qg8lMQng==}
     engines: {node: '>=16.20.1'}
+
+  bson@7.2.0:
+    resolution: {integrity: sha512-YCEo7KjMlbNlyHhz7zAZNDpIpQbd+wOEHJYezv0nMYTn4x31eIUM2yomNNubclAt63dObUzKHWsBLJ9QcZNSnQ==}
+    engines: {node: '>=20.19.0'}
 
   buffer-equal-constant-time@1.0.1:
     resolution: {integrity: sha512-zRpUiDwd/xk6ADqPMATG8vc9VPrkck7T07OIx0gnjmJAnHnTVXNQG3vfvWNuiZIkwu9KrKdA1iJKfsfTVxE6NA==}
@@ -8138,10 +8142,10 @@ snapshots:
 
   '@powersync-community/sync-config-rewriter@0.1.1': {}
 
-  '@powersync/lib-services-framework@0.7.14':
+  '@powersync/lib-services-framework@0.8.3':
     dependencies:
-      '@powersync/service-errors': 0.3.6
-      '@powersync/service-sync-rules': 0.29.10
+      '@powersync/service-errors': 0.3.7
+      '@powersync/service-sync-rules': 0.32.0
       ajv: 8.17.1
       better-ajv-errors: 1.2.0(ajv@8.17.1)
       bson: 6.10.4
@@ -8153,10 +8157,10 @@ snapshots:
       winston: 3.19.0
       zod: 3.25.76
 
-  '@powersync/management-client@0.0.1(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)':
+  '@powersync/management-client@0.0.4(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)':
     dependencies:
       '@journeyapps-labs/common-sdk': 1.0.2(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)
-      '@powersync/management-types': 0.0.1(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)
+      '@powersync/management-types': 0.0.3(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)
     transitivePeerDependencies:
       - '@edge-runtime/vm'
       - '@types/debug'
@@ -8181,10 +8185,10 @@ snapshots:
       - utf-8-validate
       - yaml
 
-  '@powersync/management-client@0.0.1(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)':
+  '@powersync/management-client@0.0.4(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)':
     dependencies:
       '@journeyapps-labs/common-sdk': 1.0.2(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
-      '@powersync/management-types': 0.0.1(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
+      '@powersync/management-types': 0.0.3(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
     transitivePeerDependencies:
       - '@edge-runtime/vm'
       - '@types/debug'
@@ -8209,11 +8213,11 @@ snapshots:
       - utf-8-validate
       - yaml
 
-  '@powersync/management-types@0.0.1(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)':
+  '@powersync/management-types@0.0.3(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)':
     dependencies:
       '@journeyapps-labs/micro-codecs': 1.0.1(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
-      '@powersync/service-module-mssql': 0.1.2
-      '@powersync/service-types': 0.13.3
+      '@powersync/service-module-mssql': 0.4.0
+      '@powersync/service-types': 0.15.0
       bson: 6.10.4
       ts-codec: 1.3.0
     transitivePeerDependencies:
@@ -8239,11 +8243,11 @@ snapshots:
       - utf-8-validate
       - yaml
 
-  '@powersync/management-types@0.0.1(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)':
+  '@powersync/management-types@0.0.3(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)':
     dependencies:
       '@journeyapps-labs/micro-codecs': 1.0.1(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)
-      '@powersync/service-module-mssql': 0.1.2
-      '@powersync/service-types': 0.13.3
+      '@powersync/service-module-mssql': 0.4.0
+      '@powersync/service-types': 0.15.0
       bson: 6.10.4
       ts-codec: 1.3.0
     transitivePeerDependencies:
@@ -8269,11 +8273,11 @@ snapshots:
       - utf-8-validate
       - yaml
 
-  '@powersync/management-types@0.0.1(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)':
+  '@powersync/management-types@0.0.3(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)':
     dependencies:
       '@journeyapps-labs/micro-codecs': 1.0.1(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)
-      '@powersync/service-module-mssql': 0.1.2
-      '@powersync/service-types': 0.13.3
+      '@powersync/service-module-mssql': 0.4.0
+      '@powersync/service-types': 0.15.0
       bson: 6.10.4
       ts-codec: 1.3.0
     transitivePeerDependencies:
@@ -8299,10 +8303,10 @@ snapshots:
       - utf-8-validate
       - yaml
 
-  '@powersync/service-client@0.0.2(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)':
+  '@powersync/service-client@0.0.3(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)':
     dependencies:
       '@journeyapps-labs/common-sdk': 1.0.2(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)
-      '@powersync/service-types': 0.14.0
+      '@powersync/service-types': 0.15.0
     transitivePeerDependencies:
       - '@edge-runtime/vm'
       - '@types/debug'
@@ -8325,7 +8329,7 @@ snapshots:
       - tsx
       - yaml
 
-  '@powersync/service-core@1.18.2':
+  '@powersync/service-core@1.20.0':
     dependencies:
       '@js-sdsl/ordered-set': 4.4.2
       '@opentelemetry/api': 1.9.0
@@ -8333,11 +8337,11 @@ snapshots:
       '@opentelemetry/exporter-prometheus': 0.203.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/resources': 2.5.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/sdk-metrics': 2.5.0(@opentelemetry/api@1.9.0)
-      '@powersync/lib-services-framework': 0.7.14
+      '@powersync/lib-services-framework': 0.8.3
       '@powersync/service-jsonbig': 0.17.12
-      '@powersync/service-rsocket-router': 0.2.11
-      '@powersync/service-sync-rules': 0.29.10
-      '@powersync/service-types': 0.13.3
+      '@powersync/service-rsocket-router': 0.2.15
+      '@powersync/service-sync-rules': 0.32.0
+      '@powersync/service-types': 0.15.0
       async: 3.2.6
       async-mutex: 0.5.0
       bson: 6.10.4
@@ -8360,20 +8364,20 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@powersync/service-errors@0.3.6': {}
+  '@powersync/service-errors@0.3.7': {}
 
   '@powersync/service-jsonbig@0.17.12':
     dependencies:
       lossless-json: 2.0.11
 
-  '@powersync/service-module-mssql@0.1.2':
+  '@powersync/service-module-mssql@0.4.0':
     dependencies:
-      '@powersync/lib-services-framework': 0.7.14
-      '@powersync/service-core': 1.18.2
-      '@powersync/service-errors': 0.3.6
+      '@powersync/lib-services-framework': 0.8.3
+      '@powersync/service-core': 1.20.0
+      '@powersync/service-errors': 0.3.7
       '@powersync/service-jsonbig': 0.17.12
-      '@powersync/service-sync-rules': 0.29.10
-      '@powersync/service-types': 0.13.3
+      '@powersync/service-sync-rules': 0.32.0
+      '@powersync/service-types': 0.15.0
       mssql: 12.2.0
       semver: 7.7.3
       ts-codec: 1.3.0
@@ -8385,9 +8389,9 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@powersync/service-rsocket-router@0.2.11':
+  '@powersync/service-rsocket-router@0.2.15':
     dependencies:
-      '@powersync/lib-services-framework': 0.7.14
+      '@powersync/lib-services-framework': 0.8.3
       rsocket-core: 1.0.0-alpha.3
       ts-codec: 1.3.0
       uuid: 11.1.0
@@ -8396,9 +8400,9 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@powersync/service-schema@0.0.0-dev-20260225093637': {}
+  '@powersync/service-schema@1.20.0': {}
 
-  '@powersync/service-sync-rules@0.29.10':
+  '@powersync/service-sync-rules@0.32.0':
     dependencies:
       '@powersync/service-jsonbig': 0.17.12
       '@syncpoint/wkx': 0.5.2
@@ -8407,32 +8411,7 @@ snapshots:
       uuid: 11.1.0
       yaml: 2.8.2
 
-  '@powersync/service-sync-rules@0.30.0':
-    dependencies:
-      '@powersync/service-jsonbig': 0.17.12
-      '@syncpoint/wkx': 0.5.2
-      ajv: 8.17.1
-      pgsql-ast-parser: 11.2.0
-      uuid: 11.1.0
-      yaml: 2.8.2
-
-  '@powersync/service-types@0.0.0-dev-20260225093637':
-    dependencies:
-      dedent: 1.7.1
-      ts-codec: 1.3.0
-      uri-js: 4.4.1
-    transitivePeerDependencies:
-      - babel-plugin-macros
-
-  '@powersync/service-types@0.13.3':
-    dependencies:
-      dedent: 1.7.1
-      ts-codec: 1.3.0
-      uri-js: 4.4.1
-    transitivePeerDependencies:
-      - babel-plugin-macros
-
-  '@powersync/service-types@0.14.0':
+  '@powersync/service-types@0.15.0':
     dependencies:
       dedent: 1.7.1
       ts-codec: 1.3.0
@@ -10156,6 +10135,8 @@ snapshots:
       update-browserslist-db: 1.2.3(browserslist@4.28.1)
 
   bson@6.10.4: {}
+
+  bson@7.2.0: {}
 
   buffer-equal-constant-time@1.0.1: {}
 

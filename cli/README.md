@@ -264,6 +264,7 @@ See [docs/usage.md](../docs/usage.md) for full usage and resolution order (flags
 - [`powersync docker reset`](#powersync-docker-reset)
 - [`powersync docker start`](#powersync-docker-start)
 - [`powersync docker stop`](#powersync-docker-stop)
+- [`powersync edit config`](#powersync-edit-config)
 - [`powersync fetch config`](#powersync-fetch-config)
 - [`powersync fetch instances`](#powersync-fetch-instances)
 - [`powersync fetch status`](#powersync-fetch-status)
@@ -632,6 +633,46 @@ EXAMPLES
   $ powersync docker stop --project-name=powersync_myapp --remove
 ```
 
+## `powersync edit config`
+
+Open the PowerSync configuration editor (Nitro preview).
+
+```
+USAGE
+  $ powersync edit config [--api-url <value> | --instance-id <value> | --org-id <value> | --project-id <value>]
+    [--directory <value>] [--host <value>] [--port <value>]
+
+FLAGS
+  --host=<value>  [default: 0.0.0.0] Host to bind the editor preview server.
+  --port=<value>  [default: 3000] Port for the editor preview server.
+
+SELF_HOSTED_PROJECT FLAGS
+  --api-url=<value>  [Self-hosted] PowerSync API URL. When set, context is treated as self-hosted (exclusive with
+                     --instance-id). Resolved: flag → cli.yaml → API_URL.
+
+PROJECT FLAGS
+  --directory=<value>  [default: powersync] Directory containing PowerSync config. Defaults to "powersync". This is
+                       required if multiple powersync config files are present in subdirectories of the current working
+                       directory.
+
+CLOUD_PROJECT FLAGS
+  --instance-id=<value>  [Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud
+                         (exclusive with --api-url). Resolved: flag → cli.yaml → INSTANCE_ID.
+  --org-id=<value>       [Cloud] Organization ID (optional). Defaults to the token’s single org when only one is
+                         available; pass explicitly if the token has multiple orgs. Resolved: flag → cli.yaml → ORG_ID.
+  --project-id=<value>   [Cloud] Project ID. Resolved: flag → cli.yaml → PROJECT_ID.
+
+DESCRIPTION
+  Open the PowerSync configuration editor (Nitro preview).
+
+  Loads the linked project context and runs the editor Vite preview to edit config files.
+
+EXAMPLES
+  $ powersync edit config
+
+  $ powersync edit config --directory ./powersync
+```
+
 ## `powersync fetch config`
 
 [Cloud only] Print linked Cloud instance config (YAML or JSON).
@@ -748,13 +789,12 @@ Generate client schema file from instance schema and sync config.
 
 ```
 USAGE
-  $ powersync generate schema --output dart|dotNet|flutterFlow|js|jsLegacy|kotlin|swift|ts --output-path <value>
-    [--api-url <value> | --instance-id <value> | --org-id <value> | --project-id <value>] [--directory <value>]
+  $ powersync generate schema --output dart|dotNet|js|jsLegacy|kotlin|swift|ts --output-path <value> [--api-url
+    <value> | --instance-id <value> | --org-id <value> | --project-id <value>] [--directory <value>]
 
 FLAGS
-  --output=<option>      (required) [default: type] Output type: dart, dotNet, flutterFlow, js, jsLegacy, kotlin, swift,
-                         ts
-                         <options: dart|dotNet|flutterFlow|js|jsLegacy|kotlin|swift|ts>
+  --output=<option>      (required) [default: type] Output type: dart, dotNet, js, jsLegacy, kotlin, swift, ts
+                         <options: dart|dotNet|js|jsLegacy|kotlin|swift|ts>
   --output-path=<value>  (required) Path to output the schema file.
 
 SELF_HOSTED_PROJECT FLAGS

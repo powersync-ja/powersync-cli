@@ -6,6 +6,6 @@ import SyncConfigSchema from '@powersync/cli-schemas/sync-config-schema.json' wi
  * We don't import the filenames since the OCLIF packages are difficult to separate client-side.
  */
 export const YAML_SCHEMAS = {
-  ['service.yaml']: ServiceSchema,
-  ['sync.yaml']: SyncConfigSchema
+  'service.yaml': ServiceSchema,
+  'sync-config.yaml': SyncConfigSchema
 };

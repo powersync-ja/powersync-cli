@@ -1,82 +1,96 @@
-import { YAML_SCHEMAS } from '@/utils/yaml-schemas';
-import Editor, { loader, type BeforeMount, type Monaco, type OnMount } from '@monaco-editor/react';
 import type { editor } from 'monaco-editor';
+
+import MonacoReactEditor, { type BeforeMount, loader, type Monaco, type OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
+// eslint-disable-next-line import/default
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import { configureMonacoYaml } from 'monaco-yaml';
+// eslint-disable-next-line import/default
 import YamlWorker from 'monaco-yaml/yaml.worker?worker';
+import { useRef } from 'react';
+
+import { YAML_SCHEMAS } from '../utils/yaml-schemas';
 
 loader.config({ monaco });
 
-if (typeof window !== 'undefined') {
-  window.MonacoEnvironment = {
+if (typeof globalThis !== 'undefined') {
+  globalThis.MonacoEnvironment = {
     getWorker(_, label) {
       switch (label) {
-        case 'editorWorkerService':
-          return new EditorWorker();
-        case 'yaml':
+        case 'yaml': {
           return new YamlWorker();
-        default:
-          console.log(`Unknown Monaco editor worker label: ${label}. Falling back to default editor worker.`);
-          throw new Error(`Unknown label ${label}`);
+        }
+
+        default: {
+          return new EditorWorker();
+        }
       }
     }
   };
 }
 
 const defaultOptions: editor.IStandaloneEditorConstructionOptions = {
-  readOnly: false,
-  minimap: { enabled: false },
-  formatOnType: true,
   formatOnPaste: true,
+  formatOnType: true,
+  minimap: { enabled: false },
   quickSuggestions: {
-    other: true,
     comments: false,
+    other: true,
     strings: true
-  }
+  },
+  readOnly: false
 };
 
 export type MonacoEditorProps = {
+  beforeMount?: BeforeMount;
   className?: string;
-  value: string;
-  path?: string;
+  customTags?: string[];
+  height?: number | string;
   language?: string;
-  height?: string | number;
   onChange?: (value: string | undefined) => void;
+  onMount?: OnMount;
   onValidate?: (markers: editor.IMarker[]) => void;
   options?: editor.IStandaloneEditorConstructionOptions;
-  beforeMount?: BeforeMount;
-  onMount?: OnMount;
+  path?: string;
+  value: string;
 };
 
 export function MonacoEditor({
+  beforeMount,
   className,
-  value,
-  path,
-  language = 'yaml',
+  customTags,
   height = '100%',
+  language = 'yaml',
   onChange,
+  onMount,
   onValidate,
   options,
-  beforeMount,
-  onMount
+  path,
+  value
 }: MonacoEditorProps) {
-  const handleBeforeMount: BeforeMount = (monacoInstance: Monaco) => {
-    const schemas = Object.entries(YAML_SCHEMAS).map(([filename, schema]) => ({
-      uri: `inmemory://schemas/${filename}.json`,
-      fileMatch: [filename, `**/${filename}`],
-      schema
-    }));
+  const configuredMonacoRef = useRef<Monaco | null>(null);
 
-    configureMonacoYaml(monacoInstance, {
-      enableSchemaRequest: true,
-      hover: true,
-      completion: true,
-      validate: true,
-      format: true,
-      customTags: ['!env scalar'],
-      schemas: [...(schemas as any)]
-    });
+  const handleBeforeMount: BeforeMount = (monacoInstance: Monaco) => {
+    const shouldConfigureYaml = configuredMonacoRef.current !== monacoInstance;
+
+    if (shouldConfigureYaml) {
+      const schemas = Object.entries(YAML_SCHEMAS).map(([filename, schema]) => ({
+        fileMatch: [filename],
+        schema,
+        uri: `inmemory://schemas/${filename}.json`
+      }));
+
+      configureMonacoYaml(monacoInstance, {
+        completion: true,
+        customTags: customTags ?? [],
+        enableSchemaRequest: true,
+        format: true,
+        hover: true,
+        schemas,
+        validate: true
+      });
+      configuredMonacoRef.current = monacoInstance;
+    }
 
     if (beforeMount) {
       beforeMount(monacoInstance);
@@ -90,19 +104,19 @@ export function MonacoEditor({
   };
 
   return (
-    <Editor
-      className={className}
-      height={height}
-      path={path}
-      defaultLanguage={language}
-      language={language}
-      value={value}
-      onChange={onChange}
-      onValidate={onValidate}
-      theme="vs-dark"
-      options={{ ...defaultOptions, ...options }}
+    <MonacoReactEditor
       beforeMount={handleBeforeMount}
+      className={className}
+      defaultLanguage={language}
+      height={height}
+      language={language}
+      onChange={onChange}
       onMount={handleMount}
+      onValidate={onValidate}
+      options={{ ...defaultOptions, ...options }}
+      path={path}
+      theme="vs-dark"
+      value={value}
     />
   );
 }

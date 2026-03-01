@@ -25,5 +25,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "references": [{ "path": "../schemas" }]
+  "references": [{ "path": "../schemas" }, { "path": "../cli-core" }]
 }

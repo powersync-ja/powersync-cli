@@ -2,6 +2,7 @@ import { Flags, ux } from '@oclif/core';
 import { CloudInstanceCommand, SERVICE_FILENAME } from '@powersync/cli-core';
 import { ServiceCloudConfigDecoded } from '@powersync/cli-schemas';
 import { routes } from '@powersync/management-types';
+import { ObjectId } from 'bson';
 import ora from 'ora';
 
 import { formatTestConnectionFailure, testCloudConnections } from '../../api/cloud/test-connection.js';
@@ -73,12 +74,13 @@ export default class DeployAll extends CloudInstanceCommand {
         // Spread the existing config like name, and program version contraints.
         // Should we allow specifying these in the config file?
         ...cloudConfigState,
-        app_id: linked.project_id,
+        app_id: new ObjectId(linked.project_id),
         // The encoding will ensure the correct typing
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         config: config as any,
         // Allow updating the instance name
         name: config.name,
+        org_id: new ObjectId(linked.org_id),
         sync_rules: updateSyncConfig ? syncRulesContent : cloudConfigState.sync_rules
       })
     );

@@ -2,167 +2,31 @@ import { Flags, ux } from '@oclif/core';
 import {
   CloudProject,
   createCloudClient,
-  createSelfHostedClient,
-  parseYamlFile,
   SelfHostedProject,
-  SERVICE_FILENAME,
   SharedInstanceCommand,
-  SYNC_FILENAME
+  ValidationResult,
+  ValidationTestResult,
+  ValidationTestRunResult
 } from '@powersync/cli-core';
-import { ServiceCloudConfig, ServiceCloudConfigDecoded, ServiceSelfHostedConfig } from '@powersync/cli-schemas';
-import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { ServiceCloudConfigDecoded } from '@powersync/cli-schemas';
 import ora from 'ora';
-import { Document } from 'yaml';
 
 import { testCloudConnections } from '../api/cloud/test-connection.js';
-
-/** Result from a single test run (name comes from the entry). */
-type ValidationTestRunResult = {
-  errors?: string[];
-  passed: boolean;
-};
-
-type ValidationTestResult = ValidationTestRunResult & {
-  name: string;
-};
-
-type ValidationResult = {
-  passed: boolean;
-  tests: ValidationTestResult[];
-};
-
-/** Test definition: name and a function that returns a promise of the result. */
-type ValidationTestDef = {
-  name: string;
-  run: () => Promise<ValidationTestRunResult>;
-};
-
-/** Test entry with optional result (set when promise settles). */
-type ValidationTestEntry = {
-  name: string;
-  promise: Promise<ValidationTestRunResult>;
-  result?: ValidationTestRunResult;
-};
-
-const INDENT = '  ';
-const BULLET = '•';
-
-enum Tests {
-  CONFIGURATION_SCHEMA = 'Validate Configuration Schema',
-  SYNC_RULES = 'Validate Sync Config',
-  TEST_CONNECTIONS = 'Test Connections'
-}
-
-function formatOraMessage(entries: ValidationTestEntry[]): string {
-  return entries
-    .map((e) => (e.result === undefined ? `\t... ${e.name}` : e.result.passed ? `\t✓ ${e.name}` : `\t✗ ${e.name}`))
-    .join('\n');
-}
-
-function formatTestHuman(test: ValidationTestResult): string {
-  const status = test.passed ? '✓' : '✗';
-  const name = `${status} ${test.name}`;
-  if (test.passed) return name;
-  const errorLines = (test.errors ?? []).map((e) => `${INDENT}${BULLET} ${e}`);
-  return [name, ...errorLines].join('\n');
-}
-
-function formatValidationHuman(result: ValidationResult): string {
-  const header = result.passed ? 'All validation tests passed.' : 'Some validation tests failed.';
-  const lines = [header, '', ...result.tests.map((test) => formatTestHuman(test))];
-  return lines.join('\n');
-}
-
-function formatValidationJson(result: ValidationResult): string {
-  return JSON.stringify(result, null, 2);
-}
-
-function formatValidationYaml(result: ValidationResult): string {
-  return new Document(result).toString();
-}
-
-async function runConfigTest(projectDir: string, isCloud: boolean): Promise<ValidationTestRunResult> {
-  const servicePath = join(projectDir, SERVICE_FILENAME);
-  try {
-    const doc = parseYamlFile(servicePath);
-    const raw = doc.contents?.toJSON();
-    if (isCloud) {
-      ServiceCloudConfig.decode(raw);
-    } else {
-      ServiceSelfHostedConfig.decode(raw);
-    }
-
-    return { passed: true };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return { errors: [message], passed: false };
-  }
-}
-
-async function runSyncRulesTestCloud(project: CloudProject): Promise<ValidationTestRunResult> {
-  const syncRulesPath = join(project.projectDirectory, SYNC_FILENAME);
-  const syncRulesContent =
-    project.syncRulesContent ?? (existsSync(syncRulesPath) ? readFileSync(syncRulesPath, 'utf8') : undefined);
-  if (!syncRulesContent?.trim()) {
-    return { errors: ['No sync-config.yaml found or empty.'], passed: false };
-  }
-
-  const client = createCloudClient();
-
-  try {
-    const result = await client.validateSyncRules({
-      app_id: project.linked.project_id,
-      id: project.linked.instance_id,
-      org_id: project.linked.org_id,
-      sync_rules: syncRulesContent
-    });
-    const hasFatalErrors = (result.connections ?? []).some((c) =>
-      (c.tables ?? []).some((t) => (t.errors ?? []).some((e) => e.level === 'fatal'))
-    );
-    const passed = !hasFatalErrors;
-    const errors = (result.connections ?? []).flatMap((c) =>
-      (c.tables ?? []).flatMap((t) => (t.errors ?? []).map((e) => `${t.schema}.${t.name}: [${e.level}] ${e.message}`))
-    );
-    return {
-      errors: errors.length > 0 ? errors : undefined,
-      passed
-    };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return { errors: [message], passed: false };
-  }
-}
-
-async function runSyncRulesTestSelfHosted(project: SelfHostedProject): Promise<ValidationTestRunResult> {
-  const syncRulesPath = join(project.projectDirectory, SYNC_FILENAME);
-  const syncRulesContent = existsSync(syncRulesPath) ? readFileSync(syncRulesPath, 'utf8') : undefined;
-  if (!syncRulesContent?.trim()) {
-    return { errors: ['No sync-config.yaml found or empty.'], passed: false };
-  }
-
-  const client = createSelfHostedClient({
-    apiKey: project.linked.api_key,
-    apiUrl: project.linked.api_url
-  });
-  try {
-    const result = await client.validate({ sync_rules: syncRulesContent });
-    const hasFatalErrors = (result.connections ?? []).some((c) =>
-      (c.tables ?? []).some((t) => (t.errors ?? []).some((e) => e.level === 'fatal'))
-    );
-    const passed = !hasFatalErrors;
-    const errors = (result.connections ?? []).flatMap((c) =>
-      (c.tables ?? []).flatMap((t) => (t.errors ?? []).map((e) => `${t.schema}.${t.name}: [${e.level}] ${e.message}`))
-    );
-    return {
-      errors: errors.length > 0 ? errors : undefined,
-      passed
-    };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return { errors: [message], passed: false };
-  }
-}
+import {
+  BULLET,
+  formatOraMessage,
+  formatValidationHuman,
+  formatValidationJson,
+  formatValidationYaml,
+  INDENT,
+  renderWarningForHumanOutput,
+  runConfigTest,
+  runSyncRulesTestCloud,
+  runSyncRulesTestSelfHosted,
+  Tests,
+  type ValidationTestDef,
+  type ValidationTestEntry
+} from '../api/run-validation-tests.js';
 
 export default class Validate extends SharedInstanceCommand {
   static description =
@@ -263,14 +127,26 @@ export default class Validate extends SharedInstanceCommand {
         );
 
         for (const test of result.tests) {
-          if (test.passed) {
-            this.log(`✓ ${ux.colorize('blue', test.name)}`);
-          } else {
-            this.log(`✗ ${ux.colorize('blue', test.name)}`);
-            for (const error of test.errors ?? []) {
-              this.log(ux.colorize('red', `${INDENT}${BULLET} ${error}`));
+          const status = test.passed ? '✓' : '✗';
+          this.log(`${status} ${ux.colorize('blue', test.name)}`);
+
+          const warnings = test.warnings ?? [];
+          for (const [index, warning] of warnings.entries()) {
+            const warningLines = renderWarningForHumanOutput(warning);
+            for (const line of warningLines) {
+              this.log(line);
             }
 
+            if (index < warnings.length - 1) {
+              this.log('');
+            }
+          }
+
+          for (const error of test.errors ?? []) {
+            this.log(ux.colorize('red', `${INDENT}${BULLET} ${error}`));
+          }
+
+          if ((test.warnings?.length ?? 0) > 0 || (test.errors?.length ?? 0) > 0) {
             this.log('');
           }
         }
@@ -310,7 +186,7 @@ export default class Validate extends SharedInstanceCommand {
   }
 
   async runConnectionTestCloud(project: CloudProject): Promise<ValidationTestRunResult> {
-    const client = await createCloudClient();
+    const client = createCloudClient();
     let config: ServiceCloudConfigDecoded;
     try {
       config = this.parseCloudConfig(project.projectDirectory);
