@@ -317,7 +317,7 @@ export default class DeployAll extends CloudInstanceCommand {
           sync_rules: project.syncRulesContent ?? ''
         })
         .catch((error) => {
-          if (retry === 9) {
+          if (retry === 99) {
             this.styledError({
               error,
               message: `Failed to validate sync config for instance ${project.linked.instance_id} in project ${project.linked.project_id} in org ${project.linked.org_id}. Ensure the sync config is valid before deploying.`,
@@ -342,6 +342,9 @@ export default class DeployAll extends CloudInstanceCommand {
           suggestions: ['Check your sync config and try again.']
         });
       }
+
+      // Validation succeeded with no errors
+      return;
     }
   }
 

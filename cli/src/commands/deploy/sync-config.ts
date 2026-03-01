@@ -4,7 +4,7 @@ import { routes } from '@powersync/management-types';
 import { DEFAULT_DEPLOY_TIMEOUT_MS } from '../../api/cloud/wait-for-operation.js';
 import DeployAll from './index.js';
 
-export class DeploySyncConfig extends DeployAll {
+export default class DeploySyncConfig extends DeployAll {
   static description = 'Deploy only sync config changes.';
   static examples = [
     '<%= config.bin %> <%= command.id %>',
@@ -56,7 +56,7 @@ export class DeploySyncConfig extends DeployAll {
   }
 
   async run(): Promise<void> {
-    const { flags } = await this.parse(DeployAll);
+    const { flags } = await this.parse(DeploySyncConfig);
 
     const project = await this.loadProject(flags, {
       // We don't need the config to be managed locally for this
