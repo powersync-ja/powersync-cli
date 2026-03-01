@@ -200,7 +200,7 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
     }
 
     this._project = {
-      linked: linked!,
+      linked,
       projectDirectory: projectDir,
       syncRulesContent
     };

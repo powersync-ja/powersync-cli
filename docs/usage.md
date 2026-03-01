@@ -222,7 +222,7 @@ If you decline this prompt, login exits without storing a token. Use `PS_ADMIN_T
 
 # Supplying Linking Information for Cloud and Self-Hosted Commands
 
-Cloud and self-hosted commands need instance (and for Cloud, org and project) identifiers. **Cloud only:** `powersync deploy`, `powersync deploy service-config`, `powersync deploy sync-config`, `powersync destroy`, `powersync stop`, `powersync fetch config`, `powersync pull instance`. **Both:** `powersync fetch status`, `powersync generate schema`, `powersync generate token`, `powersync validate`. The same three methods apply: the CLI uses the first that is available for each field (flags override environment variables, environment variables override link file). For Cloud, **org_id is optional**: when not set via flags, env, or link file, the CLI fetches the token’s organizations and uses the single org if there is exactly one; if the token has multiple orgs, the command errors and you must pass `--org-id` (or set `ORG_ID`).
+Cloud and self-hosted commands need instance (and for Cloud, org and project) identifiers. **Cloud only:** `powersync deploy`, `powersync deploy service-config`, `powersync deploy sync-config`, `powersync destroy`, `powersync stop`, `powersync fetch config`, `powersync pull instance`. **Both:** `powersync status`, `powersync generate schema`, `powersync generate token`, `powersync validate`. The same three methods apply: the CLI uses the first that is available for each field (flags override environment variables, environment variables override link file). For Cloud, **org_id is optional**: when not set via flags, env, or link file, the CLI fetches the token’s organizations and uses the single org if there is exactly one; if the token has multiple orgs, the command errors and you must pass `--org-id` (or set `ORG_ID`).
 
 1. **Flags**
    - **Cloud:** `--instance-id`, `--project-id` (required when using instance-id), `--org-id` (optional; defaults to token’s single org)
@@ -255,7 +255,7 @@ powersync stop --confirm=yes \
 **Self-hosted:** Set `PS_ADMIN_TOKEN` (or use a linked project with API key in cli.yaml), then:
 
 ```bash
-powersync fetch status --api-url=https://powersync.example.com
+powersync status --api-url=https://powersync.example.com
 ```
 
 You can use a different project directory with `--directory`:
@@ -265,7 +265,7 @@ You can use a different project directory with `--directory`:
 powersync stop --confirm=yes --directory=my-powersync --instance-id=... --project-id=...
 
 # Self-hosted (API key from PS_ADMIN_TOKEN or cli.yaml)
-powersync fetch status --directory=my-powersync --api-url=https://...
+powersync status --directory=my-powersync --api-url=https://...
 ```
 
 ---
@@ -285,7 +285,7 @@ powersync link cloud \
 
 # No IDs needed on later commands
 powersync stop --confirm=yes
-powersync fetch status
+powersync status
 ```
 
 If the project lives in a non-default directory:
@@ -318,7 +318,7 @@ powersync fetch config --output=json
 export API_URL=https://powersync.example.com
 export PS_ADMIN_TOKEN=your-api-key
 
-powersync fetch status --output=json
+powersync status --output=json
 ```
 
 Inline for a single command:
@@ -328,7 +328,7 @@ Inline for a single command:
 INSTANCE_ID=... PROJECT_ID=... powersync stop --confirm=yes
 
 # Self-hosted
-API_URL=https://... PS_ADMIN_TOKEN=... powersync fetch status --output=json
+API_URL=https://... PS_ADMIN_TOKEN=... powersync status --output=json
 ```
 
 **Note:** Environment variables are only used when neither flags nor `cli.yaml` provide linking information.

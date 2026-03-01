@@ -42,7 +42,7 @@ npx powersync --version
 The PowerSync CLI lets you manage PowerSync instances and run commands (generate schemas, tokens, validate config, fetch status, and more). Support is split into two modes:
 
 - **Cloud** – Full support for [PowerSync Cloud](https://powersync.com). You can create new instances, deploy and pull config from the Dashboard, and run all Cloud commands. Authenticate with **`powersync login`** (or the `PS_ADMIN_TOKEN` env var), then use **`powersync init cloud`** / **`powersync link cloud`** or **`powersync pull instance`** to work with projects.
-- **Self-hosted** – Limited support for your own PowerSync Service. You link to an existing running instance and can run a subset of commands (e.g. **`powersync fetch status`**, **`powersync generate schema`**, **`powersync validate`**). The CLI does not create, deploy to, or pull config from self-hosted instances; you manage the server and its config yourself. We also expose a [PowerSync Docker topic](../plugins/docker/README.md) for local self-hosted development.
+- **Self-hosted** – Limited support for your own PowerSync Service. You link to an existing running instance and can run a subset of commands (e.g. **`powersync status`**, **`powersync generate schema`**, **`powersync validate`**). The CLI does not create, deploy to, or pull config from self-hosted instances; you manage the server and its config yourself. We also expose a [PowerSync Docker topic](../plugins/docker/README.md) for local self-hosted development.
 
 The sections below go into detail for [Cloud](#cloud) and [Self-hosted](#self-hosted).
 
@@ -126,7 +126,7 @@ To refresh local config after external edits from the cloud when already linked,
 
 ## Running commands against externally managed instances
 
-You can run CLI commands (e.g. **`powersync generate schema`**, **`powersync generate token`**, **`powersync fetch status`**) against a Cloud instance whose configuration is managed elsewhere—for example in the PowerSync Dashboard. No local config directory or link file is required.
+You can run CLI commands (e.g. **`powersync generate schema`**, **`powersync generate token`**, **`powersync status`**) against a Cloud instance whose configuration is managed elsewhere—for example in the PowerSync Dashboard. No local config directory or link file is required.
 
 Specify the instance using **environment variables** or **CLI flags** (flags take precedence): `--instance-id` and `--project-id` (or `INSTANCE_ID`, `PROJECT_ID`). **`--org-id` is optional**: when omitted, the CLI uses the token’s single organization if the token has access to exactly one; if the token has multiple orgs, you must pass **`--org-id`** (or set `ORG_ID`).
 
@@ -143,7 +143,7 @@ powersync generate schema --output-path=schema.ts --output=ts
 
 # Self-hosted
 
-The CLI can run a subset of commands against **self-hosted** PowerSync instances (your own API). Self-hosted support is more limited than Cloud: you link to an existing running API and use the same config directory concept, but only certain commands apply (e.g. **`powersync fetch status`**, **`powersync generate schema`**, **`powersync generate token`**, **`powersync validate`**). There is no **deploy** or **pull instance** for self-hosted; you manage config on the server yourself.
+The CLI can run a subset of commands against **self-hosted** PowerSync instances (your own API). Self-hosted support is more limited than Cloud: you link to an existing running API and use the same config directory concept, but only certain commands apply (e.g. **`powersync status`**, **`powersync generate schema`**, **`powersync generate token`**, **`powersync validate`**). There is no **deploy** or **pull instance** for self-hosted; you manage config on the server yourself.
 
 ## Authentication
 
@@ -169,13 +169,13 @@ The CLI resolves **`!env PS_ADMIN_TOKEN`** from the `PS_ADMIN_TOKEN` environment
 
 ## Creating a self-hosted project and limitations
 
-Run **`powersync init self-hosted`** to scaffold a config directory. Edit **`service.yaml`** with your instance details and use **`!env`** for secrets. This gives you a **partial** project: the CLI does not create or provision a self-hosted instance. You must already have a running PowerSync API. The CLI cannot deploy config to or pull config from a self-hosted instance; you manage **`service.yaml`** and **`sync-config.yaml`** on the server yourself. Use the CLI to link (**`powersync link self-hosted --api-url <url>`**), then run the supported commands (e.g. **`powersync fetch status`**, **`powersync generate schema`**) against that API.
+Run **`powersync init self-hosted`** to scaffold a config directory. Edit **`service.yaml`** with your instance details and use **`!env`** for secrets. This gives you a **partial** project: the CLI does not create or provision a self-hosted instance. You must already have a running PowerSync API. The CLI cannot deploy config to or pull config from a self-hosted instance; you manage **`service.yaml`** and **`sync-config.yaml`** on the server yourself. Use the CLI to link (**`powersync link self-hosted --api-url <url>`**), then run the supported commands (e.g. **`powersync status`**, **`powersync generate schema`**) against that API.
 
 ```sh
 powersync init self-hosted
   # then edit powersync/service.yaml
 powersync link self-hosted --api-url https://powersync.example.com
-powersync fetch status
+powersync status
 ```
 
 Use `--directory` for a different config folder.
@@ -186,7 +186,7 @@ We expose a [PowerSync Docker topic](../plugins/docker/README.md) for running a 
 
 ## Command support
 
-Only some CLI commands work with self-hosted instances. Supported commands include **`powersync fetch status`**, **`powersync generate schema`**, **`powersync generate token`**, **`powersync validate`**, and **`powersync link self-hosted`**. Cloud-only commands such as **`powersync deploy`**, **`powersync destroy`**, **`powersync pull instance`**, **`powersync fetch config`**, and **`powersync fetch instances`** do not apply to self-hosted.
+Only some CLI commands work with self-hosted instances. Supported commands include **`powersync status`**, **`powersync generate schema`**, **`powersync generate token`**, **`powersync validate`**, and **`powersync link self-hosted`**. Cloud-only commands such as **`powersync deploy`**, **`powersync destroy`**, **`powersync pull instance`**, **`powersync fetch config`**, and **`powersync fetch instances`** do not apply to self-hosted.
 
 # Known Limitations
 
@@ -245,7 +245,7 @@ You can supply instance and auth context via environment variables (useful for C
 Example (Cloud):
 
 ```sh
-PS_ADMIN_TOKEN=your-token PROJECT_ID=456 INSTANCE_ID=789 powersync fetch status
+PS_ADMIN_TOKEN=your-token PROJECT_ID=456 INSTANCE_ID=789 powersync status
 ```
 
 See [docs/usage.md](../docs/usage.md) for full usage and resolution order (flags, env, cli.yaml).
@@ -561,7 +561,7 @@ DESCRIPTION
 
   Run `docker compose down` then `docker compose up -d --wait`: stops and removes containers, then starts the stack and
   waits for services (including PowerSync) to be healthy. Use when you want a clean bring-up (e.g. after config
-  changes). Use `powersync fetch status` to debug running instances.
+  changes). Use `powersync status` to debug running instances.
 
 EXAMPLES
   $ powersync docker reset
@@ -587,7 +587,7 @@ DESCRIPTION
   Start the self-hosted PowerSync stack via Docker Compose.
 
   Runs `docker compose up -d --wait` for the project docker/ compose file; waits for services (including PowerSync) to
-  be healthy. Use `powersync fetch status` to debug running instances.
+  be healthy. Use `powersync status` to debug running instances.
 
 EXAMPLES
   $ powersync docker start

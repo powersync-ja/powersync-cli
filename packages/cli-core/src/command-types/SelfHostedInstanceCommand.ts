@@ -107,7 +107,7 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
     }
 
     this._project = {
-      linked: linked!,
+      linked,
       projectDirectory: projectDir
     };
     return this._project;
