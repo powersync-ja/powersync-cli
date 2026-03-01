@@ -1,37 +1,37 @@
 import { TanStackDevtools } from '@tanstack/react-devtools';
-import { HeadContent, Link, Scripts, createRootRoute } from '@tanstack/react-router';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createRootRoute, HeadContent, Link, Scripts } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
+import React from 'react';
 
 import Header from '../components/Header';
-
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import appCss from '../styles.css?url';
 
 const client = new QueryClient();
 
 export const Route = createRootRoute({
   head: () => ({
-    meta: [
-      {
-        charSet: 'utf-8'
-      },
-      {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1'
-      },
-      {
-        title: 'TanStack Start Starter'
-      }
-    ],
     links: [
       {
-        rel: 'stylesheet',
-        href: appCss
+        href: appCss,
+        rel: 'stylesheet'
+      }
+    ],
+    meta: [
+      {
+        charSet: 'utf8'
+      },
+      {
+        content: 'width=device-width, initial-scale=1',
+        name: 'viewport'
+      },
+      {
+        title: 'PowerSync CLI Studio'
       }
     ]
   }),
-  shellComponent: RootDocument,
-  notFoundComponent: () => <NotFoundView />
+  notFoundComponent: () => <NotFoundView />,
+  shellComponent: RootDocument
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
@@ -77,14 +77,14 @@ function NotFoundView() {
       </div>
       <div className="flex flex-wrap items-center justify-center gap-3">
         <Link
-          to="/files"
-          className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-500/30 transition hover:from-cyan-400 hover:to-blue-400">
+          className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-500/30 transition hover:from-cyan-400 hover:to-blue-400"
+          to="/files">
           Return to CLI Editor
         </Link>
         <button
-          type="button"
-          onClick={() => window.location.reload()}
-          className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-3 text-sm font-semibold text-white/80 transition hover:border-white/50">
+          className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-3 text-sm font-semibold text-white/80 transition hover:border-white/50"
+          onClick={() => globalThis.location.reload()}
+          type="button">
           Retry Last Request
         </button>
       </div>
