@@ -1,6 +1,6 @@
 import { ux } from '@oclif/core';
 import { CLI_FILENAME, parseYamlDocumentPreserveTags } from '@powersync/cli-core';
-import { execSync } from 'node:child_process';
+import { execFileSync, execSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
@@ -79,8 +79,7 @@ export function logPowersyncProjectsStopHelp(
  * Does not require a compose file or project directory.
  */
 export function runDockerComposeStop(projectName: string, execOptions?: { stdio?: 'inherit' | 'pipe' }): void {
-  const cmd = `docker compose -p "${projectName}" stop`;
-  execSync(cmd, {
+  execFileSync('docker', ['compose', '-p', projectName, 'stop'], {
     cwd: process.cwd(),
     stdio: execOptions?.stdio ?? 'inherit'
   });
@@ -94,9 +93,12 @@ export function runDockerComposeDown(
   projectName: string,
   execOptions?: { removeVolumes?: boolean; stdio?: 'inherit' | 'pipe' }
 ): void {
-  const v = execOptions?.removeVolumes ? ' -v' : '';
-  const cmd = `docker compose -p "${projectName}" down${v}`;
-  execSync(cmd, {
+  const downArgs = ['compose', '-p', projectName, 'down'];
+  if (execOptions?.removeVolumes) {
+    downArgs.push('-v');
+  }
+
+  execFileSync('docker', downArgs, {
     cwd: process.cwd(),
     stdio: execOptions?.stdio ?? 'inherit'
   });
@@ -119,9 +121,13 @@ export function runDockerCompose(
   }
 
   const composeDir = dirname(composePath);
-  const projectFlag = options.projectName ? `-p "${options.projectName}" ` : '';
-  const cmd = `docker compose ${projectFlag}-f "${composePath}" ${args.join(' ')}`;
-  execSync(cmd, {
+  const composeArgs = ['compose'];
+  if (options.projectName) {
+    composeArgs.push('-p', options.projectName);
+  }
+
+  composeArgs.push('-f', composePath, ...args);
+  execFileSync('docker', composeArgs, {
     cwd: composeDir,
     stdio: execOptions?.stdio ?? 'inherit'
   });
