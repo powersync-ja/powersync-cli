@@ -58,7 +58,7 @@ export default class Stop extends CloudInstanceCommand {
         this.log(ux.colorize('green', 'Instance stopped successfully.'));
       } else {
         this.styledError({
-          message: `Operation failed. Check instance diagnostics for details, for example: ${ux.colorize('blue', 'powersync fetch status')}`
+          message: `Operation failed. Check instance diagnostics for details, for example: ${ux.colorize('blue', 'powersync status')}`
         });
       }
     } catch (error) {

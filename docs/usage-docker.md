@@ -68,7 +68,7 @@ Use **`powersync docker reset`** only when you need to start from a clean state:
 
 All of these use the project name from **cli.yaml** unless you pass **`--project-name`** (e.g. to stop from any directory or to target a specific project).
 
-Use **`powersync fetch status`** to debug a running instance.
+Use **`powersync status`** to debug a running instance.
 
 ---
 
@@ -127,7 +127,7 @@ powersync docker start --directory=my-powersync
 Configure sets **cli.yaml** with **api_url** and **api_key** for the local stack so you can run **fetch status**, **validate**, **generate schema**, etc. without extra flags:
 
 ```bash
-powersync fetch status
+powersync status
 powersync validate
 powersync generate schema --output=ts --output-path=./schema.ts
 ```

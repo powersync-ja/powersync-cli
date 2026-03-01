@@ -56,7 +56,7 @@ export default class Destroy extends CloudInstanceCommand {
         this.log(ux.colorize('green', 'Instance destroyed successfully.'));
       } else {
         this.styledError({
-          message: `Operation failed. Check instance diagnostics for details, for example: ${ux.colorize('blue', 'powersync fetch status')}`
+          message: `Operation failed. Check instance diagnostics for details, for example: ${ux.colorize('blue', 'powersync status')}`
         });
       }
     } catch (error) {

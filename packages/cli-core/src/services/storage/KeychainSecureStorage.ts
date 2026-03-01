@@ -41,8 +41,20 @@ export function createKeychainSecureStorage(): BaseStorage {
       const keychain = await keychainPromise;
       return new Promise((resolve, reject) => {
         keychain.deletePassword({ account: key, service: SERVICE_NAME }, (err: Error | null) => {
-          if (err) reject(err);
-          else resolve();
+          if (err) {
+            if (
+              err.message?.includes('could not be found') ||
+              (err as Error & { code?: string }).code === 'PasswordNotFound'
+            ) {
+              resolve();
+              return;
+            }
+
+            reject(err);
+            return;
+          }
+
+          resolve();
         });
       });
     },

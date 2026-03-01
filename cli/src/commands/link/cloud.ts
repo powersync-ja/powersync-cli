@@ -89,15 +89,14 @@ export default class LinkCloud extends CloudInstanceCommand {
         this.styledError({ error, message: 'Failed to create Cloud instance' });
       }
 
-      const projectDir = this.ensureProjectDirectory({ directory });
       ensureServiceTypeMatches({
         command: this,
         configRequired: false,
         directoryLabel: directory,
         expectedType: ServiceType.CLOUD,
-        projectDir
+        projectDir: projectDirectory
       });
-      writeCloudLink(projectDir, { instanceId: newInstanceId, orgId, projectId });
+      writeCloudLink(projectDirectory, { instanceId: newInstanceId, orgId, projectId });
       this.log(
         ux.colorize('green', `Created Cloud instance ${newInstanceId} and updated ${directory}/${CLI_FILENAME}.`)
       );
