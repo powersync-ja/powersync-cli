@@ -11,14 +11,14 @@ Monorepo for the PowerSync CLI and related tooling. Built with [pnpm](https://pn
 
 The workspace is split into the main CLI, shared **packages**, and optional **plugins**:
 
-| Package                                                        | Path                   | Description                                                                                 |
-| -------------------------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------- |
-| [**@powersync/cli**](./cli)                                    | `cli/`                 | Main CLI — manage instances, config, sync config, cloud and self-hosted                     |
-| [**PowerSync CLI Config Studio**](./packages/editor)           | `packages/editor/`     | Monaco-based UI that edits `service.yaml`/`sync.yaml` and ships with the config-edit plugin |
-| [**@powersync/cli-core**](./packages/cli-core)                 | `packages/cli-core/`   | Core types and base commands shared by the CLI and plugins                                  |
-| [**@powersync/cli-schemas**](./packages/schemas)               | `packages/schemas/`    | Shared config schemas (cli.yaml, service.yaml, etc.)                                        |
-| [**@powersync/cli-plugin-config-edit**](./plugins/config-edit) | `plugins/config-edit/` | CLI plugin that sets `POWERSYNC_DIRECTORY` and serves the Config Studio with `vite preview` |
-| [**@powersync/cli-plugin-docker**](./plugins/docker)           | `plugins/docker/`      | Docker plugin — self-hosted PowerSync with Compose (configure, reset, start, stop)          |
+| Package                                                        | Path                   | Description                                                                                                                           |
+| -------------------------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| [**@powersync/cli**](./cli)                                    | `cli/`                 | Main CLI — manage instances, config, sync config, cloud and self-hosted                                                               |
+| [**PowerSync CLI Config Studio**](./packages/editor)           | `packages/editor/`     | Monaco-based UI that edits `service.yaml`/`sync.yaml`, ships with the config-edit plugin, and is internal-only (not published to npm) |
+| [**@powersync/cli-core**](./packages/cli-core)                 | `packages/cli-core/`   | Core types and base commands shared by the CLI and plugins                                                                            |
+| [**@powersync/cli-schemas**](./packages/schemas)               | `packages/schemas/`    | Shared config schemas (cli.yaml, service.yaml, etc.)                                                                                  |
+| [**@powersync/cli-plugin-config-edit**](./plugins/config-edit) | `plugins/config-edit/` | CLI plugin that sets `POWERSYNC_DIRECTORY` and serves the Config Studio with `vite preview`                                           |
+| [**@powersync/cli-plugin-docker**](./plugins/docker)           | `plugins/docker/`      | Docker plugin — self-hosted PowerSync with Compose (configure, reset, start, stop)                                                    |
 
 ```
 ├── cli/                    # @powersync/cli — main CLI (commands, cloud/self-hosted, templates)

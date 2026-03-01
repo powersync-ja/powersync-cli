@@ -1,13 +1,15 @@
-import type { FileItem } from '@/utils/files/files';
-import { getConfigFiles } from '@/utils/files/files.functions';
 import { useQuery } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
 import { useCallback, useEffect, useState } from 'react';
 import { BehaviorSubject } from 'rxjs';
 
+import type { FileItem } from '../../utils/files/files';
+
+import { getConfigFiles } from '../../utils/files/files.functions';
+
 type TrackedFile = FileItem & {
-  upstreamContent: string;
   hasChanges: boolean;
+  upstreamContent: string;
 };
 
 type State = Record<string, TrackedFile>;
@@ -21,8 +23,8 @@ const FILES_SUBJECT = new BehaviorSubject<State>({});
 export function useFiles() {
   const filesFunction = useServerFn(getConfigFiles);
   return useQuery({
-    queryKey: ['files'],
-    queryFn: () => filesFunction()
+    queryFn: () => filesFunction(),
+    queryKey: ['files']
   });
 }
 
@@ -35,25 +37,29 @@ export function useTrackedFiles() {
   const [outputState, setOutputState] = useState<State>(FILES_SUBJECT.getValue());
   const [subscription] = useState(() => FILES_SUBJECT.subscribe((state) => setOutputState(state)));
 
-  useEffect(() => {
-    return () => subscription.unsubscribe();
-  }, [subscription]);
+  useEffect(() => () => subscription.unsubscribe(), [subscription]);
 
   useEffect(() => {
-    // Whenever the upstream data changes
+    // Whenever the upstream data changes (e.g. after save triggers refetch), merge server
+    // state into tracked state. Preserve existing.content only when there are unsaved
+    // local changes so refetch-after-save does not clobber in-flight keystrokes; when
+    // there are no local changes we take upstream content so Refresh/refetch updates the
+    // view. The editor is disabled during save/refetch (see BaseEditorWidget).
     if (remoteState.data) {
-      // set the initial state from the server
-      remoteState.data?.files.forEach((upstreamEntry) => {
+      const nextState = { ...outputState };
+      for (const upstreamEntry of remoteState.data.files) {
         const existing = outputState[upstreamEntry.filename];
-        outputState[upstreamEntry.filename] = {
+        const hasLocalChanges = existing && existing.content !== existing.upstreamContent;
+        nextState[upstreamEntry.filename] = {
           ...upstreamEntry,
-          upstreamContent: upstreamEntry.content,
+          content: hasLocalChanges ? existing.content : upstreamEntry.content,
+          filename: upstreamEntry.filename,
           hasChanges: existing ? existing.content !== upstreamEntry.content : false,
-          filename: upstreamEntry.filename
+          upstreamContent: upstreamEntry.content
         };
-      });
-      // update state as a whole
-      FILES_SUBJECT.next({ ...outputState });
+      }
+
+      FILES_SUBJECT.next(nextState);
     }
   }, [remoteState.data]);
 

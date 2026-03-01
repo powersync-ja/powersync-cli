@@ -73,7 +73,7 @@ export function BaseEditorWidget({
   const [errorMessage, setErrorMessage] = useState<null | string>(null);
   const [showValidation, setShowValidation] = useState(false);
   const { state: trackedFilesState, updateLocalState: updateTrackedFilesState, upstream } = useTrackedFiles();
-  const { error, isPending, refetch } = upstream;
+  const { error, isPending, isRefetching, refetch } = upstream;
   const saveData = useServerFn(saveDataFn);
   const file = useMemo(() => trackedFilesState[filename], [trackedFilesState, filename]);
   const [schemaMarkers, setSchemaMarkers] = useState<Monaco.editor.IMarker[]>([]);
@@ -98,6 +98,11 @@ export function BaseEditorWidget({
   }, [validationMarkers]);
 
   const hasChanges = trackedFilesState[filename]?.hasChanges ?? false;
+
+  // Disable edits while saving or refetching so the post-save refetch cannot overwrite
+  // in-flight keystrokes; useTrackedFiles preserves local content when merging upstream
+  // but disabling the editor during this window avoids confusion.
+  const isSaveOrRefetchInProgress = status === 'saving' || isRefetching;
 
   useEffect(() => {
     if (validationSummary.errors === 0 && validationSummary.warnings === 0) {
@@ -336,6 +341,7 @@ export function BaseEditorWidget({
 
             setSchemaMarkers(filteredMarkers);
           }}
+          options={{ readOnly: isSaveOrRefetchInProgress }}
           path={filename}
           value={file.content}
         />
