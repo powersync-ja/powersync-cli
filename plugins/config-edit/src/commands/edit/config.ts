@@ -9,13 +9,13 @@ import waitPort from 'wait-port';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default class EditConfig extends SharedInstanceCommand {
-  static description = 'Loads the linked project context and runs the editor Vite preview to edit config files.';
+  static description = 'Loads the linked project context and runs the editor Nitro server to edit config files.';
   static examples = ['<%= config.bin %> edit config', '<%= config.bin %> edit config --directory ./powersync'];
   static flags = {
     ...SharedInstanceCommand.flags,
     host: Flags.string({
-      default: '0.0.0.0',
-      description: 'Host to bind the editor preview server.',
+      default: '127.0.0.1',
+      description: 'Host to bind the editor preview server. Pass 0.0.0.0 to expose on all interfaces.',
       required: false
     }),
     port: Flags.integer({
@@ -24,7 +24,7 @@ export default class EditConfig extends SharedInstanceCommand {
       required: false
     })
   };
-  static summary = 'Open the PowerSync configuration editor (Nitro preview).';
+  static summary = 'Open the PowerSync configuration editor (Nitro server).';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(EditConfig);
@@ -59,7 +59,7 @@ export default class EditConfig extends SharedInstanceCommand {
       }
     );
 
-    const urlHost = flags.host === '0.0.0.0' ? 'localhost' : flags.host;
+    const urlHost = flags.host === '0.0.0.0' ? '127.0.0.1' : flags.host;
     const previewUrl = `http://${urlHost}:${flags.port}`;
 
     // Wait for the server to be ready before opening the browser

@@ -158,7 +158,7 @@
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
   --color-surface: var(--surface);
-  --color-surface-forground: var(--surface-foreground);
+  --color-surface-foreground: var(--surface-foreground);
   --color-link: var(--link);
   --color-brand-card: var(--brand-card);
   --color-success: var(--success);

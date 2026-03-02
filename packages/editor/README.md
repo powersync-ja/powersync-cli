@@ -1,10 +1,10 @@
 # PowerSync CLI Config Studio
 
-The PowerSync CLI Config Studio is the Monaco-powered editor that ships with the `powersync edit config` command. It exposes the two YAML files managed by the CLI (`service.yaml` and `sync.yaml`), enforces our official JSON Schemas, and lets you save the result back to your local PowerSync directory without touching the CLI manually.
+The PowerSync CLI Config Studio is the Monaco-powered editor that ships with the `powersync edit config` command. It exposes the two YAML files managed by the CLI (`service.yaml` and `sync-config.yaml`), enforces our official JSON Schemas, and lets you save the result back to your local PowerSync directory without touching the CLI manually.
 
 ## Feature highlights
 
-- **Automatic file discovery** – the server functions locate `service.yaml` and `sync.yaml` using the JSON blob in `POWERSYNC_PROJECT_CONTEXT` (set by `powersync edit config`) and expose them over TanStack Start server functions.
+- **Automatic file discovery** – the server functions locate `service.yaml` and `sync-config.yaml` using the JSON blob in `POWERSYNC_PROJECT_CONTEXT` (set by `powersync edit config`) and expose them over TanStack Start server functions.
 - **Schema-aware authoring** – Monaco runs `monaco-yaml` with the schemas from `@powersync/cli-schemas`, so completions, hover docs, and validation all match the CLI contract.
 - **Unsaved change tracking** – changes are stored in an RxJS subject so every route can see which files are pending saves, making the sidebar badges and the editor status consistent.
 - **Actionable validation** – validation markers can be expanded into a details panel that highlights the line and reason that the schema rejected the content.
@@ -28,7 +28,7 @@ The PowerSync CLI Config Studio is the Monaco-powered editor that ships with the
 2. **Provide project context** – the editor expects `POWERSYNC_PROJECT_CONTEXT` (JSON) to describe the linked project. The safest way is to let the CLI set it for you:
    ```bash
    # from the repo root, uses the CLI command to set POWERSYNC_PROJECT_CONTEXT automatically
-   pnpm --filter cli exec powersync edit config --directory /absolute/path/to/powersync --host 0.0.0.0 --port 3000
+   pnpm --filter cli exec powersync edit config --directory /absolute/path/to/powersync --port 3000
    ```
    If you need to run `pnpm --filter editor dev`, export the same env yourself. A minimal self-hosted example:
    ```bash
@@ -55,7 +55,7 @@ Need to preview the built bundle exactly like the CLI plugin does? Use Vite prev
 
 ```bash
 pnpm --filter @powersync/cli-plugin-config-edit exec \
-  vite preview --host 0.0.0.0 --port 4173 --outDir editor-dist
+   vite preview --host 127.0.0.1 --port 4173 --outDir editor-dist
 ```
 
 ## Using the editor through the CLI plugin
@@ -63,9 +63,9 @@ pnpm --filter @powersync/cli-plugin-config-edit exec \
 Once the workspace has been built (`pnpm build` at the repo root), the config-edit plugin exposes:
 
 ```bash
-powersync edit config --directory ./powersync --host 0.0.0.0 --port 3000
+powersync edit config --directory ./powersync --port 3000
 ```
 
-Behind the scenes the command defined in [`plugins/config-edit/src/commands/edit/config.ts`](../../plugins/config-edit/src/commands/edit/config.ts) sets `POWERSYNC_DIRECTORY`, serves `editor-dist` with `vite preview`, and opens your browser automatically. Any changes saved in the editor are written straight to the directory you passed via `--directory`, so the main CLI can immediately consume the updated YAML.
+Behind the scenes the command defined in [`plugins/config-edit/src/commands/edit/config.ts`](../../plugins/config-edit/src/commands/edit/config.ts) sets `POWERSYNC_PROJECT_CONTEXT`, serves `editor-dist` with the Nitro server, and opens your browser automatically. Any changes saved in the editor are written straight to the directory you passed via `--directory`, so the main CLI can immediately consume the updated YAML. Pass `--host 0.0.0.0` only when you intentionally need the editor accessible from other hosts.
 
 Refer back to this README whenever you need to adjust scripts, tweak validation behavior, or explain the editor flow to other contributors.

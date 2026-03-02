@@ -13,20 +13,20 @@ Monorepo for the PowerSync CLI and related tooling. Built with [pnpm](https://pn
 
 The workspace is split into the main CLI, shared **packages**, and optional **plugins**:
 
-| Package                                                        | Path                   | Description                                                                                 |
-| -------------------------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------- |
-| [**@powersync/cli**](./cli)                                    | `cli/`                 | Main CLI — manage instances, config, sync config, cloud and self-hosted                     |
-| [**PowerSync CLI Config Studio**](./packages/editor)           | `packages/editor/`     | Monaco-based UI that edits `service.yaml`/`sync.yaml` and ships with the config-edit plugin |
-| [**@powersync/cli-core**](./packages/cli-core)                 | `packages/cli-core/`   | Core types and base commands shared by the CLI and plugins                                  |
-| [**@powersync/cli-schemas**](./packages/schemas)               | `packages/schemas/`    | Shared config schemas (cli.yaml, service.yaml, etc.)                                        |
-| [**@powersync/cli-plugin-config-edit**](./plugins/config-edit) | `plugins/config-edit/` | CLI plugin that sets `POWERSYNC_DIRECTORY` and serves the Config Studio with `vite preview` |
-| [**@powersync/cli-plugin-docker**](./plugins/docker)           | `plugins/docker/`      | Docker plugin — self-hosted PowerSync with Compose (configure, reset, start, stop)          |
+| Package                                                        | Path                   | Description                                                                                         |
+| -------------------------------------------------------------- | ---------------------- | --------------------------------------------------------------------------------------------------- |
+| [**@powersync/cli**](./cli)                                    | `cli/`                 | Main CLI — manage instances, config, sync config, cloud and self-hosted                             |
+| [**PowerSync CLI Config Studio**](./packages/editor)           | `packages/editor/`     | Monaco-based UI that edits `service.yaml`/`sync-config.yaml` and ships with the config-edit plugin  |
+| [**@powersync/cli-core**](./packages/cli-core)                 | `packages/cli-core/`   | Core types and base commands shared by the CLI and plugins                                          |
+| [**@powersync/cli-schemas**](./packages/schemas)               | `packages/schemas/`    | Shared config schemas (cli.yaml, service.yaml, etc.)                                                |
+| [**@powersync/cli-plugin-config-edit**](./plugins/config-edit) | `plugins/config-edit/` | CLI plugin that sets `POWERSYNC_PROJECT_CONTEXT` and serves the Config Studio with the Nitro server |
+| [**@powersync/cli-plugin-docker**](./plugins/docker)           | `plugins/docker/`      | Docker plugin — self-hosted PowerSync with Compose (configure, reset, start, stop)                  |
 
 ```
 ├── cli/                    # @powersync/cli — main CLI (commands, cloud/self-hosted, templates)
 ├── packages/
 │   ├── cli-core/           # @powersync/cli-core — base commands & YAML utils (used by CLI + plugins)
-│   ├── editor/             # CLI Config Studio — Monaco web app that edits service.yaml/sync.yaml
+│   ├── editor/             # CLI Config Studio — Monaco web app that edits service.yaml/sync-config.yaml
 │   └── schemas/            # @powersync/cli-schemas — config validation (LinkConfig, CLIConfig)
 ├── plugins/
 │   ├── config-edit/        # @powersync/cli-plugin-config-edit — serves the Config Studio preview
@@ -42,7 +42,7 @@ The workspace is split into the main CLI, shared **packages**, and optional **pl
 - **cli** depends on **cli-core**, **cli-schemas**, **@powersync/cli-plugin-config-edit**, and **@powersync/cli-plugin-docker**. It loads the bundled plugins and re-exports base command types from cli-core.
 - **cli-core** depends on **schemas**. It provides `SelfHostedInstanceCommand`, YAML helpers (`!env`), and shared types for plugins.
 - **packages/editor** builds the Config Studio assets consumed by the config-edit plugin and embeds schemas from `@powersync/cli-schemas`.
-- **@powersync/cli-plugin-config-edit** depends on **cli-core** and serves the built editor from `plugins/config-edit/editor-dist` via `vite preview`.
+- **@powersync/cli-plugin-config-edit** depends on **cli-core** and serves the built editor from `plugins/config-edit/editor-dist` using the Nitro server.
 - **@powersync/cli-plugin-docker** depends on **cli-core** and **cli-schemas**. No dependency on the CLI package.
 
 Workspace roots are listed in [pnpm-workspace.yaml](./pnpm-workspace.yaml): `cli`, `packages/*`, `plugins/*`.
@@ -82,16 +82,17 @@ See [plugins/docker](./plugins/docker/README.md) and [docs/usage-docker.md](./do
 
 ### Configuration editor
 
-Open the Monaco-based Config Studio that edits `service.yaml`/`sync.yaml` directly inside your project:
+Open the Monaco-based Config Studio that edits `service.yaml`/`sync-config.yaml` directly inside your project:
 
 ```bash
 pnpm build                                  # ensures packages/editor copies its dist to plugins/config-edit/editor-dist
-powersync edit config --directory ./powersync --host 0.0.0.0 --port 3000
+powersync edit config --directory ./powersync --port 3000
 ```
 
-- The command above is provided by **@powersync/cli-plugin-config-edit** and automatically sets `POWERSYNC_DIRECTORY` to the directory you pass with `--directory` before serving the editor through `vite preview`.
+- The command above is provided by **@powersync/cli-plugin-config-edit** and automatically sets `POWERSYNC_PROJECT_CONTEXT` (based on the linked project) before serving the built editor through the Nitro server.
 - Features include YAML schema validation, Monaco-powered completions, unsaved-change tracking, reset/save controls, and an error panel for schema violations.
-- For local UI work (without running the CLI command) point `POWERSYNC_DIRECTORY` at a project and start the dev server: `POWERSYNC_DIRECTORY=/path/to/project pnpm --filter editor dev`.
+- For local UI work (without running the CLI command) export `POWERSYNC_PROJECT_CONTEXT` JSON that points at your project (the CLI sets this for you) and start the dev server: `POWERSYNC_PROJECT_CONTEXT='{"linkedProject":{"projectDirectory":"/path/to/project","linked":{"type":"self-hosted"}}}' pnpm --filter editor dev`.
+- Prefer the default host (127.0.0.1); only pass `--host 0.0.0.0` when you explicitly intend to expose the editor on your network.
 - Architecture, scripts, and troubleshooting tips live in [packages/editor/README.md](./packages/editor/README.md).
 
 ## Examples

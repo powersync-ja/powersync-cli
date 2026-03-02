@@ -635,7 +635,7 @@ EXAMPLES
 
 ## `powersync edit config`
 
-Open the PowerSync configuration editor (Nitro preview).
+Open the PowerSync configuration editor (Nitro server).
 
 ```
 USAGE
@@ -643,7 +643,7 @@ USAGE
     [--directory <value>] [--host <value>] [--port <value>]
 
 FLAGS
-  --host=<value>  [default: 0.0.0.0] Host to bind the editor preview server.
+  --host=<value>  [default: 127.0.0.1] Host to bind the editor preview server. Pass 0.0.0.0 to expose on all interfaces.
   --port=<value>  [default: 3000] Port for the editor preview server.
 
 SELF_HOSTED_PROJECT FLAGS
@@ -663,9 +663,9 @@ CLOUD_PROJECT FLAGS
   --project-id=<value>   [Cloud] Project ID. Resolved: flag → cli.yaml → PROJECT_ID.
 
 DESCRIPTION
-  Open the PowerSync configuration editor (Nitro preview).
+  Open the PowerSync configuration editor (Nitro server).
 
-  Loads the linked project context and runs the editor Vite preview to edit config files.
+  Loads the linked project context and runs the editor Nitro server to edit config files.
 
 EXAMPLES
   $ powersync edit config

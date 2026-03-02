@@ -1,3 +1,5 @@
+import type { SyncDiagnostic } from '@powersync/cli-core';
+
 import { z } from 'zod';
 
 /**
@@ -35,3 +37,11 @@ export const ValidateSyncRulesRequest = z.object({
 });
 
 export type ValidateSyncRulesRequest = z.infer<typeof ValidateSyncRulesRequest>;
+
+/**
+ * Result from sync rules validation.
+ */
+export type ValidateSyncRulesResponse = {
+  issues: SyncDiagnostic[];
+  passed: boolean;
+};

@@ -46,10 +46,13 @@ export function useTrackedFiles() {
     // there are no local changes we take upstream content so Refresh/refetch updates the
     // view. The editor is disabled during save/refetch (see BaseEditorWidget).
     if (remoteState.data) {
-      const nextState = { ...outputState };
+      const currentState = FILES_SUBJECT.getValue();
+      const nextState: State = { ...currentState };
+
       for (const upstreamEntry of remoteState.data.files) {
-        const existing = outputState[upstreamEntry.filename];
+        const existing = currentState[upstreamEntry.filename];
         const hasLocalChanges = existing && existing.content !== existing.upstreamContent;
+
         nextState[upstreamEntry.filename] = {
           ...upstreamEntry,
           content: hasLocalChanges ? existing.content : upstreamEntry.content,
@@ -64,13 +67,20 @@ export function useTrackedFiles() {
   }, [remoteState.data]);
 
   const updateLocalState = useCallback((filename: string, content: string) => {
-    const existing = outputState[filename];
-    outputState[filename] = {
-      ...existing,
-      content,
-      hasChanges: existing ? content !== existing.upstreamContent : false
+    const currentState = FILES_SUBJECT.getValue();
+    const existing = currentState[filename];
+
+    const nextState: State = {
+      ...currentState,
+      [filename]: {
+        ...existing,
+        content,
+        hasChanges: existing ? content !== existing.upstreamContent : false,
+        upstreamContent: existing?.upstreamContent ?? ''
+      }
     };
-    FILES_SUBJECT.next({ ...outputState });
+
+    FILES_SUBJECT.next(nextState);
   }, []);
 
   return {
