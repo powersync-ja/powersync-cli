@@ -1,7 +1,7 @@
 import * as sdk from '@journeyapps-labs/common-sdk';
 import { InstanceClient } from '@powersync/service-client';
 
-import { getCloudClientHeadersStore } from '../index.js';
+import { getCliClientHeadersStore } from './cli-client-headers.js';
 
 export type SelfHostedClientConfig = {
   apiKey: string;
@@ -13,9 +13,13 @@ export type SelfHostedClientConfig = {
  */
 export function createSelfHostedClient(config: SelfHostedClientConfig) {
   return new InstanceClient({
-    client: sdk.createNodeNetworkClient({
+    /**
+     * Use the web (fetch-based) network client to mirror the cloud client behavior and
+     * allow fetch to be spied on in tests. Node exposes fetch globally so we can rely on it.
+     */
+    client: sdk.createWebNetworkClient({
       headers: () => ({
-        ...getCloudClientHeadersStore().headers,
+        ...getCliClientHeadersStore().headers,
         Authorization: `Bearer ${config.apiKey}`
       })
     }),

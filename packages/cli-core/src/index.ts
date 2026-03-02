@@ -3,6 +3,7 @@
  * Plugins (e.g. plugin-docker) import from @powersync/cli-core.
  */
 export * from './clients/AccountsHubClientSDKClient.js';
+export * from './clients/cli-client-headers.js';
 export * from './clients/create-cloud-client.js';
 export * from './clients/create-self-hosted-client.js';
 export * from './command-types/CloudInstanceCommand.js';
