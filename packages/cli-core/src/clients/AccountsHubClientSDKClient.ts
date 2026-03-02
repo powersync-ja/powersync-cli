@@ -12,6 +12,7 @@ import { ux } from '@oclif/core';
 
 import { Services } from '../services/Services.js';
 import { env } from '../utils/env.js';
+import { getCliClientHeadersStore } from './cli-client-headers.js';
 
 /**
  * Client for interacting with the AccountsHub API service.
@@ -60,11 +61,10 @@ export class AccountsHubClientSDKClient<C extends sdk.NetworkClient = sdk.Networ
  * Uses the token stored by the login command (secure storage, e.g. macOS Keychain).
  */
 export function createAccountsHubClient(): AccountsHubClientSDKClient {
-  const { authentication } = Services;
-
   return new AccountsHubClientSDKClient({
     client: sdk.createWebNetworkClient({
       async headers() {
+        const { authentication } = Services;
         const token = env.PS_ADMIN_TOKEN || (await authentication.getToken());
         if (!token) {
           throw new Error(
@@ -73,6 +73,7 @@ export function createAccountsHubClient(): AccountsHubClientSDKClient {
         }
 
         return {
+          ...getCliClientHeadersStore().headers,
           Authorization: `Bearer ${token}`
         };
       }
