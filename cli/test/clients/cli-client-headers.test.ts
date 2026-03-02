@@ -1,4 +1,10 @@
-import { createAccountsHubClient, createSelfHostedClient, setCliClientHeaders } from '@powersync/cli-core';
+import {
+  createAccountsHubClient,
+  createSelfHostedClient,
+  env,
+  Services,
+  setCliClientHeaders
+} from '@powersync/cli-core';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 describe('cli client headers', () => {
@@ -6,6 +12,10 @@ describe('cli client headers', () => {
 
   beforeEach(async () => {
     vi.resetModules();
+
+    // Ensure the accounts client has a token available.
+    env.PS_ADMIN_TOKEN = 'test-token';
+    vi.spyOn(Services.authentication, 'getToken').mockResolvedValue('test-token');
 
     // Spy on fetch with endpoint-specific responses so SDK calls settle.
     fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
@@ -34,6 +44,7 @@ describe('cli client headers', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    env.PS_ADMIN_TOKEN = undefined;
   });
 
   test('applies CLI headers across self-hosted, accounts, and cloud clients', async () => {
