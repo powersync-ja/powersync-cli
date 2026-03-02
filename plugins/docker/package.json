@@ -3,6 +3,7 @@
   "description": "PowerSync CLI plugin: reset, start, and stop self-hosted instances using Docker Compose",
   "version": "0.0.0",
   "author": "POWERSYNC",
+  "license": "FSL-1.1-ALv2",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
