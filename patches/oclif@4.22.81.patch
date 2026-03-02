@@ -1,109 +1,15 @@
-diff --git a/lib/commands/pack/win.js b/lib/commands/pack/win.js
-index 9a255a011cbbfb34a337f67bcbabbbffdaf65c11..006b8eb0ee5432825cf48287c5e4607754ef4ee0 100644
---- a/lib/commands/pack/win.js
-+++ b/lib/commands/pack/win.js
-@@ -91,7 +91,7 @@ ${customization}
- Section "${config.name} CLI \${VERSION}"
-   SetOutPath $INSTDIR
-   File /r bin
--  File /r client
-+    File /r client
- 
-   ; Use explicit System32/Sysnative path to cmd.exe for security
-   StrCpy $0 "$WINDIR\\System32\\cmd.exe"  ; Try System32 first
-@@ -332,7 +332,21 @@ the CLI should already exist in a directory named after the CLI that is the root
-                     : []),
-             ]);
-             await (0, fs_extra_1.move)(buildConfig.workspace({ arch, platform: 'win32' }), node_path_1.default.join(installerBase, 'client'));
--            await exec(`makensis "${installerBase}/${config.bin}.nsi" | grep -v "\\[compress\\]" | grep -v "^File: Descending to"`);
-+            let makensisOutput = '';
-+            let makensisErrorOutput = '';
-+            try {
-+                const { stderr, stdout } = await exec(`makensis "${config.bin}.nsi"`, {
-+                    cwd: installerBase,
-+                });
-+                makensisOutput = stdout;
-+                makensisErrorOutput = stderr;
-+            }
-+            catch (error) {
-+                const commandError = error;
-+                const stderr = commandError?.stderr ?? '';
-+                const stdout = commandError?.stdout ?? '';
-+                throw new Error(`NSIS command failed in ${installerBase}.\nstdout:\n${stdout}\nstderr:\n${stderr}`);
-+            }
-             const templateKey = (0, upload_util_1.templateShortKey)('win32', {
-                 arch,
-                 bin: config.bin,
-@@ -340,7 +354,18 @@ the CLI should already exist in a directory named after the CLI that is the root
-                 version: config.version,
-             });
-             const o = buildConfig.dist(`win32/${templateKey}`);
--            await (0, fs_extra_1.move)(node_path_1.default.join(installerBase, 'installer.exe'), o);
-+            const installerPath = node_path_1.default.join(installerBase, 'installer.exe');
-+            if (!(await (0, fs_extra_1.pathExists)(installerPath))) {
-+                const files = await (0, promises_1.readdir)(installerBase, { recursive: true });
-+                const fileList = files.map((f) => f.toString()).slice(0, 200).join('\n');
-+                const outputDir = node_path_1.default.dirname(o);
-+                const outputDirExists = await (0, fs_extra_1.pathExists)(outputDir);
-+                const outputDirFiles = outputDirExists
-+                    ? (await (0, promises_1.readdir)(outputDir, { recursive: true })).map((f) => f.toString()).slice(0, 200).join('\n')
-+                    : '(output directory does not exist yet)';
-+                throw new Error(`NSIS did not output installer.exe in ${installerBase}.\nstdout:\n${makensisOutput}\nstderr:\n${makensisErrorOutput}\ninstallerBase files:\n${fileList}\noutputDir (${outputDir}) files:\n${outputDirFiles}`);
-+            }
-+            await (0, fs_extra_1.move)(installerPath, o);
-             const { windows } = config.pjson.oclif;
-             if (windows && windows.name && windows.keypath) {
-                 await signWindows(o, arch, config, windows);
-diff --git a/lib/commands/promote.js b/lib/commands/promote.js
-index 680417fe220d77f81ae239130c4ba55602b09497..a16b2db7237f152036434b8ee202d7d35b1bd6b2 100644
---- a/lib/commands/promote.js
-+++ b/lib/commands/promote.js
-@@ -80,11 +80,14 @@ class Promote extends core_1.Command {
-         };
-         if (!s3Config.bucket)
-             this.error('Cannot determine S3 bucket for promotion');
-+        // Buckets with Object Ownership = bucket-owner-enforced reject ACL headers.
-+        // Only pass ACL when explicitly configured in package.json.
-+        const resolvedAcl = typeof s3Config.acl === 'string' ? s3Config.acl.trim() : undefined;
-         const awsDefaults = {
--            ACL: s3Config.acl ?? client_s3_1.ObjectCannedACL.public_read,
-             Bucket: s3Config.bucket,
-             CacheControl: indexDefaults.maxAge,
-             MetadataDirective: client_s3_1.MetadataDirective.REPLACE,
-+            ...(resolvedAcl ? { ACL: resolvedAcl } : {}),
-         };
-         const cloudBucketCommitKey = (shortKey) => node_path_1.default.posix.join(s3Config.bucket, (0, upload_util_1.commitAWSDir)(flags.version, flags.sha, s3Config), shortKey);
-         const cloudChannelKey = (shortKey) => node_path_1.default.posix.join((0, upload_util_1.channelAWSDir)(flags.channel, s3Config), shortKey);
-diff --git a/lib/commands/upload/tarballs.js b/lib/commands/upload/tarballs.js
-index 1ee76bdc4297e515879ebe6489ad42af632bb6f4..bea8d7379a52005806983b04526cd02030bc6edd 100644
---- a/lib/commands/upload/tarballs.js
-+++ b/lib/commands/upload/tarballs.js
-@@ -76,9 +76,13 @@ class UploadTarballs extends core_1.Command {
-                     suggestions: [`Run "oclif pack --target ${target.platform}-${target.arch}" before uploading`],
-                 });
-         }
-+        // Buckets with Object Ownership = bucket-owner-enforced reject ACL headers.
-+        // Only pass ACL when the CLI config explicitly sets one.
-+        const resolvedAcl = typeof s3Config.acl === 'string' ? s3Config.acl.trim() : undefined;
-         const S3Options = {
--            ACL: s3Config.acl || 'public-read',
-             Bucket: s3Config.bucket,
-+            // Omitting ACL avoids AccessControlListNotSupported on modern S3 buckets.
-+            ...(resolvedAcl ? { ACL: resolvedAcl } : {}),
-         };
-         const uploadTarball = async (options) => {
-             const shortKeyInputs = {
 diff --git a/lib/tarballs/build.js b/lib/tarballs/build.js
-index cbae61146324ef6ac0935c625b7858007ac238d1..4f3f145fc148ef9b76c61b27f99db6b7eb734b58 100644
+index cbae61146324ef6ac0935c625b7858007ac238d1..ebc55cad4adadac568c031469d8ee6f4773c8b01 100644
 --- a/lib/tarballs/build.js
 +++ b/lib/tarballs/build.js
-@@ -69,9 +69,23 @@ const copyCoreYarnFiles = async (yarnRootPath, workspacePath) => {
+@@ -69,9 +69,25 @@ const copyCoreYarnFiles = async (yarnRootPath, workspacePath) => {
  };
  async function build(c, options = {}) {
      (0, log_1.log)(`gathering workspace for ${c.config.bin} to ${c.workspace()}`);
 -    await extractCLI(options.tarball ?? (await packCLI(c)), c);
 -    await updatePJSON(c);
 -    await addDependencies(c);
++    // For our use case we always use PNPM
 +    if (true) {
 +        try {
 +            (0, log_1.log)('emptying', node_path_1.default.join(c.workspace()));
@@ -117,6 +23,7 @@ index cbae61146324ef6ac0935c625b7858007ac238d1..4f3f145fc148ef9b76c61b27f99db6b7
 +        await updatePJSON(c);
 +    }
 +    else {
++        // Just kept for reference
 +        await extractCLI(options.tarball ?? (await packCLI(c)), c);
 +        await updatePJSON(c);
 +        await addDependencies(c);
@@ -124,47 +31,3 @@ index cbae61146324ef6ac0935c625b7858007ac238d1..4f3f145fc148ef9b76c61b27f99db6b7
      await (0, bin_1.writeBinScripts)({
          baseWorkspace: c.workspace(),
          config: c.config,
-@@ -132,7 +146,8 @@ const updatePJSON = async (c) => {
-     pjson.oclif = pjson.oclif ?? {};
-     pjson.oclif.update = pjson.oclif.update ?? {};
-     pjson.oclif.update.s3 = pjson.oclif.update.s3 ?? {};
--    pjson.oclif.update.s3.bucket = c.s3Config.bucket;
-+    pjson.oclif.update.s3.bucket = c.s3Config.bucket ?? pjson.oclif.update.s3.bucket;
-+    pjson.oclif.update.s3.host = c.updateConfig.s3?.host ?? pjson.oclif.update.s3.host;
-     await (0, fs_extra_1.writeJSON)(pjsonPath, pjson, { spaces: 2 });
- };
- const addDependencies = async (c) => {
-@@ -159,10 +174,11 @@ const addDependencies = async (c) => {
-             }
-         }
-     }
--    else if ((0, node_fs_1.existsSync)(node_path_1.default.join(c.root, 'pnpm-lock.yaml'))) {
--        await (0, fs_extra_1.copy)(node_path_1.default.join(c.root, 'pnpm-lock.yaml'), node_path_1.default.join(c.workspace(), 'pnpm-lock.yaml'));
--        await exec('pnpm install --production', { cwd: c.workspace() });
--    }
-+    // Not needed since we use pnpm deploy
-+    // else if ((0, node_fs_1.existsSync)(node_path_1.default.join(c.root, '..' ,'pnpm-lock.yaml'))) {
-+    //     await (0, fs_extra_1.copy)(node_path_1.default.join(c.root, '..', 'pnpm-lock.yaml'), node_path_1.default.join(c.workspace(), 'pnpm-lock.yaml'));
-+    //     await exec('pnpm install --production', { cwd: c.workspace() });
-+    // }
-     else {
-         const lockpath = (0, node_fs_1.existsSync)(node_path_1.default.join(c.root, 'package-lock.json'))
-             ? node_path_1.default.join(c.root, 'package-lock.json')
-diff --git a/lib/version-indexes.js b/lib/version-indexes.js
-index 5d9686f486b1e9f5acf375f9e6a0eb06a3ca407f..ab3b55d02b81e74e2817fd686aa909bb91f05503 100644
---- a/lib/version-indexes.js
-+++ b/lib/version-indexes.js
-@@ -105,11 +105,12 @@ const appendToIndex = async (input) => {
-         [version]: originalUrl.replace(s3Config.bucket, s3Config.host),
-     }, s3Config.indexVersionLimit), { spaces: 2 });
-     // put the file back in the same place
-+    const resolvedAcl = typeof s3Config.acl === 'string' ? s3Config.acl.trim() : undefined;
-     await aws_1.default.s3.uploadFile(jsonFileName, {
--        ACL: s3Config.acl ?? client_s3_1.ObjectCannedACL.public_read,
-         Bucket: s3Config.bucket,
-         CacheControl: maxAge,
-         Key: key,
-+        ...(resolvedAcl ? { ACL: resolvedAcl } : {}),
-     }, {
-         dryRun: input.dryRun,
-     });
