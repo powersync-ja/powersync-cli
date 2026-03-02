@@ -17,12 +17,7 @@ const config = defineConfig({
     tailwindcss(),
     tanstackStart({}),
     viteReact()
-  ],
-  resolve: {
-    alias: {
-      buffer: 'buffer'
-    }
-  }
+  ]
 });
 
 export default config;
