@@ -712,7 +712,7 @@ _See code: [src/commands/fetch/config.ts](https://github.com/powersync-ja/powers
 
 ## `powersync fetch instances`
 
-[Cloud only] List Cloud instances in the current org/project.
+List Cloud and linked instances.
 
 ```
 USAGE
@@ -726,9 +726,9 @@ FLAGS
   --project-id=<value>   Optional Project ID. Defaults to all projects in the org.
 
 DESCRIPTION
-  [Cloud only] List Cloud instances in the current org/project.
+  List Cloud and linked instances.
 
-  List PowerSync Cloud instances, grouped by organization and project.
+  List PowerSync Cloud and linked instances, Cloud instances are grouped by organization and project.
 
 EXAMPLES
   $ powersync fetch instances
