@@ -175,7 +175,7 @@ export async function validateSelfHostedSyncRules(input: {
   }
 }
 
-export async function validateProjectSyncRules(input: {
+export async function validateProjectSyncConfig(input: {
   linkedProject: CloudProject | SelfHostedProject;
   syncRulesContent: string;
 }): Promise<SyncValidation> {

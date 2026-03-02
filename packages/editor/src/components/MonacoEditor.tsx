@@ -4,7 +4,7 @@ import MonacoReactEditor, { type BeforeMount, loader, type Monaco, type OnMount 
 import * as monaco from 'monaco-editor';
 // eslint-disable-next-line import/default
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
-import { configureMonacoYaml } from 'monaco-yaml';
+import { configureMonacoYaml, SchemasSettings } from 'monaco-yaml';
 // eslint-disable-next-line import/default
 import YamlWorker from 'monaco-yaml/yaml.worker?worker';
 import { useRef } from 'react';
@@ -29,14 +29,14 @@ if (typeof globalThis !== 'undefined') {
   };
 }
 
-const defaultOptions: editor.IStandaloneEditorConstructionOptions = {
+const DEFAULT_MONACO_OPTIONS: editor.IStandaloneEditorConstructionOptions = {
   formatOnPaste: true,
   formatOnType: true,
   minimap: { enabled: false },
   quickSuggestions: {
     comments: false,
-    other: true,
-    strings: true
+    other: false,
+    strings: false
   },
   readOnly: false
 };
@@ -78,7 +78,7 @@ export function MonacoEditor({
         fileMatch: [filename],
         schema,
         uri: `inmemory://schemas/${filename}.json`
-      }));
+      })) as SchemasSettings[];
 
       configureMonacoYaml(monacoInstance, {
         completion: true,
@@ -113,7 +113,7 @@ export function MonacoEditor({
       onChange={onChange}
       onMount={handleMount}
       onValidate={onValidate}
-      options={{ ...defaultOptions, ...options }}
+      options={{ ...DEFAULT_MONACO_OPTIONS, ...options }}
       path={path}
       theme="vs-dark"
       value={value}

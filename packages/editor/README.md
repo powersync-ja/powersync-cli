@@ -4,7 +4,7 @@ The PowerSync CLI Config Studio is the Monaco-powered editor that ships with the
 
 ## Feature highlights
 
-- **Automatic file discovery** – the server functions locate `service.yaml` and `sync.yaml` inside the directory pointed to `POWERSYNC_DIRECTORY` and expose them over TanStack Start server functions.
+- **Automatic file discovery** – the server functions locate `service.yaml` and `sync.yaml` using the JSON blob in `POWERSYNC_PROJECT_CONTEXT` (set by `powersync edit config`) and expose them over TanStack Start server functions.
 - **Schema-aware authoring** – Monaco runs `monaco-yaml` with the schemas from `@powersync/cli-schemas`, so completions, hover docs, and validation all match the CLI contract.
 - **Unsaved change tracking** – changes are stored in an RxJS subject so every route can see which files are pending saves, making the sidebar badges and the editor status consistent.
 - **Actionable validation** – validation markers can be expanded into a details panel that highlights the line and reason that the schema rejected the content.
@@ -19,20 +19,25 @@ The PowerSync CLI Config Studio is the Monaco-powered editor that ships with the
 
 ## Local development
 
-> The editor talks directly to your filesystem. Always point `POWERSYNC_DIRECTORY` at a test project unless you intend to edit production config files.
+> The editor talks directly to your filesystem. Always point `POWERSYNC_PROJECT_CONTEXT` at a test project unless you intend to edit production config files.
 
 1. **Install dependencies**
    ```bash
    pnpm install
    ```
-2. **Expose a PowerSync project directory** – export `POWERSYNC_DIRECTORY` to the folder that contains your `service.yaml`/`sync.yaml` files.
-3. **Run the dev server**
+2. **Provide project context** – the editor expects `POWERSYNC_PROJECT_CONTEXT` (JSON) to describe the linked project. The safest way is to let the CLI set it for you:
    ```bash
-   # from the repo root
-   POWERSYNC_DIRECTORY=/absolute/path/to/powersync pnpm --filter editor dev
+   # from the repo root, uses the CLI command to set POWERSYNC_PROJECT_CONTEXT automatically
+   pnpm --filter cli exec powersync edit config --directory /absolute/path/to/powersync --host 0.0.0.0 --port 3000
    ```
+   If you need to run `pnpm --filter editor dev`, export the same env yourself. A minimal self-hosted example:
+   ```bash
+   export POWERSYNC_PROJECT_CONTEXT='{"linkedProject":{"projectDirectory":"/absolute/path/to/powersync","linked":{"type":"self-hosted"}}}'
+   pnpm --filter editor dev
+   ```
+   (For full validation, include the real linked metadata; using the CLI command above is preferred.)
    The dev server runs on http://localhost:3000 by default. Hot reloading works for both React components and server functions.
-4. **Run tests (optional)**
+3. **Run tests (optional)**
    ```bash
    pnpm --filter editor test
    ```

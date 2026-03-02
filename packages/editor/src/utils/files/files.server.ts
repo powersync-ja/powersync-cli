@@ -1,9 +1,12 @@
-import { validateProjectSyncRules } from '@powersync/cli-core';
+import { validateProjectSyncConfig } from '@powersync/cli-core';
 
 import { env } from '../../env';
 
+/**
+ * Validates the PowerSync sync config server side.
+ */
 export async function validateSyncRulesWithCli(syncRulesContent: string) {
-  const syncTest = await validateProjectSyncRules({
+  const syncTest = await validateProjectSyncConfig({
     linkedProject: env.POWERSYNC_PROJECT_CONTEXT!.linkedProject,
     syncRulesContent
   });

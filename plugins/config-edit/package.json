@@ -21,7 +21,6 @@
     "@oclif/core": "^4",
     "@powersync/cli-core": "workspace:*",
     "open": "^11",
-    "vite": "^7",
     "wait-port": "^1"
   },
   "devDependencies": {
