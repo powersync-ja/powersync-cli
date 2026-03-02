@@ -1,7 +1,9 @@
 import { Command, Flags, ux } from '@oclif/core';
-import { createAccountsHubClient, createCloudClient } from '@powersync/cli-core';
+import { CLI_FILENAME, createAccountsHubClient, createCloudClient, parseYamlFile } from '@powersync/cli-core';
+import { CLIConfig } from '@powersync/cli-schemas';
 import sortBy from 'lodash/sortBy.js';
-import { writeFileSync } from 'node:fs';
+import fs, { readdir } from 'node:fs/promises';
+import path from 'node:path';
 import ora from 'ora';
 
 type Instance = {
@@ -32,7 +34,8 @@ type OrganizationMap = {
 };
 
 export default class FetchInstances extends Command {
-  static description = 'List PowerSync Cloud instances, grouped by organization and project.';
+  static description =
+    'List PowerSync Cloud and linked instances, Cloud instances are grouped by organization and project.';
   static examples = [
     '<%= config.bin %> <%= command.id %>',
     '<%= config.bin %> <%= command.id %> --project-id=<id> --output=json'
@@ -56,14 +59,12 @@ export default class FetchInstances extends Command {
       required: false
     })
   };
-  static summary = '[Cloud only] List Cloud instances in the current org/project.';
+  static summary = 'List Cloud and linked instances.';
 
-  async run(): Promise<void> {
+  protected async fetchCloudInstances(params: { org_id?: string; project_id?: string }) {
+    const { org_id, project_id } = params;
     const accountsClient = createAccountsHubClient();
     const managementClient = createCloudClient();
-
-    const { flags } = await this.parse(FetchInstances);
-    const { org_id, project_id } = flags;
 
     const instanceMap: OrganizationMap = {};
     let totalOrgs: number | undefined;
@@ -73,68 +74,118 @@ export default class FetchInstances extends Command {
     const spinner = ora({
       discardStdin: false,
       stream: process.stdout,
-      text: 'Fetching instances...'
+      text: 'Fetching cloud instances...'
     });
 
-    for await (const page of accountsClient.listOrganizations.paginate({ id: org_id })) {
-      const { objects: organizations, total } = page;
-      if (totalOrgs === undefined) {
-        totalOrgs = total;
-        if (total > 0) {
-          spinner.start();
-          spinnerStarted = true;
+    try {
+      for await (const page of accountsClient.listOrganizations.paginate({ id: org_id })) {
+        const { objects: organizations, total } = page;
+        if (totalOrgs === undefined) {
+          totalOrgs = total;
+          if (total > 0) {
+            spinner.start();
+            spinnerStarted = true;
+          }
+        }
+
+        for (const organization of organizations) {
+          spinner.text = `Fetching org ${processedOrgs + 1} of ${totalOrgs}...`;
+          const orgMap = (instanceMap[organization.id] = {
+            id: organization.id,
+            name: organization.label,
+            projects: {} as ProjectMap
+          });
+
+          let totalProjects: number | undefined;
+          let processedProjects = 0;
+
+          for await (const projectPage of accountsClient.listProjects.paginate({
+            id: project_id,
+            org_id: organization.id
+          })) {
+            const { objects: projects, total } = projectPage;
+            if (totalProjects === undefined) {
+              totalProjects = total;
+            }
+
+            for (const project of projects) {
+              spinner.text = `Fetching org ${processedOrgs + 1} of ${totalOrgs}, project ${processedProjects + 1} of ${totalProjects}...`;
+              const projectMap = (orgMap.projects[project.id] = {
+                id: project.id,
+                instances: [] as Instance[],
+                name: project.name
+              });
+              const instances = await managementClient.listInstances({
+                app_id: project.id,
+                org_id: organization.id
+              });
+              projectMap.instances.push(...instances.instances);
+              processedProjects++;
+            }
+          }
+
+          processedOrgs++;
         }
       }
 
-      for (const organization of organizations) {
-        spinner.text = `Fetching org ${processedOrgs + 1} of ${totalOrgs}...`;
-        const orgMap = (instanceMap[organization.id] = {
-          id: organization.id,
-          name: organization.label,
-          projects: {} as ProjectMap
+      return instanceMap;
+    } finally {
+      if (spinnerStarted) {
+        spinner.stop();
+      }
+    }
+  }
+
+  protected async fetchLinkedInstances() {
+    const subDirectories = await readdir(process.cwd());
+    const linkedProjects: Array<{
+      config: CLIConfig;
+      subDirectory: string;
+    }> = [];
+    for (const subDirectory of subDirectories) {
+      const linkPath = path.join(process.cwd(), subDirectory, CLI_FILENAME);
+      const exists = await fs
+        .stat(linkPath)
+        .then(() => true)
+        .catch(() => false);
+
+      if (!exists) {
+        continue;
+      }
+
+      try {
+        const valid = CLIConfig.decode(parseYamlFile(linkPath).contents?.toJSON());
+        linkedProjects.push({
+          config: valid,
+          subDirectory
         });
-
-        let totalProjects: number | undefined;
-        let processedProjects = 0;
-
-        for await (const projectPage of accountsClient.listProjects.paginate({
-          id: project_id,
-          org_id: organization.id
-        })) {
-          const { objects: projects, total } = projectPage;
-          if (totalProjects === undefined) {
-            totalProjects = total;
-          }
-
-          for (const project of projects) {
-            spinner.text = `Fetching org ${processedOrgs + 1} of ${totalOrgs}, project ${processedProjects + 1} of ${totalProjects}...`;
-            const projectMap = (orgMap.projects[project.id] = {
-              id: project.id,
-              instances: [] as Instance[],
-              name: project.name
-            });
-            const instances = await managementClient.listInstances({
-              app_id: project.id,
-              org_id: organization.id
-            });
-            projectMap.instances.push(...instances.instances);
-            processedProjects++;
-          }
-        }
-
-        processedOrgs++;
-      }
+      } catch {}
     }
 
-    if (spinnerStarted) {
-      spinner.stop();
-    }
+    return linkedProjects;
+  }
+
+  async run(): Promise<void> {
+    const { flags } = await this.parse(FetchInstances);
 
     this.log(''); // Add spacing
 
+    const cloudInstanceMap = await this.fetchCloudInstances({
+      org_id: flags['org-id'],
+      project_id: flags['project-id']
+    }).catch((error) => {
+      this.warn(`Failed to fetch cloud instances: ${error instanceof Error ? error.message : String(error)}`);
+      return {};
+    });
+
+    const linkedInstances = await this.fetchLinkedInstances().catch((error) => {
+      this.warn(`Failed to fetch linked instances: ${error instanceof Error ? error.message : String(error)}`);
+      return [];
+    });
+
     if (flags.output === 'human') {
       // Log in human readable format
-      for (const org of sortBy(Object.values(instanceMap), 'name')) {
+      for (const org of sortBy(Object.values(cloudInstanceMap), 'name')) {
         this.log(`${ux.colorize('blue', 'Organization: ')} ${org.name} ${ux.colorize('gray', `id: ${org.id}`)}`);
         for (const project of sortBy(Object.values(org.projects), 'name')) {
           this.log(`\t${ux.colorize('blue', 'Project: ')} ${project.name} ${ux.colorize('gray', `id: ${project.id}`)}`);
@@ -147,16 +198,34 @@ export default class FetchInstances extends Command {
 
         this.log('');
       }
+
+      for (const linked of linkedInstances) {
+        this.log(`Locally linked in ./${linked.subDirectory}/`);
+        this.log(`\t${ux.colorize('blue', 'Project type: ')} ${linked.config.type}`);
+        if (linked.config.type === 'cloud') {
+          this.log(`\t${ux.colorize('blue', 'Project ID: ')} ${linked.config.project_id}`);
+          this.log(`\t${ux.colorize('blue', 'Instance ID: ')} ${linked.config.instance_id}`);
+        } else if (linked.config.type === 'self-hosted') {
+          this.log(`\t${ux.colorize('blue', 'API URL: ')} ${linked.config.api_url}`);
+        }
+      }
+
+      this.log('');
     }
 
+    const outputObject = {
+      cloudInstances: cloudInstanceMap,
+      linkedInstances
+    };
+
     if (flags.output === 'json' || flags['output-file']) {
-      const content = ux.colorizeJson(Object.values(instanceMap));
+      const content = ux.colorizeJson(outputObject);
       if (flags.output === 'json') {
         this.log(content);
       }
 
       if (flags['output-file']) {
-        writeFileSync(flags['output-file'], content);
+        await fs.writeFile(flags['output-file'], content);
       }
     }
   }
