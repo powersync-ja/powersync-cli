@@ -1,6 +1,8 @@
 import * as sdk from '@journeyapps-labs/common-sdk';
 import { InstanceClient } from '@powersync/service-client';
 
+import { getCloudClientHeadersStore } from '../index.js';
+
 export type SelfHostedClientConfig = {
   apiKey: string;
   apiUrl: string;
@@ -13,6 +15,7 @@ export function createSelfHostedClient(config: SelfHostedClientConfig) {
   return new InstanceClient({
     client: sdk.createNodeNetworkClient({
       headers: () => ({
+        ...getCloudClientHeadersStore().headers,
         Authorization: `Bearer ${config.apiKey}`
       })
     }),

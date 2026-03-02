@@ -12,6 +12,7 @@ import { ux } from '@oclif/core';
 
 import { Services } from '../services/Services.js';
 import { env } from '../utils/env.js';
+import { getCloudClientHeadersStore } from './create-cloud-client.js';
 
 /**
  * Client for interacting with the AccountsHub API service.
@@ -71,6 +72,7 @@ export async function createAccountsHubClient(): Promise<AccountsHubClientSDKCli
   return new AccountsHubClientSDKClient({
     client: sdk.createWebNetworkClient({
       headers: () => ({
+        ...getCloudClientHeadersStore().headers,
         Authorization: `Bearer ${token}`
       })
     }),
