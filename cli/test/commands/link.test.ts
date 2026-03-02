@@ -29,8 +29,8 @@ const accountsClientMock = {
   listProjects: vi.fn()
 };
 
-vi.spyOn(cliCore, 'createAccountsHubClient').mockResolvedValue(
-  accountsClientMock as unknown as Awaited<ReturnType<typeof cliCore.createAccountsHubClient>>
+vi.spyOn(cliCore, 'createAccountsHubClient').mockImplementation(
+  () => accountsClientMock as unknown as ReturnType<typeof cliCore.createAccountsHubClient>
 );
 
 function writeServiceYaml(projectDir: string, type: 'cloud' | 'self-hosted') {
