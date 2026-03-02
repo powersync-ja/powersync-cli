@@ -59,8 +59,8 @@ export default class FetchInstances extends Command {
   static summary = '[Cloud only] List Cloud instances in the current org/project.';
 
   async run(): Promise<void> {
-    const accountsClient = await createAccountsHubClient();
-    const managementClient = await createCloudClient();
+    const accountsClient = createAccountsHubClient();
+    const managementClient = createCloudClient();
 
     const { flags } = await this.parse(FetchInstances);
     const { org_id, project_id } = flags;

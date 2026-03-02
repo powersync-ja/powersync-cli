@@ -60,7 +60,7 @@ describe('login', () => {
       address: 'http://127.0.0.1:54321',
       tokenPromise: Promise.resolve('server-token')
     });
-    mockedCreateAccountsHubClient.mockResolvedValue({
+    mockedCreateAccountsHubClient.mockReturnValue({
       listOrganizations: vi.fn().mockResolvedValue({
         objects: [{ id: 'org-1', label: 'Org One' }]
       })

@@ -4,6 +4,7 @@ import { PowerSyncManagementClient } from '@powersync/management-client';
 
 import { Services } from '../services/Services.js';
 import { env } from '../utils/env.js';
+import { getCliClientHeadersStore } from './cli-client-headers.js';
 
 /**
  * Creates a PowerSync Management Client for the Cloud.
@@ -30,6 +31,7 @@ export function createCloudClient(): PowerSyncManagementClient {
         }
 
         return {
+          ...getCliClientHeadersStore().headers,
           Authorization: `Bearer ${token}`
         };
       }
