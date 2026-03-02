@@ -1,0 +1,42 @@
+{
+  "name": "@powersync/cli-core",
+  "description": "Core types and base commands for PowerSync CLI and plugins (shared by CLI and plugin-docker).",
+  "version": "0.0.0",
+  "author": "POWERSYNC",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "@oclif/core": "^4",
+    "@powersync/cli-schemas": "workspace:*",
+    "@journeyapps-labs/micro-errors": "^1.0.1",
+    "yaml": "^2",
+    "@journeyapps-labs/common-sdk": "1.0.2",
+    "@powersync/management-client": "0.0.1",
+    "@powersync/management-types": "0.0.1",
+    "@powersync/service-client": "0.0.2",
+    "keychain": "^1.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "typescript": "^5",
+    "@types/keychain": "^1.4.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo"
+  }
+}

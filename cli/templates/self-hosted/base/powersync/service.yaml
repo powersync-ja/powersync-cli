@@ -1,0 +1,243 @@
+# PowerSync self-hosted config – example template with all schema options documented.
+# Uncomment one block per type where applicable. We recommend secrets via !env ENV_NAME.
+# Docs: https://docs.powersync.com/self-hosting
+
+_type: self-hosted
+
+# -----------------------------------------------------------------------------
+# [optional] TELEMETRY – configuration for service telemetry and monitoring
+# -----------------------------------------------------------------------------
+# See https://docs.powersync.com/self-hosting/telemetry
+telemetry:
+  # When true, disables sharing of anonymized telemetry data. Default: false.
+  disable_telemetry_sharing: false
+#   # [optional] Port for Prometheus metrics; when set, metrics are exposed for scraping.
+#   prometheus_port: 9090
+
+# -----------------------------------------------------------------------------
+# [required] REPLICATION – configuration for data replication; array of data source connections
+# Connection: `uri` and `password` are required for a complete connection. Alternatively omit `uri`
+# and provide individual fields (hostname, port, database, username, password, etc.); they are used
+# to construct the connection URI. For MongoDB, `uri` is required.
+# -----------------------------------------------------------------------------
+replication:
+#     -------------------------------------------------------------------------
+#     PostgreSQL – uncomment this entire block to use
+#     -------------------------------------------------------------------------
+#  connections:
+#     - type: postgresql
+#       # Connection string (recommended). Omit and use hostname/port/database/username/password instead if you prefer.
+#       # [optional]
+#       uri: !env PS_DATA_SOURCE_URI
+#       password: !env PS_DATABASE_PASSWORD
+#       # [optional] Alternative to uri: individual connection parameters.
+#       hostname: string
+#       port: 5432
+#       database: string
+#       username: string
+#       # [optional] Connection identifiers.
+#       id: string
+#       tag: string
+#       # [optional] TLS mode. Options: verify-full | verify-ca | disable. Default: verify-full for production; disable is for local/private networks only.
+#       sslmode: disable
+#       # [optional] TLS certificates (PEM). Required for verify-ca; optional for verify-full.
+#       cacert: string
+#       client_certificate: string
+#       client_private_key: string
+#       # [optional] TLS SNI when connecting.
+#       tls_servername: string
+#       # [optional] IP ranges to reject for this connection.
+#       reject_ip_ranges: [ string ]
+#       # [optional] Replication slot name prefix.
+#       slot_name_prefix: string
+#       # [optional] Maximum connection pool size.
+#       max_pool_size: number
+
+#     -------------------------------------------------------------------------
+#     MongoDB – uncomment this entire block to use (comment out PostgreSQL above).
+#     uri is required for MongoDB; other fields are optional.
+#     -------------------------------------------------------------------------
+#  connections:
+#     - type: mongodb
+#       # Connection string (required for MongoDB).
+#       uri: !env PS_MONGODB_URI
+#       password: !env PS_MONGODB_PASSWORD
+#       # [optional] Connection parameters (if not in URI).
+#       username: string
+#       database: string
+#       # [optional] Connection identifiers.
+#       id: string
+#       tag: string
+#       # [optional] IP ranges to reject for this connection.
+#       reject_ip_ranges: []
+#       # [optional] Change-data-capture mode. Options: off | auto_configure | read_only. Default: off.
+#       post_images: off
+
+#     -------------------------------------------------------------------------
+#     MySQL – uncomment this entire block to use (comment out PostgreSQL above).
+#     -------------------------------------------------------------------------
+#  connections:
+#     - type: mysql
+#       # [optional] Connection string. Omit and use hostname/port/database/username/password instead if you prefer.
+#       uri: !env PS_MYSQL_URI
+#       password: !env PS_MYSQL_PASSWORD
+#       # [optional] Alternative to uri: individual connection parameters.
+#       hostname: db.example.com
+#       port: 3306
+#       database: mydb
+#       username: sync
+#       # [optional] Connection identifiers.
+#       id: string
+#       tag: string
+#       # [optional] MySQL server ID for replication.
+#       server_id: number
+#       # [optional] TLS: CA cert and client cert/key (PEM).
+#       cacert: string
+#       client_certificate: string
+#       client_private_key: string
+#       # [optional] IP ranges to reject for this connection.
+#       reject_ip_ranges: []
+#       # [optional] Binlog queue memory limit.
+#       binlog_queue_memory_limit: number
+
+# -----------------------------------------------------------------------------
+# MongoDB storage – configuration for the storage backend (sync bucket storage). Also see PostgreSQL storage below.
+# -----------------------------------------------------------------------------
+# storage:
+#   type: mongodb
+#   # Connection string (required for MongoDB storage).
+#   uri: !env PS_MONGO_URI
+#   # [optional] Connection parameters (if not in URI).
+#   database: string
+#   username: string
+#   password: !env PS_MONGO_PASSWORD
+#   # [optional] IP ranges to reject for this connection.
+#   reject_ip_ranges: []
+
+# -----------------------------------------------------------------------------
+# PostgreSQL storage – uncomment this block and comment out the MongoDB storage block above to use PostgreSQL.
+# -----------------------------------------------------------------------------
+# storage:
+#   type: postgresql
+#   # [optional] Connection string. Omit and use hostname/port/database/username/password instead if you prefer.
+#   uri: !env PS_STORAGE_URI
+#   # [optional] Alternative to uri: individual connection parameters.
+#   hostname: string
+#   port: 5432
+#   username: string
+#   password: !env PS_STORAGE_PASSWORD
+#   database: string
+#   # [optional] Connection identifiers.
+#   id: string
+#   tag: string
+#   # [optional] TLS mode. Options: verify-full | verify-ca | disable. Default: verify-full for production.
+#   sslmode: verify-full
+#   # [optional] TLS certificates (PEM).
+#   cacert: string
+#   client_certificate: string
+#   client_private_key: string
+#   # [optional] TLS SNI, IP rejection, slot prefix, pool size.
+#   tls_servername: string
+#   reject_ip_ranges: []
+#   slot_name_prefix: string
+#   max_pool_size: 8
+#   # [optional] Batch size limits.
+#   batch_limits:
+#     max_estimated_size: number
+#     max_record_count: number
+#     max_current_data_batch_size: number
+
+# -----------------------------------------------------------------------------
+# [optional] PORT – the port on which the service will listen for connections (number or string)
+# -----------------------------------------------------------------------------
+# port: !env PS_PORT
+
+# -----------------------------------------------------------------------------
+# SYNC CONFIG – configuration for Sync Streams/Sync Rules that define which data is synced to each user.
+# -----------------------------------------------------------------------------
+# One of path or content is supported. path is the most common (file reference).
+sync_config:
+  # Path to the sync config YAML file (sync rules).
+  path: sync-config.yaml
+#   # [optional] Inline sync config content as a string; use this or path, not both.
+#   content: string
+#   # [optional] When true, exit the process if sync config fails to parse. Default: false.
+#   exit_on_error: false
+
+# -----------------------------------------------------------------------------
+# CLIENT AUTH (optional) – configuration for client authentication mechanisms
+# -----------------------------------------------------------------------------
+
+# client_auth:
+#   # [optional] Use the same JWT secret as Supabase. Default: false.
+#   supabase: false
+#   # [optional] Legacy: provide your Supabase project's legacy JWT secret from API settings in the Supabase Dashboard if not using new JWT signing keys.
+#   supabase_jwt_secret: !env PS_SUPABASE_JWT_SECRET
+#   # [optional] JWKS URL or array of URLs; instance fetches public keys to verify JWT signatures. Often used with custom auth.
+#   jwks_uri: https://example.com/jwks.json
+#   # [optional] Inline JWKS; provide keys directly instead of or in addition to jwks_uri.
+#   jwks:
+#     keys:
+#       HMAC (symmetric) – Options: HS256 | HS384 | HS512
+#       - kty: oct
+#         alg: HS256
+#         kid: example-key
+#         k: !env PS_CLIENT_AUTH_KEY
+#       RSA – Options for alg: RS256 | RS384 | RS512
+#       - kty: RSA
+#         kid: my-rsa-key
+#         n: "<base64url-modulus>"
+#         e: "<base64url-exponent>"
+#         alg: RS256
+#       EC – Options for crv: P-256 | P-384 | P-512; alg: ES256 | ES384 | ES512
+#       - kty: EC
+#         kid: my-ec-key
+#         crv: P-256
+#         x: "<base64url-x>"
+#         y: "<base64url-y>"
+#         alg: ES256
+#       OKP (EdDSA) – Options for crv: Ed25519 | Ed448
+#       - kty: OKP
+#         kid: my-okp-key
+#         crv: Ed25519
+#         x: "<base64url-public-key>"
+#         alg: EdDSA
+#   # [optional] Valid audiences for JWT validation. Example: ['authenticated'].
+#   audience: ['authenticated']
+#   # [optional] When true, block JWKS URIs that resolve to local network addresses. Default: false.
+#   block_local_jwks: false
+#   # [optional] IP ranges to reject when resolving JWKS URIs. Default: [].
+#   jwks_reject_ip_ranges: []
+
+# -----------------------------------------------------------------------------
+# [optional] API – API service configuration and parameters
+# -----------------------------------------------------------------------------
+api:
+  # API access tokens for administrative operations (e.g. CLI link). Use a strong token in production.
+  tokens:
+    - use_a_better_token_in_production
+#   # [optional] Performance and safety parameters. Defaults shown.
+#   parameters:
+#     max_concurrent_connections: 200   # Max connections (HTTP/websocket) per API process.
+#     max_data_fetch_concurrency: 10     # Should not exceed storage.max_pool_size. Default: 10.
+#     max_buckets_per_connection: 1000 # Hard limit; service errors if exceeded. Default: 1000.
+#     max_parameter_query_results: 1000 # Limit before converting to unique set. Default: 1000.
+
+# -----------------------------------------------------------------------------
+# [optional] HEALTHCHECK – mechanisms for exposing health check data
+# -----------------------------------------------------------------------------
+# healthcheck:
+#   probes:
+#     # [optional] Expose healthcheck status via filesystem files.
+#     use_filesystem: boolean
+#     # [optional] Expose healthcheck status via HTTP endpoints.
+#     use_http: boolean
+#     # [optional] Deprecated. HTTP probes for API and UNIFIED; filesystem probes are always enabled.
+#     use_legacy: boolean
+
+# -----------------------------------------------------------------------------
+# [optional] MIGRATIONS – configuration for database schema migrations
+# -----------------------------------------------------------------------------
+# migrations:
+#   # When true, disables automatic storage schema migrations; start them manually. Default: false.
+#   disable_auto_migration: false

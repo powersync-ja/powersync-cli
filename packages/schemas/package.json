@@ -1,0 +1,44 @@
+{
+  "name": "@powersync/cli-schemas",
+  "description": "PowerSync CLI schema definitions and JSON Schema generation",
+  "version": "0.0.0",
+  "author": "POWERSYNC",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "json-schema"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./cli-config-schema.json": "./json-schema/cli-config.json",
+    "./link-config-schema.json": "./json-schema/cli-config.json",
+    "./service-config-schema.json": "./json-schema/service-config.json"
+  },
+  "scripts": {
+    "build": "tsc -b && node dist/scripts/create-schemas.js",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo"
+  },
+  "dependencies": {
+    "ts-codec": "^1.3.0",
+    "ajv": "^8.12.0",
+    "better-ajv-errors": "^2.0.3",
+    "@powersync/service-types": "0.0.0-dev-20260225093637",
+    "@powersync/service-schema": "0.0.0-dev-20260225093637",
+    "@powersync/management-types": "0.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "shx": "^0.3.3",
+    "tsx": "^4",
+    "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

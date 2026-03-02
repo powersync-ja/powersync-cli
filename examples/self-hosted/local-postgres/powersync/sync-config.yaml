@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=https://unpkg.com/@powersync/service-sync-rules@latest/schema/sync_rules.json
+#
+# See Documentation for more information:
+# https://docs.powersync.com/usage/sync-rules
+
+config:
+  edition: 3
+
+streams:
+  global:
+    # Streams without parameters sync the same data to all users
+    auto_subscribe: true
+    queries:
+      - SELECT * FROM todos

@@ -1,0 +1,28 @@
+{
+  "name": "powersync-workspace",
+  "private": true,
+  "description": "PowerSync CLI monorepo",
+  "devDependencies": {
+    "powersync": "workspace:*",
+    "husky": "^9.1.7",
+    "prettier": "^3.0.0",
+    "tsx": "^4",
+    "eslint": "^9",
+    "eslint-config-oclif": "^6",
+    "eslint-config-prettier": "^10",
+    "@eslint/compat": "^1"
+  },
+  "scripts": {
+    "build": "pnpm -r run build",
+    "clean": "pnpm -r run clean",
+    "format:write": "pnpm prettier --write .",
+    "lint:fix": "pnpm -r --if-present run lint --fix",
+    "test": "pnpm -r run test",
+    "configure-hooks": "husky",
+    "prepare": "husky"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@10.0.0"
+}

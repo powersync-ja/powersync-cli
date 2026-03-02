@@ -1,0 +1,13 @@
+# See https://docs.powersync.com/sync/advanced/compatibility
+config:
+  edition: 3
+
+# Define Sync Streams to control which data is synced to each user
+# Docs: https://docs.powersync.com/sync/streams/overview
+streams:
+  global:
+    # Streams without parameters sync the same data to all users
+    auto_subscribe: true
+    queries:
+      - select _id as id, * FROM lists
+      - select _id as id, * from todos

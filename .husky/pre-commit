@@ -1,0 +1,17 @@
+#!/bin/sh
+set -e
+
+if git diff --cached --quiet --diff-filter=ACMR; then
+	exit 0
+fi
+
+git diff --cached --name-only -z --diff-filter=ACMR \
+	| xargs -0 pnpm prettier --write --ignore-unknown
+
+if git diff --cached --name-only --diff-filter=ACMR -- '*.js' '*.cjs' '*.mjs' '*.ts' '*.tsx' | grep -q .; then
+	git diff --cached --name-only -z --diff-filter=ACMR -- '*.js' '*.cjs' '*.mjs' '*.ts' '*.tsx' \
+		| xargs -0 pnpm eslint --fix
+fi
+
+git diff --cached --name-only -z --diff-filter=ACMR \
+	| xargs -0 git add --

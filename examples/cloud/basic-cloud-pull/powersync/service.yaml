@@ -1,0 +1,22 @@
+# PowerSync Cloud config (fetched from cloud)
+# yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/service-config.json
+_type: cloud
+name: mango
+region: us
+replication:
+  connections:
+    - type: mongodb
+      name: default
+      tag: default
+      username: steven
+      password:
+        secret_ref: default_password
+      database: powersync
+      uri: !env MONGO_URI
+      post_images: auto_configure
+client_auth:
+  jwks:
+    keys: []
+  supabase: false
+  additional_audiences: []
+  allow_temporary_tokens: true
