@@ -8,7 +8,7 @@ import {
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { ensureServiceTypeMatches, ServiceType } from '../utils/ensureServiceType.js';
+import { ensureServiceTypeMatches, ServiceType } from '../utils/ensure-service-type.js';
 import { env } from '../utils/env.js';
 import { CLI_FILENAME, SERVICE_FILENAME } from '../utils/project-config.js';
 import { parseYamlFile } from '../utils/yaml.js';
@@ -56,6 +56,7 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
   ): SelfHostedProject {
     const resolvedOptions = {
       ...DEFAULT_ENSURE_CONFIG_OPTIONS,
+      // Keep this order so call-site options override defaults.
       ...options
     };
 
@@ -106,7 +107,7 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
     }
 
     this._project = {
-      linked: linked!,
+      linked,
       projectDirectory: projectDir
     };
     return this._project;

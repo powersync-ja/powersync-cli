@@ -10,7 +10,7 @@ import {
 
 export default class DockerReset extends SelfHostedInstanceCommand {
   static description =
-    'Run `docker compose down` then `docker compose up -d --wait`: stops and removes containers, then starts the stack and waits for services (including PowerSync) to be healthy. Use when you want a clean bring-up (e.g. after config changes). Use `powersync fetch status` to debug running instances.';
+    'Run `docker compose down` then `docker compose up -d --wait`: stops and removes containers, then starts the stack and waits for services (including PowerSync) to be healthy. Use when you want a clean bring-up (e.g. after config changes). Use `powersync status` to debug running instances.';
   static examples = ['<%= config.bin %> <%= command.id %>'];
   static flags = {
     ...SelfHostedInstanceCommand.flags
@@ -43,6 +43,6 @@ export default class DockerReset extends SelfHostedInstanceCommand {
       throw error;
     }
 
-    this.log(`\n\nTip: use "${ux.colorize('blue', 'powersync fetch status')}" to debug the running instance.`);
+    this.log(`\n\nTip: use "${ux.colorize('blue', 'powersync status')}" to debug the running instance.`);
   }
 }

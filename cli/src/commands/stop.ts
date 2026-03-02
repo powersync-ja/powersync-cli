@@ -52,14 +52,13 @@ export default class Stop extends CloudInstanceCommand {
         timeoutMs: 10 * 60 * 1000 // Stopping may take longer than deploying, so use a longer timeout
       });
 
-      // const status = await waitForOperationStatusChange(client, linked, linked.instance_id, stopResult.operation_id, timeoutMs);
       spinner.stop();
 
       if (status === 'completed') {
         this.log(ux.colorize('green', 'Instance stopped successfully.'));
       } else {
         this.styledError({
-          message: `Operation failed. Check instance diagnostics for details, for example: ${ux.colorize('blue', 'powersync fetch status')}`
+          message: `Operation failed. Check instance diagnostics for details, for example: ${ux.colorize('blue', 'powersync status')}`
         });
       }
     } catch (error) {

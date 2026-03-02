@@ -64,6 +64,6 @@ powersync docker start
 This project can be used with any self-hosted CLI commands:
 
 ```bash
-powersync fetch status
+powersync status
 powersync generate schema --output-path=schema.ts --output=ts
 ```
