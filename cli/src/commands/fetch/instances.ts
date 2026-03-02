@@ -34,7 +34,8 @@ type OrganizationMap = {
 };
 
 export default class FetchInstances extends Command {
-  static description = 'List PowerSync Cloud instances, grouped by organization and project.';
+  static description =
+    'List PowerSync Cloud and linked instances, Cloud instances are grouped by organization and project.';
   static examples = [
     '<%= config.bin %> <%= command.id %>',
     '<%= config.bin %> <%= command.id %> --project-id=<id> --output=json'
@@ -58,7 +59,7 @@ export default class FetchInstances extends Command {
       required: false
     })
   };
-  static summary = '[Cloud only] List Cloud instances in the current org/project.';
+  static summary = 'List Cloud and linked instances.';
 
   protected async fetchCloudInstances(params: { org_id?: string; project_id?: string }) {
     const { org_id, project_id } = params;
@@ -169,7 +170,7 @@ export default class FetchInstances extends Command {
 
     this.log(''); // Add spacing
 
-    const cloudInstancMap = await this.fetchCloudInstances({
+    const cloudInstanceMap = await this.fetchCloudInstances({
       org_id: flags['org-id'],
       project_id: flags['project-id']
     }).catch((error) => {
@@ -184,7 +185,7 @@ export default class FetchInstances extends Command {
 
     if (flags.output === 'human') {
       // Log in human readable format
-      for (const org of sortBy(Object.values(cloudInstancMap), 'name')) {
+      for (const org of sortBy(Object.values(cloudInstanceMap), 'name')) {
         this.log(`${ux.colorize('blue', 'Organization: ')} ${org.name} ${ux.colorize('gray', `id: ${org.id}`)}`);
         for (const project of sortBy(Object.values(org.projects), 'name')) {
           this.log(`\t${ux.colorize('blue', 'Project: ')} ${project.name} ${ux.colorize('gray', `id: ${project.id}`)}`);
@@ -196,29 +197,29 @@ export default class FetchInstances extends Command {
         }
 
         this.log('');
-
-        for (const linked of linkedInstances) {
-          this.log(`Locally linked in ./${linked.subDirectory}/`);
-          this.log(`\t${ux.colorize('blue', 'Project type: ')} ${linked.config.type}`);
-          if (linked.config.type === 'cloud') {
-            this.log(`\t${ux.colorize('blue', 'Project ID: ')} ${linked.config.project_id}`);
-            this.log(`\t${ux.colorize('blue', 'Instance ID: ')} ${linked.config.instance_id}`);
-          } else if (linked.config.type === 'self-hosted') {
-            this.log(`\t${ux.colorize('blue', 'API URL: ')} ${linked.config.api_url}`);
-          }
-        }
-
-        this.log('');
       }
+
+      for (const linked of linkedInstances) {
+        this.log(`Locally linked in ./${linked.subDirectory}/`);
+        this.log(`\t${ux.colorize('blue', 'Project type: ')} ${linked.config.type}`);
+        if (linked.config.type === 'cloud') {
+          this.log(`\t${ux.colorize('blue', 'Project ID: ')} ${linked.config.project_id}`);
+          this.log(`\t${ux.colorize('blue', 'Instance ID: ')} ${linked.config.instance_id}`);
+        } else if (linked.config.type === 'self-hosted') {
+          this.log(`\t${ux.colorize('blue', 'API URL: ')} ${linked.config.api_url}`);
+        }
+      }
+
+      this.log('');
     }
 
     const outputObject = {
-      cloudInstances: cloudInstancMap,
+      cloudInstances: cloudInstanceMap,
       linkedInstances
     };
 
     if (flags.output === 'json' || flags['output-file']) {
-      const content = ux.colorizeJson(Object.values(outputObject));
+      const content = ux.colorizeJson(outputObject);
       if (flags.output === 'json') {
         this.log(content);
       }
