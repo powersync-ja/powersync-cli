@@ -5,7 +5,6 @@ describe('cli client headers', () => {
   let fetchSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
-    // Use real management client for this suite.
     vi.resetModules();
 
     // Spy on fetch with endpoint-specific responses so SDK calls settle.
