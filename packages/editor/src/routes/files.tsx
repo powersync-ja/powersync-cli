@@ -1,4 +1,4 @@
-import { Link, Outlet, createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
 import { AlertCircle, FileText, Loader2 } from 'lucide-react';
 
 import { useTrackedFiles } from '@/components/hooks/useFiles';
@@ -10,7 +10,7 @@ export const Route = createFileRoute('/files')({
 
 function FilesLayout() {
   const { state, upstream } = useTrackedFiles();
-  const { isPending, error, refetch } = upstream;
+  const { error, isPending, refetch } = upstream;
   const files = Object.values(state);
   const filesError = error instanceof Error ? error.message : 'Unexpected error while loading files.';
 
@@ -18,8 +18,8 @@ function FilesLayout() {
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <div className="flex flex-1 min-h-0 overflow-hidden">
         <aside className="w-80 border-r border-border bg-card/60 px-4 py-6 backdrop-blur">
-          <Accordion type="single" collapsible defaultValue="configuration" className="mt-6">
-            <AccordionItem value="configuration" className="border-border/60">
+          <Accordion className="mt-6" collapsible defaultValue="configuration" type="single">
+            <AccordionItem className="border-border/60" value="configuration">
               <AccordionTrigger>Configuration files</AccordionTrigger>
               <AccordionContent>
                 {isPending ? (
@@ -34,9 +34,9 @@ function FilesLayout() {
                     </p>
                     <p className="text-destructive-foreground/80">{filesError}</p>
                     <button
-                      type="button"
+                      className="inline-flex items-center justify-center rounded-full border border-destructive/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-destructive-foreground transition hover:border-destructive/60"
                       onClick={() => refetch()}
-                      className="inline-flex items-center justify-center rounded-full border border-destructive/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-destructive-foreground transition hover:border-destructive/60">
+                      type="button">
                       Try again
                     </button>
                   </div>
@@ -47,13 +47,13 @@ function FilesLayout() {
                     {files.map((file) => (
                       <li key={file.filename}>
                         <Link
-                          to="/files/$filename"
-                          params={{ filename: file.filename }}
-                          className="flex items-center gap-3 rounded-xl border border-transparent px-4 py-3 text-sm text-foreground transition hover:border-primary/50 hover:bg-primary/5"
                           activeProps={{
                             className:
                               'flex items-center gap-3 rounded-xl border border-primary bg-primary/10 px-4 py-3 text-sm text-foreground shadow-[0_0_25px_rgba(14,165,233,0.25)]'
-                          }}>
+                          }}
+                          className="flex items-center gap-3 rounded-xl border border-transparent px-4 py-3 text-sm text-foreground transition hover:border-primary/50 hover:bg-primary/5"
+                          params={{ filename: file.filename }}
+                          to="/files/$filename">
                           <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
                             <FileText size={18} />
                           </span>

@@ -8,27 +8,27 @@ export const Route = createFileRoute('/files/')({
 });
 
 function FilesIndex() {
-  const { data, isPending, error, refetch } = useFiles();
+  const { data, error, isPending, refetch } = useFiles();
   const files = data?.files ?? [];
   const readyFooter = `${files.length} file${files.length === 1 ? '' : 's'} detected from your local PowerSync directory.`;
   const descriptionBase =
     'Pick any entry from the Configuration column on the left to open it inside the Monaco-powered editor. The YAML plugin will highlight issues, surface schema hints, and keep your PowerSync CLI templates on track.';
   const viewState = isPending
     ? {
-        title: 'Fetching configuration files…',
         description: 'Hang tight while we read your PowerSync directory.',
-        footer: 'Loading files from your local environment.'
+        footer: 'Loading files from your local environment.',
+        title: 'Fetching configuration files…'
       }
     : error
       ? {
-          title: 'Unable to load configuration files',
           description: error instanceof Error ? error.message : 'Unexpected error while reading your directory.',
-          footer: null
+          footer: null,
+          title: 'Unable to load configuration files'
         }
       : {
-          title: 'Choose a configuration file',
           description: descriptionBase,
-          footer: readyFooter
+          footer: readyFooter,
+          title: 'Choose a configuration file'
         };
   const icon = isPending ? (
     <Loader2 className="h-8 w-8 animate-spin" />
@@ -55,9 +55,9 @@ function FilesIndex() {
         <p>{viewState.description}</p>
         {error ? (
           <button
-            type="button"
+            className="inline-flex items-center justify-center rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white/80 transition hover:border-white/50"
             onClick={() => refetch()}
-            className="inline-flex items-center justify-center rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white/80 transition hover:border-white/50">
+            type="button">
             Try again
           </button>
         ) : (

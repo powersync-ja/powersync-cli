@@ -61,6 +61,93 @@ const useEmptyValidationHook: UseValidationHook = () => ({
   markers: []
 });
 
+function getStatusBadge(status: Status, hasChanges: boolean) {
+  if (status === 'saving')
+    return {
+      icon: <Loader2 className="animate-spin text-cyan-200" size={16} />,
+      label: 'Saving…',
+      tone: 'text-cyan-200 bg-cyan-500/10 border-cyan-300/40'
+    };
+  if (status === 'saved')
+    return {
+      icon: <CheckCircle2 className="text-emerald-300" size={16} />,
+      label: 'All changes synced',
+      tone: 'text-emerald-200 bg-emerald-500/10 border-emerald-300/40'
+    };
+  if (status === 'error')
+    return {
+      icon: <AlertCircle className="text-rose-300" size={16} />,
+      label: 'Save failed',
+      tone: 'text-rose-200 bg-rose-500/10 border-rose-300/40'
+    };
+  if (hasChanges)
+    return {
+      icon: <FileCog className="text-amber-200" size={16} />,
+      label: 'Unsaved changes',
+      tone: 'text-amber-100 bg-amber-500/15 border-amber-300/50'
+    };
+  return {
+    icon: <FileCog className="text-white/70" size={16} />,
+    label: 'No pending changes',
+    tone: 'text-white/70 bg-white/5 border-white/10'
+  };
+}
+
+function getValidationBadge(validationSummary: { errors: number; warnings: number }) {
+  if (validationSummary.errors > 0 || validationSummary.warnings > 0) {
+    return {
+      icon: <Info className="text-rose-100" size={16} />,
+      label: `${validationSummary.errors} errors • ${validationSummary.warnings} warnings`,
+      tone: 'text-rose-100 bg-rose-500/15 border-rose-300/50'
+    };
+  }
+
+  return {
+    icon: <CheckCircle2 className="text-emerald-200" size={16} />,
+    label: 'No validation issues',
+    tone: 'text-emerald-100 bg-emerald-500/10 border-emerald-300/40'
+  };
+}
+
+function ValidationDetailsPanel({ markers, onHide }: { markers: Monaco.editor.IMarker[]; onHide: () => void }) {
+  return (
+    <div className="rounded-xl border border-destructive/25 bg-destructive/5 px-4 py-3 text-sm text-foreground">
+      <div className="mb-2 flex items-center justify-between">
+        <div className="flex items-center gap-2 font-semibold text-destructive-foreground">
+          <Info className="text-destructive" size={16} /> Validation details
+        </div>
+        <button
+          className="text-xs font-semibold text-muted-foreground underline-offset-4 hover:text-foreground"
+          onClick={onHide}
+          type="button">
+          Hide
+        </button>
+      </div>
+      <ul className="space-y-2">
+        {markers.map((marker, idx) => {
+          const isError = ERROR_SEVERITIES.has(marker.severity);
+          const tone = isError
+            ? 'text-destructive-foreground bg-destructive/15 border-destructive/40'
+            : 'text-warning-foreground bg-warning/15 border-warning/40';
+          const label = isError ? 'Error' : 'Warning';
+          return (
+            <li className="flex items-start gap-3" key={`${marker.message}-${marker.startLineNumber}-${idx}`}>
+              <span
+                className={`mt-0.5 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${tone}`}>
+                {label}
+              </span>
+              <div className="flex-1 leading-relaxed text-foreground">
+                <div className="font-semibold text-foreground">Line {marker.startLineNumber}</div>
+                <div className="text-muted-foreground">{marker.message}</div>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
 /**
  * Shared editor shell used by all file-specific editor providers.
  */
@@ -98,6 +185,7 @@ export function BaseEditorWidget({
   }, [validationMarkers]);
 
   const hasChanges = trackedFilesState[filename]?.hasChanges ?? false;
+  const hasValidationIssues = validationSummary.errors > 0 || validationSummary.warnings > 0;
 
   // Disable edits while saving or refetching so the post-save refetch cannot overwrite
   // in-flight keystrokes; useTrackedFiles preserves local content when merging upstream
@@ -185,50 +273,9 @@ export function BaseEditorWidget({
     );
   }
 
-  const statusBadge = (() => {
-    if (status === 'saving')
-      return {
-        icon: <Loader2 className="animate-spin text-cyan-200" size={16} />,
-        label: 'Saving…',
-        tone: 'text-cyan-200 bg-cyan-500/10 border-cyan-300/40'
-      };
-    if (status === 'saved')
-      return {
-        icon: <CheckCircle2 className="text-emerald-300" size={16} />,
-        label: 'All changes synced',
-        tone: 'text-emerald-200 bg-emerald-500/10 border-emerald-300/40'
-      };
-    if (status === 'error')
-      return {
-        icon: <AlertCircle className="text-rose-300" size={16} />,
-        label: 'Save failed',
-        tone: 'text-rose-200 bg-rose-500/10 border-rose-300/40'
-      };
-    if (hasChanges)
-      return {
-        icon: <FileCog className="text-amber-200" size={16} />,
-        label: 'Unsaved changes',
-        tone: 'text-amber-100 bg-amber-500/15 border-amber-300/50'
-      };
-    return {
-      icon: <FileCog className="text-white/70" size={16} />,
-      label: 'No pending changes',
-      tone: 'text-white/70 bg-white/5 border-white/10'
-    };
-  })();
+  const statusBadge = getStatusBadge(status, hasChanges);
 
-  const validationBadge =
-    validationSummary.errors > 0 || validationSummary.warnings > 0
-      ? {
-          icon: <Info className="text-rose-100" size={16} />,
-          label: `${validationSummary.errors} errors • ${validationSummary.warnings} warnings`,
-          tone: 'text-rose-100 bg-rose-500/15 border-rose-300/50'
-        }
-      : {
-          icon: <CheckCircle2 className="text-emerald-200" size={16} />,
-          label: 'No validation issues',
-          tone: 'text-emerald-100 bg-emerald-500/10 border-emerald-300/40'
-        };
+  const validationBadge = getValidationBadge(validationSummary);
 
   return (
     <div className="flex h-full w-full flex-1 flex-col gap-6 bg-background px-10 py-8 text-foreground">
@@ -241,11 +288,9 @@ export function BaseEditorWidget({
         <div className="flex flex-wrap items-center gap-3">
           <button
             className={`inline-flex h-8 items-center justify-center gap-2 rounded-md border px-3 py-1 text-xs font-medium transition ${validationBadge.tone} ${
-              validationSummary.errors > 0 || validationSummary.warnings > 0
-                ? 'hover:border-destructive/50 hover:bg-destructive/5'
-                : ''
-            } ${validationSummary.errors === 0 && validationSummary.warnings === 0 ? 'cursor-not-allowed opacity-60' : ''}`}
-            disabled={validationSummary.errors === 0 && validationSummary.warnings === 0}
+              hasValidationIssues ? 'hover:border-destructive/50 hover:bg-destructive/5' : ''
+            } ${hasValidationIssues ? '' : 'cursor-not-allowed opacity-60'}`}
+            disabled={!hasValidationIssues}
             onClick={() => setShowValidation((open) => !open)}
             type="button">
             {validationBadge.icon}
@@ -280,40 +325,7 @@ export function BaseEditorWidget({
       )}
 
       {showValidation && validationMarkers.length > 0 && (
-        <div className="rounded-xl border border-destructive/25 bg-destructive/5 px-4 py-3 text-sm text-foreground">
-          <div className="mb-2 flex items-center justify-between">
-            <div className="flex items-center gap-2 font-semibold text-destructive-foreground">
-              <Info className="text-destructive" size={16} /> Validation details
-            </div>
-            <button
-              className="text-xs font-semibold text-muted-foreground underline-offset-4 hover:text-foreground"
-              onClick={() => setShowValidation(false)}
-              type="button">
-              Hide
-            </button>
-          </div>
-          <ul className="space-y-2">
-            {validationMarkers.map((marker, idx) => {
-              const isError = ERROR_SEVERITIES.has(marker.severity);
-              const tone = isError
-                ? 'text-destructive-foreground bg-destructive/15 border-destructive/40'
-                : 'text-warning-foreground bg-warning/15 border-warning/40';
-              const label = isError ? 'Error' : 'Warning';
-              return (
-                <li className="flex items-start gap-3" key={`${marker.message}-${marker.startLineNumber}-${idx}`}>
-                  <span
-                    className={`mt-0.5 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${tone}`}>
-                    {label}
-                  </span>
-                  <div className="flex-1 leading-relaxed text-foreground">
-                    <div className="font-semibold text-foreground">Line {marker.startLineNumber}</div>
-                    <div className="text-muted-foreground">{marker.message}</div>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+        <ValidationDetailsPanel markers={validationMarkers} onHide={() => setShowValidation(false)} />
       )}
 
       <div className="flex min-h-0 flex-1 overflow-hidden rounded-xl border border-border bg-card shadow-[0_16px_72px_rgba(0,0,0,0.08)]">

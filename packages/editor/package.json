@@ -9,6 +9,7 @@
     "dev": "vite dev --port 3000",
     "build": "vite build && pnpm run copy-editor-dist",
     "copy-editor-dist": "node ./scripts/copy-editor-dist.mjs",
+    "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run"
   },
