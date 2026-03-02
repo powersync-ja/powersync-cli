@@ -34,7 +34,7 @@ export async function validateCloudLinkConfig(
   ensureObjectId(orgId, '--org-id');
   ensureObjectId(projectId, '--project-id');
 
-  const accountsClient = await createAccountsHubClient();
+  const accountsClient = createAccountsHubClient();
 
   try {
     await accountsClient.getOrganization({ id: orgId });

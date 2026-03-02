@@ -128,7 +128,7 @@ export default class DeployAll extends CloudInstanceCommand {
     const indentation = '\t'.repeat(Math.max(0, indentationLevel));
     const spinner = ora({
       discardStdin: false,
-      prefixText: `\n${indentation}Initial provision: deploying without sync config to validate sync rules before final deploy...\n`,
+      prefixText: `\n${indentation}Initial provision: deploying without sync config changes in order to validate sync config before final deploy...\n`,
       spinner: 'moon',
       suffixText: `\n${indentation}This may take a few minutes.\n`
     });
@@ -208,7 +208,7 @@ export default class DeployAll extends CloudInstanceCommand {
      * We will attempt to deploy the config without the sync config first,
      * if that succeeds, then we will validate the sync config and deploy again with the sync config.
      */
-    if (requiresReprovision && syncConfigHasChanges) {
+    if (requiresReprovision) {
       this.log(
         [
           `The instance is ${ux.colorize('yellow', 'not currently provisioned')} and we have detected changes to the sync config.`,

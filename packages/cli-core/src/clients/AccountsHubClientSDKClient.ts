@@ -12,6 +12,7 @@ import { ux } from '@oclif/core';
 
 import { Services } from '../services/Services.js';
 import { env } from '../utils/env.js';
+import { getCliClientHeadersStore } from './cli-client-headers.js';
 
 /**
  * Client for interacting with the AccountsHub API service.
@@ -59,20 +60,23 @@ export class AccountsHubClientSDKClient<C extends sdk.NetworkClient = sdk.Networ
  * Creates a PowerSync Accounts Hub Client for the Cloud.
  * Uses the token stored by the login command (secure storage, e.g. macOS Keychain).
  */
-export async function createAccountsHubClient(): Promise<AccountsHubClientSDKClient> {
-  const { authentication } = Services;
-  const token = env.PS_ADMIN_TOKEN || (await authentication.getToken());
-  if (!token) {
-    throw new Error(
-      `Not logged in. Run ${ux.colorize('blue', 'powersync login')} to authenticate (you will be prompted for your token), or provide the ${ux.colorize('blue', 'PS_ADMIN_TOKEN')} environment variable.`
-    );
-  }
-
+export function createAccountsHubClient(): AccountsHubClientSDKClient {
   return new AccountsHubClientSDKClient({
     client: sdk.createWebNetworkClient({
-      headers: () => ({
-        Authorization: `Bearer ${token}`
-      })
+      async headers() {
+        const { authentication } = Services;
+        const token = env.PS_ADMIN_TOKEN || (await authentication.getToken());
+        if (!token) {
+          throw new Error(
+            `Not logged in. Run ${ux.colorize('blue', 'powersync login')} to authenticate (you will be prompted for your token), or provide the ${ux.colorize('blue', 'PS_ADMIN_TOKEN')} environment variable.`
+          );
+        }
+
+        return {
+          ...getCliClientHeadersStore().headers,
+          Authorization: `Bearer ${token}`
+        };
+      }
     }),
     endpoint: env._PS_ACCOUNTS_HUB_SERVICE_URL
   });
@@ -86,7 +90,7 @@ export async function createAccountsHubClient(): Promise<AccountsHubClientSDKCli
  * @throws If the token has zero or multiple orgs (caller should ask the user to pass --org-id).
  */
 export async function getDefaultOrgId(): Promise<string> {
-  const client = await createAccountsHubClient();
+  const client = createAccountsHubClient();
   const { objects: organizations, total } = await client.listOrganizations({});
   if (total === 0) {
     throw new Error(
