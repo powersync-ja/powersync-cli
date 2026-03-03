@@ -44,7 +44,7 @@ export default class GenerateToken extends SharedInstanceCommand {
 
   protected async generateCloudToken(project: CloudProject, config: TokenConfig): Promise<string> {
     const { linked } = project;
-    const client = await createCloudClient();
+    const client = createCloudClient();
 
     // Get the config in order to check if development tokens are enabled.
     const cloudInstanceConfig = await client

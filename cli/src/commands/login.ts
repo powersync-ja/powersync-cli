@@ -29,7 +29,7 @@ export default class Login extends PowerSyncCommand {
     }
 
     const listOrgs = async (): Promise<string> => {
-      const accountsHubClient = await createAccountsHubClient();
+      const accountsHubClient = createAccountsHubClient();
       const orgs = await accountsHubClient.listOrganizations({});
       const objects = orgs?.objects ?? [];
       return objects.map((org) => `\t - ${org.label} - ${org.id}`).join('\n');
