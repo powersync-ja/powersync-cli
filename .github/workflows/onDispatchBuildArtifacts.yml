@@ -7,3 +7,5 @@ on:
 jobs:
   build-artifacts:
     uses: ./.github/workflows/buildArtifacts.yml
+    with:
+      retention-days: 7
