@@ -155,7 +155,11 @@ export default class Validate extends SharedInstanceCommand {
       }
 
       case 'json': {
-        const runResults = await Promise.all(testEntries.map((e) => e.promise));
+        const runResults = await Promise.all(
+          testEntries.map((e) =>
+            e.promise.catch((error): ValidationTestRunResult => ({ errors: [String(error)], passed: false }))
+          )
+        );
         const tests: ValidationTestResult[] = testEntries.map((e, i) => ({ name: e.name, ...runResults[i] }));
         result = { passed: tests.every((t) => t.passed), tests };
         this.log(formatValidationJson(result));
@@ -164,7 +168,11 @@ export default class Validate extends SharedInstanceCommand {
       }
 
       case 'yaml': {
-        const runResults = await Promise.all(testEntries.map((e) => e.promise));
+        const runResults = await Promise.all(
+          testEntries.map((e) =>
+            e.promise.catch((error): ValidationTestRunResult => ({ errors: [String(error)], passed: false }))
+          )
+        );
         const tests: ValidationTestResult[] = testEntries.map((e, i) => ({ name: e.name, ...runResults[i] }));
         result = { passed: tests.every((t) => t.passed), tests };
         this.log(formatValidationYaml(result));
@@ -173,7 +181,11 @@ export default class Validate extends SharedInstanceCommand {
       }
 
       default: {
-        const runResults = await Promise.all(testEntries.map((e) => e.promise));
+        const runResults = await Promise.all(
+          testEntries.map((e) =>
+            e.promise.catch((error): ValidationTestRunResult => ({ errors: [String(error)], passed: false }))
+          )
+        );
         const tests: ValidationTestResult[] = testEntries.map((e, i) => ({ name: e.name, ...runResults[i] }));
         result = { passed: tests.every((t) => t.passed), tests };
         this.log(formatValidationHuman(result));
