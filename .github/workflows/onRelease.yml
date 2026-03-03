@@ -9,6 +9,7 @@ permissions:
 
 jobs:
   build-artifacts:
+    if: startsWith(github.event.release.tag_name, 'powersync@')
     uses: ./.github/workflows/buildArtifacts.yml
     with:
       retention-days: 1
