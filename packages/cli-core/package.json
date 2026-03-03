@@ -1,7 +1,7 @@
 {
   "name": "@powersync/cli-core",
   "description": "Core types and base commands for PowerSync CLI and plugins (shared by CLI and plugin-docker).",
-  "version": "0.0.0",
+  "version": "0.8.0",
   "license": "FSL-1.1-ALv2",
   "author": "POWERSYNC",
   "type": "module",
@@ -17,6 +17,15 @@
       "default": "./dist/index.js"
     }
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/powersync-ja/cli"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "bugs": "https://github.com/powersync-ja/cli/issues",
   "dependencies": {
     "@oclif/core": "^4",
     "@powersync/cli-schemas": "workspace:*",

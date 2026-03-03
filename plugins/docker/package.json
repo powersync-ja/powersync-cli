@@ -1,7 +1,7 @@
 {
   "name": "@powersync/cli-plugin-docker",
   "description": "PowerSync CLI plugin: reset, start, and stop self-hosted instances using Docker Compose",
-  "version": "0.0.0",
+  "version": "0.8.0",
   "author": "POWERSYNC",
   "license": "FSL-1.1-ALv2",
   "type": "module",
@@ -12,8 +12,16 @@
     "templates",
     "oclif.manifest.json"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/powersync-ja/cli"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "bugs": "https://github.com/powersync-ja/cli/issues",
   "scripts": {
-    "build": "tsc -b && node ./scripts/copy-template-resources.mjs",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "lint": "eslint .",
     "prepack": "oclif manifest"

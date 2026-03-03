@@ -1,7 +1,7 @@
 {
   "name": "@powersync/cli-schemas",
   "description": "PowerSync CLI schema definitions and JSON Schema generation",
-  "version": "0.0.0",
+  "version": "0.8.0",
   "author": "POWERSYNC",
   "license": "FSL-1.1-ALv2",
   "type": "module",
@@ -21,8 +21,16 @@
     "./link-config-schema.json": "./json-schema/cli-config.json",
     "./service-config-schema.json": "./json-schema/service-config.json"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/powersync-ja/cli"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "bugs": "https://github.com/powersync-ja/cli/issues",
   "scripts": {
-    "build": "tsc -b && node dist/scripts/create-schemas.js",
     "clean": "rm -rf dist tsconfig.tsbuildinfo"
   },
   "dependencies": {

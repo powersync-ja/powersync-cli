@@ -1,7 +1,7 @@
 {
   "name": "powersync",
   "description": "A CLI for managing PowerSync instances",
-  "version": "0.0.0",
+  "version": "0.8.0",
   "author": "POWERSYNC",
   "bin": {
     "powersync": "./bin/run.js"
@@ -107,7 +107,14 @@
       }
     }
   },
-  "repository": "https://github.com/powersync-ja/powersync-js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/powersync-ja/cli"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "dev": "tsx bin/dev.js",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
