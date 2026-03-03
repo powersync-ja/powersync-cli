@@ -7,7 +7,6 @@ on:
         description: 'Number of days to retain uploaded artifacts'
         type: number
         default: 7
-  push:
 
 jobs:
   build-artifacts:
