@@ -5,8 +5,14 @@ const isSubclassOf = (parent: abstract new (argv: string[], config: Config) => u
   Object.prototype.isPrototypeOf.call(parent, child);
 
 /**
- * Override for the `powersync help` and `powersync --help` command.
- * Displays a flat list of commands grouped by type. Does
+ * Custom help implementation for the `powersync help` and `powersync --help` commands.
+ *
+ * This override:
+ * - Displays a flat list of commands at the root level instead of nested topic trees.
+ * - Formats command IDs using the configured `topicSeparator` (for example, "deploy:instance" → "deploy instance"
+ *   when the separator is a space).
+ * - Splits the root help output into "GENERAL COMMANDS" (first‑party commands from the core CLI and known
+ *   PowerSync plugins) and "OTHER COMMANDS" (commands from all other plugins).
  */
 export default class PowerSyncHelp extends Help {
   protected readonly firstPartyPluginNames = new Set(['@powersync/cli-plugin-docker']);
@@ -76,13 +82,21 @@ export default class PowerSyncHelp extends Help {
    *  to create a flat command list at the root level, while still allowing for nested commands.
    */
   protected groupKeyForCommand(commandId: string): string {
-    const rawTopLevel = commandId.split(':')[0];
-    if (rawTopLevel) {
-      return rawTopLevel;
+    const separator = this.config.topicSeparator ?? ':';
+    // Prefer the configured topic separator when deriving the top-level key
+    if (separator && commandId.includes(separator)) {
+      const topLevel = commandId.split(separator)[0];
+      return topLevel || commandId;
     }
 
-    const separator = this.config.topicSeparator ?? ':';
-    return commandId.split(separator)[0] ?? commandId;
+    // If the configured separator is not ":" but the ID still uses ":", fall back to ":"-based grouping
+    if (separator !== ':' && commandId.includes(':')) {
+      const topLevel = commandId.split(':')[0];
+      return topLevel || commandId;
+    }
+
+    // No known separator found; treat the whole ID as the group key
+    return commandId;
   }
 
   /**
@@ -144,7 +158,7 @@ export default class PowerSyncHelp extends Help {
     }
 
     if (generalCommands.length > 0) {
-      this.log(this.formatCommandsSection('POWERSYNC COMMANDS', generalCommands));
+      this.log(this.formatCommandsSection('GENERAL COMMANDS', generalCommands));
       this.log('');
     }
 

@@ -8,7 +8,7 @@ describe('help', () => {
     const result = await runCommand('--help', { root });
 
     expect(result.error).toBeUndefined();
-    expect(result.stdout).toContain('POWERSYNC COMMANDS');
+    expect(result.stdout).toContain('GENERAL COMMANDS');
     expect(result.stdout).toContain('CLOUD COMMANDS');
     expect(result.stdout).toContain('SHARED COMMANDS');
     expect(result.stdout).toContain('SELF-HOSTED COMMANDS');
@@ -17,7 +17,7 @@ describe('help', () => {
     expect(result.stdout).toContain('fetch status');
     expect(result.stdout).toContain('docker start');
     expect(result.stdout).toContain('plugins add');
-    expect(result.stdout).toMatch(/deploy sync-config[\s\S]*\n\n\s+destroy\s+/);
+    expect(result.stdout).toMatch(/deploy service-config[^\n]*\n\s+deploy sync-config[^\n]*\n\n\s+destroy[^\n]*/);
     expect(result.stdout).not.toContain('TOPICS');
 
     const cloudSectionStart = result.stdout.indexOf('CLOUD COMMANDS');

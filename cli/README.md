@@ -223,7 +223,7 @@ $ npm install -g powersync
 $ powersync COMMAND
 running command...
 $ powersync (--version)
-powersync/0.0.0 darwin-arm64 node-v22.22.0
+powersync/0.0.0 darwin-arm64 node-v24.13.0
 $ powersync --help [COMMAND]
 USAGE
   $ powersync COMMAND
@@ -1078,7 +1078,7 @@ EXAMPLES
   $ powersync plugins
 ```
 
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.56/src/commands/plugins/index.ts)_
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.55/src/commands/plugins/index.ts)_
 
 ## `powersync plugins add PLUGIN`
 
@@ -1152,7 +1152,7 @@ EXAMPLES
   $ powersync plugins inspect myplugin
 ```
 
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.56/src/commands/plugins/inspect.ts)_
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.55/src/commands/plugins/inspect.ts)_
 
 ## `powersync plugins install PLUGIN`
 
@@ -1201,7 +1201,7 @@ EXAMPLES
     $ powersync plugins install someuser/someplugin
 ```
 
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.56/src/commands/plugins/install.ts)_
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.55/src/commands/plugins/install.ts)_
 
 ## `powersync plugins link PATH`
 
@@ -1232,7 +1232,7 @@ EXAMPLES
   $ powersync plugins link myplugin
 ```
 
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.56/src/commands/plugins/link.ts)_
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.55/src/commands/plugins/link.ts)_
 
 ## `powersync plugins remove [PLUGIN]`
 
@@ -1273,7 +1273,7 @@ FLAGS
   --reinstall  Reinstall all plugins after uninstalling.
 ```
 
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.56/src/commands/plugins/reset.ts)_
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.55/src/commands/plugins/reset.ts)_
 
 ## `powersync plugins uninstall [PLUGIN]`
 
@@ -1301,7 +1301,7 @@ EXAMPLES
   $ powersync plugins uninstall myplugin
 ```
 
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.56/src/commands/plugins/uninstall.ts)_
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.55/src/commands/plugins/uninstall.ts)_
 
 ## `powersync plugins unlink [PLUGIN]`
 
@@ -1345,7 +1345,7 @@ DESCRIPTION
   Update installed plugins.
 ```
 
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.56/src/commands/plugins/update.ts)_
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.55/src/commands/plugins/update.ts)_
 
 ## `powersync pull instance`
 
