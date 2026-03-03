@@ -27,4 +27,8 @@ jobs:
         run: |
           tag="${{ github.event.release.tag_name }}"
           files=$(find release-assets -type f \( -name "*.pkg" -o -name "*.exe" -o -name "*.deb" -o -name "*.tar.gz" -o -name "*.tar.xz" \))
+          if [ -z "$files" ]; then
+            echo "Error: No artifacts found to upload"
+            exit 1
+          fi
           gh release upload "$tag" $files --clobber
