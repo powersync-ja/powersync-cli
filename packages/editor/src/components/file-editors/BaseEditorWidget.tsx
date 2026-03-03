@@ -1,8 +1,8 @@
-import type * as Monaco from 'monaco-editor';
 import type { RefObject } from 'react';
 
 import { useServerFn } from '@tanstack/react-start';
 import { AlertCircle, CheckCircle2, FileCog, Info, Loader2, RotateCcw, Save, ShieldAlert } from 'lucide-react';
+import * as Monaco from 'monaco-editor';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type { SaveFileRequest } from '../../utils/files/files';
@@ -10,9 +10,6 @@ import type { SaveFileRequest } from '../../utils/files/files';
 import { saveData as saveDataFn } from '../../utils/files/files.functions';
 import { useTrackedFiles } from '../hooks/useFiles';
 import { MonacoEditor } from '../MonacoEditor';
-
-const ERROR_SEVERITIES = new Set([8]);
-const WARNING_SEVERITIES = new Set([4]);
 
 function toSaveFilename(filename: string): null | SaveFileRequest['filename'] {
   if (filename === 'service.yaml' || filename === 'sync-config.yaml') {
@@ -125,7 +122,7 @@ function ValidationDetailsPanel({ markers, onHide }: { markers: Monaco.editor.IM
       </div>
       <ul className="space-y-2">
         {markers.map((marker, idx) => {
-          const isError = ERROR_SEVERITIES.has(marker.severity);
+          const isError = Monaco.MarkerSeverity.Error === marker.severity;
           const tone = isError
             ? 'text-destructive-foreground bg-destructive/15 border-destructive/40'
             : 'text-warning-foreground bg-warning/15 border-warning/40';
@@ -179,8 +176,8 @@ export function BaseEditorWidget({
   );
 
   const validationSummary = useMemo(() => {
-    const errors = validationMarkers.filter((m) => ERROR_SEVERITIES.has(m.severity)).length;
-    const warnings = validationMarkers.filter((m) => WARNING_SEVERITIES.has(m.severity)).length;
+    const errors = validationMarkers.filter((m) => Monaco.MarkerSeverity.Error === m.severity).length;
+    const warnings = validationMarkers.filter((m) => Monaco.MarkerSeverity.Warning === m.severity).length;
     return { errors, warnings };
   }, [validationMarkers]);
 
