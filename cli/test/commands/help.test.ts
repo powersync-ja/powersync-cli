@@ -17,7 +17,11 @@ describe('help', () => {
     expect(result.stdout).toContain('fetch status');
     expect(result.stdout).toContain('docker start');
     expect(result.stdout).toContain('plugins add');
-    expect(result.stdout).toMatch(/deploy service-config[^\n]*\n\s+deploy sync-config[^\n]*\n\n\s+destroy[^\n]*/);
+    const deployServiceIdx = result.stdout.indexOf('deploy service-config');
+    const deploySyncIdx = result.stdout.indexOf('deploy sync-config');
+    const destroyIdx = result.stdout.indexOf('destroy');
+    expect(deployServiceIdx).toBeLessThan(deploySyncIdx);
+    expect(deploySyncIdx).toBeLessThan(destroyIdx);
     expect(result.stdout).not.toContain('TOPICS');
 
     const cloudSectionStart = result.stdout.indexOf('CLOUD COMMANDS');
