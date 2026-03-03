@@ -1,5 +1,9 @@
 name: release on push to main
 
+env:
+  # Increase heap to keep Nitro/Vite SSR builds (editor) from OOMing while treeshaking.
+  NODE_OPTIONS: --max-old-space-size=4096
+
 on:
   push:
     branches: [main]

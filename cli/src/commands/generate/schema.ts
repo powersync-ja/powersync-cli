@@ -80,7 +80,7 @@ export default class GenerateSchema extends SharedInstanceCommand {
         SqlSyncRules.fromYaml(syncRulesContent, {
           defaultSchema: databaseSchema.defaultSchema ?? 'public',
           schema: staticSchema
-        }),
+        }).config,
         staticSchema
       );
 
