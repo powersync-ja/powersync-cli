@@ -1,6 +1,8 @@
+import { Flags } from '@oclif/core';
 import { ux } from '@oclif/core/ux';
 import { routes } from '@powersync/management-types';
 import { ObjectId } from 'bson';
+import { readFileSync } from 'node:fs';
 
 import { DEFAULT_DEPLOY_TIMEOUT_MS } from '../../api/cloud/wait-for-operation.js';
 import DeployAll from './index.js';
@@ -12,7 +14,12 @@ export default class DeploySyncConfig extends DeployAll {
     '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id>'
   ];
   static flags = {
-    ...DeployAll.flags
+    ...DeployAll.flags,
+    'sync-config-file-path': Flags.file({
+      description:
+        'Path to a sync config file. If provided, this file will be validated and deployed instead of the default sync-config.yaml.',
+      exists: true
+    })
   };
   static summary = '[Cloud only] Deploy only local sync config to the linked Cloud instance.';
 
@@ -65,18 +72,27 @@ export default class DeploySyncConfig extends DeployAll {
     });
 
     const { linked } = project;
-    this.parseConfig(project.projectDirectory);
-
     const deployTimeoutMs = (flags['deploy-timeout'] ?? DEFAULT_DEPLOY_TIMEOUT_MS / 1000) * 1000;
+
+    const syncConfigFilePath = flags['sync-config-file-path'];
+    if (syncConfigFilePath) {
+      this._project!.syncRulesContent = readFileSync(syncConfigFilePath, 'utf8');
+    }
 
     // The existing config is required to deploy changes. The instance should have been created already.
     const cloudConfigState = await this.loadCloudConfigState();
+
+    if (!cloudConfigState.config) {
+      this.styledError({
+        message: `No existing cloud config found for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}. A config must be deployed before deploying sync config changes.`,
+        suggestions: [`Run ${ux.colorize('blue', 'powersync deploy')} to deploy the initial config.`]
+      });
+    }
 
     // We use the cloud config as the "local config for this"
     this.serviceConfig = {
       _type: linked.type,
       name: cloudConfigState.name,
-      region: cloudConfigState.config!.region!,
       ...cloudConfigState.config,
       ...linked
     };

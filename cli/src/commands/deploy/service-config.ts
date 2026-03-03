@@ -23,7 +23,7 @@ export default class DeployServiceConfig extends DeployAll {
     const deployTimeoutMs = (flags['deploy-timeout'] ?? DEFAULT_DEPLOY_TIMEOUT_MS / 1000) * 1000;
 
     // Parse and store for later
-    this.parseConfig(project.projectDirectory);
+    this.parseLocalConfig(project.projectDirectory);
 
     // The existing config is required to deploy changes. The instance should have been created already.
     const cloudConfigState = await this.loadCloudConfigState();
