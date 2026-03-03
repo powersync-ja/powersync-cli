@@ -13,7 +13,7 @@ export default function Header() {
           />
           <div className="flex flex-col items-start">
             <p className="text-xs font-semibold uppercase tracking-[0.55em] text-white/60">PowerSync</p>
-            <p className="text-xl font-semibold leading-tight">CLI Config Studio</p>
+            <p className="text-xl font-semibold leading-tight">CLI Studio</p>
           </div>
         </Link>
 
