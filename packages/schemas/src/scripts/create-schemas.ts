@@ -1,3 +1,4 @@
+import _SyncSchema from '@powersync/service-sync-rules/schema/sync_rules.json' with { type: 'json' };
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,3 +13,4 @@ mkdirSync(schemaDir, { recursive: true });
 
 writeFileSync(join(schemaDir, 'cli-config.json'), JSON.stringify(CLIConfigSchema, null, 2));
 writeFileSync(join(schemaDir, 'service-config.json'), JSON.stringify(ServiceConfigSchema, null, 2));
+writeFileSync(join(schemaDir, 'sync-config.json'), JSON.stringify(_SyncSchema, null, 2));

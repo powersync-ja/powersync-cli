@@ -22,9 +22,9 @@
     "@journeyapps-labs/micro-errors": "^1.0.1",
     "yaml": "^2",
     "@journeyapps-labs/common-sdk": "1.0.2",
-    "@powersync/management-client": "0.0.1",
-    "@powersync/management-types": "0.0.1",
-    "@powersync/service-client": "0.0.2",
+    "@powersync/management-client": "^0.0.4",
+    "@powersync/management-types": "^0.0.3",
+    "@powersync/service-client": "^0.0.3",
     "keychain": "^1.5.0"
   },
   "devDependencies": {
@@ -37,6 +37,7 @@
   },
   "scripts": {
     "build": "tsc -b",
-    "clean": "rm -rf dist tsconfig.tsbuildinfo"
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "lint": "eslint ."
   }
 }

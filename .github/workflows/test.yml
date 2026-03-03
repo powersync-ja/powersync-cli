@@ -1,5 +1,9 @@
 name: tests
 
+env:
+  # Increase heap to keep Nitro/Vite SSR builds (editor) from OOMing while treeshaking.
+  NODE_OPTIONS: --max-old-space-size=4096
+
 on:
   push:
     branches-ignore: [main]
@@ -23,4 +27,5 @@ jobs:
       - name: Check formatting
         run: pnpm exec prettier --check .
       - run: pnpm run build
-      - run: pnpm run test
+      - name: Run tests
+        run: pnpm run test

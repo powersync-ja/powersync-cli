@@ -18,7 +18,8 @@
   "references": [
     { "path": "../packages/cli-core" },
     { "path": "../packages/schemas" },
-    { "path": "../plugins/docker" }
+    { "path": "../plugins/docker" },
+    { "path": "../plugins/config-edit" }
   ],
   "ts-node": {
     "esm": true

@@ -2,6 +2,7 @@
  * Core API for PowerSync CLI and plugins.
  * Plugins (e.g. plugin-docker) import from @powersync/cli-core.
  */
+export * from './api/validate-sync-config.js';
 export * from './clients/AccountsHubClientSDKClient.js';
 export * from './clients/cli-client-headers.js';
 export * from './clients/create-cloud-client.js';

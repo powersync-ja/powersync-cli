@@ -1,3 +1,6 @@
 pnpm-lock.yaml
 **/pnpm-lock.yaml
 **/*.json
+.output
+editor-dist
+routeTree.gen.ts
