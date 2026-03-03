@@ -1,8 +1,12 @@
-import { Help } from '@oclif/core';
+import { Config, Help } from '@oclif/core';
+import { CloudInstanceCommand, SelfHostedInstanceCommand, SharedInstanceCommand } from '@powersync/cli-core';
+
+const isSubclassOf = (parent: abstract new (argv: string[], config: Config) => unknown, child: object) =>
+  Object.prototype.isPrototypeOf.call(parent, child);
 
 /**
  * Override for the `powersync help` and `powersync --help` command.
- * Displays a flat list of commands. Does
+ * Displays a flat list of commands grouped by type. Does
  */
 export default class PowerSyncHelp extends Help {
   protected readonly firstPartyPluginNames = new Set(['@powersync/cli-plugin-docker']);
@@ -12,7 +16,8 @@ export default class PowerSyncHelp extends Help {
       .filter((command) => (this.opts.hideAliasesFromRoot ? !command.aliases?.includes(command.id) : true))
       .map((command) => {
         const id = this.displayId(command.id);
-        const summary = this.summary(command);
+        // Strip type prefixes (e.g. "[Cloud only]", "[Self-hosted only]") since the section grouping already conveys this.
+        const summary = this.summary(command)?.replace(/^\[(Cloud|Self-hosted) only\]\s*/i, '');
         // We add some padding to align the command name to the description
         return [id.padEnd(idPadding), summary];
       });
@@ -117,11 +122,44 @@ export default class PowerSyncHelp extends Help {
       firstPartyPluginNames.add(pluginName);
     }
 
-    const powerSyncCommands = commands.filter((command) => this.isFirstPartyCommand(command, firstPartyPluginNames));
+    const firstPartyCommands = commands.filter((command) => this.isFirstPartyCommand(command, firstPartyPluginNames));
     const pluginCommands = commands.filter((command) => !this.isFirstPartyCommand(command, firstPartyPluginNames));
 
-    if (powerSyncCommands.length > 0) {
-      this.log(this.formatCommandsSection('POWERSYNC COMMANDS', powerSyncCommands));
+    const generalCommands: typeof this.sortedCommands = [];
+    const cloudCommands: typeof this.sortedCommands = [];
+    const sharedCommands: typeof this.sortedCommands = [];
+    const selfHostedCommands: typeof this.sortedCommands = [];
+
+    for (const command of firstPartyCommands) {
+      const CommandClass = await command.load();
+      if (isSubclassOf(CloudInstanceCommand, CommandClass)) {
+        cloudCommands.push(command);
+      } else if (isSubclassOf(SelfHostedInstanceCommand, CommandClass)) {
+        selfHostedCommands.push(command);
+      } else if (isSubclassOf(SharedInstanceCommand, CommandClass)) {
+        sharedCommands.push(command);
+      } else {
+        generalCommands.push(command);
+      }
+    }
+
+    if (generalCommands.length > 0) {
+      this.log(this.formatCommandsSection('POWERSYNC COMMANDS', generalCommands));
+      this.log('');
+    }
+
+    if (cloudCommands.length > 0) {
+      this.log(this.formatCommandsSection('CLOUD COMMANDS', cloudCommands));
+      this.log('');
+    }
+
+    if (sharedCommands.length > 0) {
+      this.log(this.formatCommandsSection('SHARED COMMANDS', sharedCommands));
+      this.log('');
+    }
+
+    if (selfHostedCommands.length > 0) {
+      this.log(this.formatCommandsSection('SELF-HOSTED COMMANDS', selfHostedCommands));
       this.log('');
     }
 

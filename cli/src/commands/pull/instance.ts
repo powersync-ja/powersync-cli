@@ -37,7 +37,7 @@ export default class PullInstance extends CloudInstanceCommand {
     ...CloudInstanceCommand.flags
   };
   static summary =
-    'Pull an existing Cloud instance: link and download config into local service.yaml and sync-config.yaml.';
+    '[Cloud only] Pull an existing Cloud instance: link and download config into local service.yaml and sync-config.yaml.';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(PullInstance);

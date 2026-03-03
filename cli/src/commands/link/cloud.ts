@@ -45,7 +45,7 @@ export default class LinkCloud extends CloudInstanceCommand {
     }),
     ...InstanceCommand.flags
   };
-  static summary = 'Link to a PowerSync Cloud instance (or create one with --create).';
+  static summary = '[Cloud only] Link to a PowerSync Cloud instance (or create one with --create).';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(LinkCloud);
