@@ -2,6 +2,7 @@ name: Manually Build CLI Installers for Testing
 
 on:
   workflow_dispatch:
+  push:
 
 jobs:
   build-artifacts:
