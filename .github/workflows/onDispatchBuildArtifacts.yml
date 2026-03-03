@@ -1,0 +1,8 @@
+name: Manually Build CLI Installers for Testing
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-artifacts:
+    uses: ./.github/workflows/buildArtifacts.yml

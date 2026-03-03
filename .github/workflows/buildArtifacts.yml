@@ -1,7 +1,12 @@
-name: package builds on push
+name: Build CLI Installer Artifacts Partial
 
 on:
-  push:
+  workflow_call:
+    inputs:
+      retention-days:
+        description: 'Number of days to retain uploaded artifacts'
+        type: number
+        default: 7
 
 jobs:
   package-installers:
@@ -52,6 +57,7 @@ jobs:
         with:
           name: ${{ matrix.artifact_name }}
           path: ${{ matrix.artifact_path }}
+          retention-days: ${{ inputs.retention-days }}
 
   package-tarballs:
     runs-on: ubuntu-latest
@@ -78,3 +84,4 @@ jobs:
           path: |
             cli/dist/**/*.tar.gz
             cli/dist/**/*.tar.xz
+          retention-days: ${{ inputs.retention-days }}
