@@ -2,10 +2,15 @@ name: Manually Build CLI Installers for Testing
 
 on:
   workflow_dispatch:
+    inputs:
+      retention-days:
+        description: 'Number of days to retain uploaded artifacts'
+        type: number
+        default: 7
   push:
 
 jobs:
   build-artifacts:
     uses: ./.github/workflows/buildArtifacts.yml
     with:
-      retention-days: 7
+      retention-days: ${{ inputs.retention-days || 7 }}
