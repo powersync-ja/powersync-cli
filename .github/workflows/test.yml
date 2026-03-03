@@ -1,7 +1,7 @@
 name: tests
 
 env:
-  # Increase heap to keep Nitro/Vite SSR builds (editor) from OOMing under CI load
+  # Increase heap to keep Nitro/Vite SSR builds (editor) from OOMing while tresshaking.
   NODE_OPTIONS: --max-old-space-size=4096
 
 on:
