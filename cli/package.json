@@ -15,7 +15,7 @@
     "@oclif/plugin-commands": "^4.1.40",
     "@oclif/plugin-help": "^6",
     "@oclif/plugin-plugins": "^5",
-    "@powersync-community/sync-config-rewriter": "^0.1.1",
+    "@powersync-community/sync-config-rewriter": "^0.1.2",
     "@powersync/cli-core": "workspace:*",
     "@powersync/cli-plugin-config-edit": "workspace:*",
     "@powersync/cli-plugin-docker": "workspace:*",

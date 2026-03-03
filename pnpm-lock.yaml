@@ -57,8 +57,8 @@ importers:
         specifier: ^5
         version: 5.4.55
       '@powersync-community/sync-config-rewriter':
-        specifier: ^0.1.1
-        version: 0.1.1
+        specifier: ^0.1.2
+        version: 0.1.2
       '@powersync/cli-core':
         specifier: workspace:*
         version: link:../packages/cli-core
@@ -1480,8 +1480,8 @@ packages:
     resolution: {integrity: sha512-h104Kh26rR8tm+a3Qkc5S4VLYint3FE48as7+/5oCEcKR2idC/pF1G6AhIXKI+eHPJa/3J9i5z0Al47IeGHPkA==}
     engines: {node: '>=12'}
 
-  '@powersync-community/sync-config-rewriter@0.1.1':
-    resolution: {integrity: sha512-kFPslWetKrsD2eTl9ag9zQ7Buskc8SXKJW08swC7xwcZ/agYTy3jzR7ZYjqSwOwkcXtb9mJ42RgmaiVRJHKBSw==}
+  '@powersync-community/sync-config-rewriter@0.1.2':
+    resolution: {integrity: sha512-jryYG/JeqSWnTd6C0sEt8WCC7CjVL55WywQJcQfsaazHyxDX4aRSK0YeKy2qcQItAWQs6tOOFAJ94Mi74wLXmg==}
 
   '@powersync/lib-services-framework@0.8.3':
     resolution: {integrity: sha512-qiAXwvXePJ1rfISSmMUy72zZhAHZio4zX6meZXO+PdweN7+UX3Dpbn258XqqguYLPBua0tO5wL3oq6WxFHp4iw==}
@@ -8141,7 +8141,7 @@ snapshots:
       '@pnpm/network.ca-file': 1.0.2
       config-chain: 1.1.13
 
-  '@powersync-community/sync-config-rewriter@0.1.1': {}
+  '@powersync-community/sync-config-rewriter@0.1.2': {}
 
   '@powersync/lib-services-framework@0.8.3':
     dependencies:
