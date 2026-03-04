@@ -76,7 +76,7 @@ export default class DeploySyncConfig extends DeployAll {
 
     const syncConfigFilePath = flags['sync-config-file-path'];
     if (syncConfigFilePath) {
-      this._project!.syncRulesContent = readFileSync(syncConfigFilePath, 'utf8');
+      project.syncRulesContent = readFileSync(syncConfigFilePath, 'utf8');
     }
 
     // The existing config is required to deploy changes. The instance should have been created already.
