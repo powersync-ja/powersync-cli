@@ -1,7 +1,8 @@
 {
   "name": "@powersync/cli-plugin-config-edit",
   "description": "PowerSync CLI plugin to launch the configuration editor",
-  "version": "0.0.0",
+  "version": "0.9.0",
+  "license": "FSL-1.1-ALv2",
   "author": "POWERSYNC",
   "type": "module",
   "main": "dist/index.js",
