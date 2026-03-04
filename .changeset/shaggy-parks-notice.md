@@ -1,5 +1,5 @@
 ---
-'powersync': minor
+'powersync': patch
 ---
 
-Refactored CLI. See docs for details.
+[Internal] Configure trusted publishing and Github release flow.
