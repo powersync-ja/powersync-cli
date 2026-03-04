@@ -1,11 +1,11 @@
 import { Flags, ux } from '@oclif/core';
 import { instantiate } from '@powersync-community/sync-config-rewriter';
-import { InstanceCommand, SYNC_FILENAME, YAML_SYNC_RULES_SCHEMA } from '@powersync/cli-core';
+import { SharedInstanceCommand, SYNC_FILENAME, YAML_SYNC_RULES_SCHEMA } from '@powersync/cli-core';
 import { access, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export default class MigrateSyncRules extends InstanceCommand {
+export default class MigrateSyncRules extends SharedInstanceCommand {
   static description = 'Migrates Sync Rules to Sync Streams';
   static flags = {
     'input-file': Flags.string({
@@ -16,7 +16,7 @@ export default class MigrateSyncRules extends InstanceCommand {
       description: 'Path to the output sync streams file. Defaults to overwrite the input file.',
       required: false
     }),
-    ...InstanceCommand.flags
+    ...SharedInstanceCommand.flags
   };
   static summary = 'Migrates Sync Rules to Sync Streams';
 

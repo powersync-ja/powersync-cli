@@ -1,6 +1,6 @@
 import { select } from '@inquirer/prompts';
 import { ux } from '@oclif/core';
-import { CLI_FILENAME, parseYamlFile, PowerSyncCommand } from '@powersync/cli-core';
+import { CLI_FILENAME, CommandHelpGroup, parseYamlFile, PowerSyncCommand } from '@powersync/cli-core';
 import { CLIConfig } from '@powersync/cli-schemas';
 import { readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
@@ -39,6 +39,7 @@ function findLinkedProjectDirs(cwd: string): string[] {
 }
 
 export default class ConfigureIde extends PowerSyncCommand {
+  static commandHelpGroup = CommandHelpGroup.PROJECT_SETUP;
   static description =
     'Configure or guide your IDE setup for the best PowerSync CLI developer experience. Enables YAML schema validation and autocompletion, sets up !env custom tag support, and patches existing config files with language server directives.';
   static examples = ['<%= config.bin %> <%= command.id %>'];

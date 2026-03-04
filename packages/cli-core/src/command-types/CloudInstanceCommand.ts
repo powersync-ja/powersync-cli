@@ -16,7 +16,7 @@ import { env } from '../utils/env.js';
 import { OBJECT_ID_REGEX } from '../utils/object-id.js';
 import { CLI_FILENAME, SERVICE_FILENAME, SYNC_FILENAME } from '../utils/project-config.js';
 import { parseYamlFile } from '../utils/yaml.js';
-import { HelpGroup } from './HelpGroup.js';
+import { CommandHelpGroup, HelpGroup } from './HelpGroup.js';
 import { DEFAULT_ENSURE_CONFIG_OPTIONS, EnsureConfigOptions, InstanceCommand } from './InstanceCommand.js';
 
 export type CloudProject = {
@@ -51,6 +51,7 @@ export type CloudInstanceCommandFlags = Interfaces.InferredFlags<
  * pnpm exec powersync some-cloud-cmd --instance-id=... --org-id=... --project-id=...
  */
 export abstract class CloudInstanceCommand extends InstanceCommand {
+  static commandHelpGroup = CommandHelpGroup.CLOUD;
   static flags = {
     /**
      * Instance ID, org ID, and project ID are resolved in order: flags → cli.yaml → env (INSTANCE_ID, ORG_ID, PROJECT_ID).

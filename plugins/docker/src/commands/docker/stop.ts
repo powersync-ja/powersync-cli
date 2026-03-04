@@ -1,9 +1,10 @@
 import { Flags, ux } from '@oclif/core';
-import { SelfHostedInstanceCommand, type SelfHostedInstanceCommandFlags } from '@powersync/cli-core';
+import { type SelfHostedInstanceCommandFlags } from '@powersync/cli-core';
 
 import { getDockerProjectName, runDockerComposeDown, runDockerComposeStop } from '../../docker.js';
+import { DockerCommand } from '../../DockerCommand.js';
 
-export default class DockerStop extends SelfHostedInstanceCommand {
+export default class DockerStop extends DockerCommand {
   static description =
     'Run `docker compose -p <project-name> stop` (containers are not removed by default). Does not require the project directory or a compose file, so you can run it from anywhere (e.g. after a reset conflict). Use --project-name or run from a project with cli.yaml to choose which project to stop. Use --remove to also remove the containers. Use --remove-volumes to also remove volumes (e.g. to re-run DB init scripts on next reset).';
   static examples = [
@@ -11,7 +12,7 @@ export default class DockerStop extends SelfHostedInstanceCommand {
     '<%= config.bin %> <%= command.id %> --project-name=powersync_myapp --remove'
   ];
   static flags = {
-    ...SelfHostedInstanceCommand.flags,
+    ...DockerCommand.flags,
     'project-name': Flags.string({
       description:
         'Docker Compose project name to stop (e.g. powersync_myapp). If omitted and run from a project directory, uses plugins.docker.project_name from cli.yaml. Pass this to stop from any directory without loading the project.'

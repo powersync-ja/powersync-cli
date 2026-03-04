@@ -72,6 +72,7 @@
     "bin": "powersync",
     "dirname": "powersync",
     "commands": "./dist/commands",
+    "helpClass": "./dist/help.js",
     "plugins": [
       "@oclif/plugin-help",
       "@oclif/plugin-plugins",
