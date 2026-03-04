@@ -1,6 +1,22 @@
 # powersync
 
-CLI for PowerSync
+Programmatically manage your PowerSync environment.
+
+For an overview, see the docs [here](https://docs.powersync.com/tools/cli).
+
+## Note: Beta Release
+
+This package is currently in a beta release.
+
+## Upgrading from 0.8.0
+
+Version 0.9.0 and above are **not backwards compatible** with 0.8.0. If you are using the previous CLI commands and are not ready to migrate, you can continue using the old version:
+
+```bash
+npm install -g @powersync/cli@0.8.0
+```
+
+Otherwise, refer to the [docs](https://docs.powersync.com/tools/cli) for guidance on migrating to the new version.
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
 [![Version](https://img.shields.io/npm/v/@powersync/cli.svg)](https://npmjs.org/package/@powersync/cli)
@@ -66,7 +82,7 @@ Set **`PS_ADMIN_TOKEN`** to your PAT. The CLI uses **`PS_ADMIN_TOKEN`** when set
 
 ```sh
 export PS_ADMIN_TOKEN=your-personal-access-token
-powersync fetch instances --project-id=<project-id>
+powersync fetch instances
 ```
 
 To stop using stored credentials, run **`powersync logout`**. This clears the stored token from the active backend (secure storage or config-file fallback).

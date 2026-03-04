@@ -1,5 +1,7 @@
 # @powersync/cli-plugin-docker
 
+> **Bundled plugin:** This plugin is automatically included in the `powersync` package. You do not need to install it separately — all `powersync docker` commands are available out of the box when you install `powersync`.
+
 PowerSync CLI plugin that adds a **docker** topic for self-hosted instances: **configure**, **reset**, **start**, and **stop** using Docker Compose.
 
 ## Commands
@@ -17,7 +19,7 @@ All commands use the same project and directory resolution as the main CLI (e.g.
 
 ## Templates (composable modules)
 
-Templates are organized by **category** and **implementation** (see also [usage-docker.md](../docs/usage-docker.md#how-configure-uses-templates)):
+Templates are organized by **category** and **implementation**:
 
 - **`templates/source-database/`** – Replication source (e.g. **postgres**). Used by **`--database`**.
 - **`templates/bucket-storage/`** – PowerSync bucket metadata (e.g. **postgres**). Used by **`--storage`**.
