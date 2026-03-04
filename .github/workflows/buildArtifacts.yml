@@ -61,7 +61,6 @@ jobs:
 
   package-tarballs:
     runs-on: ubuntu-latest
-    environment: staging
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
