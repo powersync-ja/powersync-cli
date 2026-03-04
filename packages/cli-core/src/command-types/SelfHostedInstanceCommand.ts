@@ -113,7 +113,7 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
     return this._project;
   }
 
-  parseConfig(projectDirectory: string): ServiceSelfHostedConfigDecoded {
+  parseLocalConfig(projectDirectory: string): ServiceSelfHostedConfigDecoded {
     const servicePath = join(projectDirectory, SERVICE_FILENAME);
     const doc = parseYamlFile(servicePath);
 

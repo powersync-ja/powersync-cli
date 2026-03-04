@@ -103,8 +103,8 @@ export default class DeployAll extends CloudInstanceCommand {
       });
   }
 
-  override parseConfig(projectDirectory: string): ServiceCloudConfigDecoded {
-    const config = super.parseConfig(projectDirectory);
+  override parseLocalConfig(projectDirectory: string): ServiceCloudConfigDecoded {
+    const config = super.parseLocalConfig(projectDirectory);
 
     /**
      * This is a temporary hack to maintain compatibilty with the PowerSync Dashboard.
@@ -175,7 +175,7 @@ export default class DeployAll extends CloudInstanceCommand {
     const deployTimeoutMs = (flags['deploy-timeout'] ?? DEFAULT_DEPLOY_TIMEOUT_MS / 1000) * 1000;
 
     // Parse and store for later
-    this.parseConfig(project.projectDirectory);
+    this.parseLocalConfig(project.projectDirectory);
 
     // The existing config is required to deploy changes. The instance should have been created already.
     const cloudConfigState = await this.loadCloudConfigState();
