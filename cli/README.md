@@ -6,7 +6,7 @@ For an overview, see the docs [here](https://docs.powersync.com/tools/cli).
 
 ## Note: Beta Release
 
-This package is currently in a beta release.
+This package is currently in a [beta release](https://docs.powersync.com/resources/feature-status).
 
 ## Upgrading from 0.8.0
 
