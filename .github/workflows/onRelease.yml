@@ -1,5 +1,9 @@
 name: Add CLI Installers to GitHub Release
 
+env:
+  # Increase heap to keep Nitro/Vite SSR builds (editor) from OOMing while treeshaking.
+  NODE_OPTIONS: --max-old-space-size=4096
+
 on:
   release:
     types: [released]

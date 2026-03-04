@@ -6,6 +6,11 @@ import { fileURLToPath } from 'node:url';
 
 const gitignorePath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '.gitignore');
 
+/**
+ * Base ESLint config for the monorepo.
+ * Each package should have its own eslint.config.mjs that spreads this config
+ * and adds package-specific overrides.
+ */
 export default [
   includeIgnoreFile(gitignorePath),
   { ignores: ['examples/**'] },

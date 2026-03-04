@@ -1,0 +1,44 @@
+{
+  "name": "@powersync/cli-plugin-config-edit",
+  "description": "PowerSync CLI plugin to launch the configuration editor",
+  "version": "0.0.0",
+  "author": "POWERSYNC",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "editor-dist",
+    "oclif.manifest.json"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rm -rf dist editor-dist tsconfig.tsbuildinfo",
+    "lint": "eslint .",
+    "prepack": "oclif manifest"
+  },
+  "dependencies": {
+    "@oclif/core": "^4",
+    "@powersync/cli-core": "workspace:*",
+    "open": "^11",
+    "wait-port": "^1"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "eslint": "^9",
+    "oclif": "^4",
+    "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "oclif": {
+    "commands": "./dist/commands",
+    "topicSeparator": " ",
+    "topics": {
+      "edit": {
+        "description": "Open the PowerSync configuration editor"
+      }
+    }
+  }
+}

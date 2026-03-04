@@ -1,5 +1,6 @@
 import { ux } from '@oclif/core/ux';
 import { routes } from '@powersync/management-types';
+import { ObjectId } from 'bson';
 
 import { DEFAULT_DEPLOY_TIMEOUT_MS } from '../../api/cloud/wait-for-operation.js';
 import DeployAll from './index.js';
@@ -45,10 +46,10 @@ export default class DeploySyncConfig extends DeployAll {
       this.client.deployInstance(
         routes.DeployInstanceRequest.encode({
           ...cloudConfigState,
-          app_id: linked.project_id,
+          app_id: new ObjectId(linked.project_id),
           config: cloudConfigState.config!,
           id: linked.instance_id,
-          org_id: linked.org_id,
+          org_id: new ObjectId(linked.org_id),
           sync_rules: syncRulesContent
         })
       )
