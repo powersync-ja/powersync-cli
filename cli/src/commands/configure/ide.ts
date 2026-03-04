@@ -41,8 +41,8 @@ function findLinkedProjectDirs(cwd: string): string[] {
 export default class ConfigureIde extends PowerSyncCommand {
   static description =
     'Configure or guide your IDE setup for the best PowerSync CLI developer experience. Enables YAML schema validation and autocompletion, sets up !env custom tag support, and patches existing config files with language server directives.';
-static examples = ['<%= config.bin %> <%= command.id %>'];
-static summary = 'Configure your IDE for the best PowerSync CLI developer experience.';
+  static examples = ['<%= config.bin %> <%= command.id %>'];
+  static summary = 'Configure your IDE for the best PowerSync CLI developer experience.';
 
   async run(): Promise<void> {
     await this.parse(ConfigureIde);
