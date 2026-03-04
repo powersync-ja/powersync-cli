@@ -2,6 +2,7 @@ import { ux } from '@oclif/core';
 import {
   CLI_FILENAME,
   CloudInstanceCommand,
+  CommandHelpGroup,
   ensureServiceTypeMatches,
   getDefaultOrgId,
   SERVICE_FILENAME,
@@ -26,6 +27,7 @@ const PULL_CONFIG_HEADER = `# PowerSync Cloud config (fetched from cloud)
 `;
 
 export default class PullInstance extends CloudInstanceCommand {
+  static commandHelpGroup = CommandHelpGroup.PROJECT_SETUP;
   static description =
     'Fetch an existing Cloud instance by ID: create the config directory if needed, write cli.yaml, and download service.yaml and sync-config.yaml. Pass --instance-id and --project-id when the directory is not yet linked; --org-id is optional when the token has a single organization. Cloud only.';
   static examples = [

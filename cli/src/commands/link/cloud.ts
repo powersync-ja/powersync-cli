@@ -2,6 +2,7 @@ import { Flags, ux } from '@oclif/core';
 import {
   CLI_FILENAME,
   CloudInstanceCommand,
+  CommandHelpGroup,
   ensureServiceTypeMatches,
   env,
   getDefaultOrgId,
@@ -14,6 +15,7 @@ import { validateCloudLinkConfig } from '../../api/cloud/validate-cloud-link-con
 import { writeCloudLink } from '../../api/cloud/write-cloud-link.js';
 
 export default class LinkCloud extends CloudInstanceCommand {
+  static commandHelpGroup = CommandHelpGroup.PROJECT_SETUP;
   static description =
     'Write or update cli.yaml with a Cloud instance (instance-id, org-id, project-id). Use --create to create a new instance from service.yaml name/region and link it; omit --instance-id when using --create. Org ID is optional when the token has a single organization.';
   static examples = [

@@ -1,5 +1,11 @@
 import { Command, Flags, ux } from '@oclif/core';
-import { CLI_FILENAME, createAccountsHubClient, createCloudClient, parseYamlFile } from '@powersync/cli-core';
+import {
+  CLI_FILENAME,
+  CommandHelpGroup,
+  createAccountsHubClient,
+  createCloudClient,
+  parseYamlFile
+} from '@powersync/cli-core';
 import { CLIConfig } from '@powersync/cli-schemas';
 import sortBy from 'lodash/sortBy.js';
 import fs, { readdir } from 'node:fs/promises';
@@ -34,6 +40,7 @@ type OrganizationMap = {
 };
 
 export default class FetchInstances extends Command {
+  static commandHelpGroup = CommandHelpGroup.CLOUD;
   static description =
     'List PowerSync Cloud and linked instances, Cloud instances are grouped by organization and project.';
   static examples = [

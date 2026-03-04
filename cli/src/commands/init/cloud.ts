@@ -1,6 +1,7 @@
 import { Flags, ux } from '@oclif/core';
 import {
   CLI_FILENAME,
+  CommandHelpGroup,
   InstanceCommand,
   SERVICE_FILENAME,
   SYNC_FILENAME,
@@ -18,6 +19,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATES_DIR = join(__dirname, '..', '..', '..', 'templates');
 
 export default class InitCloud extends InstanceCommand {
+  static commandHelpGroup = CommandHelpGroup.PROJECT_SETUP;
   static description =
     'Copy a Cloud template into a config directory (default powersync/). Edit service.yaml then run link cloud and deploy.';
   static examples = [

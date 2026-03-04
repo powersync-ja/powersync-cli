@@ -1,8 +1,15 @@
-import { Config, Help } from '@oclif/core';
-import { CloudInstanceCommand, SelfHostedInstanceCommand, SharedInstanceCommand } from '@powersync/cli-core';
+import { Help } from '@oclif/core';
+import { CommandHelpGroup } from '@powersync/cli-core';
 
-const isSubclassOf = (parent: abstract new (argv: string[], config: Config) => unknown, child: object) =>
-  Object.prototype.isPrototypeOf.call(parent, child);
+/** Order in which sections appear in the root help output. */
+const SECTION_ORDER: CommandHelpGroup[] = [
+  CommandHelpGroup.AUTHENTICATION,
+  CommandHelpGroup.PROJECT_SETUP,
+  CommandHelpGroup.CLOUD,
+  CommandHelpGroup.INSTANCE,
+  CommandHelpGroup.LOCAL_DEVELOPMENT,
+  CommandHelpGroup.ADDITIONAL
+];
 
 /**
  * Custom help implementation for the `powersync help` and `powersync --help` commands.
@@ -11,12 +18,10 @@ const isSubclassOf = (parent: abstract new (argv: string[], config: Config) => u
  * - Displays a flat list of commands at the root level instead of nested topic trees.
  * - Formats command IDs using the configured `topicSeparator` (for example, "deploy:instance" → "deploy instance"
  *   when the separator is a space).
- * - Splits the root help output into "GENERAL COMMANDS" (first‑party commands from the core CLI and known
- *   PowerSync plugins) and "OTHER COMMANDS" (commands from all other plugins).
+ * - Groups commands into sections defined by the `commandHelpGroup` static property on each command class.
+ *   Commands without a `commandHelpGroup` are shown under ADDITIONAL COMMANDS.
  */
 export default class PowerSyncHelp extends Help {
-  protected readonly firstPartyPluginNames = new Set(['@powersync/cli-plugin-docker']);
-
   protected commandRows(commands: typeof this.sortedCommands, idPadding: number): [string, string | undefined][] {
     return commands
       .filter((command) => (this.opts.hideAliasesFromRoot ? !command.aliases?.includes(command.id) : true))
@@ -99,17 +104,6 @@ export default class PowerSyncHelp extends Help {
     return commandId;
   }
 
-  /**
-   * We like to group powersync specific commands separately from plugin commands or other OCLIF commands,
-   * so we check if a command is first-party based on its pluginName and the config's name, bin, and pjson.name, as well as an allowlist of known first-party plugins.
-   */
-  protected isFirstPartyCommand(
-    command: (typeof this.sortedCommands)[number],
-    firstPartyPluginNames: Set<string>
-  ): boolean {
-    return command.pluginName !== undefined && firstPartyPluginNames.has(command.pluginName);
-  }
-
   protected renderCommandsBody(commands: typeof this.sortedCommands, idPadding: number): string {
     return this.renderList(this.commandRows(commands, idPadding), {
       indentation: 2,
@@ -127,59 +121,26 @@ export default class PowerSyncHelp extends Help {
     this.log(this.formatRoot());
     this.log('');
 
-    const commands = this.sortedCommands.filter((command) => command.id);
-    const firstPartyPluginNames = new Set<string>(
-      // commands from the core cli package (e.g. deploy, fetch, login, logout, etc.)
-      [this.config.name, this.config.pjson?.name, this.config.bin].filter(Boolean)
-    );
-    for (const pluginName of this.firstPartyPluginNames) {
-      firstPartyPluginNames.add(pluginName);
-    }
+    const commandsByGroup = new Map<CommandHelpGroup, typeof this.sortedCommands>();
 
-    const firstPartyCommands = commands.filter((command) => this.isFirstPartyCommand(command, firstPartyPluginNames));
-    const pluginCommands = commands.filter((command) => !this.isFirstPartyCommand(command, firstPartyPluginNames));
-
-    const generalCommands: typeof this.sortedCommands = [];
-    const cloudCommands: typeof this.sortedCommands = [];
-    const sharedCommands: typeof this.sortedCommands = [];
-    const selfHostedCommands: typeof this.sortedCommands = [];
-
-    for (const command of firstPartyCommands) {
+    for (const command of this.sortedCommands.filter((c) => c.id)) {
       const CommandClass = await command.load();
-      if (isSubclassOf(CloudInstanceCommand, CommandClass)) {
-        cloudCommands.push(command);
-      } else if (isSubclassOf(SelfHostedInstanceCommand, CommandClass)) {
-        selfHostedCommands.push(command);
-      } else if (isSubclassOf(SharedInstanceCommand, CommandClass)) {
-        sharedCommands.push(command);
-      } else {
-        generalCommands.push(command);
+      const group =
+        (CommandClass as { commandHelpGroup?: CommandHelpGroup }).commandHelpGroup ?? CommandHelpGroup.ADDITIONAL;
+
+      if (!commandsByGroup.has(group)) {
+        commandsByGroup.set(group, []);
       }
+
+      commandsByGroup.get(group)!.push(command);
     }
 
-    if (generalCommands.length > 0) {
-      this.log(this.formatCommandsSection('GENERAL COMMANDS', generalCommands));
-      this.log('');
-    }
-
-    if (cloudCommands.length > 0) {
-      this.log(this.formatCommandsSection('CLOUD COMMANDS', cloudCommands));
-      this.log('');
-    }
-
-    if (sharedCommands.length > 0) {
-      this.log(this.formatCommandsSection('SHARED COMMANDS', sharedCommands));
-      this.log('');
-    }
-
-    if (selfHostedCommands.length > 0) {
-      this.log(this.formatCommandsSection('SELF-HOSTED COMMANDS', selfHostedCommands));
-      this.log('');
-    }
-
-    if (pluginCommands.length > 0) {
-      this.log(this.formatCommandsSection('OTHER COMMANDS', pluginCommands));
-      this.log('');
+    for (const group of SECTION_ORDER) {
+      const groupCommands = commandsByGroup.get(group);
+      if (groupCommands && groupCommands.length > 0) {
+        this.log(this.formatCommandsSection(`${group} COMMANDS`, groupCommands));
+        this.log('');
+      }
     }
   }
 }

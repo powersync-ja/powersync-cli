@@ -1,11 +1,11 @@
-import { SelfHostedInstanceCommand } from '@powersync/cli-core';
+import { DockerCommand } from '../../DockerCommand.js';
 
-export default class Docker extends SelfHostedInstanceCommand {
+export default class Docker extends DockerCommand {
   static description =
     'Scaffold and run a self-hosted PowerSync stack via Docker. Use `docker configure` to create powersync/docker/, then `docker reset` (stop+remove then start) or `docker start` / `docker stop`.';
   static examples = ['<%= config.bin %> <%= command.id %>'];
   static flags = {
-    ...SelfHostedInstanceCommand.flags
+    ...DockerCommand.flags
   };
   static hidden = true;
   static summary =

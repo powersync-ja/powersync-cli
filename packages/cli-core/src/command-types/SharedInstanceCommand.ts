@@ -23,7 +23,7 @@ import { env } from '../utils/env.js';
 import { CLI_FILENAME, SERVICE_FILENAME, SYNC_FILENAME } from '../utils/project-config.js';
 import { parseYamlFile } from '../utils/yaml.js';
 import { CloudProject } from './CloudInstanceCommand.js';
-import { HelpGroup } from './HelpGroup.js';
+import { CommandHelpGroup, HelpGroup } from './HelpGroup.js';
 import { DEFAULT_ENSURE_CONFIG_OPTIONS, EnsureConfigOptions, InstanceCommand } from './InstanceCommand.js';
 import { SelfHostedProject } from './SelfHostedInstanceCommand.js';
 
@@ -56,6 +56,7 @@ export type SharedInstanceCommandFlags = Interfaces.InferredFlags<
  * pnpm exec powersync some-shared-cmd --instance-id=... --org-id=... --project-id=...
  */
 export abstract class SharedInstanceCommand extends InstanceCommand {
+  static commandHelpGroup = CommandHelpGroup.INSTANCE;
   static flags = {
     'api-url': Flags.string({
       description:
