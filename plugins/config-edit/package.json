@@ -7,6 +7,15 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/powersync-ja/powersync-cli"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "bugs": "https://github.com/powersync-ja/powersync-cli/issues",
   "files": [
     "dist",
     "editor-dist",
