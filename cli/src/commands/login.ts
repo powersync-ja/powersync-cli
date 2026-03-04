@@ -1,10 +1,11 @@
 import { confirm, password } from '@inquirer/prompts';
 import { ux } from '@oclif/core';
-import { createAccountsHubClient, PowerSyncCommand, Services } from '@powersync/cli-core';
+import { CommandHelpGroup, createAccountsHubClient, PowerSyncCommand, Services } from '@powersync/cli-core';
 
 import { startPATLoginServer } from '../api/login-server.js';
 
 export default class Login extends PowerSyncCommand {
+  static commandHelpGroup = CommandHelpGroup.AUTHENTICATION;
   static description =
     'Store a PowerSync auth token (PAT) in secure storage so later Cloud commands run without passing a token. If secure storage is unavailable, login can optionally store it in a local config file. Use PS_ADMIN_TOKEN env var for CI or scripts instead.';
   static examples = ['<%= config.bin %> <%= command.id %>'];

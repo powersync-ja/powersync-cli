@@ -3,7 +3,6 @@ import { Flags, ux } from '@oclif/core';
 import {
   CLI_FILENAME,
   parseYamlDocumentPreserveTags,
-  SelfHostedInstanceCommand,
   type SelfHostedInstanceCommandFlags,
   SERVICE_FILENAME
 } from '@powersync/cli-core';
@@ -13,6 +12,7 @@ import { fileURLToPath } from 'node:url';
 import { Document, isMap, isSeq, stringify } from 'yaml';
 
 import { DEV_TOKEN } from '../../constants.js';
+import { DockerCommand } from '../../DockerCommand.js';
 import { TEMPLATES } from '../../templates/templates-index.js';
 import { DockerModuleContext, DockerModuleType } from '../../types.js';
 
@@ -36,7 +36,7 @@ function composeProjectName(projectDirectory: string): string {
   return `powersync_${sanitized}`;
 }
 
-export default class DockerConfigure extends SelfHostedInstanceCommand {
+export default class DockerConfigure extends DockerCommand {
   static description = [
     'Configures a self hosted project with Docker Compose services.',
     'Docker configuration is located in ./powersync/docker/.',
@@ -47,7 +47,7 @@ export default class DockerConfigure extends SelfHostedInstanceCommand {
     '<%= config.bin %> <%= command.id %> --database=postgres --storage=postgres'
   ];
   static flags = {
-    ...SelfHostedInstanceCommand.flags,
+    ...DockerCommand.flags,
     database: Flags.string({
       description: 'Database module for replication source. Omit to be prompted.',
       options: [...TEMPLATES[DockerModuleType.SOURCE_DATABASE].map((t) => t.name), NONE_OPTION],

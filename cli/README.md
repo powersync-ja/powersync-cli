@@ -256,6 +256,7 @@ See [docs/usage.md](../docs/usage.md) for full usage and resolution order (flags
 
 - [`powersync autocomplete [SHELL]`](#powersync-autocomplete-shell)
 - [`powersync commands`](#powersync-commands)
+- [`powersync configure ide`](#powersync-configure-ide)
 - [`powersync deploy`](#powersync-deploy)
 - [`powersync deploy service-config`](#powersync-deploy-service-config)
 - [`powersync deploy sync-config`](#powersync-deploy-sync-config)
@@ -352,6 +353,26 @@ DESCRIPTION
 ```
 
 _See code: [@oclif/plugin-commands](https://github.com/oclif/plugin-commands/blob/v4.1.40/src/commands/commands.ts)_
+
+## `powersync configure ide`
+
+Configure your IDE for the best PowerSync CLI developer experience.
+
+```
+USAGE
+  $ powersync configure ide
+
+DESCRIPTION
+  Configure your IDE for the best PowerSync CLI developer experience.
+
+  Configure or guide your IDE setup for the best PowerSync CLI developer experience. Enables YAML schema validation and
+  autocompletion, sets up !env custom tag support, and patches existing config files with language server directives.
+
+EXAMPLES
+  $ powersync configure ide
+```
+
+_See code: [src/commands/configure/ide.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/configure/ide.ts)_
 
 ## `powersync deploy`
 
@@ -909,10 +930,7 @@ Scaffold a PowerSync Cloud config directory from a template.
 
 ```
 USAGE
-  $ powersync init cloud [--directory <value>] [--vscode]
-
-FLAGS
-  --vscode  Configure the workspace with .vscode settings for YAML custom tags (!env).
+  $ powersync init cloud [--directory <value>]
 
 PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config. Defaults to "powersync". This is
@@ -927,7 +945,7 @@ DESCRIPTION
 EXAMPLES
   $ powersync init cloud
 
-  $ powersync init cloud --directory=powersync --vscode
+  $ powersync init cloud --directory=powersync
 ```
 
 _See code: [src/commands/init/cloud.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/init/cloud.ts)_
@@ -938,10 +956,7 @@ Scaffold a PowerSync self-hosted config directory from a template.
 
 ```
 USAGE
-  $ powersync init self-hosted [--directory <value>] [--vscode]
-
-FLAGS
-  --vscode  Configure the workspace with .vscode settings for YAML custom tags (!env).
+  $ powersync init self-hosted [--directory <value>]
 
 PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config. Defaults to "powersync". This is
@@ -957,14 +972,14 @@ DESCRIPTION
 EXAMPLES
   $ powersync init self-hosted
 
-  $ powersync init self-hosted --directory=powersync --vscode
+  $ powersync init self-hosted --directory=powersync
 ```
 
 _See code: [src/commands/init/self-hosted.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/init/self-hosted.ts)_
 
 ## `powersync link cloud`
 
-Link to a PowerSync Cloud instance (or create one with --create).
+[Cloud only] Link to a PowerSync Cloud instance (or create one with --create).
 
 ```
 USAGE
@@ -985,7 +1000,7 @@ PROJECT FLAGS
                        directory.
 
 DESCRIPTION
-  Link to a PowerSync Cloud instance (or create one with --create).
+  [Cloud only] Link to a PowerSync Cloud instance (or create one with --create).
 
   Write or update cli.yaml with a Cloud instance (instance-id, org-id, project-id). Use --create to create a new
   instance from service.yaml name/region and link it; omit --instance-id when using --create. Org ID is optional when
@@ -1076,16 +1091,28 @@ Migrates Sync Rules to Sync Streams
 
 ```
 USAGE
-  $ powersync migrate sync-rules [--input-file <value>] [--output-file <value>] [--directory <value>]
+  $ powersync migrate sync-rules [--input-file <value>] [--output-file <value>] [--api-url <value> | --instance-id
+    <value> | --org-id <value> | --project-id <value>] [--directory <value>]
 
 FLAGS
   --input-file=<value>   Path to the input sync rules file. Defaults to the project sync-config.yaml file.
   --output-file=<value>  Path to the output sync streams file. Defaults to overwrite the input file.
 
+SELF_HOSTED_PROJECT FLAGS
+  --api-url=<value>  [Self-hosted] PowerSync API URL. When set, context is treated as self-hosted (exclusive with
+                     --instance-id). Resolved: flag → cli.yaml → API_URL.
+
 PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config. Defaults to "powersync". This is
                        required if multiple powersync config files are present in subdirectories of the current working
                        directory.
+
+CLOUD_PROJECT FLAGS
+  --instance-id=<value>  [Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud
+                         (exclusive with --api-url). Resolved: flag → cli.yaml → INSTANCE_ID.
+  --org-id=<value>       [Cloud] Organization ID (optional). Defaults to the token’s single org when only one is
+                         available; pass explicitly if the token has multiple orgs. Resolved: flag → cli.yaml → ORG_ID.
+  --project-id=<value>   [Cloud] Project ID. Resolved: flag → cli.yaml → PROJECT_ID.
 
 DESCRIPTION
   Migrates Sync Rules to Sync Streams
@@ -1387,7 +1414,7 @@ _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/
 
 ## `powersync pull instance`
 
-Pull an existing Cloud instance: link and download config into local service.yaml and sync-config.yaml.
+[Cloud only] Pull an existing Cloud instance: link and download config into local service.yaml and sync-config.yaml.
 
 ```
 USAGE
@@ -1405,7 +1432,7 @@ CLOUD_PROJECT FLAGS
   --project-id=<value>   Project ID. Manually passed if the current context has not been linked.
 
 DESCRIPTION
-  Pull an existing Cloud instance: link and download config into local service.yaml and sync-config.yaml.
+  [Cloud only] Pull an existing Cloud instance: link and download config into local service.yaml and sync-config.yaml.
 
   Fetch an existing Cloud instance by ID: create the config directory if needed, write cli.yaml, and download
   service.yaml and sync-config.yaml. Pass --instance-id and --project-id when the directory is not yet linked; --org-id

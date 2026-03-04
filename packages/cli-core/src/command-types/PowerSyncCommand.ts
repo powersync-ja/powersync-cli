@@ -2,6 +2,8 @@ import { JourneyError } from '@journeyapps-labs/micro-errors';
 import { Command, ux } from '@oclif/core';
 import { join } from 'node:path';
 
+import { CommandHelpGroup } from './HelpGroup.js';
+
 export type StyledErrorParams = {
   error?: Error | unknown;
   exitCode?: number;
@@ -11,6 +13,13 @@ export type StyledErrorParams = {
 
 /** Base command for operations that target a PowerSync project directory (e.g. link, init). */
 export abstract class PowerSyncCommand extends Command {
+  /**
+   * Controls which section this command appears under in the root help output.
+   * Override in subclasses or individual commands to place them in the correct section.
+   * Defaults to undefined, which maps to ADDITIONAL_COMMANDS in the help renderer.
+   */
+  static commandHelpGroup?: CommandHelpGroup;
+
   /** Resolves the project directory path from the --directory flag (relative to cwd). */
   resolveProjectDir(flags: { directory: string }): string {
     return join(process.cwd(), flags.directory);

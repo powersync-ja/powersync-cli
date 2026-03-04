@@ -75,6 +75,7 @@
     "macos": {
       "identifier": "com.powersync.cli"
     },
+    "helpClass": "./dist/help.js",
     "plugins": [
       "@oclif/plugin-help",
       "@oclif/plugin-plugins",

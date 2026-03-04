@@ -2,6 +2,7 @@ import { input } from '@inquirer/prompts';
 import { Flags, ux } from '@oclif/core';
 import {
   CLI_FILENAME,
+  CommandHelpGroup,
   ensureServiceTypeMatches,
   env,
   InstanceCommand,
@@ -14,6 +15,7 @@ import { join } from 'node:path';
 import { Document } from 'yaml';
 
 export default class LinkSelfHosted extends SelfHostedInstanceCommand {
+  static commandHelpGroup = CommandHelpGroup.PROJECT_SETUP;
   static description = [
     `Links a self hosted PowerSync instance by API URL.`,
     `API Keys can be specified via input or specified in the PS_ADMIN_TOKEN environment variable.`

@@ -1,6 +1,7 @@
-import { Flags, ux } from '@oclif/core';
+import { ux } from '@oclif/core';
 import {
   CLI_FILENAME,
+  CommandHelpGroup,
   InstanceCommand,
   SERVICE_FILENAME,
   SYNC_FILENAME,
@@ -12,30 +13,25 @@ import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { writeVscodeSettingsForYamlEnv } from '../../api/write-vscode-settings-for-yaml-env.js';
-
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATES_DIR = join(__dirname, '..', '..', '..', 'templates');
 
 export default class InitSelfHosted extends InstanceCommand {
+  static commandHelpGroup = CommandHelpGroup.PROJECT_SETUP;
   static description =
     'Copy a self-hosted template into a config directory (default powersync/). Configure service.yaml with your self-hosted instance details.';
   static examples = [
     '<%= config.bin %> <%= command.id %>',
-    '<%= config.bin %> <%= command.id %> --directory=powersync --vscode'
+    '<%= config.bin %> <%= command.id %> --directory=powersync'
   ];
   static flags = {
-    ...InstanceCommand.flags,
-    vscode: Flags.boolean({
-      default: false,
-      description: 'Configure the workspace with .vscode settings for YAML custom tags (!env).'
-    })
+    ...InstanceCommand.flags
   };
   static summary = 'Scaffold a PowerSync self-hosted config directory from a template.';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(InitSelfHosted);
-    const { directory, vscode } = flags;
+    const { directory } = flags;
     const targetDir = this.resolveProjectDir(flags);
 
     if (existsSync(targetDir)) {
@@ -62,10 +58,6 @@ export default class InitSelfHosted extends InstanceCommand {
     writeFileSync(syncPath, `${YAML_SYNC_RULES_SCHEMA}\n\n${readFileSync(syncPath, 'utf8')}`);
     writeFileSync(cliPath, `${YAML_CLI_SCHEMA}\n\n${readFileSync(cliPath, 'utf8')}`);
 
-    if (vscode) {
-      writeVscodeSettingsForYamlEnv(process.cwd());
-    }
-
     const instructions = [
       'Self Hosted projects currently require external configuration for starting and deploying.',
       `Configure the ${SERVICE_FILENAME} file with your self-hosted instance details.`,
@@ -79,13 +71,10 @@ export default class InitSelfHosted extends InstanceCommand {
       'Configuration files are located in:',
       `\t${targetDir}`,
       `Check the ${SERVICE_FILENAME} and ${SYNC_FILENAME} file(s) and configure them by uncommenting the options you would like to use.`,
+      `Tip: Run ${ux.colorize('blue', 'powersync configure ide')} to configure your IDE for YAML schema support.`,
       '',
       instructions
     ];
-    if (vscode) {
-      lines.splice(6, 0, 'Added .vscode/settings.json for YAML !env tag support.');
-      lines.splice(7, 0, '');
-    }
 
     this.log(lines.join('\n'));
   }
