@@ -81,7 +81,7 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
    */
   client: PowerSyncManagementClient = createCloudClient();
   /**
-   * The parsed service config from the service.yaml file. Call parseConfig() before accessing this property. This is set to the parsed config after calling parseConfig() to avoid multiple parses of the same config.
+   * The parsed service config from the service.yaml file. Call parseLocalConfig() before accessing this property. This is set to the parsed config after calling parseLocalConfig() to avoid multiple parses of the same config.
    */
   protected serviceConfig: null | ServiceCloudConfigDecoded = null;
 
@@ -209,7 +209,7 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
     return this._project;
   }
 
-  parseConfig(projectDirectory: string): ServiceCloudConfigDecoded {
+  parseLocalConfig(projectDirectory: string): ServiceCloudConfigDecoded {
     const servicePath = join(projectDirectory, SERVICE_FILENAME);
     const doc = parseYamlFile(servicePath);
 
