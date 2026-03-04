@@ -1,0 +1,86 @@
+name: Build CLI Installer Artifacts Partial
+
+on:
+  workflow_call:
+    inputs:
+      retention-days:
+        description: 'Number of days to retain uploaded artifacts'
+        type: number
+        default: 7
+
+jobs:
+  package-installers:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            command: pack macos
+            artifact_name: macos-pkg
+            artifact_path: cli/dist/**/*.pkg
+          - os: windows-latest
+            command: pack win --targets win32-x64
+            artifact_name: windows-installer
+            artifact_path: cli/dist/**/*.exe
+          - os: ubuntu-latest
+            command: pack deb
+            artifact_name: linux-deb
+            artifact_path: cli/dist/**/*.deb
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+      - name: Configure pnpm linker for Windows packaging
+        if: ${{ matrix.os == 'windows-latest' }}
+        shell: pwsh
+        run: Set-Content -Path cli/.npmrc -Value "node-linker=hoisted"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
+      - name: Install Windows packaging dependencies
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: choco install nsis.portable 7zip grep --no-progress -y
+      - name: Verify Windows packaging dependencies
+        if: ${{ matrix.os == 'windows-latest' }}
+        shell: pwsh
+        run: |
+          where.exe makensis
+          where.exe 7z
+          where.exe grep
+      - name: Build installer
+        run: pnpm -C cli exec oclif ${{ matrix.command }}
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.artifact_path }}
+          retention-days: ${{ inputs.retention-days }}
+
+  package-tarballs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
+      - name: Install 7-zip for packaging
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y p7zip-full
+      - name: Build tarballs
+        run: pnpm -C cli exec oclif pack tarballs
+      - name: Upload tarball artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: tarballs
+          path: |
+            cli/dist/**/*.tar.gz
+            cli/dist/**/*.tar.xz
+          retention-days: ${{ inputs.retention-days }}

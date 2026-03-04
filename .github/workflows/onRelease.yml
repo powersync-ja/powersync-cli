@@ -1,4 +1,4 @@
-name: publish on release
+name: Add CLI Installers to GitHub Release
 
 env:
   # Increase heap to keep Nitro/Vite SSR builds (editor) from OOMing while treeshaking.
@@ -8,19 +8,32 @@ on:
   release:
     types: [released]
 
+permissions:
+  contents: write
+
 jobs:
-  publish:
+  build-artifacts:
+    if: startsWith(github.event.release.tag_name, 'powersync@')
+    uses: ./.github/workflows/buildArtifacts.yml
+    with:
+      retention-days: 1
+
+  publish-release-assets:
+    needs: [build-artifacts]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/download-artifact@v4
         with:
-          node-version-file: '.nvmrc'
-          cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run build
-      # - name: Publish @powersync/cli to npm
-      #   run: pnpm publish -- --no-git-checks --access public
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          path: release-assets
+      - name: Upload assets to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tag="${{ github.event.release.tag_name }}"
+          files=$(find release-assets -type f \( -name "*.pkg" -o -name "*.exe" -o -name "*.deb" -o -name "*.tar.gz" -o -name "*.tar.xz" \))
+          if [ -z "$files" ]; then
+            echo "Error: No artifacts found to upload"
+            exit 1
+          fi
+          gh release upload "$tag" $files --clobber

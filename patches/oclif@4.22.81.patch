@@ -1,0 +1,33 @@
+diff --git a/lib/tarballs/build.js b/lib/tarballs/build.js
+index cbae61146324ef6ac0935c625b7858007ac238d1..ebc55cad4adadac568c031469d8ee6f4773c8b01 100644
+--- a/lib/tarballs/build.js
++++ b/lib/tarballs/build.js
+@@ -69,9 +69,25 @@ const copyCoreYarnFiles = async (yarnRootPath, workspacePath) => {
+ };
+ async function build(c, options = {}) {
+     (0, log_1.log)(`gathering workspace for ${c.config.bin} to ${c.workspace()}`);
+-    await extractCLI(options.tarball ?? (await packCLI(c)), c);
+-    await updatePJSON(c);
+-    await addDependencies(c);
++    // For our use case we always use PNPM
++    if (true) {
++        try {
++            (0, log_1.log)('emptying', node_path_1.default.join(c.workspace()));
++            node_fs_1.rmSync(node_path_1.default.join(c.workspace()), { force: true, recursive: true });
++            await exec(`pnpm --filter . deploy --prod --legacy ${c.workspace()}`, { cwd: c.root });
++        }
++        catch (e) {
++            (0, log_1.log)(e);
++            throw e;
++        }
++        await updatePJSON(c);
++    }
++    else {
++        // Just kept for reference
++        await extractCLI(options.tarball ?? (await packCLI(c)), c);
++        await updatePJSON(c);
++        await addDependencies(c);
++    }
+     await (0, bin_1.writeBinScripts)({
+         baseWorkspace: c.workspace(),
+         config: c.config,

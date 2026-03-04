@@ -1,4 +1,4 @@
-name: tests
+name: Unit Tests
 
 env:
   # Increase heap to keep Nitro/Vite SSR builds (editor) from OOMing while treeshaking.

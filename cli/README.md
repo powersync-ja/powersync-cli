@@ -1,6 +1,22 @@
 # powersync
 
-CLI for PowerSync
+Programmatically manage your PowerSync environment.
+
+For an overview, see the docs [here](https://docs.powersync.com/tools/cli).
+
+## Note: Beta Release
+
+This package is currently in a [beta release](https://docs.powersync.com/resources/feature-status).
+
+## Upgrading from 0.8.0
+
+Version 0.9.0 and above are **not backwards compatible** with 0.8.0. If you are using the previous CLI commands and are not ready to migrate, you can continue using the old version:
+
+```bash
+npm install -g @powersync/cli@0.8.0
+```
+
+Otherwise, refer to the [docs](https://docs.powersync.com/tools/cli) for guidance on migrating to the new version.
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
 [![Version](https://img.shields.io/npm/v/@powersync/cli.svg)](https://npmjs.org/package/@powersync/cli)
@@ -66,7 +82,7 @@ Set **`PS_ADMIN_TOKEN`** to your PAT. The CLI uses **`PS_ADMIN_TOKEN`** when set
 
 ```sh
 export PS_ADMIN_TOKEN=your-personal-access-token
-powersync fetch instances --project-id=<project-id>
+powersync fetch instances
 ```
 
 To stop using stored credentials, run **`powersync logout`**. This clears the stored token from the active backend (secure storage or config-file fallback).
@@ -223,7 +239,7 @@ $ npm install -g powersync
 $ powersync COMMAND
 running command...
 $ powersync (--version)
-powersync/0.0.0 darwin-arm64 node-v24.13.0
+powersync/0.9.0 darwin-arm64 node-v24.13.0
 $ powersync --help [COMMAND]
 USAGE
   $ powersync COMMAND
@@ -372,7 +388,7 @@ EXAMPLES
   $ powersync configure ide
 ```
 
-_See code: [src/commands/configure/ide.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/configure/ide.ts)_
+_See code: [src/commands/configure/ide.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/configure/ide.ts)_
 
 ## `powersync deploy`
 
@@ -412,7 +428,7 @@ EXAMPLES
   $ powersync deploy --instance-id=<id> --project-id=<id>
 ```
 
-_See code: [src/commands/deploy/index.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/deploy/index.ts)_
+_See code: [src/commands/deploy/index.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/deploy/index.ts)_
 
 ## `powersync deploy service-config`
 
@@ -449,7 +465,7 @@ EXAMPLES
   $ powersync deploy service-config --instance-id=<id> --project-id=<id>
 ```
 
-_See code: [src/commands/deploy/service-config.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/deploy/service-config.ts)_
+_See code: [src/commands/deploy/service-config.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/deploy/service-config.ts)_
 
 ## `powersync deploy sync-config`
 
@@ -488,7 +504,7 @@ EXAMPLES
   $ powersync deploy sync-config --instance-id=<id> --project-id=<id>
 ```
 
-_See code: [src/commands/deploy/sync-config.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/deploy/sync-config.ts)_
+_See code: [src/commands/deploy/sync-config.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/deploy/sync-config.ts)_
 
 ## `powersync destroy`
 
@@ -525,7 +541,7 @@ EXAMPLES
   $ powersync destroy --confirm=yes
 ```
 
-_See code: [src/commands/destroy.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/destroy.ts)_
+_See code: [src/commands/destroy.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/destroy.ts)_
 
 ## `powersync docker configure`
 
@@ -563,6 +579,8 @@ EXAMPLES
   $ powersync docker configure --database=postgres --storage=postgres
 ```
 
+_See code: [@powersync/cli-plugin-docker](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/docker/configure.ts)_
+
 ## `powersync docker reset`
 
 Reset the self-hosted PowerSync stack (stop and remove, then start).
@@ -590,6 +608,8 @@ EXAMPLES
   $ powersync docker reset
 ```
 
+_See code: [@powersync/cli-plugin-docker](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/docker/reset.ts)_
+
 ## `powersync docker start`
 
 Start the self-hosted PowerSync stack via Docker Compose.
@@ -615,6 +635,8 @@ DESCRIPTION
 EXAMPLES
   $ powersync docker start
 ```
+
+_See code: [@powersync/cli-plugin-docker](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/docker/start.ts)_
 
 ## `powersync docker stop`
 
@@ -655,6 +677,8 @@ EXAMPLES
 
   $ powersync docker stop --project-name=powersync_myapp --remove
 ```
+
+_See code: [@powersync/cli-plugin-docker](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/docker/stop.ts)_
 
 ## `powersync edit config`
 
@@ -731,7 +755,7 @@ EXAMPLES
   $ powersync fetch config --output=json
 ```
 
-_See code: [src/commands/fetch/config.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/fetch/config.ts)_
+_See code: [src/commands/fetch/config.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/fetch/config.ts)_
 
 ## `powersync fetch instances`
 
@@ -759,7 +783,7 @@ EXAMPLES
   $ powersync fetch instances --project-id=<id> --output=json
 ```
 
-_See code: [src/commands/fetch/instances.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/fetch/instances.ts)_
+_See code: [src/commands/fetch/instances.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/fetch/instances.ts)_
 
 ## `powersync fetch status`
 
@@ -804,7 +828,7 @@ EXAMPLES
   $ powersync fetch status --instance-id=<id> --project-id=<id>
 ```
 
-_See code: [src/commands/fetch/status.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/fetch/status.ts)_
+_See code: [src/commands/fetch/status.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/fetch/status.ts)_
 
 ## `powersync generate schema`
 
@@ -848,7 +872,7 @@ EXAMPLES
   $ powersync generate schema --output=dart --output-path=lib/schema.dart --instance-id=<id> --project-id=<id>
 ```
 
-_See code: [src/commands/generate/schema.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/generate/schema.ts)_
+_See code: [src/commands/generate/schema.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/generate/schema.ts)_
 
 ## `powersync generate token`
 
@@ -894,7 +918,7 @@ EXAMPLES
   $ powersync generate token --subject=user-123 --expires-in-seconds=3600
 ```
 
-_See code: [src/commands/generate/token.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/generate/token.ts)_
+_See code: [src/commands/generate/token.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/generate/token.ts)_
 
 ## `powersync help [COMMAND]`
 
@@ -940,7 +964,7 @@ EXAMPLES
   $ powersync init cloud --directory=powersync
 ```
 
-_See code: [src/commands/init/cloud.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/init/cloud.ts)_
+_See code: [src/commands/init/cloud.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/init/cloud.ts)_
 
 ## `powersync init self-hosted`
 
@@ -967,7 +991,7 @@ EXAMPLES
   $ powersync init self-hosted --directory=powersync
 ```
 
-_See code: [src/commands/init/self-hosted.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/init/self-hosted.ts)_
+_See code: [src/commands/init/self-hosted.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/init/self-hosted.ts)_
 
 ## `powersync link cloud`
 
@@ -1006,7 +1030,7 @@ EXAMPLES
   $ powersync link cloud --instance-id=<id> --project-id=<project-id> --org-id=<org-id>
 ```
 
-_See code: [src/commands/link/cloud.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/link/cloud.ts)_
+_See code: [src/commands/link/cloud.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/link/cloud.ts)_
 
 ## `powersync link self-hosted`
 
@@ -1034,7 +1058,7 @@ EXAMPLES
   $ powersync link self-hosted --api-url=https://powersync.example.com
 ```
 
-_See code: [src/commands/link/self-hosted.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/link/self-hosted.ts)_
+_See code: [src/commands/link/self-hosted.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/link/self-hosted.ts)_
 
 ## `powersync login`
 
@@ -1055,7 +1079,7 @@ EXAMPLES
   $ powersync login
 ```
 
-_See code: [src/commands/login.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/login.ts)_
+_See code: [src/commands/login.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/login.ts)_
 
 ## `powersync logout`
 
@@ -1075,7 +1099,7 @@ EXAMPLES
   $ powersync logout
 ```
 
-_See code: [src/commands/logout.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/logout.ts)_
+_See code: [src/commands/logout.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/logout.ts)_
 
 ## `powersync migrate sync-rules`
 
@@ -1112,7 +1136,7 @@ DESCRIPTION
   Migrates Sync Rules to Sync Streams
 ```
 
-_See code: [src/commands/migrate/sync-rules.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/migrate/sync-rules.ts)_
+_See code: [src/commands/migrate/sync-rules.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/migrate/sync-rules.ts)_
 
 ## `powersync plugins`
 
@@ -1438,7 +1462,7 @@ EXAMPLES
   $ powersync pull instance --instance-id=<id> --project-id=<id> --org-id=<org-id>
 ```
 
-_See code: [src/commands/pull/instance.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/pull/instance.ts)_
+_See code: [src/commands/pull/instance.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/pull/instance.ts)_
 
 ## `powersync status`
 
@@ -1483,7 +1507,7 @@ EXAMPLES
   $ powersync status --instance-id=<id> --project-id=<id>
 ```
 
-_See code: [src/commands/status.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/status.ts)_
+_See code: [src/commands/status.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/status.ts)_
 
 ## `powersync stop`
 
@@ -1520,7 +1544,7 @@ EXAMPLES
   $ powersync stop --confirm=yes
 ```
 
-_See code: [src/commands/stop.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/stop.ts)_
+_See code: [src/commands/stop.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/stop.ts)_
 
 ## `powersync validate`
 
@@ -1565,6 +1589,6 @@ EXAMPLES
   $ powersync validate --api-url=https://powersync.example.com
 ```
 
-_See code: [src/commands/validate.ts](https://github.com/powersync-ja/powersync-js/blob/v0.0.0/src/commands/validate.ts)_
+_See code: [src/commands/validate.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/validate.ts)_
 
 <!-- commandsstop -->

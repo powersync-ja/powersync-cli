@@ -1,5 +1,7 @@
 # PowerSync CLI Config Studio
 
+> **Private package — not published to npm.** This package is built and bundled into [`@powersync/cli-plugin-config-edit`](../../plugins/config-edit) during the build step (`pnpm --filter editor build` copies the output into `plugins/config-edit/editor-dist/`). It is served at runtime by that plugin when you run `powersync edit config`. It is not intended to be installed or used directly.
+
 The PowerSync CLI Config Studio is the Monaco-powered editor that ships with the `powersync edit config` command. It exposes the two YAML files managed by the CLI (`service.yaml` and `sync-config.yaml`), enforces our official JSON Schemas, and lets you save the result back to your local PowerSync directory without touching the CLI manually.
 
 ## Feature highlights

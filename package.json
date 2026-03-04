@@ -3,18 +3,22 @@
   "private": true,
   "description": "PowerSync CLI monorepo",
   "devDependencies": {
-    "powersync": "workspace:*",
-    "husky": "^9.1.7",
-    "prettier": "^3.0.0",
-    "tsx": "^4",
+    "@changesets/cli": "^2.29.8",
+    "@eslint/compat": "^1",
     "eslint": "^9",
     "eslint-config-oclif": "^6",
     "eslint-config-prettier": "^10",
-    "@eslint/compat": "^1"
+    "husky": "^9.1.7",
+    "powersync": "workspace:*",
+    "prettier": "^3.0.0",
+    "tsx": "^4"
   },
   "scripts": {
     "build": "pnpm -r run build",
+    "build:packages": "pnpm -r run build",
     "clean": "pnpm -r run clean",
+    "changeset:version": "pnpm changeset version && pnpm install --lockfile-only --frozen-lockfile=false",
+    "release": "pnpm build:packages && pnpm changeset publish",
     "format:write": "pnpm prettier --write .",
     "lint:fix": "pnpm -r --if-present run lint --fix",
     "test": "pnpm -r run test",
@@ -24,5 +28,5 @@
   "engines": {
     "node": ">=24"
   },
-  "packageManager": "pnpm@10.0.0"
+  "packageManager": "pnpm@10.28.2+sha512.41872f037ad22f7348e3b1debbaf7e867cfd448f2726d9cf74c08f19507c31d2c8e7a11525b983febc2df640b5438dee6023ebb1f84ed43cc2d654d2bc326264"
 }
