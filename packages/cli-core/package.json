@@ -19,13 +19,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/powersync-ja/cli"
+    "url": "https://github.com/powersync-ja/powersync-cli"
   },
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
-  "bugs": "https://github.com/powersync-ja/cli/issues",
+  "bugs": "https://github.com/powersync-ja/powersync-cli/issues",
   "dependencies": {
     "@oclif/core": "^4",
     "@powersync/cli-schemas": "workspace:*",

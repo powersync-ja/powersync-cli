@@ -6,7 +6,7 @@
   "bin": {
     "powersync": "./bin/run.js"
   },
-  "bugs": "https://github.com/powersync-ja/cli/issues",
+  "bugs": "https://github.com/powersync-ja/powersync-cli/issues",
   "dependencies": {
     "@fastify/cors": "^10.0.0",
     "@inquirer/prompts": "^7.2.0",
@@ -54,7 +54,7 @@
     "./templates",
     "./oclif.manifest.json"
   ],
-  "homepage": "https://github.com/powersync-ja/cli",
+  "homepage": "https://github.com/powersync-ja/powersync-cli",
   "keywords": [
     "oclif"
   ],
@@ -110,7 +110,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/powersync-ja/cli"
+    "url": "https://github.com/powersync-ja/powersync-cli"
   },
   "publishConfig": {
     "access": "public",

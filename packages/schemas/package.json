@@ -24,13 +24,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/powersync-ja/cli"
+    "url": "https://github.com/powersync-ja/powersync-cli"
   },
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
-  "bugs": "https://github.com/powersync-ja/cli/issues",
+  "bugs": "https://github.com/powersync-ja/powersync-cli/issues",
   "scripts": {
     "build": "tsc -b && node dist/scripts/create-schemas.js",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
