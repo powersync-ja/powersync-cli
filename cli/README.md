@@ -437,11 +437,13 @@ _See code: [src/commands/deploy/service-config.ts](https://github.com/powersync-
 ```
 USAGE
   $ powersync deploy sync-config [--deploy-timeout <value>] [--directory <value>] [--instance-id <value> --project-id
-    <value>] [--org-id <value>]
+    <value>] [--org-id <value>] [--sync-config-file-path <value>]
 
 FLAGS
-  --deploy-timeout=<value>  [default: 300] Seconds to wait after scheduling a deploy before timing out while polling
-                            status (default 300 seconds).
+  --deploy-timeout=<value>         [default: 300] Seconds to wait after scheduling a deploy before timing out while
+                                   polling status (default 300 seconds).
+  --sync-config-file-path=<value>  Path to a sync config file. If provided, this file will be validated and deployed
+                                   instead of the default sync-config.yaml.
 
 PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config. Defaults to "powersync". This is

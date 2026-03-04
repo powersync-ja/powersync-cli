@@ -73,7 +73,7 @@ export default class LinkCloud extends CloudInstanceCommand {
         this.styledError({ message: error instanceof Error ? error.message : String(error) });
       }
 
-      const config = this.parseConfig(projectDirectory);
+      const config = this.parseLocalConfig(projectDirectory);
       const { client } = this;
 
       let newInstanceId: string;
