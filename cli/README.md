@@ -720,6 +720,8 @@ EXAMPLES
   $ powersync edit config --directory ./powersync
 ```
 
+_See code: [@powersync/cli-plugin-config-edit](https://github.com/powersync-ja/powersync-cli/blob/v0.9.0/src/commands/edit/config.ts)_
+
 ## `powersync fetch config`
 
 [Cloud only] Print linked Cloud instance config (YAML or JSON).
