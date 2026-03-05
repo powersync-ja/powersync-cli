@@ -1,7 +1,7 @@
 {
   "name": "powersync",
   "description": "A CLI for managing PowerSync instances",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "author": "POWERSYNC",
   "bin": {
     "powersync": "./bin/run.js"

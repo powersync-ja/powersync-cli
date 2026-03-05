@@ -1,7 +1,7 @@
 {
   "name": "@powersync/cli-schemas",
   "description": "PowerSync CLI schema definitions and JSON Schema generation",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "author": "POWERSYNC",
   "license": "FSL-1.1-ALv2",
   "type": "module",
