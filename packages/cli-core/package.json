@@ -32,8 +32,8 @@
     "@journeyapps-labs/micro-errors": "^1.0.1",
     "yaml": "^2",
     "@journeyapps-labs/common-sdk": "1.0.2",
-    "@powersync/management-client": "^0.0.4",
-    "@powersync/management-types": "^0.0.3",
+    "@powersync/management-client": "0.0.0-dev.ec9d802b",
+    "@powersync/management-types": "0.0.0-dev.ec9d802b",
     "@powersync/service-client": "^0.0.3",
     "keychain": "^1.5.0"
   },
