@@ -11,10 +11,10 @@ import { root } from '../helpers/root.js';
 import { managementClientMock, MOCK_CLOUD_IDS, resetManagementClientMocks } from '../setup.js';
 
 /** Run deploy by instantiating the command and calling .run() so the spy on createCloudClient applies. */
-async function runDeployDirect(opts?: { directory?: string }) {
+async function runDeployDirect(opts?: { args?: string[]; directory?: string }) {
   const directory = opts?.directory ?? PROJECT_DIR;
   const config = await Config.load({ root });
-  const cmd = new DeployCommand(['--directory', directory], config);
+  const cmd = new DeployCommand(['--directory', directory, ...(opts?.args ?? [])], config);
   cmd.client = managementClientMock as unknown as DeployCommand['client'];
   return captureOutput(() => cmd.run());
 }
@@ -52,6 +52,7 @@ describe('deploy', () => {
     process.env.PS_ADMIN_TOKEN = 'test-token';
     managementClientMock.getInstanceConfig.mockResolvedValue({
       config: { region: 'us', replication: { connections: [{ name: 'default', type: 'postgresql' }] } },
+      id: INSTANCE_ID,
       name: 'test-instance',
       sync_rules: ''
     });
@@ -128,6 +129,24 @@ describe('deploy', () => {
     it('attempts deploy and errors with exit 1 when client fails', async () => {
       const result = await runDeployDirect();
       expect(result.error).toBeDefined();
+      expect(result.error?.message).toMatch(
+        new RegExp(`Failed to .* instance ${INSTANCE_ID} in project ${PROJECT_ID} in org ${ORG_ID}`)
+      );
+    });
+
+    it('validates sync config before deploying', async () => {
+      const result = await runDeployDirect();
+      expect(managementClientMock.validateSyncRules).toHaveBeenCalled();
+      expect(managementClientMock.deployInstance).toHaveBeenCalled();
+      expect(result.error?.message).toMatch(
+        new RegExp(`Failed to .* instance ${INSTANCE_ID} in project ${PROJECT_ID} in org ${ORG_ID}`)
+      );
+    });
+
+    it('skips sync config validation when --skip-sync-config-validation is passed', async () => {
+      const result = await runDeployDirect({ args: ['--skip-sync-config-validation'] });
+      expect(managementClientMock.validateSyncRules).not.toHaveBeenCalled();
+      expect(managementClientMock.deployInstance).toHaveBeenCalled();
       expect(result.error?.message).toMatch(
         new RegExp(`Failed to .* instance ${INSTANCE_ID} in project ${PROJECT_ID} in org ${ORG_ID}`)
       );

@@ -4,17 +4,18 @@ import { routes } from '@powersync/management-types';
 import { ObjectId } from 'bson';
 import { readFileSync } from 'node:fs';
 
+import BaseDeployCommand, { SKIP_SYNC_CONFIG_VALIDATION_FLAG } from '../../api/BaseDeployCommand.js';
 import { DEFAULT_DEPLOY_TIMEOUT_MS } from '../../api/cloud/wait-for-operation.js';
-import DeployAll from './index.js';
 
-export default class DeploySyncConfig extends DeployAll {
+export default class DeploySyncConfig extends BaseDeployCommand {
   static description = 'Deploy only sync config changes.';
   static examples = [
     '<%= config.bin %> <%= command.id %>',
     '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id>'
   ];
   static flags = {
-    ...DeployAll.flags,
+    ...BaseDeployCommand.flags,
+    ...SKIP_SYNC_CONFIG_VALIDATION_FLAG,
     'sync-config-file-path': Flags.file({
       description:
         'Path to a sync config file. If provided, this file will be validated and deployed instead of the default sync-config.yaml.',
@@ -121,8 +122,12 @@ export default class DeploySyncConfig extends DeployAll {
     }
 
     // Validate sync config
-    this.log('\tValidating sync config...');
-    await this.validateSyncConfig();
+    if (flags['skip-sync-config-validation']) {
+      this.log(ux.colorize('yellow', 'Skipping sync config validation.'));
+    } else {
+      this.log('\tValidating sync config...');
+      await this.validateSyncConfig();
+    }
 
     this.log('Validations completed successfully.\n');
 
