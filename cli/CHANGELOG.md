@@ -1,5 +1,17 @@
 # powersync
 
+## 0.9.1
+
+### Patch Changes
+
+- 9869343: [Internal] Configure trusted publishing and Github release flow.
+- cee6fc3: Fixed missing docker-compose.yaml template files.
+- Updated dependencies [cee6fc3]
+  - @powersync/cli-plugin-docker@0.9.1
+  - @powersync/cli-core@0.9.1
+  - @powersync/cli-schemas@0.9.1
+  - @powersync/cli-plugin-config-edit@0.9.1
+
 ## 0.9.0
 
 Refactored CLI. See docs for details.
