@@ -22,6 +22,7 @@
   },
   "bugs": "https://github.com/powersync-ja/powersync-cli/issues",
   "scripts": {
+    "build": "tsc -b && node scripts/copy-template-resources.mjs",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "lint": "eslint .",
     "prepack": "oclif manifest"
