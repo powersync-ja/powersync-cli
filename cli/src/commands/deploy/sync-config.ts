@@ -4,17 +4,18 @@ import { routes } from '@powersync/management-types';
 import { ObjectId } from 'bson';
 import { readFileSync } from 'node:fs';
 
+import BaseDeployCommand, { SKIP_SYNC_CONFIG_VALIDATION_FLAG } from '../../api/BaseDeployCommand.js';
 import { DEFAULT_DEPLOY_TIMEOUT_MS } from '../../api/cloud/wait-for-operation.js';
-import DeployAll from './index.js';
 
-export default class DeploySyncConfig extends DeployAll {
+export default class DeploySyncConfig extends BaseDeployCommand {
   static description = 'Deploy only sync config changes.';
   static examples = [
     '<%= config.bin %> <%= command.id %>',
     '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id>'
   ];
   static flags = {
-    ...DeployAll.flags,
+    ...BaseDeployCommand.flags,
+    ...SKIP_SYNC_CONFIG_VALIDATION_FLAG,
     'sync-config-file-path': Flags.file({
       description:
         'Path to a sync config file. If provided, this file will be validated and deployed instead of the default sync-config.yaml.',
@@ -98,31 +99,35 @@ export default class DeploySyncConfig extends DeployAll {
     };
     this.log('Performing validations before deploy...');
 
-    const instanceStatus = await this.client
-      .getInstanceStatus({
-        app_id: project.linked.project_id,
-        id: project.linked.instance_id,
-        org_id: project.linked.org_id
-      })
-      .catch((error) => {
-        this.styledError({
-          error,
-          message: `Failed to get status for instance ${project.linked.instance_id} in project ${project.linked.project_id} in org ${project.linked.org_id}.`,
-          suggestions: ['Check your network connection and try again.', 'If the problem persists, contact support.']
-        });
-      });
-
-    if (!instanceStatus.provisioned) {
-      this.log(
-        `\nThe instance is not currently provisioned. Triggering a deploy in order to reprovision. This may take a few minutes.\n`
-      );
-      // Don't yet update the sync config since the instance is not provisioned, but deploy to trigger provisioning
-      await this.deployAll({ cloudConfigState, deployTimeoutMs, updateSyncConfig: false });
-    }
-
     // Validate sync config
-    this.log('\tValidating sync config...');
-    await this.validateSyncConfig();
+    if (flags['skip-sync-config-validation']) {
+      this.log(ux.colorize('yellow', '\tSkipping sync config validation.'));
+    } else {
+      const instanceStatus = await this.client
+        .getInstanceStatus({
+          app_id: project.linked.project_id,
+          id: project.linked.instance_id,
+          org_id: project.linked.org_id
+        })
+        .catch((error) => {
+          this.styledError({
+            error,
+            message: `Failed to get status for instance ${project.linked.instance_id} in project ${project.linked.project_id} in org ${project.linked.org_id}.`,
+            suggestions: ['Check your network connection and try again.', 'If the problem persists, contact support.']
+          });
+        });
+
+      if (!instanceStatus.provisioned) {
+        this.log(
+          `\nThe instance is not currently provisioned. Triggering a deploy in order to reprovision. This may take a few minutes.\n`
+        );
+        // Don't yet update the sync config since the instance is not provisioned, but deploy to trigger provisioning
+        await this.deployAll({ cloudConfigState, deployTimeoutMs, updateSyncConfig: false });
+      }
+
+      this.log('\tValidating sync config...');
+      await this.validateSyncConfig();
+    }
 
     this.log('Validations completed successfully.\n');
 

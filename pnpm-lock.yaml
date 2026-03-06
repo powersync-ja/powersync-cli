@@ -6919,6 +6919,10 @@ packages:
   zod@4.3.6:
     resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
 
+oclif@4.22.81:
+  hash: 7e5a3045552cab0cb2aeee4fcd9b6ea525253baa5eca6552f74904e3290ddebe
+  path: patches/oclif@4.22.81.patch
+
 snapshots:
 
   '@acemir/cssom@0.9.31': {}
