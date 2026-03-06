@@ -1,5 +1,16 @@
 # powersync
 
+## 0.9.2
+
+### Patch Changes
+
+- 6d8b202: - Bumped internal PowerSync dependencies.
+  - Fixed minor bugs in `powersync migrate sync-rules` command. See https://github.com/powersync-community/bucket-definitions-to-sync-streams/pull/12 for more details.
+  - @powersync/cli-core@0.9.2
+  - @powersync/cli-schemas@0.9.2
+  - @powersync/cli-plugin-docker@0.9.2
+  - @powersync/cli-plugin-config-edit@0.9.2
+
 ## 0.9.1
 
 ### Patch Changes
