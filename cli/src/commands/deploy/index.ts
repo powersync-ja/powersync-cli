@@ -62,7 +62,6 @@ export default class DeployAll extends BaseDeployCommand {
     if (flags['skip-sync-config-validation']) {
       this.log(ux.colorize('yellow', '\tSkipping sync config validation.'));
     } else {
-      this.log('\tValidating sync config...');
       /**
        * At this point we know the instances is deprovisioned, and the current config is valid.
        * We can't verify the sync config yet - since that requires a provisioned instance.
@@ -84,6 +83,7 @@ export default class DeployAll extends BaseDeployCommand {
         });
       }
 
+      this.log('\tValidating sync config...');
       await this.validateSyncConfig();
     }
 
