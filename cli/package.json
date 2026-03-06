@@ -127,8 +127,7 @@
     "readme:generate": "oclif readme && pnpm exec prettier --write README.md",
     "prepack": "oclif manifest && pnpm run readme:generate",
     "test": "vitest",
-    "version": "pnpm run readme:generate && git add README.md",
-    "postversion": "pnpm run readme:generate && git add README.md"
+    "version": "pnpm run readme:generate && git add README.md"
   },
   "types": "dist/index.d.ts"
 }
