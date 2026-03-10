@@ -20,6 +20,18 @@ const PROJECT_ID = MOCK_CLOUD_IDS.projectId;
 /** Minimal valid cloud config decodable by ServiceCloudConfig. */
 const MOCK_CONFIG = { _type: 'cloud' as const, name: 'test-instance', region: 'us' };
 
+const MOCK_CONFIG_WITH_EMPTY_JWKS_KEYS = {
+  _type: 'cloud' as const,
+  client_auth: {
+    jwks: {
+      keys: []
+    },
+    supabase: false
+  },
+  name: 'test-instance',
+  region: 'us'
+};
+
 const mockCloudClient = {
   deployInstance: vi.fn(),
   getInstanceConfig: vi.fn()
@@ -101,7 +113,11 @@ describe('pull instance', () => {
     expect(existsSync(projectDir)).toBe(true);
     expect(existsSync(join(projectDir, 'cli.yaml'))).toBe(true);
     expect(existsSync(join(projectDir, SERVICE_FILENAME))).toBe(true);
-    expect(readFileSync(join(projectDir, SERVICE_FILENAME), 'utf8')).toContain('_type: cloud');
+    const serviceYaml = readFileSync(join(projectDir, SERVICE_FILENAME), 'utf8');
+    expect(serviceYaml).toContain('_type: cloud');
+    expect(serviceYaml).toContain('Optional cloud configuration examples not required by this pulled config.');
+    expect(serviceYaml).toContain('[optional] Use the same JWT secret as Supabase. Default: false.');
+    expect(serviceYaml).toContain('HMAC (symmetric)');
     expect(result.stdout).toContain('Created');
     expect(result.stdout).toContain(`Wrote ${SERVICE_FILENAME}`);
   });
@@ -155,6 +171,24 @@ describe('pull instance', () => {
       expect(existsSync(join(projectDir, SERVICE_FILENAME))).toBe(true);
       expect(readFileSync(join(projectDir, SERVICE_FILENAME), 'utf8')).toContain('_type: cloud');
       expect(result.stdout).toContain(`Wrote ${SERVICE_FILENAME}`);
+    });
+
+    it('renders jwks key examples without an empty [] placeholder', async () => {
+      mockCloudClient.getInstanceConfig.mockResolvedValueOnce({ config: MOCK_CONFIG_WITH_EMPTY_JWKS_KEYS });
+      const result = await runPullInstanceDirect();
+      expect(result.error).toBeUndefined();
+
+      const projectDir = join(tmpDir, PROJECT_DIR);
+      const serviceYaml = readFileSync(join(projectDir, SERVICE_FILENAME), 'utf8');
+
+      expect(serviceYaml).toContain('jwks:');
+      expect(serviceYaml).toContain('keys:');
+      expect(serviceYaml).toContain('HMAC (symmetric)');
+      expect(serviceYaml).not.toMatch(/\n\s*\[\]\s*\n\s*# HMAC/);
+      expect(serviceYaml).not.toMatch(
+        /\n\s*# \[optional\] Use the same JWT secret as Supabase\. Default: false\.\n\s*# \[optional\] Inline JWKS; provide keys directly instead of or in addition to jwks_uri\.\n\s*jwks:/
+      );
+      expect(serviceYaml).not.toContain('jwks:\n    {}');
     });
 
     it('errors when client fails', async () => {

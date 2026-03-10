@@ -23,7 +23,8 @@
     "lint:fix": "pnpm -r --if-present run lint --fix",
     "test": "pnpm -r run test",
     "configure-hooks": "husky",
-    "prepare": "husky"
+    "prepare": "husky",
+    "powersync-dev": "pnpm  -C cli run  build:ts && pnpm exec node --inspect --enable-source-maps --import  tsx ./cli/bin/dev.js"
   },
   "engines": {
     "node": ">=24"

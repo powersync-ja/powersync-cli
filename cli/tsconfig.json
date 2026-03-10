@@ -4,6 +4,7 @@
     "module": "Node16",
     "outDir": "dist",
     "rootDir": "src",
+    "sourceMap": true,
     "strict": true,
     "target": "es2022",
     "moduleResolution": "node16",

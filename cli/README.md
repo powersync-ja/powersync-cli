@@ -239,7 +239,7 @@ $ npm install -g powersync
 $ powersync COMMAND
 running command...
 $ powersync (--version)
-powersync/0.9.2 linux-x64 node-v24.14.0
+powersync/0.9.2 darwin-arm64 node-v24.13.0
 $ powersync --help [COMMAND]
 USAGE
   $ powersync COMMAND

@@ -11,20 +11,23 @@ import {
 } from '@powersync/cli-core';
 import { ServiceCloudConfig } from '@powersync/cli-schemas';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { stringify } from 'yaml';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { decodeFetchedCloudConfig } from '../../api/cloud/fetch-cloud-config.js';
 import { validateCloudLinkConfig } from '../../api/cloud/validate-cloud-link-config.js';
 import { writeCloudLink } from '../../api/cloud/write-cloud-link.js';
+import { buildServiceYaml } from '../../utils/build-service-yaml.js';
 
 const SERVICE_FETCHED_FILENAME = 'service-fetched.yaml';
 const SYNC_FETCHED_FILENAME = 'sync-fetched.yaml';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const TEMPLATES_DIR = join(__dirname, '..', '..', '..', 'templates');
+
 const PULL_CONFIG_HEADER = `# PowerSync Cloud config (fetched from cloud)
 # yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/service-config.json
-#
-`;
+`.trim();
 
 export default class PullInstance extends CloudInstanceCommand {
   static commandHelpGroup = CommandHelpGroup.PROJECT_SETUP;
@@ -124,7 +127,13 @@ export default class PullInstance extends CloudInstanceCommand {
       );
     }
 
-    const serviceYaml = PULL_CONFIG_HEADER + stringify(ServiceCloudConfig.encode(fetched.config));
+    const fetchedEncodedConfig = ServiceCloudConfig.encode(fetched.config);
+    const serviceTemplatePath = join(TEMPLATES_DIR, 'cloud', 'powersync', 'service.template.yaml');
+    const serviceYaml = buildServiceYaml({
+      baseConfig: fetchedEncodedConfig,
+      schemaHeader: PULL_CONFIG_HEADER,
+      templatePath: serviceTemplatePath
+    });
 
     const serviceOutputName = serviceExists ? SERVICE_FETCHED_FILENAME : SERVICE_FILENAME;
     const serviceOutputPath = join(projectDir, serviceOutputName);
