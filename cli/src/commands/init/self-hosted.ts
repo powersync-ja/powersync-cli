@@ -14,7 +14,7 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { buildServiceYaml } from '../../utils/build-service-yaml.js';
+import { buildServiceYaml } from '../../api/build-service-yaml.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATES_DIR = join(__dirname, '..', '..', '..', 'templates');

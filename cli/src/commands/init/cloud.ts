@@ -10,6 +10,7 @@ import {
 import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import { buildServiceYaml } from '../../api/build-service-yaml.js';
 import {
   CLOUD_CLI_TEMPLATE_PATH,
   CLOUD_SERVICE_TEMPLATE_PATH,
@@ -17,7 +18,6 @@ import {
   CLOUD_TEMPLATES_DIR,
   writeCloudTemplateFiles
 } from '../../api/cloud/create-cloud-template.js';
-import { buildServiceYaml } from '../../utils/build-service-yaml.js';
 
 export default class InitCloud extends InstanceCommand {
   static commandHelpGroup = CommandHelpGroup.PROJECT_SETUP;

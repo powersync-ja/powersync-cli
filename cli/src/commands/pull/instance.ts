@@ -13,11 +13,11 @@ import { ServiceCloudConfig } from '@powersync/cli-schemas';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import { buildServiceYaml } from '../../api/build-service-yaml.js';
 import { CLOUD_SERVICE_TEMPLATE_PATH, writeCloudSyncConfigFile } from '../../api/cloud/create-cloud-template.js';
 import { decodeFetchedCloudConfig } from '../../api/cloud/fetch-cloud-config.js';
 import { validateCloudLinkConfig } from '../../api/cloud/validate-cloud-link-config.js';
 import { writeCloudLink } from '../../api/cloud/write-cloud-link.js';
-import { buildServiceYaml } from '../../utils/build-service-yaml.js';
 
 const SERVICE_FETCHED_FILENAME = 'service-fetched.yaml';
 const SYNC_FETCHED_FILENAME = 'sync-fetched.yaml';
