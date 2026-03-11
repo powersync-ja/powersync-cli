@@ -2,7 +2,7 @@
 # yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/service-config.json
 
 # PowerSync Cloud config – source-of-truth template with all schema options as valid YAML.
-# Docs: https://docs.powersync.com/usage/sync-rules
+# Docs: https://docs.powersync.com/sync/overview
 
 # [required] Service type identifier.
 _type: cloud

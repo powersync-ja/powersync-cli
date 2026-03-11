@@ -24,7 +24,7 @@
     "test": "pnpm -r run test",
     "configure-hooks": "husky",
     "prepare": "husky",
-    "powersync-dev": "pnpm  -C cli run  build:ts && pnpm exec node --inspect --enable-source-maps --import  tsx ./cli/bin/dev.js"
+    "powersync-dev": "pnpm  -C cli run  build && pnpm exec node --inspect --enable-source-maps --import  tsx ./cli/bin/dev.js"
   },
   "engines": {
     "node": ">=24"

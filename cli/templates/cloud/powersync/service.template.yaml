@@ -1,5 +1,5 @@
 # PowerSync Cloud config – source-of-truth template with all schema options as valid YAML.
-# Docs: https://docs.powersync.com/usage/sync-rules
+# Docs: https://docs.powersync.com/sync/overview
 
 # [required] Service type identifier.
 _type: cloud
