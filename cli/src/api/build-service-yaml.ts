@@ -108,13 +108,15 @@ function annotateComment(options: {
   if (!comment && !commentBefore) return;
 
   if (isScalar(target)) {
-    if (comment) target.comment = appendComments ? target.comment + '\n' + comment : comment;
+    if (comment) target.comment = appendComments ? (target.comment ?? '') + '\n' + comment : comment;
     if (commentBefore)
-      target.commentBefore = appendComments ? commentBefore + '\n\n' + target.commentBefore : commentBefore;
+      target.commentBefore = appendComments ? commentBefore + '\n\n' + (target.commentBefore ?? '') : commentBefore;
   } else if (isPair(target) && isScalar(target.key)) {
-    if (comment) target.key.comment = appendComments ? target.key.comment + '\n' + comment : comment;
+    if (comment) target.key.comment = appendComments ? (target.key.comment ?? '') + '\n' + comment : comment;
     if (commentBefore)
-      target.key.commentBefore = appendComments ? commentBefore + '\n\n' + target.key.commentBefore : commentBefore;
+      target.key.commentBefore = appendComments
+        ? commentBefore + '\n\n' + (target.key.commentBefore ?? '')
+        : commentBefore;
   }
 }
 
