@@ -1,4 +1,4 @@
-import { ux } from '@oclif/core';
+import { Flags, ux } from '@oclif/core';
 import {
   CLI_FILENAME,
   CloudInstanceCommand,
@@ -11,10 +11,9 @@ import {
 } from '@powersync/cli-core';
 import { ServiceCloudConfig } from '@powersync/cli-schemas';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 
-import { writeCloudSyncConfigFile } from '../../api/cloud/create-cloud-template.js';
+import { CLOUD_SERVICE_TEMPLATE_PATH, writeCloudSyncConfigFile } from '../../api/cloud/create-cloud-template.js';
 import { decodeFetchedCloudConfig } from '../../api/cloud/fetch-cloud-config.js';
 import { validateCloudLinkConfig } from '../../api/cloud/validate-cloud-link-config.js';
 import { writeCloudLink } from '../../api/cloud/write-cloud-link.js';
@@ -22,9 +21,6 @@ import { buildServiceYaml } from '../../utils/build-service-yaml.js';
 
 const SERVICE_FETCHED_FILENAME = 'service-fetched.yaml';
 const SYNC_FETCHED_FILENAME = 'sync-fetched.yaml';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const TEMPLATES_DIR = join(__dirname, '..', '..', '..', 'templates');
 
 const PULL_CONFIG_HEADER = `# PowerSync Cloud config (fetched from cloud)
 # yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/service-config.json
@@ -40,7 +36,11 @@ export default class PullInstance extends CloudInstanceCommand {
     '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id> --org-id=<org-id>'
   ];
   static flags = {
-    ...CloudInstanceCommand.flags
+    ...CloudInstanceCommand.flags,
+    overwrite: Flags.boolean({
+      description:
+        'Overwrite existing service.yaml and sync-config.yaml if they exist. By default, if these files already exist, the fetched configs will be written to service-fetched.yaml and sync-fetched.yaml to avoid overwriting local changes.'
+    })
   };
   static summary =
     '[Cloud only] Pull an existing Cloud instance: link and download config into local service.yaml and sync-config.yaml.';
@@ -114,36 +114,36 @@ export default class PullInstance extends CloudInstanceCommand {
 
     const fetched = decodeFetchedCloudConfig(instanceConfig);
 
+    const { overwrite } = flags;
     const serviceExists = existsSync(join(projectDir, SERVICE_FILENAME));
     const syncExists = existsSync(join(projectDir, SYNC_FILENAME));
-    if (serviceExists) {
+    if (!overwrite && serviceExists) {
       this.warn(
         `${ux.colorize('blue', SERVICE_FILENAME)} already exists. Writing to ${ux.colorize('blue', 'service-fetched.yaml')} instead. Manually merge the settings into ${ux.colorize('blue', SERVICE_FILENAME)} as needed.`
       );
     }
 
-    if (syncExists && fetched.syncRules) {
+    if (!overwrite && syncExists && fetched.syncRules) {
       this.warn(
         `${ux.colorize('blue', SYNC_FILENAME)} already exists. Writing to ${ux.colorize('blue', 'sync-fetched.yaml')} instead. Manually merge the sync config into ${ux.colorize('blue', SYNC_FILENAME)} as needed.`
       );
     }
 
     const fetchedEncodedConfig = ServiceCloudConfig.encode(fetched.config);
-    const serviceTemplatePath = join(TEMPLATES_DIR, 'cloud', 'powersync', 'service.template.yaml');
     const serviceYaml = buildServiceYaml({
       baseConfig: fetchedEncodedConfig,
       schemaHeader: PULL_CONFIG_HEADER,
-      templatePath: serviceTemplatePath
+      templatePath: CLOUD_SERVICE_TEMPLATE_PATH
     });
 
-    const serviceOutputName = serviceExists ? SERVICE_FETCHED_FILENAME : SERVICE_FILENAME;
+    const serviceOutputName = !overwrite && serviceExists ? SERVICE_FETCHED_FILENAME : SERVICE_FILENAME;
     const serviceOutputPath = join(projectDir, serviceOutputName);
     this.log('');
     writeFileSync(serviceOutputPath, serviceYaml, 'utf8');
     this.log(`Wrote ${ux.colorize('blue', serviceOutputName)} with config from the cloud.`);
 
     if (typeof fetched.syncRules === 'string') {
-      const syncOutputName = syncExists ? SYNC_FETCHED_FILENAME : SYNC_FILENAME;
+      const syncOutputName = !overwrite && syncExists ? SYNC_FETCHED_FILENAME : SYNC_FILENAME;
       const syncOutputPath = join(projectDir, syncOutputName);
       writeFileSync(syncOutputPath, fetched.syncRules, 'utf8');
       this.log(`Wrote ${ux.colorize('blue', syncOutputName)} with sync config from the cloud.`);
