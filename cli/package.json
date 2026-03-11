@@ -120,7 +120,7 @@
   "scripts": {
     "dev": "tsx bin/dev.js",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
-    "build": "tsc -b && pnpm prepack",
+    "build": "tsc -b",
     "lint": "eslint",
     "postpack": "shx rm -f oclif.manifest.json",
     "pretest": "pnpm run build",
