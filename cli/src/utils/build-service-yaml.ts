@@ -1,6 +1,6 @@
 import { BaseServiceSelfHostedConfig, ServiceCloudConfig } from '@powersync/cli-schemas';
 import { readFileSync } from 'node:fs';
-import { Document, isMap, isNode, isScalar, Pair, parseDocument, YAMLMap } from 'yaml';
+import { Document, isMap, isNode, isPair, isScalar, isSeq, Pair, parseDocument, YAMLMap } from 'yaml';
 
 export type BuildServiceYamlOptions = {
   /**
@@ -111,7 +111,7 @@ function annotateComment(options: {
     if (comment) target.comment = appendComments ? target.comment + '\n' + comment : comment;
     if (commentBefore)
       target.commentBefore = appendComments ? commentBefore + '\n\n' + target.commentBefore : commentBefore;
-  } else if (target && typeof target === 'object' && 'key' in target && isScalar(target.key)) {
+  } else if (isPair(target) && isScalar(target.key)) {
     if (comment) target.key.comment = appendComments ? target.key.comment + '\n' + comment : comment;
     if (commentBefore)
       target.key.commentBefore = appendComments ? commentBefore + '\n\n' + target.key.commentBefore : commentBefore;
@@ -135,6 +135,12 @@ function copyComments(options: { source: Pair; target: Pair }): void {
 
   // Key comments
   copyNodeComments(source.key, target.key);
+
+  if (isSeq(source.value) && isSeq(target.value) && target.value.items.length > 0) {
+    // Avoid copying template block comments for sequences when we already have data
+    // (e.g. replication->connections), otherwise example comments bleed into real configs.
+    return;
+  }
 
   // Value comments (covers scalars and maps that carry block comments before the value)
   copyNodeComments(source.value, target.value);

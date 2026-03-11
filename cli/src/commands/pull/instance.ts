@@ -14,6 +14,7 @@ import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { writeCloudSyncConfigFile } from '../../api/cloud/create-cloud-template.js';
 import { decodeFetchedCloudConfig } from '../../api/cloud/fetch-cloud-config.js';
 import { validateCloudLinkConfig } from '../../api/cloud/validate-cloud-link-config.js';
 import { writeCloudLink } from '../../api/cloud/write-cloud-link.js';
@@ -146,6 +147,12 @@ export default class PullInstance extends CloudInstanceCommand {
       const syncOutputPath = join(projectDir, syncOutputName);
       writeFileSync(syncOutputPath, fetched.syncRules, 'utf8');
       this.log(`Wrote ${ux.colorize('blue', syncOutputName)} with sync config from the cloud.`);
+    } else if (!fetched.syncRules && !syncExists) {
+      // If there is no sync config in the cloud and no existing sync config locally, we should still create an empty sync-config.yaml with the correct header and schema reference
+      await writeCloudSyncConfigFile({ targetDir: projectDir });
+      this.log(
+        `Wrote ${ux.colorize('blue', SYNC_FILENAME)} with template sync config (no sync config found in the cloud).`
+      );
     }
   }
 }

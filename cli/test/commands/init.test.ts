@@ -34,9 +34,7 @@ describe('init', () => {
     expect(existsSync(serviceYamlPath)).toBe(true);
     expect(existsSync(syncYamlPath)).toBe(true);
     expect(readFileSync(serviceYamlPath, 'utf8')).toContain(YAML_SERVICE_SCHEMA);
-    expect(readFileSync(serviceYamlPath, 'utf8')).toContain(
-      'Additional cloud service configuration examples (commented out).'
-    );
+    expect(readFileSync(serviceYamlPath, 'utf8')).toContain('PowerSync Cloud config');
     expect(readFileSync(syncYamlPath, 'utf8')).toContain(YAML_SYNC_RULES_SCHEMA);
     const serviceYaml = parseYaml(readFileSync(serviceYamlPath, 'utf8'));
     expect(serviceYaml.telemetry).toBeUndefined();
@@ -68,9 +66,7 @@ describe('init', () => {
     expect(existsSync(serviceYamlPath)).toBe(true);
     expect(existsSync(syncYamlPath)).toBe(true);
     expect(readFileSync(serviceYamlPath, 'utf8')).toContain(YAML_SERVICE_SCHEMA);
-    expect(readFileSync(serviceYamlPath, 'utf8')).toContain(
-      'Additional cloud service configuration examples (commented out).'
-    );
+    expect(readFileSync(serviceYamlPath, 'utf8')).toContain('PowerSync Cloud config');
     expect(readFileSync(syncYamlPath, 'utf8')).toContain(YAML_SYNC_RULES_SCHEMA);
     const serviceYaml = parseYaml(readFileSync(serviceYamlPath, 'utf8'));
     expect(serviceYaml.telemetry).toBeUndefined();
@@ -89,9 +85,7 @@ describe('init', () => {
     expect(existsSync(serviceYamlPath)).toBe(true);
     expect(existsSync(syncYamlPath)).toBe(true);
     expect(readFileSync(serviceYamlPath, 'utf8')).toContain(YAML_SERVICE_SCHEMA);
-    expect(readFileSync(serviceYamlPath, 'utf8')).toContain(
-      'Additional self-hosted service configuration examples (commented out).'
-    );
+    expect(readFileSync(serviceYamlPath, 'utf8')).toContain('PowerSync self-hosted config');
     expect(readFileSync(syncYamlPath, 'utf8')).toContain(YAML_SYNC_RULES_SCHEMA);
     const serviceYaml = parseYaml(readFileSync(serviceYamlPath, 'utf8'));
     expect(serviceYaml.telemetry).toBeDefined();

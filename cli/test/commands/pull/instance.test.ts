@@ -115,7 +115,7 @@ describe('pull instance', () => {
     expect(existsSync(join(projectDir, SERVICE_FILENAME))).toBe(true);
     const serviceYaml = readFileSync(join(projectDir, SERVICE_FILENAME), 'utf8');
     expect(serviceYaml).toContain('_type: cloud');
-    expect(serviceYaml).toContain('Optional cloud configuration examples not required by this pulled config.');
+    expect(serviceYaml).toContain('PowerSync Cloud config');
     expect(serviceYaml).toContain('[optional] Use the same JWT secret as Supabase. Default: false.');
     expect(serviceYaml).toContain('HMAC (symmetric)');
     expect(result.stdout).toContain('Created');

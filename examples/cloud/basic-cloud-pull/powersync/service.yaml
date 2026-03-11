@@ -1,8 +1,25 @@
 # PowerSync Cloud config (fetched from cloud)
 # yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/service-config.json
+
+# PowerSync Cloud config – source-of-truth template with all schema options as valid YAML.
+# Docs: https://docs.powersync.com/usage/sync-rules
+
+# [required] Service type identifier.
 _type: cloud
-name: mango
+
+# [required] Instance name for display in the PowerSync Cloud dashboard.
+name: cloud 2
+
+# [required] Deployment region, e.g. us. Cannot be changed after initial deployment.
 region: us
+
+# -------------------------------------------------------------------------
+# Replication (required): database connections for sync
+# Note: only a single connection is currently supported.
+# Connection: `uri` and `password` are required for a complete connection. Alternatively omit `uri`
+# and provide individual fields (hostname, port, database, username, password, etc.); they are used
+# to construct the connection URI. For MongoDB, `uri` is required.
+# -------------------------------------------------------------------------
 replication:
   connections:
     - type: mongodb
@@ -14,9 +31,48 @@ replication:
       database: powersync
       uri: !env MONGO_URI
       post_images: auto_configure
+
+# -----------------------------------------------------------------------------
+# CLIENT AUTH (optional) – uncomment this entire block to enable
+# -----------------------------------------------------------------------------
 client_auth:
-  jwks:
-    keys: []
-  supabase: false
+  # [optional] Use the same JWT secret as Supabase. Default: false.
+  supabase: true
+  # [optional] Inline JWKS; provide keys directly instead of or in addition to jwks_uri.
+  #jwks:
+  #  keys:
+  #    # HMAC (symmetric) – Options: HS256 | HS384 | HS512
+  #    - kty: oct
+  #      alg: HS256
+  #      kid: example-key
+  #      k:
+  #        secret: !env POWERSYNC_CLIENT_AUTH_KEY
+  #    # RSA – Options for alg: RS256 | RS384 | RS512
+  #    - kty: RSA
+  #      kid: my-rsa-key
+  #      n: '<base64url-modulus>'
+  #      e: '<base64url-exponent>'
+  #      alg: RS256
+  #    # EC – Options for crv: P-256 | P-384 | P-512; alg: ES256 | ES384 | ES512
+  #    - kty: EC
+  #      kid: my-ec-key
+  #      crv: P-256
+  #      x: '<base64url-x>'
+  #      y: '<base64url-y>'
+  #      alg: ES256
+  #    # OKP (EdDSA) – Options for crv: Ed25519 | Ed448
+  #    - kty: OKP
+  #      kid: my-okp-key
+  #      crv: Ed25519
+  #      x: '<base64url-public-key>'
+  #      alg: EdDSA
+
+  # [optional] Additional audiences to accept (instance domain is always accepted). Default: [].
   additional_audiences: []
-  allow_temporary_tokens: true
+  # [optional] Allow development/temporary tokens. Default: false.
+  allow_temporary_tokens: false
+  ## [optional] Legacy: Supabase project's legacy JWT secret from API settings in the Supabase Dashboard.
+  #supabase_jwt_secret:
+  #  secret: !env POWERSYNC_SUPABASE_JWT_SECRET
+  ## [optional] JWKS URL; instance fetches public keys to verify JWT signatures.
+  #jwks_uri: https://example.com/jwks.json
