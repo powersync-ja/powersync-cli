@@ -23,14 +23,22 @@ region: us
 replication:
   connections:
     - type: mongodb
-      name: default
-      tag: default
-      username: steven
+      # [required for MongoDB] Connection string.
+      uri: mongodb+srv://steven:5QirX560SiFt2cR9@cluster0.ikdsp.mongodb.net/powersync
       password:
         secret_ref: default_password
-      database: powersync
-      uri: !env MONGO_URI
-      post_images: auto_configure
+        #secret: !env POWERSYNC_MONGODB_PASSWORD
+      # [optional] Connection identifiers.
+      name: Default
+      ## [optional] Connection parameters (if not in URI).
+      #username: string
+      #database: string
+      #id: string
+      #tag: string
+      ## [optional] Change-data-capture mode. Options: off | auto_configure | read_only. Default: off.
+      #post_images: off
+      ## [optional] Cloud VPC endpoint hostname.
+      #vpc_endpoint_hostname: string
 
 # -----------------------------------------------------------------------------
 # CLIENT AUTH (optional) – uncomment this entire block to enable

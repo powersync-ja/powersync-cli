@@ -176,9 +176,31 @@ function annotateLevelFromTemplate(options: { outputMap: YAMLMap; templateMap: Y
       outputPair.key.spaceBefore = templatePair.key.spaceBefore;
     }
 
-    // Walk the tree recursively for maps
+    // Walk the tree recursively for maps and sequences
     if (isMap(templatePair.value) && isMap(outputPair.value)) {
       annotateLevelFromTemplate({ outputMap: outputPair.value, templateMap: templatePair.value });
+    } else if (isSeq(templatePair.value) && isSeq(outputPair.value)) {
+      for (const outputItem of outputPair.value.items) {
+        // For sequences, we need a method to match the items.
+        // We currently only deeply traverse replication->connections and client_auth->jwks->keys, which both have a "type" or "kty" field we can use for matching.
+        const matchingTemplateItem = templatePair.value.items.find((templateItem) => {
+          if (isMap(templateItem) && isMap(outputItem)) {
+            return (
+              (templateItem.has('type') &&
+                outputItem.has('type') &&
+                templateItem.get('type') === outputItem.get('type')) ||
+              (templateItem.has('kty') && outputItem.has('kty') && templateItem.get('kty') === outputItem.get('kty'))
+            );
+          }
+
+          return false;
+        });
+        if (!matchingTemplateItem) continue;
+        annotateLevelFromTemplate({
+          outputMap: outputItem as YAMLMap,
+          templateMap: matchingTemplateItem as YAMLMap
+        });
+      }
     }
   }
 
