@@ -24,7 +24,7 @@ replication:
   connections:
     - type: mongodb
       # [required for MongoDB] Connection string.
-      uri: mongodb+srv://steven:5QirX560SiFt2cR9@cluster0.ikdsp.mongodb.net/powersync
+      uri: !env MONGO_URI
       password:
         secret_ref: default_password
         #secret: !env POWERSYNC_MONGODB_PASSWORD
