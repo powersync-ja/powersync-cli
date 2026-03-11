@@ -1,5 +1,16 @@
 # powersync
 
+## 0.9.3
+
+### Patch Changes
+
+- 4620c7b: Added `overwrite` flag to the `powersync pull instance` command. Specifying this flag will overwrite existing config files instead of writing to temporary files.
+- 4620c7b: Added YAML comments to the configuration files genered when running powersync pull instance
+  - @powersync/cli-core@0.9.3
+  - @powersync/cli-schemas@0.9.3
+  - @powersync/cli-plugin-docker@0.9.3
+  - @powersync/cli-plugin-config-edit@0.9.3
+
 ## 0.9.2
 
 ### Patch Changes
