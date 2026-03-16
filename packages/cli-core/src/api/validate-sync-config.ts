@@ -17,6 +17,10 @@ import { createSelfHostedClient } from '../clients/create-self-hosted-client.js'
 export type ValidationTestRunResult = {
   errors?: string[];
   passed: boolean;
+  /**
+   * Output containing errors and warnings in a pretty human-readable format.
+   */
+  prettyOutput?: string;
   warnings?: string[];
 };
 

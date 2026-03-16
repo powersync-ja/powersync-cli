@@ -1,5 +1,14 @@
 import BaseDeployCommand from '../../api/BaseDeployCommand.js';
 import { DEFAULT_DEPLOY_TIMEOUT_MS } from '../../api/cloud/wait-for-operation.js';
+import { getCloudValidations } from '../../api/validations/cloud-validations.js';
+import { generateValidationTestFlags } from '../../api/validations/validation-flags.js';
+import { ValidationsRunner } from '../../api/validations/ValidationsRunner.js';
+import { ValidationTest } from '../../api/validations/ValidationTestDefinition.js';
+
+const SERVICE_CONFIG_VALIDATION_FLAGS = generateValidationTestFlags({
+  // No sync config validation for this command
+  limitOptions: [ValidationTest.CONFIGURATION, ValidationTest.CONNECTIONS]
+});
 
 export default class DeployServiceConfig extends BaseDeployCommand {
   static description = 'Deploy only service config changes (without sync config updates).';
@@ -8,6 +17,7 @@ export default class DeployServiceConfig extends BaseDeployCommand {
     '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id>'
   ];
   static flags = {
+    ...SERVICE_CONFIG_VALIDATION_FLAGS.flags,
     ...BaseDeployCommand.flags
   };
   static summary = '[Cloud only] Deploy only local service config to the linked Cloud instance.';
@@ -29,10 +39,19 @@ export default class DeployServiceConfig extends BaseDeployCommand {
     const cloudConfigState = await this.loadCloudConfigState();
 
     this.log('Performing validations before deploy...');
-    await this.validateServiceConfig({ cloudConfigState });
-    await this.testConnections();
+    const validationsFilter = SERVICE_CONFIG_VALIDATION_FLAGS.parseValidationTestFlags(flags);
+    const validationRunner = new ValidationsRunner({
+      skippedTests: validationsFilter.skipped,
+      tests: getCloudValidations({ project, tests: validationsFilter.testsToRun })
+    });
 
-    this.log('Validations completed successfully.\n');
+    const result = await validationRunner.runWithProgress({ printSummary: (summary) => this.log(summary) });
+    if (!result.passed) {
+      this.styledError({
+        message: 'Validation tests failed. Fix the issues and try deploying again.',
+        suggestions: ['Review the validation test results above, fix any issues, and run deploy again.']
+      });
+    }
 
     await this.deployAll({ cloudConfigState, deployTimeoutMs, updateSyncConfig: false });
   }

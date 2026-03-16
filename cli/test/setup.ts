@@ -53,6 +53,19 @@ class MockPowerSyncManagementClient {
   }
 }
 
+// Mocked for core-api usages
+vi.mock('../../packages/cli-core/dist/clients/create-cloud-client.js', async () => ({
+  createCloudClient: () => managementClientMock
+}));
+
+// Mocked for usages in this package's imports.
+vi.mock('@powersync/cli-core', async () => {
+  const actual = await vi.importActual('@powersync/cli-core');
+  return {
+    ...actual,
+    createCloudClient: () => managementClientMock
+  };
+});
 vi.mock('@powersync/management-client', () => ({
   PowerSyncManagementClient: MockPowerSyncManagementClient
 }));

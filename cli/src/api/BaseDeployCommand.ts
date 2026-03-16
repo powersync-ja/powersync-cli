@@ -5,15 +5,7 @@ import { routes } from '@powersync/management-types';
 import { ObjectId } from 'bson';
 import ora from 'ora';
 
-import { formatTestConnectionFailure, testCloudConnections } from './cloud/test-connection.js';
 import { DEFAULT_DEPLOY_TIMEOUT_MS, waitForOperationStatusChange } from './cloud/wait-for-operation.js';
-
-export const SKIP_SYNC_CONFIG_VALIDATION_FLAG = {
-  'skip-sync-config-validation': Flags.boolean({
-    default: false,
-    description: 'Skip sync config validation and continue with the deploy.'
-  })
-};
 
 export default abstract class BaseDeployCommand extends CloudInstanceCommand {
   static flags = {
@@ -157,42 +149,6 @@ export default abstract class BaseDeployCommand extends CloudInstanceCommand {
     }
   }
 
-  protected async testConnections(): Promise<void> {
-    const { client, project } = this;
-    const { linked } = project;
-    const { serviceConfig } = this;
-    if (!serviceConfig) {
-      this.styledError({
-        message: `Service config not loaded. Ensure ${SERVICE_FILENAME} is present and valid.`
-      });
-    }
-
-    this.log('\tTesting connections...');
-    if ((serviceConfig.replication?.connections?.length ?? 0) <= 0) {
-      this.styledError({
-        message: 'No connection found in config.',
-        suggestions: ['Add a connection to the config in replication->connections before deploying.']
-      });
-    }
-
-    const connectionResults = await testCloudConnections(
-      client,
-      linked,
-      serviceConfig.replication?.connections ?? []
-    ).catch((error) => {
-      this.styledError({
-        error,
-        message: 'Failed to test connections',
-        suggestions: ['Check your network connection and try again.', 'If the problem persists, contact support.']
-      });
-    });
-    for (const { connectionName, response } of connectionResults) {
-      if (response.success !== true) {
-        this.styledError({ message: formatTestConnectionFailure(response, connectionName) });
-      }
-    }
-  }
-
   protected async validateServiceConfig(params: { cloudConfigState: routes.InstanceConfigResponse }): Promise<void> {
     const { cloudConfigState } = params;
     const { linked } = this.project;
@@ -229,49 +185,6 @@ export default abstract class BaseDeployCommand extends CloudInstanceCommand {
       this.styledError({
         message: `The region ${serviceConfig.region} is not supported. Please choose a region from the list of supported regions: ${regions.regions.map((region) => region.name).join(', ')}.`
       });
-    }
-  }
-
-  protected async validateSyncConfig() {
-    const { client, project } = this;
-    // It might take a while for the instance to be fully provisioned after the deploy, so we retry the validation until it succeeds or we hit the timeout
-    for (let retry = 0; retry < 100; retry++) {
-      const validation = await client
-        .validateSyncRules({
-          app_id: project.linked.project_id,
-          id: project.linked.instance_id,
-          org_id: project.linked.org_id,
-          sync_rules: project.syncRulesContent ?? ''
-        })
-        .catch((error) => {
-          if (retry === 99) {
-            this.styledError({
-              error,
-              message: `Failed to validate sync config for instance ${project.linked.instance_id} in project ${project.linked.project_id} in org ${project.linked.org_id}. Ensure the sync config is valid before deploying.`,
-              suggestions: ['Check your sync config and try again.']
-            });
-          } else {
-            // signal a retry
-            return null;
-          }
-        });
-
-      if (!validation) {
-        await new Promise((resolve) => {
-          setTimeout(resolve, 1000);
-        });
-        continue;
-      }
-
-      if (validation.errors.some((error) => error.level === 'fatal')) {
-        this.styledError({
-          message: `Sync config validation failed for instance. Validation errors:\n${validation.errors.map((error) => error.message).join('\n')}`,
-          suggestions: ['Check your sync config and try again.']
-        });
-      }
-
-      // Validation succeeded with no errors
-      return;
     }
   }
 

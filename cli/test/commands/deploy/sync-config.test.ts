@@ -219,12 +219,12 @@ describe('deploy:sync-config', () => {
     expect(result.error?.message).toMatch(/mock deploy failure/);
   });
 
-  it('skips sync config validation when --skip-sync-config-validation is passed', async () => {
+  it('skips sync config validation when --skip-validations=sync-config is passed', async () => {
     const projectDir = makeProjectDir(tmpDir);
     writeLinkYaml(projectDir);
     writeFileSync(join(projectDir, SYNC_FILENAME), SYNC_CONFIG_CONTENT, 'utf8');
 
-    const result = await runSyncConfigDirect(['--skip-sync-config-validation']);
+    const result = await runSyncConfigDirect(['--skip-validations=sync-config']);
 
     expect(managementClientMock.validateSyncRules).not.toHaveBeenCalled();
     expect(managementClientMock.deployInstance).toHaveBeenCalled();

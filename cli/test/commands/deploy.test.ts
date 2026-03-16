@@ -1,6 +1,6 @@
 import { Config } from '@oclif/core';
 import { captureOutput, runCommand } from '@oclif/test';
-import { CLI_FILENAME, SERVICE_FILENAME } from '@powersync/cli-core';
+import { CLI_FILENAME, SERVICE_FILENAME, SYNC_FILENAME } from '@powersync/cli-core';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -35,6 +35,10 @@ function writeServiceYaml(projectDir: string, type: 'cloud' | 'self-hosted') {
 function writeLinkYaml(projectDir: string, opts: { instance_id: string; org_id: string; project_id: string }) {
   const content = `type: cloud\ninstance_id: ${opts.instance_id}\norg_id: ${opts.org_id}\nproject_id: ${opts.project_id}\n`;
   writeFileSync(join(projectDir, CLI_FILENAME), content, 'utf8');
+}
+
+function writeSyncConfigYaml(projectDir: string) {
+  writeFileSync(join(projectDir, SYNC_FILENAME), 'bucket_definitions:\n  global:\n    include: true\n', 'utf8');
 }
 
 describe('deploy', () => {
@@ -123,6 +127,7 @@ describe('deploy', () => {
       const projectDir = join(tmpDir, PROJECT_DIR);
       mkdirSync(projectDir, { recursive: true });
       writeServiceYaml(projectDir, 'cloud');
+      writeSyncConfigYaml(projectDir);
       writeLinkYaml(projectDir, { instance_id: INSTANCE_ID, org_id: ORG_ID, project_id: PROJECT_ID });
     });
 
@@ -143,8 +148,8 @@ describe('deploy', () => {
       );
     });
 
-    it('skips sync config validation when --skip-sync-config-validation is passed', async () => {
-      const result = await runDeployDirect({ args: ['--skip-sync-config-validation'] });
+    it('skips sync config validation when --skip-validations=sync-config is passed', async () => {
+      const result = await runDeployDirect({ args: ['--skip-validations=sync-config'] });
       expect(managementClientMock.validateSyncRules).not.toHaveBeenCalled();
       expect(managementClientMock.deployInstance).toHaveBeenCalled();
       expect(result.error?.message).toMatch(

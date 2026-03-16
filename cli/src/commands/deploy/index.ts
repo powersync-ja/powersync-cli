@@ -1,7 +1,12 @@
 import { ux } from '@oclif/core';
 
-import BaseDeployCommand, { SKIP_SYNC_CONFIG_VALIDATION_FLAG } from '../../api/BaseDeployCommand.js';
+import BaseDeployCommand from '../../api/BaseDeployCommand.js';
 import { DEFAULT_DEPLOY_TIMEOUT_MS } from '../../api/cloud/wait-for-operation.js';
+import { getCloudValidations } from '../../api/validations/cloud-validations.js';
+import { GENERAL_VALIDATION_FLAG_HELPERS } from '../../api/validations/validation-flags.js';
+import { formatValidationHuman } from '../../api/validations/validation-utils.js';
+import { ValidationsRunner } from '../../api/validations/ValidationsRunner.js';
+import { ValidationTest } from '../../api/validations/ValidationTestDefinition.js';
 
 export default class DeployAll extends BaseDeployCommand {
   static description = [
@@ -16,7 +21,7 @@ export default class DeployAll extends BaseDeployCommand {
   ];
   static flags = {
     ...BaseDeployCommand.flags,
-    ...SKIP_SYNC_CONFIG_VALIDATION_FLAG
+    ...GENERAL_VALIDATION_FLAG_HELPERS.flags
   };
   static summary = '[Cloud only] Deploy local config to the linked Cloud instance (connections + auth + sync config).';
 
@@ -39,6 +44,8 @@ export default class DeployAll extends BaseDeployCommand {
     // Start of validations
     this.log('Performing validations before deploy...');
 
+    const validationTestsFilter = GENERAL_VALIDATION_FLAG_HELPERS.parseValidationTestFlags(flags);
+
     const instanceStatus = await this.client
       .getInstanceStatus({
         app_id: project.linked.project_id,
@@ -56,38 +63,76 @@ export default class DeployAll extends BaseDeployCommand {
     const requiresReprovision = instanceStatus.provisioned === false;
     const syncConfigHasChanges = project.syncRulesContent !== cloudConfigState.sync_rules;
 
-    await this.validateServiceConfig({ cloudConfigState });
-    await this.testConnections();
+    let didReprovision = false;
 
-    if (flags['skip-sync-config-validation']) {
-      this.log(ux.colorize('yellow', '\tSkipping sync config validation.'));
-    } else {
+    if (requiresReprovision && validationTestsFilter.testsToRun.includes(ValidationTest['SYNC-CONFIG'])) {
       /**
-       * At this point we know the instances is deprovisioned, and the current config is valid.
-       * We can't verify the sync config yet - since that requires a provisioned instance.
-       * We will attempt to deploy the config without the sync config first,
-       * if that succeeds, then we will validate the sync config and deploy again with the sync config.
+       * The instance is deprovisioned and sync-config validation is requested.
+       * Sync-config validation requires a provisioned instance, so we can't validate it yet.
+       * We must first validate everything else, reprovision, and then validate sync-config separately.
        */
-      if (requiresReprovision) {
-        this.log(
-          [
-            `The instance is ${ux.colorize('yellow', 'not currently provisioned')} and we have detected changes to the sync config.`,
-            `To ensure the instance is successfully provisioned with a valid config, we will first deploy without the sync config, then validate and deploy again with the sync config.`
-          ].join('\n')
-        );
-
-        await this.provision({
-          cloudConfigState,
-          deployTimeoutMs,
-          indentationLevel: 1
+      const runner = new ValidationsRunner({
+        skippedTests: validationTestsFilter.skipped,
+        tests: getCloudValidations({
+          project,
+          // We only remove the sync-config validation, this allows users to additionally skip other validations like connections and service config.
+          tests: validationTestsFilter.testsToRun.filter((test) => test !== ValidationTest['SYNC-CONFIG'])
+        })
+      });
+      const intermediateResult = await runner.run();
+      // Always print the intermediate results so the user can see those tests passed before we reprovision.
+      this.log(formatValidationHuman(intermediateResult));
+      if (!intermediateResult.passed) {
+        this.styledError({
+          message:
+            'The instance is currently deprovisioned. We need to reprovision the instance to validate the sync config, but there are other validation errors that need to be fixed first.',
+          suggestions: ['Review the validation test results above, fix any issues, and run deploy again.']
         });
       }
 
-      this.log('\tValidating sync config...');
-      await this.validateSyncConfig();
+      /**
+       * The non-sync-config validations passed. Reprovision now so that the instance is active
+       * and we can validate the sync config against it in the second pass below.
+       */
+      this.log(
+        [
+          `The instance is ${ux.colorize('yellow', 'not currently provisioned')} and we have detected changes to the sync config.`,
+          `To ensure the instance is successfully provisioned with a valid config, we will first deploy without the sync config, then validate and deploy again with the sync config.`
+        ].join('\n')
+      );
+
+      await this.provision({
+        cloudConfigState,
+        deployTimeoutMs,
+        indentationLevel: 1
+      });
+      didReprovision = true;
     }
 
-    this.log('Validations completed successfully.\n');
+    /**
+     * Run the final validation pass.
+     * If we reprovisioned above, all non-sync-config tests already passed and their results were
+     * printed, so we only need to run SYNC-CONFIG here. We don't re-list the already-run tests
+     * as skipped either — the printed intermediate results already communicated their status.
+     * If no reprovision was needed, run all requested tests as normal.
+     */
+    const finalTestsToRun = didReprovision ? [ValidationTest['SYNC-CONFIG']] : validationTestsFilter.testsToRun;
+    // Always use only the user-specified skipped tests. If we reprovisioned, all other requested tests
+    // already ran and their results were printed — there's no need to re-surface them as skipped here.
+    const finalSkippedTests = validationTestsFilter.skipped;
+
+    const runner = new ValidationsRunner({
+      skippedTests: finalSkippedTests,
+      tests: getCloudValidations({ project, tests: finalTestsToRun })
+    });
+
+    const result = await runner.runWithProgress({ printSummary: (summary) => this.log(summary) });
+    if (!result.passed) {
+      this.styledError({
+        message: 'Validation tests failed. Fix the issues and try deploying again.',
+        suggestions: ['Review the validation test results above, fix any issues, and run deploy again.']
+      });
+    }
 
     await this.deployAll({ cloudConfigState, deployTimeoutMs, updateSyncConfig: syncConfigHasChanges });
   }
