@@ -263,7 +263,7 @@ export default abstract class BaseDeployCommand extends CloudInstanceCommand {
         continue;
       }
 
-      if (validation.errors.length > 0) {
+      if (validation.errors.some((error) => error.level === 'fatal')) {
         this.styledError({
           message: `Sync config validation failed for instance. Validation errors:\n${validation.errors.map((error) => error.message).join('\n')}`,
           suggestions: ['Check your sync config and try again.']
