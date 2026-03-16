@@ -37,7 +37,7 @@ export default class GenerateSchema extends SharedInstanceCommand {
 
   async getCloudSchema(project: CloudProject): Promise<routes.GetSchemaResponse> {
     const { linked } = project;
-    const client = await createCloudClient();
+    const client = createCloudClient();
     return client.getInstanceSchema({
       app_id: linked.project_id,
       id: linked.instance_id,
