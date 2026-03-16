@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://unpkg.com/@powersync/service-sync-rules@latest/schema/sync_rules.json
 #
 # See Documentation for more information:
-# https://docs.powersync.com/usage/sync-rules
+# https://docs.powersync.com/sync/overview
 
 config:
   edition: 3

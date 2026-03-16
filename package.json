@@ -17,13 +17,14 @@
     "build": "pnpm -r run build",
     "build:packages": "pnpm -r run build",
     "clean": "pnpm -r run clean",
-    "changeset:version": "pnpm changeset version && pnpm install --lockfile-only --frozen-lockfile=false",
+    "changeset:version": "pnpm changeset version && pnpm -r --if-present run version && pnpm install --lockfile-only --frozen-lockfile=false",
     "release": "pnpm build:packages && pnpm changeset publish",
     "format:write": "pnpm prettier --write .",
     "lint:fix": "pnpm -r --if-present run lint --fix",
     "test": "pnpm -r run test",
     "configure-hooks": "husky",
-    "prepare": "husky"
+    "prepare": "husky",
+    "powersync-dev": "pnpm  -C cli run  build && pnpm exec node --inspect --enable-source-maps --import  tsx ./cli/bin/dev.js"
   },
   "engines": {
     "node": ">=24"

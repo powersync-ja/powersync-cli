@@ -65,8 +65,8 @@ importers:
         specifier: ^5
         version: 5.4.55
       '@powersync-community/sync-config-rewriter':
-        specifier: ^0.1.2
-        version: 0.1.2
+        specifier: ^0.1.3
+        version: 0.1.3
       '@powersync/cli-core':
         specifier: workspace:*
         version: link:../packages/cli-core
@@ -317,8 +317,8 @@ importers:
         specifier: ^0.0.3
         version: 0.0.3(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)
       '@powersync/service-schema':
-        specifier: ^1.20.0
-        version: 1.20.0
+        specifier: ^1.20.1
+        version: 1.20.1
       '@powersync/service-types':
         specifier: ^0.15.0
         version: 0.15.0
@@ -391,8 +391,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/schemas
       '@powersync/service-schema':
-        specifier: ^1.20.0
-        version: 1.20.0
+        specifier: ^1.20.1
+        version: 1.20.1
       '@powersync/service-types':
         specifier: ^0.15.0
         version: 0.15.0
@@ -1689,8 +1689,8 @@ packages:
     resolution: {integrity: sha512-h104Kh26rR8tm+a3Qkc5S4VLYint3FE48as7+/5oCEcKR2idC/pF1G6AhIXKI+eHPJa/3J9i5z0Al47IeGHPkA==}
     engines: {node: '>=12'}
 
-  '@powersync-community/sync-config-rewriter@0.1.2':
-    resolution: {integrity: sha512-jryYG/JeqSWnTd6C0sEt8WCC7CjVL55WywQJcQfsaazHyxDX4aRSK0YeKy2qcQItAWQs6tOOFAJ94Mi74wLXmg==}
+  '@powersync-community/sync-config-rewriter@0.1.3':
+    resolution: {integrity: sha512-YplQooBwcAMwuJEhRfEVzANH45eP+8ixJAegoAhpN0YVqZSP7oc0/U1wOSmfgYeV9rGSobqeRHSV5ti829hegQ==}
 
   '@powersync/lib-services-framework@0.8.3':
     resolution: {integrity: sha512-qiAXwvXePJ1rfISSmMUy72zZhAHZio4zX6meZXO+PdweN7+UX3Dpbn258XqqguYLPBua0tO5wL3oq6WxFHp4iw==}
@@ -1719,8 +1719,8 @@ packages:
   '@powersync/service-rsocket-router@0.2.15':
     resolution: {integrity: sha512-diiukOxBqlv3+ecT0yAzP8ZY6H7BnrtsC7diiPiqS2K26IVzVTl55L2oZdmCHZvN/K5f9HuOC3BWF3rMvqzo0w==}
 
-  '@powersync/service-schema@1.20.0':
-    resolution: {integrity: sha512-y3qdf0LjURJ6yo+uxLA+g7MaS/OQRul3iyqn6u02GGAYPk9/iZuAhoTxKl+hTwY16vDUvs49XQt3hpCFC8u4Mg==}
+  '@powersync/service-schema@1.20.1':
+    resolution: {integrity: sha512-NH045fvrVrn2rkkFG4oREzD2kdX7NzXiS1d1V8U04+ck+26c+56yWYPQKBymovU3QGLNdwkFz/OWcNYnIN4n1w==}
 
   '@powersync/service-sync-rules@0.32.0':
     resolution: {integrity: sha512-KGISJPucXcPBJ5mhtYrR9xZmjR/VV3gkwGnAColxFy0MdFc+9Qq/2aZpNJsAWHTpGKKlcX0OuOBbsS/anXeWRg==}
@@ -9338,7 +9338,7 @@ snapshots:
       '@pnpm/network.ca-file': 1.0.2
       config-chain: 1.1.13
 
-  '@powersync-community/sync-config-rewriter@0.1.2': {}
+  '@powersync-community/sync-config-rewriter@0.1.3': {}
 
   '@powersync/lib-services-framework@0.8.3':
     dependencies:
@@ -9598,7 +9598,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@powersync/service-schema@1.20.0': {}
+  '@powersync/service-schema@1.20.1': {}
 
   '@powersync/service-sync-rules@0.32.0':
     dependencies:
