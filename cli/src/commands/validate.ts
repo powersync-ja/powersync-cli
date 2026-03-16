@@ -24,9 +24,9 @@ import {
   runSyncConfigTestCloud,
   runSyncConfigTestSelfHosted,
   ValidationTest,
-  type ValidationTestDef,
+  type ValidationTestDefinition,
   type ValidationTestEntry
-} from '../api/run-validation-tests.js';
+} from '../api/validations/ValidationTestDefinition.js';
 
 export default class Validate extends SharedInstanceCommand {
   static description =
@@ -55,7 +55,7 @@ export default class Validate extends SharedInstanceCommand {
 
     const isCloud = project.linked.type === 'cloud';
 
-    const testDefs: ValidationTestDef[] = [
+    const testDefs: ValidationTestDefinition[] = [
       { name: ValidationTest['CONFIGURATION-SCHEMA'], run: () => runConfigTest(project.projectDirectory, isCloud) },
       ...(isCloud
         ? [
