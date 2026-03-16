@@ -27,7 +27,7 @@ export const BULLET = '•';
 /**
  * Definition of a test: display name and async runner function.
  */
-export type ValidationTestDef = {
+export type ValidationTestDefinition = {
   name: string;
   run: () => Promise<ValidationTestRunResult>;
 };
