@@ -44,10 +44,10 @@ export type ValidationTestEntry = {
 /**
  * Named test buckets used by the validate command.
  */
-export enum Tests {
-  CONFIGURATION_SCHEMA = 'Validate Configuration Schema',
-  SYNC_RULES = 'Validate Sync Config',
-  TEST_CONNECTIONS = 'Test Connections'
+export enum ValidationTest {
+  'CONFIGURATION-SCHEMA' = 'Validate Configuration Schema',
+  'CONNECTIONS' = 'Test Connections',
+  'SYNC-CONFIG' = 'Validate Sync Config'
 }
 
 /**
@@ -193,7 +193,7 @@ export async function runConfigTest(projectDir: string, isCloud: boolean): Promi
 /**
  * Runs cloud sync-rules validation and maps diagnostics into warning/error message arrays.
  */
-export async function runSyncRulesTestCloud(project: CloudProject): Promise<SyncValidationTestRunResult> {
+export async function runSyncConfigTestCloud(project: CloudProject): Promise<SyncValidationTestRunResult> {
   const syncRulesPath = join(project.projectDirectory, SYNC_FILENAME);
   const syncRulesContent =
     project.syncRulesContent ?? (existsSync(syncRulesPath) ? readFileSync(syncRulesPath, 'utf8') : undefined);
@@ -228,7 +228,7 @@ export async function runSyncRulesTestCloud(project: CloudProject): Promise<Sync
 /**
  * Runs self-hosted sync-rules validation and maps diagnostics into warning/error message arrays.
  */
-export async function runSyncRulesTestSelfHosted(project: SelfHostedProject): Promise<SyncValidationTestRunResult> {
+export async function runSyncConfigTestSelfHosted(project: SelfHostedProject): Promise<SyncValidationTestRunResult> {
   const syncRulesPath = join(project.projectDirectory, SYNC_FILENAME);
   const syncRulesContent = existsSync(syncRulesPath) ? readFileSync(syncRulesPath, 'utf8') : undefined;
   const syncText = syncRulesContent ?? '';

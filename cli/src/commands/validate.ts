@@ -21,9 +21,9 @@ import {
   INDENT,
   renderWarningForHumanOutput,
   runConfigTest,
-  runSyncRulesTestCloud,
-  runSyncRulesTestSelfHosted,
-  Tests,
+  runSyncConfigTestCloud,
+  runSyncConfigTestSelfHosted,
+  ValidationTest,
   type ValidationTestDef,
   type ValidationTestEntry
 } from '../api/run-validation-tests.js';
@@ -56,12 +56,12 @@ export default class Validate extends SharedInstanceCommand {
     const isCloud = project.linked.type === 'cloud';
 
     const testDefs: ValidationTestDef[] = [
-      { name: Tests.CONFIGURATION_SCHEMA, run: () => runConfigTest(project.projectDirectory, isCloud) },
+      { name: ValidationTest['CONFIGURATION-SCHEMA'], run: () => runConfigTest(project.projectDirectory, isCloud) },
       ...(isCloud
         ? [
-            { name: Tests.TEST_CONNECTIONS, run: () => this.runConnectionTestCloud(project as CloudProject) },
+            { name: ValidationTest.CONNECTIONS, run: () => this.runConnectionTestCloud(project as CloudProject) },
             {
-              name: Tests.SYNC_RULES,
+              name: ValidationTest['SYNC-CONFIG'],
               async run() {
                 // We can only validate sync rules against a provisioned instance, so ensure that's the case before running the test.
                 const client = createCloudClient();
@@ -82,11 +82,16 @@ export default class Validate extends SharedInstanceCommand {
                   };
                 }
 
-                return runSyncRulesTestCloud(project as CloudProject);
+                return runSyncConfigTestCloud(project as CloudProject);
               }
             }
           ]
-        : [{ name: Tests.SYNC_RULES, run: () => runSyncRulesTestSelfHosted(project as SelfHostedProject) }])
+        : [
+            {
+              name: ValidationTest['SYNC-CONFIG'],
+              run: () => runSyncConfigTestSelfHosted(project as SelfHostedProject)
+            }
+          ])
     ];
 
     const testEntries: ValidationTestEntry[] = testDefs.map((def) => ({
