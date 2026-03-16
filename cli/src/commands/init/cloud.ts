@@ -5,16 +5,19 @@ import {
   InstanceCommand,
   SERVICE_FILENAME,
   SYNC_FILENAME,
-  YAML_CLI_SCHEMA,
-  YAML_SERVICE_SCHEMA,
-  YAML_SYNC_RULES_SCHEMA
+  YAML_SERVICE_SCHEMA
 } from '@powersync/cli-core';
-import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const TEMPLATES_DIR = join(__dirname, '..', '..', '..', 'templates');
+import { buildServiceYaml } from '../../api/build-service-yaml.js';
+import {
+  CLOUD_CLI_TEMPLATE_PATH,
+  CLOUD_SERVICE_TEMPLATE_PATH,
+  CLOUD_SYNC_CONFIG_TEMPLATE_PATH,
+  CLOUD_TEMPLATES_DIR,
+  writeCloudTemplateFiles
+} from '../../api/cloud/create-cloud-template.js';
 
 export default class InitCloud extends InstanceCommand {
   static commandHelpGroup = CommandHelpGroup.PROJECT_SETUP;
@@ -40,23 +43,31 @@ export default class InitCloud extends InstanceCommand {
       });
     }
 
-    const templatePath = join(TEMPLATES_DIR, 'cloud', 'powersync');
-    if (!existsSync(templatePath)) {
+    if (!existsSync(CLOUD_TEMPLATES_DIR)) {
       this.styledError({
-        message: `Template not found for cloud at ${templatePath}`
+        message: `Template not found for cloud at ${CLOUD_TEMPLATES_DIR}`
       });
     }
 
     mkdirSync(targetDir, { recursive: true });
-    cpSync(templatePath, targetDir, { recursive: true });
+    copyFileSync(CLOUD_CLI_TEMPLATE_PATH, join(targetDir, CLI_FILENAME));
+    copyFileSync(CLOUD_SYNC_CONFIG_TEMPLATE_PATH, join(targetDir, SYNC_FILENAME));
 
     const servicePath = join(targetDir, SERVICE_FILENAME);
-    const syncPath = join(targetDir, SYNC_FILENAME);
-    const cliPath = join(targetDir, CLI_FILENAME);
 
-    writeFileSync(servicePath, `${YAML_SERVICE_SCHEMA}\n\n${readFileSync(servicePath, 'utf8')}`);
-    writeFileSync(syncPath, `${YAML_SYNC_RULES_SCHEMA}\n\n${readFileSync(syncPath, 'utf8')}`);
-    writeFileSync(cliPath, `${YAML_CLI_SCHEMA}\n\n${readFileSync(cliPath, 'utf8')}`);
+    const renderedServiceYaml = buildServiceYaml({
+      baseConfig: {
+        _type: 'cloud',
+        name: 'my-cli-instance',
+        region: 'us'
+      },
+      schemaHeader: YAML_SERVICE_SCHEMA,
+      templatePath: CLOUD_SERVICE_TEMPLATE_PATH
+    });
+
+    writeFileSync(servicePath, renderedServiceYaml);
+
+    await writeCloudTemplateFiles({ targetDir });
 
     const instructions = [
       'Create a new instance with ',

@@ -1,7 +1,7 @@
 {
   "name": "@powersync/cli-plugin-docker",
   "description": "PowerSync CLI plugin: reset, start, and stop self-hosted instances using Docker Compose",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "author": "POWERSYNC",
   "license": "FSL-1.1-ALv2",
   "type": "module",
@@ -32,8 +32,8 @@
     "@oclif/core": "^4",
     "@powersync/cli-core": "workspace:*",
     "@powersync/cli-schemas": "workspace:*",
+    "@powersync/service-schema": "^1.20.1",
     "@powersync/service-types": "^0.15.0",
-    "@powersync/service-schema": "^1.20.0",
     "yaml": "^2"
   },
   "devDependencies": {

@@ -1,7 +1,7 @@
 {
   "name": "@powersync/cli-core",
   "description": "Core types and base commands for PowerSync CLI and plugins (shared by CLI and plugin-docker).",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "license": "FSL-1.1-ALv2",
   "author": "POWERSYNC",
   "type": "module",
@@ -32,8 +32,8 @@
     "@journeyapps-labs/micro-errors": "^1.0.1",
     "yaml": "^2",
     "@journeyapps-labs/common-sdk": "1.0.2",
-    "@powersync/management-client": "0.0.0-dev.ec9d802b",
-    "@powersync/management-types": "0.0.0-dev.ec9d802b",
+    "@powersync/management-client": "^0.0.6",
+    "@powersync/management-types": "^0.0.5",
     "@powersync/service-client": "^0.0.3",
     "keychain": "^1.5.0"
   },

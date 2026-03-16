@@ -1,5 +1,12 @@
 # @powersync/cli-plugin-docker
 
+## 0.9.2
+
+### Patch Changes
+
+- @powersync/cli-core@0.9.2
+- @powersync/cli-schemas@0.9.2
+
 ## 0.9.1
 
 ### Patch Changes

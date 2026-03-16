@@ -9,9 +9,12 @@ import {
   YAML_SERVICE_SCHEMA,
   YAML_SYNC_RULES_SCHEMA
 } from '@powersync/cli-core';
-import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { BaseServiceSelfHostedConfig } from '@powersync/cli-schemas';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { buildServiceYaml } from '../../api/build-service-yaml.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATES_DIR = join(__dirname, '..', '..', '..', 'templates');
@@ -48,13 +51,38 @@ export default class InitSelfHosted extends InstanceCommand {
     }
 
     mkdirSync(targetDir, { recursive: true });
-    cpSync(templatePath, targetDir, { recursive: true });
+    copyFileSync(join(templatePath, CLI_FILENAME), join(targetDir, CLI_FILENAME));
+    copyFileSync(join(templatePath, SYNC_FILENAME), join(targetDir, SYNC_FILENAME));
 
     const servicePath = join(targetDir, SERVICE_FILENAME);
     const syncPath = join(targetDir, SYNC_FILENAME);
     const cliPath = join(targetDir, CLI_FILENAME);
 
-    writeFileSync(servicePath, `${YAML_SERVICE_SCHEMA}\n\n${readFileSync(servicePath, 'utf8')}`);
+    const serviceTemplatePath = join(templatePath, 'service.template.yaml');
+    const renderedServiceYaml = buildServiceYaml({
+      baseConfig: {
+        _type: 'self-hosted',
+        api: {
+          tokens: ['use_a_better_token_in_production']
+        },
+        replication: {
+          connections: []
+        },
+        // This is just used as a placeholder
+        storage: {} as BaseServiceSelfHostedConfig['storage'],
+        sync_config: {
+          path: 'sync-config.yaml'
+        },
+        telemetry: {
+          disable_telemetry_sharing: false
+        }
+      },
+      schemaHeader: YAML_SERVICE_SCHEMA,
+      templatePath: serviceTemplatePath,
+      templateReplacementPaths: [['storage']]
+    });
+
+    writeFileSync(servicePath, renderedServiceYaml);
     writeFileSync(syncPath, `${YAML_SYNC_RULES_SCHEMA}\n\n${readFileSync(syncPath, 'utf8')}`);
     writeFileSync(cliPath, `${YAML_CLI_SCHEMA}\n\n${readFileSync(cliPath, 'utf8')}`);
 
