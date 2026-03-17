@@ -166,12 +166,3 @@ export function renderDiagnosticForHumanOutput(diagnostic: string, level: 'error
 
   return lines;
 }
-
-/**
- * Renders a warning into two lines for human output:
- * 1) gray source fragment
- * 2) yellow `[warning] line:column` prefix followed by plain message text
- */
-export function renderWarningForHumanOutput(warning: string): string[] {
-  return renderDiagnosticForHumanOutput(warning, 'warning');
-}
