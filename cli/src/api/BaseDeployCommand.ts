@@ -136,6 +136,38 @@ export default abstract class BaseDeployCommand extends CloudInstanceCommand {
         timeoutMs: deployTimeoutMs
       });
 
+      /**
+       * We typically want to perform a sync config validation after a (re)provision.
+       * Even though we wait for the deploy operation above, the request to validate sync config
+       * can still fail due to the error
+       * [INTERNAL_SERVER_ERROR] Something went wrong
+       *  getaddrinfo ENOTFOUND 69b8fec1358aa0646ff0ce71.powersync.journeyapps.com
+       * Which indicates that the API runner is not active yet.
+       * For this reason, we poll the diagnostics API until we get some successful response from the API
+       */
+      for (let retryCount = 0; retryCount < 5; retryCount++) {
+        try {
+          const { linked } = this.project;
+          await this.client.getInstanceDiagnostics({
+            app_id: linked.project_id,
+            id: linked.instance_id,
+            org_id: linked.org_id
+          });
+          // We reached the instance
+          break;
+        } catch {
+          if (retryCount === 4) {
+            throw new Error(
+              'Failed to reach instance after provision. Please check the instance status and try again.'
+            );
+          }
+
+          await new Promise<void>((resolve) => {
+            setTimeout(resolve, 5000);
+          });
+        }
+      }
+
       spinner.stop();
     } catch (error) {
       spinner.stop();
