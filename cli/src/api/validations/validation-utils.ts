@@ -10,10 +10,16 @@ const INDENT = '  ';
 /** Bullet character used for list rows in human-readable output. */
 const BULLET = '•';
 
-const PRETTY_TEST_NAMES: Record<ValidationTest, string> = {
-  [ValidationTest.CONFIGURATION]: 'Configuration Schema',
-  [ValidationTest.CONNECTIONS]: 'Connections',
-  [ValidationTest['SYNC-CONFIG']]: 'Sync Config'
+/**
+ * Stable output names used as the `name` field in JSON/YAML output.
+ * These match the values from before the ValidationTest enum was refactored to kebab-case IDs,
+ * preserving backward compatibility for scripts that pattern-match `--output=json|yaml` results.
+ * Also used as display names in human-readable terminal output.
+ */
+export const STABLE_OUTPUT_NAMES: Record<ValidationTest, string> = {
+  [ValidationTest.CONFIGURATION]: 'Validate Configuration Schema',
+  [ValidationTest.CONNECTIONS]: 'Test Connections',
+  [ValidationTest['SYNC-CONFIG']]: 'Validate Sync Config'
 };
 
 /**
@@ -27,7 +33,7 @@ export function formatOraMessage(
   return tests
     .map((test) => {
       const result = entries.get(test);
-      const prettyName = PRETTY_TEST_NAMES[test] ?? test;
+      const prettyName = STABLE_OUTPUT_NAMES[test] ?? test;
       return result === undefined ? `\t... ${prettyName}` : result.passed ? `\t✓ ${prettyName}` : `\t✗ ${prettyName}`;
     })
     .join('\n');
@@ -45,7 +51,7 @@ export function formatValidationErrorHuman(error: unknown): string {
  */
 function formatTestResultHuman(test: ValidationTestResult): string {
   const status = test.passed ? '✓' : '✗';
-  const name = `${status} ${PRETTY_TEST_NAMES[test.name as ValidationTest] ?? test.name}`;
+  const name = `${status} ${STABLE_OUTPUT_NAMES[test.name as ValidationTest] ?? test.name}`;
   if (test.prettyOutput) {
     // Use custom pretty output if provided.
     return `${name}\n${test.prettyOutput}`;

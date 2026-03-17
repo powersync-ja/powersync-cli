@@ -2,7 +2,7 @@ import { BaseObserver } from '@journeyapps-labs/common-utils';
 import { ValidationResult, ValidationTestRunResult } from '@powersync/cli-core';
 import ora from 'ora';
 
-import { formatOraMessage, formatValidationHuman } from './validation-utils.js';
+import { formatOraMessage, formatValidationHuman, STABLE_OUTPUT_NAMES } from './validation-utils.js';
 import { ValidationTest, ValidationTestDefinition } from './ValidationTestDefinition.js';
 
 export interface ValidationsRunnerListener {
@@ -58,7 +58,11 @@ export class ValidationsRunner extends BaseObserver<ValidationsRunnerListener> {
       }
     }
 
-    const allResults = [...this.testResults.entries()].map(([name, result]) => ({ name, ...result }));
+    const allResults = [...this.testResults.entries()].map(([name, result]) => ({
+      id: name,
+      name: STABLE_OUTPUT_NAMES[name] ?? name,
+      ...result
+    }));
     const passed = allResults.every((result) => result.passed);
 
     return { passed, tests: allResults };

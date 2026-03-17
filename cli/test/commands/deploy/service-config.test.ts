@@ -151,6 +151,41 @@ describe('deploy:service-config', () => {
     });
   });
 
+  describe('--skip-validations / --validate-only', () => {
+    beforeEach(() => {
+      const projectDir = makeProjectDir(tmpDir);
+      writeServiceYaml(projectDir);
+      writeLinkYaml(projectDir);
+    });
+
+    it('calls testConnection when no flags are passed', async () => {
+      const result = await runServiceConfigDirect();
+      expect(managementClientMock.testConnection).toHaveBeenCalled();
+      expect(result.error?.message).toMatch(/mock deploy failure/);
+    });
+
+    it('does not call testConnection when --skip-validations=connections is passed', async () => {
+      const result = await runServiceConfigDirect(['--skip-validations=connections']);
+      expect(managementClientMock.testConnection).not.toHaveBeenCalled();
+      expect(managementClientMock.deployInstance).toHaveBeenCalled();
+      expect(result.error?.message).toMatch(/mock deploy failure/);
+    });
+
+    it('does not call testConnection when --validate-only=configuration is passed', async () => {
+      const result = await runServiceConfigDirect(['--validate-only=configuration']);
+      expect(managementClientMock.testConnection).not.toHaveBeenCalled();
+      expect(managementClientMock.deployInstance).toHaveBeenCalled();
+      expect(result.error?.message).toMatch(/mock deploy failure/);
+    });
+
+    it('calls testConnection when --validate-only=connections is passed', async () => {
+      const result = await runServiceConfigDirect(['--validate-only=connections']);
+      expect(managementClientMock.testConnection).toHaveBeenCalled();
+      expect(managementClientMock.deployInstance).toHaveBeenCalled();
+      expect(result.error?.message).toMatch(/mock deploy failure/);
+    });
+  });
+
   it('errors when service.yaml is missing', async () => {
     const projectDir = makeProjectDir(tmpDir);
     writeLinkYaml(projectDir);

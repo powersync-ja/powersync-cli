@@ -156,5 +156,42 @@ describe('deploy', () => {
         new RegExp(`Failed to .* instance ${INSTANCE_ID} in project ${PROJECT_ID} in org ${ORG_ID}`)
       );
     });
+
+    it('calls testConnection when validating connections before deploying', async () => {
+      const result = await runDeployDirect();
+      expect(managementClientMock.testConnection).toHaveBeenCalled();
+      expect(result.error?.message).toMatch(
+        new RegExp(`Failed to .* instance ${INSTANCE_ID} in project ${PROJECT_ID} in org ${ORG_ID}`)
+      );
+    });
+
+    it('does not call testConnection when --skip-validations=connections is passed', async () => {
+      const result = await runDeployDirect({ args: ['--skip-validations=connections'] });
+      expect(managementClientMock.testConnection).not.toHaveBeenCalled();
+      expect(managementClientMock.deployInstance).toHaveBeenCalled();
+      expect(result.error?.message).toMatch(
+        new RegExp(`Failed to .* instance ${INSTANCE_ID} in project ${PROJECT_ID} in org ${ORG_ID}`)
+      );
+    });
+
+    it('does not call testConnection when --validate-only=sync-config is passed', async () => {
+      const result = await runDeployDirect({ args: ['--validate-only=sync-config'] });
+      expect(managementClientMock.testConnection).not.toHaveBeenCalled();
+      expect(managementClientMock.validateSyncRules).toHaveBeenCalled();
+      expect(managementClientMock.deployInstance).toHaveBeenCalled();
+      expect(result.error?.message).toMatch(
+        new RegExp(`Failed to .* instance ${INSTANCE_ID} in project ${PROJECT_ID} in org ${ORG_ID}`)
+      );
+    });
+
+    it('does not call validateSyncRules when --validate-only=connections is passed', async () => {
+      const result = await runDeployDirect({ args: ['--validate-only=connections'] });
+      expect(managementClientMock.testConnection).toHaveBeenCalled();
+      expect(managementClientMock.validateSyncRules).not.toHaveBeenCalled();
+      expect(managementClientMock.deployInstance).toHaveBeenCalled();
+      expect(result.error?.message).toMatch(
+        new RegExp(`Failed to .* instance ${INSTANCE_ID} in project ${PROJECT_ID} in org ${ORG_ID}`)
+      );
+    });
   });
 });
