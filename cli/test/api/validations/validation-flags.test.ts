@@ -72,7 +72,7 @@ describe('generateValidationTestFlags', () => {
           GENERAL_VALIDATION_FLAG_HELPERS.parseValidationTestFlags({
             'skip-validations': 'not-a-real-test'
           })
-        ).toThrow(/Invalid validation test\(s\) specified in --validate-only/);
+        ).toThrow(/Invalid validation test\(s\) specified in --skip-validations/);
       });
 
       it('throws when mixed with a valid and an invalid test name', () => {

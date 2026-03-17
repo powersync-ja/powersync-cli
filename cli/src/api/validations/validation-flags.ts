@@ -29,20 +29,20 @@ export function generateValidationTestFlags(params?: GenerateValidationTestFlags
   const { limitOptions } = params ?? {};
   const optionsToUse = limitOptions ?? Object.values(ValidationTest);
 
-  const parseValidationFlagValues = (input: string) => {
+  const parseValidationFlagValues = (input: string, flagName: string) => {
     const split = input.split(',').map((s) => s.trim());
     const invalid = split.filter((s) => !optionsToUse.includes(s as ValidationTest));
     if (invalid.length > 0) {
       throw new Error(
-        `Invalid validation test(s) specified in --validate-only: ${invalid.join(', ')}. Valid options are: ${optionsToUse.join(', ')}.`
+        `Invalid validation test(s) specified in --${flagName}: ${invalid.join(', ')}. Valid options are: ${optionsToUse.join(', ')}.`
       );
     }
 
     return split as ValidationTest[];
   };
 
-  const validateValidationFlagValues = (input: string) => {
-    parseValidationFlagValues(input);
+  const validateValidationFlagValues = (input: string, flagName: string) => {
+    parseValidationFlagValues(input, flagName);
     // Can't map the return type here.
     return input;
   };
@@ -51,7 +51,7 @@ export function generateValidationTestFlags(params?: GenerateValidationTestFlags
     'skip-validations': Flags.string({
       description: `Comma-separated list of validation tests to skip. Options: ${optionsToUse.join(', ')}. Example: --skip-validations="${optionsToUse[0]}"`,
       exclusive: ['validate-only'],
-      parse: async (input) => validateValidationFlagValues(input)
+      parse: async (input) => validateValidationFlagValues(input, 'skip-validations')
     })
   };
 
@@ -60,7 +60,7 @@ export function generateValidationTestFlags(params?: GenerateValidationTestFlags
     flags['validate-only'] = Flags.string({
       description: `Comma-separated list of validation tests to run, skipping all others. Options: ${optionsToUse.join(', ')}. Example: --validate-only="${optionsToUse[0]}"`,
       exclusive: ['skip-validations'],
-      parse: async (input) => validateValidationFlagValues(input)
+      parse: async (input) => validateValidationFlagValues(input, 'validate-only')
     });
   }
 
@@ -74,13 +74,13 @@ export function generateValidationTestFlags(params?: GenerateValidationTestFlags
       if (flags['skip-validations'] && flags['validate-only']) {
         throw new Error('Cannot specify both --skip-validations and --validate-only flags.');
       } else if (flags['skip-validations']) {
-        const toSkip = parseValidationFlagValues(flags['skip-validations'] as string);
+        const toSkip = parseValidationFlagValues(flags['skip-validations'] as string, 'skip-validations');
         return {
           skipped: toSkip,
           testsToRun: optionsToUse.filter((test) => !toSkip.includes(test))
         };
       } else if (flags['validate-only']) {
-        const toRun = parseValidationFlagValues(flags['validate-only'] as string);
+        const toRun = parseValidationFlagValues(flags['validate-only'] as string, 'validate-only');
         return {
           skipped: optionsToUse.filter((test) => !toRun.includes(test)),
           testsToRun: toRun
