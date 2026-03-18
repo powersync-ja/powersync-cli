@@ -18,6 +18,8 @@ import { DEFAULT_ENSURE_CONFIG_OPTIONS, EnsureConfigOptions, InstanceCommand } f
 export type SelfHostedProject = {
   linked: ResolvedSelfHostedCLIConfig;
   projectDirectory: string;
+  /** Present when using SharedInstanceCommand with a local sync config file (default or --sync-config-file-path). */
+  syncRulesContent?: string;
 };
 
 export type SelfHostedInstanceCommandFlags = Interfaces.InferredFlags<

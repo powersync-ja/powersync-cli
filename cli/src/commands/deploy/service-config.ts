@@ -1,14 +1,14 @@
 import { DEFAULT_DEPLOY_TIMEOUT_MS } from '../../api/cloud/wait-for-operation.js';
-import DeployAll from './index.js';
+import DeployCommandBase from './deploy-command-base.js';
 
-export default class DeployServiceConfig extends DeployAll {
+export default class DeployServiceConfig extends DeployCommandBase {
   static description = 'Deploy only service config changes (without sync config updates).';
   static examples = [
     '<%= config.bin %> <%= command.id %>',
     '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id>'
   ];
   static flags = {
-    ...DeployAll.flags
+    ...DeployCommandBase.flags
   };
   static summary = '[Cloud only] Deploy only local service config to the linked Cloud instance.';
 

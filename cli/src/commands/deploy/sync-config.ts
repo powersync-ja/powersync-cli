@@ -1,25 +1,18 @@
-import { Flags } from '@oclif/core';
 import { ux } from '@oclif/core/ux';
 import { routes } from '@powersync/management-types';
 import { ObjectId } from 'bson';
-import { readFileSync } from 'node:fs';
 
 import { DEFAULT_DEPLOY_TIMEOUT_MS } from '../../api/cloud/wait-for-operation.js';
-import DeployAll from './index.js';
+import { DeployCommandBaseWithSyncPath } from './deploy-with-sync-base.js';
 
-export default class DeploySyncConfig extends DeployAll {
+export default class DeploySyncConfig extends DeployCommandBaseWithSyncPath {
   static description = 'Deploy only sync config changes.';
   static examples = [
     '<%= config.bin %> <%= command.id %>',
     '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id>'
   ];
   static flags = {
-    ...DeployAll.flags,
-    'sync-config-file-path': Flags.file({
-      description:
-        'Path to a sync config file. If provided, this file will be validated and deployed instead of the default sync-config.yaml.',
-      exists: true
-    })
+    ...DeployCommandBaseWithSyncPath.flags
   };
   static summary = '[Cloud only] Deploy only local sync config to the linked Cloud instance.';
 
@@ -73,11 +66,6 @@ export default class DeploySyncConfig extends DeployAll {
 
     const { linked } = project;
     const deployTimeoutMs = (flags['deploy-timeout'] ?? DEFAULT_DEPLOY_TIMEOUT_MS / 1000) * 1000;
-
-    const syncConfigFilePath = flags['sync-config-file-path'];
-    if (syncConfigFilePath) {
-      project.syncRulesContent = readFileSync(syncConfigFilePath, 'utf8');
-    }
 
     // The existing config is required to deploy changes. The instance should have been created already.
     const cloudConfigState = await this.loadCloudConfigState();

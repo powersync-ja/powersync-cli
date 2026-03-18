@@ -3,7 +3,7 @@ import {
   CloudProject,
   createCloudClient,
   SelfHostedProject,
-  SharedInstanceCommand,
+  SharedInstanceCommandWithSyncConfigPath,
   ValidationResult,
   ValidationTestResult,
   ValidationTestRunResult
@@ -28,7 +28,7 @@ import {
   type ValidationTestEntry
 } from '../api/run-validation-tests.js';
 
-export default class Validate extends SharedInstanceCommand {
+export default class Validate extends SharedInstanceCommandWithSyncConfigPath {
   static description =
     'Run validation checks on local config: config schema, database connections, and sync config. Requires a linked instance. Works with Cloud and self-hosted.';
   static examples = [
@@ -42,7 +42,7 @@ export default class Validate extends SharedInstanceCommand {
       description: 'Output format: human-readable, json, or yaml.',
       options: ['human', 'json', 'yaml']
     }),
-    ...SharedInstanceCommand.flags
+    ...SharedInstanceCommandWithSyncConfigPath.flags
   };
   static summary = 'Validate config schema, connections, and sync config before deploy.';
 

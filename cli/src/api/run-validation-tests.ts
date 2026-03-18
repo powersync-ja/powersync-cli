@@ -230,7 +230,8 @@ export async function runSyncRulesTestCloud(project: CloudProject): Promise<Sync
  */
 export async function runSyncRulesTestSelfHosted(project: SelfHostedProject): Promise<SyncValidationTestRunResult> {
   const syncRulesPath = join(project.projectDirectory, SYNC_FILENAME);
-  const syncRulesContent = existsSync(syncRulesPath) ? readFileSync(syncRulesPath, 'utf8') : undefined;
+  const syncRulesContent =
+    project.syncRulesContent ?? (existsSync(syncRulesPath) ? readFileSync(syncRulesPath, 'utf8') : undefined);
   const syncText = syncRulesContent ?? '';
   try {
     const result = await validateSelfHostedSyncRules({
