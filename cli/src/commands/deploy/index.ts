@@ -1,4 +1,5 @@
 import { ux } from '@oclif/core';
+import { WithSyncConfigFilePath } from '@powersync/cli-core';
 
 import BaseDeployCommand from '../../api/BaseDeployCommand.js';
 import { DEFAULT_DEPLOY_TIMEOUT_MS } from '../../api/cloud/wait-for-operation.js';
@@ -8,7 +9,7 @@ import { formatValidationHuman } from '../../api/validations/validation-utils.js
 import { ValidationsRunner } from '../../api/validations/ValidationsRunner.js';
 import { ValidationTest } from '../../api/validations/ValidationTestDefinition.js';
 
-export default class DeployAll extends BaseDeployCommand {
+export default class DeployAll extends WithSyncConfigFilePath(BaseDeployCommand) {
   static description = [
     'Deploy local config (service.yaml, sync config) to the linked PowerSync Cloud instance.',
     'Validates connections and sync config before deploying.',
@@ -20,7 +21,6 @@ export default class DeployAll extends BaseDeployCommand {
     '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id>'
   ];
   static flags = {
-    ...BaseDeployCommand.flags,
     ...GENERAL_VALIDATION_FLAG_HELPERS.flags
   };
   static summary = '[Cloud only] Deploy local config to the linked Cloud instance (connections + auth + sync config).';

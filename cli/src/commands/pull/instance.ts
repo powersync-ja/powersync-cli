@@ -36,7 +36,6 @@ export default class PullInstance extends CloudInstanceCommand {
     '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id> --org-id=<org-id>'
   ];
   static flags = {
-    ...CloudInstanceCommand.flags,
     overwrite: Flags.boolean({
       description:
         'Overwrite existing service.yaml and sync-config.yaml if they exist. By default, if these files already exist, the fetched configs will be written to service-fetched.yaml and sync-fetched.yaml to avoid overwriting local changes.'

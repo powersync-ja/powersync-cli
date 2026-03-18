@@ -17,9 +17,11 @@ export function resolveSyncRulesContent(options: ResolveSyncRulesContentOptions)
   if (syncConfigFilePath) {
     return readFileSync(syncConfigFilePath, 'utf8');
   }
+
   const defaultPath = join(projectDirectory, SYNC_FILENAME);
   if (existsSync(defaultPath)) {
     return readFileSync(defaultPath, 'utf8');
   }
+
   return undefined;
 }

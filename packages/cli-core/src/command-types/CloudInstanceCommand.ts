@@ -52,12 +52,11 @@ export type CloudInstanceCommandFlags = Interfaces.InferredFlags<
  * pnpm exec powersync some-cloud-cmd --instance-id=... --org-id=... --project-id=...
  */
 export abstract class CloudInstanceCommand extends InstanceCommand {
-  static commandHelpGroup = CommandHelpGroup.CLOUD;
-  static flags = {
+  static baseFlags = {
     /**
      * Instance ID, org ID, and project ID are resolved in order: flags → cli.yaml → env (INSTANCE_ID, ORG_ID, PROJECT_ID).
      */
-    ...InstanceCommand.flags,
+    ...InstanceCommand.baseFlags,
     'instance-id': Flags.string({
       dependsOn: ['project-id'],
       description: 'PowerSync Cloud instance ID. Manually passed if the current context has not been linked.',
@@ -76,6 +75,7 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
       required: false
     })
   };
+  static commandHelpGroup = CommandHelpGroup.CLOUD;
   protected _project: CloudProject | null = null;
   /**
    * Used to interface with the PowerSync Management API for Cloud instances. Automatically created with the token from login (or PS_ADMIN_TOKEN env variable).
@@ -95,6 +95,10 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
     }
 
     return this._project;
+  }
+
+  async _loadProjectHook(flags: CloudInstanceCommandFlags, project: CloudProject): Promise<CloudProject> {
+    return project;
   }
 
   /**
@@ -197,11 +201,11 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
 
     const syncRulesContent = resolveSyncRulesContent({ projectDirectory: projectDir });
 
-    this._project = {
+    this._project = await this._loadProjectHook(flags, {
       linked,
       projectDirectory: projectDir,
       syncRulesContent
-    };
+    });
 
     return this._project;
   }

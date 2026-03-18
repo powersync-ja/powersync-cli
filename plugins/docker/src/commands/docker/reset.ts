@@ -13,14 +13,11 @@ export default class DockerReset extends DockerCommand {
   static description =
     'Run `docker compose down` then `docker compose up -d --wait`: stops and removes containers, then starts the stack and waits for services (including PowerSync) to be healthy. Use when you want a clean bring-up (e.g. after config changes). Use `powersync status` to debug running instances.';
   static examples = ['<%= config.bin %> <%= command.id %>'];
-  static flags = {
-    ...DockerCommand.flags
-  };
   static summary = 'Reset the self-hosted PowerSync stack (stop and remove, then start).';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(DockerReset);
-    const { projectDirectory } = this.loadProject(flags as SelfHostedInstanceCommandFlags, {
+    const { projectDirectory } = await this.loadProject(flags as SelfHostedInstanceCommandFlags, {
       configFileRequired: true
     });
 

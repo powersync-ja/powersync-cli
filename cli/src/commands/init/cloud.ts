@@ -27,9 +27,6 @@ export default class InitCloud extends InstanceCommand {
     '<%= config.bin %> <%= command.id %>',
     '<%= config.bin %> <%= command.id %> --directory=powersync'
   ];
-  static flags = {
-    ...InstanceCommand.flags
-  };
   static summary = 'Scaffold a PowerSync Cloud config directory from a template.';
 
   async run(): Promise<void> {

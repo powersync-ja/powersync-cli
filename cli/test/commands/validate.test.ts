@@ -1,139 +1,166 @@
 import { Config } from '@oclif/core';
 import { captureOutput } from '@oclif/test';
+import * as cliCore from '@powersync/cli-core';
 import { CLI_FILENAME, env, SERVICE_FILENAME, SYNC_FILENAME } from '@powersync/cli-core';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import Validate from '../../src/commands/validate.js';
 import { root } from '../helpers/root.js';
-import { managementClientMock, MOCK_CLOUD_CONFIG, MOCK_CLOUD_IDS, resetManagementClientMocks } from '../setup.js';
+import { managementClientMock, MOCK_CLOUD_IDS, resetManagementClientMocks } from '../setup.js';
 
-const { instanceId: INSTANCE_ID, orgId: ORG_ID, projectId: PROJECT_ID } = MOCK_CLOUD_IDS;
-
-const SERVICE_YAML_CONTENT = /* yaml */ `
-_type: cloud
-name: test-instance
-region: us
-replication:
-  connections:
-    - name: default
-      type: postgresql
-      uri: postgres://user:pass@host/db
-`;
-
-const SYNC_CONFIG_CONTENT = /* yaml */ `
-bucket_definitions:
-  global:
-    data:
-      - SELECT * FROM todos
-`;
-
-async function runValidateDirect(args: string[] = []) {
-  const config = await Config.load({ root });
-  const cmd = new Validate(args, config);
-  return captureOutput(() => cmd.run());
-}
+const emptySyncValidation = {
+  connections: [] as { name?: string }[],
+  diagnostics: [] as cliCore.SyncDiagnostic[],
+  errors: [] as { level: string; message: string }[]
+};
 
 describe('validate', () => {
-  let tmpDir: string;
+  let tmpRoot: string;
   let origCwd: string;
-  let origEnv: { INSTANCE_ID?: string; ORG_ID?: string; PROJECT_ID?: string; PS_ADMIN_TOKEN?: string };
+  let origPsToken: string | undefined;
+  let origApiUrl: string | undefined;
 
   beforeEach(() => {
-    resetManagementClientMocks();
-
     origCwd = process.cwd();
-    origEnv = {
-      INSTANCE_ID: env.INSTANCE_ID,
-      ORG_ID: env.ORG_ID,
-      PROJECT_ID: env.PROJECT_ID,
-      PS_ADMIN_TOKEN: env.PS_ADMIN_TOKEN
-    };
-
-    tmpDir = mkdtempSync(join(tmpdir(), 'validate-test-'));
-    process.chdir(tmpDir);
-    env.PS_ADMIN_TOKEN = 'test-token';
-    env.INSTANCE_ID = undefined;
-    env.ORG_ID = undefined;
-    env.PROJECT_ID = undefined;
-
-    const projectDir = join(tmpDir, 'powersync');
-    mkdirSync(projectDir, { recursive: true });
-    writeFileSync(join(projectDir, SERVICE_FILENAME), SERVICE_YAML_CONTENT, 'utf8');
-    writeFileSync(join(projectDir, SYNC_FILENAME), SYNC_CONFIG_CONTENT, 'utf8');
-    writeFileSync(
-      join(projectDir, CLI_FILENAME),
-      `type: cloud\ninstance_id: ${INSTANCE_ID}\norg_id: ${ORG_ID}\nproject_id: ${PROJECT_ID}\n`,
-      'utf8'
-    );
-
-    // All validations succeed by default
-    managementClientMock.getInstanceConfig.mockResolvedValue(MOCK_CLOUD_CONFIG);
-    managementClientMock.getInstanceStatus.mockResolvedValue({ operations: [], provisioned: true });
-    managementClientMock.validateSyncRules.mockResolvedValue({ errors: [] });
-    managementClientMock.testConnection.mockResolvedValue({
-      configuration: { success: true },
-      connection: { reachable: true, success: true },
-      success: true
-    });
+    origPsToken = env.PS_ADMIN_TOKEN;
+    origApiUrl = env.API_URL;
+    tmpRoot = mkdtempSync(join(tmpdir(), 'validate-cmd-test-'));
+    process.chdir(tmpRoot);
   });
 
   afterEach(() => {
     process.chdir(origCwd);
-
-    env.PS_ADMIN_TOKEN = origEnv.PS_ADMIN_TOKEN;
-    env.INSTANCE_ID = origEnv.INSTANCE_ID;
-    env.ORG_ID = origEnv.ORG_ID;
-    env.PROJECT_ID = origEnv.PROJECT_ID;
-
-    if (tmpDir && existsSync(tmpDir)) rmSync(tmpDir, { recursive: true });
+    env.PS_ADMIN_TOKEN = origPsToken;
+    env.API_URL = origApiUrl;
+    vi.restoreAllMocks();
+    if (tmpRoot && existsSync(tmpRoot)) {
+      rmSync(tmpRoot, { recursive: true });
+    }
   });
 
-  describe('--skip-validations', () => {
-    it('calls testConnection and validateSyncRules when no flags are passed', async () => {
-      await runValidateDirect();
-      expect(managementClientMock.testConnection).toHaveBeenCalled();
-      expect(managementClientMock.validateSyncRules).toHaveBeenCalled();
-    });
+  describe('self-hosted', () => {
+    it('validates sync config from --sync-config-file-path, not default sync-config.yaml', async () => {
+      const spy = vi.spyOn(cliCore, 'validateSelfHostedSyncRules').mockResolvedValue(emptySyncValidation as never);
 
-    it('does not call testConnection when --skip-validations=connections', async () => {
-      await runValidateDirect(['--skip-validations=connections']);
-      expect(managementClientMock.testConnection).not.toHaveBeenCalled();
-      expect(managementClientMock.validateSyncRules).toHaveBeenCalled();
-    });
+      const projectDir = join(tmpRoot, 'powersync');
+      mkdirSync(projectDir, { recursive: true });
 
-    it('does not call validateSyncRules when --skip-validations=sync-config', async () => {
-      await runValidateDirect(['--skip-validations=sync-config']);
-      expect(managementClientMock.testConnection).toHaveBeenCalled();
-      expect(managementClientMock.validateSyncRules).not.toHaveBeenCalled();
-    });
+      writeFileSync(
+        join(projectDir, CLI_FILENAME),
+        'type: self-hosted\napi_url: https://self-hosted.validate.test\napi_key: test-key\n',
+        'utf8'
+      );
+      env.PS_ADMIN_TOKEN = 'test-key';
 
-    it('skips both connections and sync-config when passed as a comma-separated list', async () => {
-      await runValidateDirect(['--skip-validations=connections,sync-config']);
-      expect(managementClientMock.testConnection).not.toHaveBeenCalled();
-      expect(managementClientMock.validateSyncRules).not.toHaveBeenCalled();
+      writeFileSync(
+        join(projectDir, SYNC_FILENAME),
+        'bucket_definitions:\n  only_in_default_sync_config_yaml:\n    data: []\n',
+        'utf8'
+      );
+      const customPath = join(tmpRoot, 'override-sync.yaml');
+      writeFileSync(
+        customPath,
+        'bucket_definitions:\n  only_from_flag_path:\n    data:\n      - SELECT 1 FROM validate_custom_path_marker\n',
+        'utf8'
+      );
+
+      const config = await Config.load({ root });
+      const cmd = new Validate(
+        [
+          '--directory',
+          'powersync',
+          '--validate-only',
+          'sync-config',
+          '--sync-config-file-path',
+          customPath,
+          '--output',
+          'json'
+        ],
+        config
+      );
+
+      const result = await captureOutput(() => cmd.run());
+      expect(result.error).toBeUndefined();
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      const call = spy.mock.calls[0]![0];
+      expect(call.syncRulesContent).toContain('SELECT 1 FROM validate_custom_path_marker');
+      expect(call.syncRulesContent).not.toContain('only_in_default_sync_config_yaml');
     });
   });
 
-  describe('--validate-only', () => {
-    it('calls only validateSyncRules when --validate-only=sync-config', async () => {
-      await runValidateDirect(['--validate-only=sync-config']);
-      expect(managementClientMock.testConnection).not.toHaveBeenCalled();
-      expect(managementClientMock.validateSyncRules).toHaveBeenCalled();
-    });
+  describe('cloud', () => {
+    it('validates sync config from --sync-config-file-path when linked as cloud', async () => {
+      resetManagementClientMocks();
+      const spy = vi.spyOn(cliCore, 'validateCloudSyncRules').mockResolvedValue(emptySyncValidation as never);
 
-    it('calls only testConnection when --validate-only=connections', async () => {
-      await runValidateDirect(['--validate-only=connections']);
-      expect(managementClientMock.testConnection).toHaveBeenCalled();
-      expect(managementClientMock.validateSyncRules).not.toHaveBeenCalled();
-    });
+      const { instanceId, orgId, projectId } = MOCK_CLOUD_IDS;
+      const projectDir = join(tmpRoot, 'powersync');
+      mkdirSync(projectDir, { recursive: true });
 
-    it('calls neither testConnection nor validateSyncRules when --validate-only=configuration', async () => {
-      await runValidateDirect(['--validate-only=configuration']);
-      expect(managementClientMock.testConnection).not.toHaveBeenCalled();
-      expect(managementClientMock.validateSyncRules).not.toHaveBeenCalled();
+      writeFileSync(
+        join(projectDir, CLI_FILENAME),
+        `type: cloud\ninstance_id: ${instanceId}\norg_id: ${orgId}\nproject_id: ${projectId}\n`,
+        'utf8'
+      );
+      env.PS_ADMIN_TOKEN = 'token';
+      env.INSTANCE_ID = undefined;
+      env.ORG_ID = undefined;
+      env.PROJECT_ID = undefined;
+
+      managementClientMock.getInstanceConfig.mockResolvedValue({
+        config: {
+          region: 'us',
+          replication: { connections: [{ name: 'default', type: 'postgresql', uri: 'postgres://x' }] }
+        },
+        id: instanceId,
+        name: 'test-instance',
+        sync_rules: ''
+      });
+      managementClientMock.getInstanceStatus.mockResolvedValue({ operations: [], provisioned: true });
+
+      writeFileSync(
+        join(projectDir, SERVICE_FILENAME),
+        '_type: cloud\nname: test-instance\nregion: us\nreplication:\n  connections:\n    - name: default\n      type: postgresql\n      uri: postgres://x\n',
+        'utf8'
+      );
+      writeFileSync(
+        join(projectDir, SYNC_FILENAME),
+        'bucket_definitions:\n  cloud_default_file_only:\n    data: []\n',
+        'utf8'
+      );
+      const customPath = join(tmpRoot, 'cloud-custom-sync.yaml');
+      writeFileSync(
+        customPath,
+        'bucket_definitions:\n  cloud_flag_path:\n    data:\n      - SELECT 1 FROM cloud_validate_override\n',
+        'utf8'
+      );
+
+      const config = await Config.load({ root });
+      const cmd = new Validate(
+        [
+          '--directory',
+          'powersync',
+          '--validate-only',
+          'sync-config',
+          '--sync-config-file-path',
+          customPath,
+          '--output',
+          'json'
+        ],
+        config
+      );
+
+      const result = await captureOutput(() => cmd.run());
+      expect(result.error).toBeUndefined();
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      const call = spy.mock.calls[0]![0];
+      expect(call.syncRulesContent).toContain('SELECT 1 FROM cloud_validate_override');
+      expect(call.syncRulesContent).not.toContain('cloud_default_file_only');
     });
   });
 });

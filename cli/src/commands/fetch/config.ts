@@ -12,8 +12,7 @@ export default class FetchConfig extends CloudInstanceCommand {
       default: 'yaml',
       description: 'Output format: yaml or json.',
       options: ['json', 'yaml']
-    }),
-    ...CloudInstanceCommand.flags
+    })
   };
   static summary = '[Cloud only] Print linked Cloud instance config (YAML or JSON).';
 

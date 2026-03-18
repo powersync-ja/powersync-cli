@@ -57,8 +57,7 @@ export type SharedInstanceCommandFlags = Interfaces.InferredFlags<
  * pnpm exec powersync some-shared-cmd --instance-id=... --org-id=... --project-id=...
  */
 export abstract class SharedInstanceCommand extends InstanceCommand {
-  static commandHelpGroup = CommandHelpGroup.INSTANCE;
-  static flags = {
+  static baseFlags = {
     'api-url': Flags.string({
       description:
         '[Self-hosted] PowerSync API URL. When set, context is treated as self-hosted (exclusive with --instance-id). Resolved: flag → cli.yaml → API_URL.',
@@ -85,9 +84,17 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
       helpGroup: HelpGroup.CLOUD_PROJECT,
       required: false
     }),
-    ...InstanceCommand.flags
+    ...InstanceCommand.baseFlags
   };
+  static commandHelpGroup = CommandHelpGroup.INSTANCE;
   cloudClient: PowerSyncManagementClient = createCloudClient();
+
+  async _loadProjectHook(
+    flags: SharedInstanceCommandFlags,
+    project: CloudProject | SelfHostedProject
+  ): Promise<CloudProject | SelfHostedProject> {
+    return project;
+  }
 
   /**
    * Some commands require contacting a provisioned PowerSync instance.
@@ -221,18 +228,18 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     }
 
     if (projectType === ServiceType.CLOUD) {
-      return {
+      return this._loadProjectHook(flags, {
         linked: cliConfig as ResolvedCloudCLIConfig,
         projectDirectory: projectDir,
         syncRulesContent
-      };
+      });
     }
 
-    return {
+    return this._loadProjectHook(flags, {
       linked: cliConfig as ResolvedSelfHostedCLIConfig,
       projectDirectory: projectDir,
       syncRulesContent
-    };
+    });
   }
 
   parseCloudConfig(projectDirectory: string): ServiceCloudConfigDecoded {

@@ -37,8 +37,7 @@ export default class GenerateToken extends SharedInstanceCommand {
     subject: Flags.string({
       description: 'Subject of the token.',
       required: true
-    }),
-    ...SharedInstanceCommand.flags
+    })
   };
   static summary = 'Generate a development JWT for client connections.';
 

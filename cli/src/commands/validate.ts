@@ -1,5 +1,11 @@
 import { Flags } from '@oclif/core';
-import { CloudProject, SelfHostedProject, SharedInstanceCommand, ValidationResult } from '@powersync/cli-core';
+import {
+  CloudProject,
+  SelfHostedProject,
+  SharedInstanceCommand,
+  ValidationResult,
+  WithSyncConfigFilePath
+} from '@powersync/cli-core';
 
 import { parseLocalCloudServiceConfig } from '../api/parse-local-cloud-service-config.js';
 import { getCloudValidations } from '../api/validations/cloud-validations.js';
@@ -9,7 +15,7 @@ import { formatValidationJson, formatValidationYaml } from '../api/validations/v
 import { ValidationsRunner } from '../api/validations/ValidationsRunner.js';
 import { ValidationTest } from '../api/validations/ValidationTestDefinition.js';
 
-export default class Validate extends SharedInstanceCommandWithSyncConfigPath {
+export default class Validate extends WithSyncConfigFilePath(SharedInstanceCommand) {
   static description =
     'Run validation checks on local config: config schema, database connections, and sync config. Requires a linked instance. Works with Cloud and self-hosted.';
   static examples = [
@@ -23,8 +29,7 @@ export default class Validate extends SharedInstanceCommandWithSyncConfigPath {
       description: 'Output format: human-readable, json, or yaml.',
       options: ['human', 'json', 'yaml']
     }),
-    ...GENERAL_VALIDATION_FLAG_HELPERS.flags,
-    ...SharedInstanceCommand.flags
+    ...GENERAL_VALIDATION_FLAG_HELPERS.flags
   };
   static summary = 'Validate config schema, connections, and sync config before deploy.';
 

@@ -11,8 +11,7 @@ export default class Destroy extends CloudInstanceCommand {
     confirm: Flags.string({
       description: 'Set to "yes" to confirm destruction of the instance.',
       options: ['yes']
-    }),
-    ...CloudInstanceCommand.flags
+    })
   };
   static summary = '[Cloud only] Permanently destroy the linked Cloud instance.';
 

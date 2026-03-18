@@ -8,7 +8,7 @@ import { HelpGroup } from '../command-types/HelpGroup.js';
 export const syncConfigFilePathFlags = {
   'sync-config-file-path': Flags.file({
     description:
-      'Path to a sync config file. When set, this file is used instead of sync-config.yaml in the project directory.',
+      '[Optional] Override the path to a sync config file. When set, this file is used instead of sync-config.yaml in the project directory.',
     exists: true,
     helpGroup: HelpGroup.PROJECT
   })

@@ -15,8 +15,7 @@ export default class MigrateSyncRules extends SharedInstanceCommand {
     'output-file': Flags.string({
       description: 'Path to the output sync streams file. Defaults to overwrite the input file.',
       required: false
-    }),
-    ...SharedInstanceCommand.flags
+    })
   };
   static summary = 'Migrates Sync Rules to Sync Streams';
 
