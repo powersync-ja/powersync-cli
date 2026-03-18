@@ -17,24 +17,39 @@ const emptySyncValidation = {
   errors: [] as { level: string; message: string }[]
 };
 
+type EnvSnapshot = {
+  API_URL: string | undefined;
+  INSTANCE_ID: string | undefined;
+  ORG_ID: string | undefined;
+  PROJECT_ID: string | undefined;
+  PS_ADMIN_TOKEN: string | undefined;
+};
+
 describe('validate', () => {
   let tmpRoot: string;
   let origCwd: string;
-  let origPsToken: string | undefined;
-  let origApiUrl: string | undefined;
+  let origEnv: EnvSnapshot;
 
   beforeEach(() => {
     origCwd = process.cwd();
-    origPsToken = env.PS_ADMIN_TOKEN;
-    origApiUrl = env.API_URL;
+    origEnv = {
+      API_URL: env.API_URL,
+      INSTANCE_ID: env.INSTANCE_ID,
+      ORG_ID: env.ORG_ID,
+      PROJECT_ID: env.PROJECT_ID,
+      PS_ADMIN_TOKEN: env.PS_ADMIN_TOKEN
+    };
     tmpRoot = mkdtempSync(join(tmpdir(), 'validate-cmd-test-'));
     process.chdir(tmpRoot);
   });
 
   afterEach(() => {
     process.chdir(origCwd);
-    env.PS_ADMIN_TOKEN = origPsToken;
-    env.API_URL = origApiUrl;
+    env.API_URL = origEnv.API_URL;
+    env.INSTANCE_ID = origEnv.INSTANCE_ID;
+    env.ORG_ID = origEnv.ORG_ID;
+    env.PROJECT_ID = origEnv.PROJECT_ID;
+    env.PS_ADMIN_TOKEN = origEnv.PS_ADMIN_TOKEN;
     vi.restoreAllMocks();
     if (tmpRoot && existsSync(tmpRoot)) {
       rmSync(tmpRoot, { recursive: true });
