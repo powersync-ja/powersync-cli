@@ -83,6 +83,12 @@ export default class DeploySyncConfig extends WithSyncConfigFilePath(BaseDeployC
       });
     }
 
+    if (!project.syncRulesContent) {
+      this.styledError({
+        message: `Sync config content not loaded. Ensure sync config is present and valid.`
+      });
+    }
+
     // The existing config is required to deploy changes. The instance should have been created already.
     const cloudConfigState = await this.loadCloudConfigState();
 
