@@ -7,8 +7,8 @@ catalog:
   '@powersync/management-client': ^0.0.6
   '@powersync/management-types': ^0.0.5
   '@powersync/service-client': ^0.0.3
-  '@powersync/service-schema': ^1.20.1
-  '@powersync/service-sync-rules': ^0.33.0
+  '@powersync/service-schema': ^1.20.2
+  '@powersync/service-sync-rules': ^0.34.0
   '@powersync/service-types': ^0.15.0
 
 patchedDependencies:

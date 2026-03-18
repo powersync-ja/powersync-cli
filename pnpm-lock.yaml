@@ -16,11 +16,11 @@ catalogs:
       specifier: ^0.0.3
       version: 0.0.3
     '@powersync/service-schema':
-      specifier: ^1.20.1
-      version: 1.20.1
+      specifier: ^1.20.2
+      version: 1.20.2
     '@powersync/service-sync-rules':
-      specifier: ^0.33.0
-      version: 0.33.0
+      specifier: ^0.34.0
+      version: 0.34.0
     '@powersync/service-types':
       specifier: ^0.15.0
       version: 0.15.0
@@ -105,13 +105,13 @@ importers:
         version: link:../packages/schemas
       '@powersync/management-client':
         specifier: 'catalog:'
-        version: 0.0.6(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
+        version: 0.0.6(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
       '@powersync/management-types':
         specifier: 'catalog:'
         version: 0.0.5
       '@powersync/service-sync-rules':
         specifier: 'catalog:'
-        version: 0.33.0
+        version: 0.34.0
       '@powersync/service-types':
         specifier: 'catalog:'
         version: 0.15.0
@@ -175,7 +175,7 @@ importers:
     dependencies:
       '@journeyapps-labs/common-sdk':
         specifier: 1.0.2
-        version: 1.0.2(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)
+        version: 1.0.2(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
       '@journeyapps-labs/micro-errors':
         specifier: ^1.0.1
         version: 1.0.1
@@ -187,13 +187,13 @@ importers:
         version: link:../schemas
       '@powersync/management-client':
         specifier: 'catalog:'
-        version: 0.0.6(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)
+        version: 0.0.6(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
       '@powersync/management-types':
         specifier: 'catalog:'
         version: 0.0.5
       '@powersync/service-client':
         specifier: 'catalog:'
-        version: 0.0.3(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)
+        version: 0.0.3(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
       keychain:
         specifier: ^1.5.0
         version: 1.5.0
@@ -342,7 +342,7 @@ importers:
         version: 0.0.5
       '@powersync/service-schema':
         specifier: 'catalog:'
-        version: 1.20.1
+        version: 1.20.2
       '@powersync/service-types':
         specifier: 'catalog:'
         version: 0.15.0
@@ -358,7 +358,7 @@ importers:
     devDependencies:
       '@powersync/service-sync-rules':
         specifier: 'catalog:'
-        version: 0.33.0
+        version: 0.34.0
       '@types/node':
         specifier: ^22
         version: 22.19.7
@@ -416,7 +416,7 @@ importers:
         version: link:../../packages/schemas
       '@powersync/service-schema':
         specifier: 'catalog:'
-        version: 1.20.1
+        version: 1.20.2
       '@powersync/service-types':
         specifier: 'catalog:'
         version: 0.15.0
@@ -768,8 +768,8 @@ packages:
     resolution: {integrity: sha512-Nh5PhEOeY6PrnxNPsEHRr9eimxLwgLlpmguQaHKBinFYA/RU9+kOYVOQqOrTsCL+KSxrLLl1gD8Dk5BFW/7l/w==}
     engines: {node: '>=20.0.0'}
 
-  '@azure/core-rest-pipeline@1.22.2':
-    resolution: {integrity: sha512-MzHym+wOi8CLUlKCQu12de0nwcq9k9Kuv43j4Wa++CsCpJwps2eeBQwD2Bu8snkxTtDKDx4GwjuR9E8yC8LNrg==}
+  '@azure/core-rest-pipeline@1.23.0':
+    resolution: {integrity: sha512-Evs1INHo+jUjwHi1T6SG6Ua/LHOQBCLuKEEE6efIpt4ZOoNonaT1kP32GoOcdNDbfqsD2445CPri3MubBy5DEQ==}
     engines: {node: '>=20.0.0'}
 
   '@azure/core-tracing@1.3.1':
@@ -788,16 +788,16 @@ packages:
     resolution: {integrity: sha512-fCqPIfOcLE+CGqGPd66c8bZpwAji98tZ4JI9i/mlTNTlsIWslCfpg48s/ypyLxZTump5sypjrKn2/kY7q8oAbA==}
     engines: {node: '>=20.0.0'}
 
-  '@azure/msal-browser@4.28.1':
-    resolution: {integrity: sha512-al2u2fTchbClq3L4C1NlqLm+vwKfhYCPtZN2LR/9xJVaQ4Mnrwf5vANvuyPSJHcGvw50UBmhuVmYUAhTEetTpA==}
+  '@azure/msal-browser@4.29.1':
+    resolution: {integrity: sha512-1Vrt27du1cl4QHkzLc6L4aeXqliPIDIs5l/1I4hWWMXkXccY/EznJT1+pBdoVze0azTAI8sCyq5B4cBVYG1t9w==}
     engines: {node: '>=0.8.0'}
 
-  '@azure/msal-common@15.14.1':
-    resolution: {integrity: sha512-IkzF7Pywt6QKTS0kwdCv/XV8x8JXknZDvSjj/IccooxnP373T5jaadO3FnOrbWo3S0UqkfIDyZNTaQ/oAgRdXw==}
+  '@azure/msal-common@15.16.1':
+    resolution: {integrity: sha512-qxUG9TCl+TVSSX58onVDHDWrvT5CE0+NeeUAbkQqaESpSm79u5IePLnPWMMjCUnUR2zJd4+Bt9vioVRzLmJb2g==}
     engines: {node: '>=0.8.0'}
 
-  '@azure/msal-node@3.8.6':
-    resolution: {integrity: sha512-XTmhdItcBckcVVTy65Xp+42xG4LX5GK+9AqAsXPXk4IqUNv+LyQo5TMwNjuFYBfAB2GTG9iSQGk+QLc03vhf3w==}
+  '@azure/msal-node@3.8.9':
+    resolution: {integrity: sha512-jZ0pw/BbdEUWGhomCaAiVDfXRI/9K56m5hTNqB/CzcbZEYhXm5qpK1cDngN1iXfwSfmUMorOUQ2FC0dyuQ9uRg==}
     engines: {node: '>=16'}
 
   '@babel/code-frame@7.27.1':
@@ -1620,11 +1620,11 @@ packages:
   '@powersync/service-jsonbig@0.17.12':
     resolution: {integrity: sha512-ilssJP6I+v8LfBCIwRJlKZhuxVT7pGhYg/B2+xsodVRRmTkyRDpmBpV+RlabksbtR1H0G3aXm5AtNYwmfblBkQ==}
 
-  '@powersync/service-schema@1.20.1':
-    resolution: {integrity: sha512-NH045fvrVrn2rkkFG4oREzD2kdX7NzXiS1d1V8U04+ck+26c+56yWYPQKBymovU3QGLNdwkFz/OWcNYnIN4n1w==}
+  '@powersync/service-schema@1.20.2':
+    resolution: {integrity: sha512-hfhKYSkTGVMKMTDt/s91NjyCZYf0Zv5/ptQtGdY0BGYfbMXXNv7J+BJDtGYtkeqqbZKbMe4rXZ/ijckIznk08w==}
 
-  '@powersync/service-sync-rules@0.33.0':
-    resolution: {integrity: sha512-1KrvKWRPp4dZEB/8mWqIKXyZ0A0W6hnAky48jZMlhKQHPybm4QVmJh/809MJkhdkZaus+C37PHg1K/gQaa42Hg==}
+  '@powersync/service-sync-rules@0.34.0':
+    resolution: {integrity: sha512-hHJkWzf93rqTcQYybt05lHwaJzUyhmS9BRn6j+inL13VU1/W6rrdH07rr9RYZAPxjis2sUjrV17E0Dt0+8QcqA==}
 
   '@powersync/service-types@0.15.0':
     resolution: {integrity: sha512-wIdHCT+vhwoJAMZ414/dwG8fd51+fEWnPbwShkwNE5XTwA0UGOT8aGyVZqzT8PT0sVos5famYYqG203Mjb7q6g==}
@@ -2968,8 +2968,8 @@ packages:
     resolution: {integrity: sha512-VFlhGSl4opC0bprJiItPQ1RfUhGDIBokcPwaFH4yiBCaNPeld/9VeXbiPO1cLyorQi1G1vL+ecBk1x8o1axORA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@typespec/ts-http-runtime@0.3.2':
-    resolution: {integrity: sha512-IlqQ/Gv22xUC1r/WQm4StLkYQmaaTsXAhUVsNE0+xiyf0yRFiH5++q78U3bw6bLKDCTmh0uqKB9eG9+Bt75Dkg==}
+  '@typespec/ts-http-runtime@0.3.4':
+    resolution: {integrity: sha512-CI0NhTrz4EBaa0U+HaaUZrJhPoso8sG7ZFya8uQoBA57fjzrjRSv87ekCjLZOFExN+gXE/z0xuN2QfH4H2HrLQ==}
     engines: {node: '>=20.0.0'}
 
   '@unrs/resolver-binding-android-arm-eabi@1.11.1':
@@ -4658,6 +4658,10 @@ packages:
     resolution: {integrity: sha512-UcVfVfaK4Sc4m7X3dUSoHoozQGBEFeDC+zVo06t98xe8CzHSZZBekNXH+tu0NalHolcJ/QAGqS46Hef7QXBIMw==}
     engines: {node: '>=16'}
 
+  is-wsl@3.1.1:
+    resolution: {integrity: sha512-e6rvdUCiQCAuumZslxRJWR/Doq4VpPR82kqclvcS0efgt430SlGIk05vdCN58+VrzgtIcfNODjozVielycD4Sw==}
+    engines: {node: '>=16'}
+
   isarray@2.0.5:
     resolution: {integrity: sha512-xHjhDr3cNBK0BzdUJSPXZntQUx/mwMS5Rw4A7lPJ90XGAO6ISP/ePDNuo0vhqOZU+UD5JoodwCAAoZQd3FeAKw==}
 
@@ -5734,8 +5738,18 @@ packages:
     peerDependencies:
       seroval: ^1.0
 
+  seroval-plugins@1.5.1:
+    resolution: {integrity: sha512-4FbuZ/TMl02sqv0RTFexu0SP6V+ywaIe5bAWCCEik0fk17BhALgwvUDVF7e3Uvf9pxmwCEJsRPmlkUE6HdzLAw==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      seroval: ^1.0
+
   seroval@1.5.0:
     resolution: {integrity: sha512-OE4cvmJ1uSPrKorFIH9/w/Qwuvi/IMcGbv5RKgcJ/zjA/IohDLU6SVaxFN9FwajbP7nsX0dQqMDes1whk3y+yw==}
+    engines: {node: '>=10'}
+
+  seroval@1.5.1:
+    resolution: {integrity: sha512-OwrZRZAfhHww0WEnKHDY8OM0U/Qs8OTfIDWhUD4BLpNJUfXK4cGmjiagGze086m+mhI+V2nD0gfbHEnJjb9STA==}
     engines: {node: '>=10'}
 
   set-cookie-parser@2.7.2:
@@ -7611,7 +7625,7 @@ snapshots:
     dependencies:
       '@azure/abort-controller': 2.1.2
       '@azure/core-auth': 1.10.1
-      '@azure/core-rest-pipeline': 1.22.2
+      '@azure/core-rest-pipeline': 1.23.0
       '@azure/core-tracing': 1.3.1
       '@azure/core-util': 1.13.1
       '@azure/logger': 1.3.0
@@ -7620,14 +7634,14 @@ snapshots:
       - supports-color
     optional: true
 
-  '@azure/core-rest-pipeline@1.22.2':
+  '@azure/core-rest-pipeline@1.23.0':
     dependencies:
       '@azure/abort-controller': 2.1.2
       '@azure/core-auth': 1.10.1
       '@azure/core-tracing': 1.3.1
       '@azure/core-util': 1.13.1
       '@azure/logger': 1.3.0
-      '@typespec/ts-http-runtime': 0.3.2
+      '@typespec/ts-http-runtime': 0.3.4
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
@@ -7641,7 +7655,7 @@ snapshots:
   '@azure/core-util@1.13.1':
     dependencies:
       '@azure/abort-controller': 2.1.2
-      '@typespec/ts-http-runtime': 0.3.2
+      '@typespec/ts-http-runtime': 0.3.4
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
@@ -7652,12 +7666,12 @@ snapshots:
       '@azure/abort-controller': 2.1.2
       '@azure/core-auth': 1.10.1
       '@azure/core-client': 1.10.1
-      '@azure/core-rest-pipeline': 1.22.2
+      '@azure/core-rest-pipeline': 1.23.0
       '@azure/core-tracing': 1.3.1
       '@azure/core-util': 1.13.1
       '@azure/logger': 1.3.0
-      '@azure/msal-browser': 4.28.1
-      '@azure/msal-node': 3.8.6
+      '@azure/msal-browser': 4.29.1
+      '@azure/msal-node': 3.8.9
       open: 10.2.0
       tslib: 2.8.1
     transitivePeerDependencies:
@@ -7666,23 +7680,23 @@ snapshots:
 
   '@azure/logger@1.3.0':
     dependencies:
-      '@typespec/ts-http-runtime': 0.3.2
+      '@typespec/ts-http-runtime': 0.3.4
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
     optional: true
 
-  '@azure/msal-browser@4.28.1':
+  '@azure/msal-browser@4.29.1':
     dependencies:
-      '@azure/msal-common': 15.14.1
+      '@azure/msal-common': 15.16.1
     optional: true
 
-  '@azure/msal-common@15.14.1':
+  '@azure/msal-common@15.16.1':
     optional: true
 
-  '@azure/msal-node@3.8.6':
+  '@azure/msal-node@3.8.9':
     dependencies:
-      '@azure/msal-common': 15.14.1
+      '@azure/msal-common': 15.16.1
       jsonwebtoken: 9.0.3
       uuid: 8.3.2
     optional: true
@@ -8390,10 +8404,10 @@ snapshots:
     optionalDependencies:
       '@types/node': 24.10.10
 
-  '@journeyapps-labs/common-sdk@1.0.2(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)':
+  '@journeyapps-labs/common-sdk@1.0.2(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)':
     dependencies:
       '@journeyapps-labs/micro-errors': 1.0.1
-      '@journeyapps-labs/micro-streaming': 1.0.1(@types/debug@4.1.12)(@types/json-schema@7.0.15)(@types/node@24.10.10)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)
+      '@journeyapps-labs/micro-streaming': 1.0.1(@types/debug@4.1.12)(@types/json-schema@7.0.15)(@types/node@24.10.10)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
       '@types/node': 24.10.10
       agentkeepalive: 4.6.0
       bson: 6.10.4
@@ -8450,10 +8464,10 @@ snapshots:
       - tsx
       - yaml
 
-  '@journeyapps-labs/common-sdk@1.0.3(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)':
+  '@journeyapps-labs/common-sdk@1.0.3(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)':
     dependencies:
       '@journeyapps-labs/micro-errors': 1.0.1
-      '@journeyapps-labs/micro-streaming': 1.0.1(@types/debug@4.1.12)(@types/json-schema@7.0.15)(@types/node@25.5.0)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)
+      '@journeyapps-labs/micro-streaming': 1.0.1(@types/node@25.5.0)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
       '@types/node': 25.5.0
       agentkeepalive: 4.6.0
       bson: 7.2.0
@@ -8510,32 +8524,6 @@ snapshots:
       - tsx
       - yaml
 
-  '@journeyapps-labs/micro-codecs@1.0.1(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)':
-    dependencies:
-      '@types/node': 24.10.10
-      bson: 6.10.4
-      ts-codec: 1.3.0
-      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@24.10.10)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)
-    transitivePeerDependencies:
-      - '@edge-runtime/vm'
-      - '@types/debug'
-      - '@vitest/browser'
-      - '@vitest/ui'
-      - happy-dom
-      - jiti
-      - jsdom
-      - less
-      - lightningcss
-      - msw
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-      - tsx
-      - yaml
-
   '@journeyapps-labs/micro-codecs@1.0.2':
     dependencies:
       '@types/node': 24.10.10
@@ -8544,15 +8532,15 @@ snapshots:
 
   '@journeyapps-labs/micro-errors@1.0.1': {}
 
-  '@journeyapps-labs/micro-schema@1.0.1(@types/debug@4.1.12)(@types/json-schema@7.0.15)(@types/node@24.10.10)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)':
+  '@journeyapps-labs/micro-schema@1.0.1(@types/debug@4.1.12)(@types/json-schema@7.0.15)(@types/node@24.10.10)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)':
     dependencies:
       '@apidevtools/json-schema-ref-parser': 14.2.1(@types/json-schema@7.0.15)
-      '@journeyapps-labs/micro-codecs': 1.0.1(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)
+      '@journeyapps-labs/micro-codecs': 1.0.1(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
       '@journeyapps-labs/micro-errors': 1.0.1
       ajv: 8.17.1
       better-ajv-errors: 2.0.3(ajv@8.17.1)
       ts-codec: 1.3.0
-      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@24.10.10)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)
+      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@24.10.10)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
       zod: 4.3.6
     transitivePeerDependencies:
       - '@edge-runtime/vm'
@@ -8608,15 +8596,15 @@ snapshots:
       - tsx
       - yaml
 
-  '@journeyapps-labs/micro-schema@1.0.1(@types/debug@4.1.12)(@types/json-schema@7.0.15)(@types/node@25.5.0)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)':
+  '@journeyapps-labs/micro-schema@1.0.1(@types/node@25.5.0)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)':
     dependencies:
       '@apidevtools/json-schema-ref-parser': 14.2.1(@types/json-schema@7.0.15)
-      '@journeyapps-labs/micro-codecs': 1.0.1(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)
+      '@journeyapps-labs/micro-codecs': 1.0.1(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
       '@journeyapps-labs/micro-errors': 1.0.1
       ajv: 8.17.1
       better-ajv-errors: 2.0.3(ajv@8.17.1)
       ts-codec: 1.3.0
-      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@25.5.0)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)
+      vitest: 3.2.4(@types/node@25.5.0)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
       zod: 4.3.6
     transitivePeerDependencies:
       - '@edge-runtime/vm'
@@ -8640,10 +8628,10 @@ snapshots:
       - tsx
       - yaml
 
-  '@journeyapps-labs/micro-streaming@1.0.1(@types/debug@4.1.12)(@types/json-schema@7.0.15)(@types/node@24.10.10)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)':
+  '@journeyapps-labs/micro-streaming@1.0.1(@types/debug@4.1.12)(@types/json-schema@7.0.15)(@types/node@24.10.10)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)':
     dependencies:
       '@journeyapps-labs/micro-errors': 1.0.1
-      '@journeyapps-labs/micro-schema': 1.0.1(@types/debug@4.1.12)(@types/json-schema@7.0.15)(@types/node@24.10.10)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)
+      '@journeyapps-labs/micro-schema': 1.0.1(@types/debug@4.1.12)(@types/json-schema@7.0.15)(@types/node@24.10.10)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
       '@types/express': 5.0.6
       bson: 6.10.4
     transitivePeerDependencies:
@@ -8696,10 +8684,10 @@ snapshots:
       - tsx
       - yaml
 
-  '@journeyapps-labs/micro-streaming@1.0.1(@types/debug@4.1.12)(@types/json-schema@7.0.15)(@types/node@25.5.0)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)':
+  '@journeyapps-labs/micro-streaming@1.0.1(@types/node@25.5.0)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)':
     dependencies:
       '@journeyapps-labs/micro-errors': 1.0.1
-      '@journeyapps-labs/micro-schema': 1.0.1(@types/debug@4.1.12)(@types/json-schema@7.0.15)(@types/node@25.5.0)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)
+      '@journeyapps-labs/micro-schema': 1.0.1(@types/node@25.5.0)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
       '@types/express': 5.0.6
       bson: 6.10.4
     transitivePeerDependencies:
@@ -8974,9 +8962,9 @@ snapshots:
       - tsx
       - yaml
 
-  '@powersync/management-client@0.0.6(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)':
+  '@powersync/management-client@0.0.6(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)':
     dependencies:
-      '@journeyapps-labs/common-sdk': 1.0.3(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)
+      '@journeyapps-labs/common-sdk': 1.0.3(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
       '@powersync/management-types': 0.0.5
     transitivePeerDependencies:
       - '@edge-runtime/vm'
@@ -9009,9 +8997,9 @@ snapshots:
     transitivePeerDependencies:
       - babel-plugin-macros
 
-  '@powersync/service-client@0.0.3(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)':
+  '@powersync/service-client@0.0.3(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)':
     dependencies:
-      '@journeyapps-labs/common-sdk': 1.0.2(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)
+      '@journeyapps-labs/common-sdk': 1.0.2(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
       '@powersync/service-types': 0.15.0
     transitivePeerDependencies:
       - '@edge-runtime/vm'
@@ -9039,9 +9027,9 @@ snapshots:
     dependencies:
       lossless-json: 2.0.11
 
-  '@powersync/service-schema@1.20.1': {}
+  '@powersync/service-schema@1.20.2': {}
 
-  '@powersync/service-sync-rules@0.33.0':
+  '@powersync/service-sync-rules@0.34.0':
     dependencies:
       '@powersync/service-jsonbig': 0.17.12
       '@syncpoint/wkx': 0.5.2
@@ -10650,7 +10638,7 @@ snapshots:
       '@typescript-eslint/types': 8.54.0
       eslint-visitor-keys: 4.2.1
 
-  '@typespec/ts-http-runtime@0.3.2':
+  '@typespec/ts-http-runtime@0.3.4':
     dependencies:
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
@@ -10763,15 +10751,7 @@ snapshots:
     optionalDependencies:
       vite: 7.3.1(@types/node@24.10.10)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
 
-  '@vitest/mocker@3.2.4(vite@7.3.1(@types/node@24.10.10)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))':
-    dependencies:
-      '@vitest/spy': 3.2.4
-      estree-walker: 3.0.3
-      magic-string: 0.30.21
-    optionalDependencies:
-      vite: 7.3.1(@types/node@24.10.10)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
-
-  '@vitest/mocker@3.2.4(vite@7.3.1(@types/node@25.5.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))':
+  '@vitest/mocker@3.2.4(vite@7.3.1(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2))':
     dependencies:
       '@vitest/spy': 3.2.4
       estree-walker: 3.0.3
@@ -12543,6 +12523,11 @@ snapshots:
     dependencies:
       is-inside-container: 1.0.0
 
+  is-wsl@3.1.1:
+    dependencies:
+      is-inside-container: 1.0.0
+    optional: true
+
   isarray@2.0.5: {}
 
   isbot@5.1.35: {}
@@ -13613,7 +13598,13 @@ snapshots:
     dependencies:
       seroval: 1.5.0
 
+  seroval-plugins@1.5.1(seroval@1.5.1):
+    dependencies:
+      seroval: 1.5.1
+
   seroval@1.5.0: {}
+
+  seroval@1.5.1: {}
 
   set-cookie-parser@2.7.2: {}
 
@@ -13712,8 +13703,8 @@ snapshots:
   solid-js@1.9.11:
     dependencies:
       csstype: 3.2.3
-      seroval: 1.5.0
-      seroval-plugins: 1.5.0(seroval@1.5.0)
+      seroval: 1.5.1
+      seroval-plugins: 1.5.1(seroval@1.5.1)
 
   sonic-boom@4.2.1:
     dependencies:
@@ -14174,49 +14165,7 @@ snapshots:
       - tsx
       - yaml
 
-  vite-node@3.2.4(@types/node@24.10.10)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2):
-    dependencies:
-      cac: 6.7.14
-      debug: 4.4.3(supports-color@8.1.1)
-      es-module-lexer: 1.7.0
-      pathe: 2.0.3
-      vite: 7.3.1(@types/node@24.10.10)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
-    transitivePeerDependencies:
-      - '@types/node'
-      - jiti
-      - less
-      - lightningcss
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-      - tsx
-      - yaml
-
   vite-node@3.2.4(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2):
-    dependencies:
-      cac: 6.7.14
-      debug: 4.4.3(supports-color@8.1.1)
-      es-module-lexer: 1.7.0
-      pathe: 2.0.3
-      vite: 7.3.1(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
-    transitivePeerDependencies:
-      - '@types/node'
-      - jiti
-      - less
-      - lightningcss
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-      - tsx
-      - yaml
-
-  vite-node@3.2.4(@types/node@25.5.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2):
     dependencies:
       cac: 6.7.14
       debug: 4.4.3(supports-color@8.1.1)
@@ -14386,54 +14335,11 @@ snapshots:
       - tsx
       - yaml
 
-  vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.10.10)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2):
-    dependencies:
-      '@types/chai': 5.2.3
-      '@vitest/expect': 3.2.4
-      '@vitest/mocker': 3.2.4(vite@7.3.1(@types/node@24.10.10)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))
-      '@vitest/pretty-format': 3.2.4
-      '@vitest/runner': 3.2.4
-      '@vitest/snapshot': 3.2.4
-      '@vitest/spy': 3.2.4
-      '@vitest/utils': 3.2.4
-      chai: 5.3.3
-      debug: 4.4.3(supports-color@8.1.1)
-      expect-type: 1.3.0
-      magic-string: 0.30.21
-      pathe: 2.0.3
-      picomatch: 4.0.3
-      std-env: 3.10.0
-      tinybench: 2.9.0
-      tinyexec: 0.3.2
-      tinyglobby: 0.2.15
-      tinypool: 1.1.1
-      tinyrainbow: 2.0.0
-      vite: 7.3.1(@types/node@24.10.10)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
-      vite-node: 3.2.4(@types/node@24.10.10)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2)
-      why-is-node-running: 2.3.0
-    optionalDependencies:
-      '@types/debug': 4.1.12
-      '@types/node': 24.10.10
-      jsdom: 27.4.0
-    transitivePeerDependencies:
-      - jiti
-      - less
-      - lightningcss
-      - msw
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-      - tsx
-      - yaml
-
   vitest@3.2.4(@types/debug@4.1.12)(@types/node@25.5.0)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2):
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/expect': 3.2.4
-      '@vitest/mocker': 3.2.4(vite@7.3.1(@types/node@24.10.10)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2))
+      '@vitest/mocker': 3.2.4(vite@7.3.1(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2))
       '@vitest/pretty-format': 3.2.4
       '@vitest/runner': 3.2.4
       '@vitest/snapshot': 3.2.4
@@ -14472,11 +14378,11 @@ snapshots:
       - tsx
       - yaml
 
-  vitest@3.2.4(@types/debug@4.1.12)(@types/node@25.5.0)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2):
+  vitest@3.2.4(@types/node@25.5.0)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2):
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/expect': 3.2.4
-      '@vitest/mocker': 3.2.4(vite@7.3.1(@types/node@25.5.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))
+      '@vitest/mocker': 3.2.4(vite@7.3.1(@types/node@24.10.10)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2))
       '@vitest/pretty-format': 3.2.4
       '@vitest/runner': 3.2.4
       '@vitest/snapshot': 3.2.4
@@ -14495,10 +14401,9 @@ snapshots:
       tinypool: 1.1.1
       tinyrainbow: 2.0.0
       vite: 7.3.1(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
-      vite-node: 3.2.4(@types/node@25.5.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2)
+      vite-node: 3.2.4(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
       why-is-node-running: 2.3.0
     optionalDependencies:
-      '@types/debug': 4.1.12
       '@types/node': 25.5.0
       jsdom: 27.4.0
     transitivePeerDependencies:
@@ -14686,7 +14591,7 @@ snapshots:
 
   wsl-utils@0.1.0:
     dependencies:
-      is-wsl: 3.1.0
+      is-wsl: 3.1.1
     optional: true
 
   wsl-utils@0.3.1:

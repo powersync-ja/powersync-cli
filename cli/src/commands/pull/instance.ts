@@ -7,7 +7,8 @@ import {
   getDefaultOrgId,
   SERVICE_FILENAME,
   ServiceType,
-  SYNC_FILENAME
+  SYNC_FILENAME,
+  YAML_SYNC_RULES_SCHEMA
 } from '@powersync/cli-core';
 import { ServiceCloudConfig } from '@powersync/cli-schemas';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
@@ -145,7 +146,7 @@ export default class PullInstance extends CloudInstanceCommand {
     if (typeof fetched.syncRules === 'string') {
       const syncOutputName = !overwrite && syncExists ? SYNC_FETCHED_FILENAME : SYNC_FILENAME;
       const syncOutputPath = join(projectDir, syncOutputName);
-      writeFileSync(syncOutputPath, fetched.syncRules, 'utf8');
+      writeFileSync(syncOutputPath, YAML_SYNC_RULES_SCHEMA + '\n' + fetched.syncRules, 'utf8');
       this.log(`Wrote ${ux.colorize('blue', syncOutputName)} with sync config from the cloud.`);
     } else if (!fetched.syncRules && !syncExists) {
       // If there is no sync config in the cloud and no existing sync config locally, we should still create an empty sync-config.yaml with the correct header and schema reference
