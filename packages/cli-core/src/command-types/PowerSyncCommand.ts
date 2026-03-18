@@ -2,6 +2,10 @@ import { JourneyError } from '@journeyapps-labs/micro-errors';
 import { Command, ux } from '@oclif/core';
 import { join } from 'node:path';
 
+import {
+  formatPowersyncServiceErrorDisplay,
+  isPowersyncAuthServiceError
+} from '../utils/format-powersync-service-error-display.js';
 import { CommandHelpGroup } from './HelpGroup.js';
 
 export type StyledErrorParams = {
@@ -35,20 +39,25 @@ export abstract class PowerSyncCommand extends Command {
   styledError(params: StyledErrorParams): never {
     const { error, exitCode = 1, message, suggestions } = params;
     // Journey SDK errors contain additional fields that we want to pass to the error handler.
-    const journeyError =
+    const serviceError =
       error != null && typeof error === 'object' && 'is_journey_error' in error ? (error as JourneyError) : undefined;
-    const journeyErrorMessage = journeyError ? JSON.stringify(journeyError.toJSON(), null, '\t') : undefined;
+    const serviceErrorDetails = serviceError ? formatPowersyncServiceErrorDisplay(serviceError) : undefined;
 
     const errorDetails =
-      journeyErrorMessage ?? (error == null ? '' : error instanceof Error ? error.message : String(error));
+      serviceErrorDetails ?? (error == null ? '' : error instanceof Error ? error.message : String(error));
     const displayMessage = errorDetails ? `${message}, :: ${errorDetails}` : message;
+
+    const authSuggestions =
+      serviceError && isPowersyncAuthServiceError(serviceError) && !suggestions?.length
+        ? ['Run `powersync login` to refresh your credentials.']
+        : suggestions;
 
     this.error(ux.colorize('red', displayMessage), {
       ...(error instanceof Error ? error : {}),
-      ...(journeyError?.errorData?.code && { code: journeyError.errorData.code }),
+      ...(serviceError?.errorData?.code && { code: serviceError.errorData.code }),
       exit: exitCode,
-      message: journeyErrorMessage ?? message,
-      ...(suggestions?.length && { suggestions })
+      message: serviceErrorDetails ?? message,
+      ...(authSuggestions?.length && { suggestions: authSuggestions })
     });
   }
 }
