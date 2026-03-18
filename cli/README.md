@@ -397,11 +397,15 @@ _See code: [src/commands/configure/ide.ts](https://github.com/powersync-ja/power
 ```
 USAGE
   $ powersync deploy [--deploy-timeout <value>] [--directory <value>] [--instance-id <value> --project-id
-    <value>] [--org-id <value>]
+    <value>] [--org-id <value>] [--skip-validations <value> | --validate-only <value>]
 
 FLAGS
-  --deploy-timeout=<value>  [default: 300] Seconds to wait after scheduling a deploy before timing out while polling
-                            status (default 300 seconds).
+  --deploy-timeout=<value>    [default: 300] Seconds to wait after scheduling a deploy before timing out while polling
+                              status (default 300 seconds).
+  --skip-validations=<value>  Comma-separated list of validation tests to skip. Options: configuration, connections,
+                              sync-config. Example: --skip-validations="configuration"
+  --validate-only=<value>     Comma-separated list of validation tests to run, skipping all others. Options:
+                              configuration, connections, sync-config. Example: --validate-only="configuration"
 
 PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config. Defaults to "powersync". This is
@@ -436,12 +440,16 @@ _See code: [src/commands/deploy/index.ts](https://github.com/powersync-ja/powers
 
 ```
 USAGE
-  $ powersync deploy service-config [--deploy-timeout <value>] [--directory <value>] [--instance-id <value> --project-id
-    <value>] [--org-id <value>]
+  $ powersync deploy service-config [--skip-validations <value> | --validate-only <value>] [--deploy-timeout <value>]
+    [--directory <value>] [--instance-id <value> --project-id <value>] [--org-id <value>]
 
 FLAGS
-  --deploy-timeout=<value>  [default: 300] Seconds to wait after scheduling a deploy before timing out while polling
-                            status (default 300 seconds).
+  --deploy-timeout=<value>    [default: 300] Seconds to wait after scheduling a deploy before timing out while polling
+                              status (default 300 seconds).
+  --skip-validations=<value>  Comma-separated list of validation tests to skip. Options: configuration, connections.
+                              Example: --skip-validations="configuration"
+  --validate-only=<value>     Comma-separated list of validation tests to run, skipping all others. Options:
+                              configuration, connections. Example: --validate-only="configuration"
 
 PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config. Defaults to "powersync". This is
@@ -474,11 +482,13 @@ _See code: [src/commands/deploy/service-config.ts](https://github.com/powersync-
 ```
 USAGE
   $ powersync deploy sync-config [--deploy-timeout <value>] [--directory <value>] [--instance-id <value> --project-id
-    <value>] [--org-id <value>] [--sync-config-file-path <value>]
+    <value>] [--org-id <value>] [--skip-validations <value> | ] [--sync-config-file-path <value>]
 
 FLAGS
   --deploy-timeout=<value>         [default: 300] Seconds to wait after scheduling a deploy before timing out while
                                    polling status (default 300 seconds).
+  --skip-validations=<value>       Comma-separated list of validation tests to skip. Options: sync-config. Example:
+                                   --skip-validations="sync-config"
   --sync-config-file-path=<value>  Path to a sync config file. If provided, this file will be validated and deployed
                                    instead of the default sync-config.yaml.
 
@@ -1437,6 +1447,12 @@ _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/
 ```
 USAGE
   $ powersync pull instance [--directory <value>] [--instance-id <value> --project-id <value>] [--org-id <value>]
+    [--overwrite]
+
+FLAGS
+  --overwrite  Overwrite existing service.yaml and sync-config.yaml if they exist. By default, if these files already
+               exist, the fetched configs will be written to service-fetched.yaml and sync-fetched.yaml to avoid
+               overwriting local changes.
 
 PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config. Defaults to "powersync". This is
@@ -1554,12 +1570,16 @@ Validate config schema, connections, and sync config before deploy.
 
 ```
 USAGE
-  $ powersync validate [--output human|json|yaml] [--api-url <value> | --instance-id <value> | --org-id
-    <value> | --project-id <value>] [--directory <value>]
+  $ powersync validate [--output human|json|yaml] [--skip-validations <value> | --validate-only <value>]
+    [--api-url <value> | --instance-id <value> | --org-id <value> | --project-id <value>] [--directory <value>]
 
 FLAGS
-  --output=<option>  [default: human] Output format: human-readable, json, or yaml.
-                     <options: human|json|yaml>
+  --output=<option>           [default: human] Output format: human-readable, json, or yaml.
+                              <options: human|json|yaml>
+  --skip-validations=<value>  Comma-separated list of validation tests to skip. Options: configuration, connections,
+                              sync-config. Example: --skip-validations="configuration"
+  --validate-only=<value>     Comma-separated list of validation tests to run, skipping all others. Options:
+                              configuration, connections, sync-config. Example: --validate-only="configuration"
 
 SELF_HOSTED_PROJECT FLAGS
   --api-url=<value>  [Self-hosted] PowerSync API URL. When set, context is treated as self-hosted (exclusive with

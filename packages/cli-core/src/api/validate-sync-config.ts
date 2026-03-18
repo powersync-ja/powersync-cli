@@ -17,6 +17,10 @@ import { createSelfHostedClient } from '../clients/create-self-hosted-client.js'
 export type ValidationTestRunResult = {
   errors?: string[];
   passed: boolean;
+  /**
+   * Output containing errors and warnings in a pretty human-readable format.
+   */
+  prettyOutput?: string;
   warnings?: string[];
 };
 
@@ -24,6 +28,15 @@ export type ValidationTestRunResult = {
  * Named validation test result for final reporting output.
  */
 export type ValidationTestResult = ValidationTestRunResult & {
+  /**
+   * Machine-readable kebab-case identifier that matches the values accepted by
+   * `--skip-validations` and `--validate-only` flags (e.g. `"sync-config"`).
+   */
+  id: string;
+  /**
+   * Human-readable display name. Preserved as a stable value for backward compatibility with
+   * scripts that pattern-match the JSON/YAML output of `powersync validate --output=json|yaml`.
+   */
   name: string;
 };
 

@@ -19,14 +19,12 @@ export async function testCloudConnections(
 ): Promise<TestConnectionResult[]> {
   const results: TestConnectionResult[] = [];
   for (const connection of connections) {
-    const response = await client.testConnection(
-      routes.TestConnectionRequest.encode({
-        app_id: linked.project_id,
-        connection: connection as Parameters<typeof routes.TestConnectionRequest.encode>[0]['connection'],
-        id: linked.instance_id,
-        org_id: linked.org_id
-      })
-    );
+    const response = await client.testConnection({
+      app_id: linked.project_id,
+      connection: connection as Parameters<typeof routes.TestConnectionRequest.encode>[0]['connection'],
+      id: linked.instance_id,
+      org_id: linked.org_id
+    });
     results.push({
       connectionName: connection.name ?? 'unnamed',
       response
