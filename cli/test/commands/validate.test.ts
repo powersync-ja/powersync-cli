@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import Validate from '../../src/commands/validate.js';
 import { root } from '../helpers/root.js';
-import { managementClientMock, MOCK_CLOUD_IDS, resetManagementClientMocks } from '../setup.js';
+import { managementClientMock, MOCK_CLOUD_CONFIG, MOCK_CLOUD_IDS, resetManagementClientMocks } from '../setup.js';
 
 const { instanceId: INSTANCE_ID, orgId: ORG_ID, projectId: PROJECT_ID } = MOCK_CLOUD_IDS;
 
@@ -70,6 +70,7 @@ describe('validate', () => {
     );
 
     // All validations succeed by default
+    managementClientMock.getInstanceConfig.mockResolvedValue(MOCK_CLOUD_CONFIG);
     managementClientMock.getInstanceStatus.mockResolvedValue({ operations: [], provisioned: true });
     managementClientMock.validateSyncRules.mockResolvedValue({ errors: [] });
     managementClientMock.testConnection.mockResolvedValue({

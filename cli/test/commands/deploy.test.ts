@@ -5,6 +5,7 @@ import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { stringify } from 'yaml';
 
 import DeployCommand from '../../src/commands/deploy/index.js';
 import { root } from '../helpers/root.js';
@@ -30,6 +31,10 @@ function writeServiceYaml(projectDir: string, type: 'cloud' | 'self-hosted') {
       ? '_type: cloud\nname: test-instance\nregion: us\nreplication:\n  connections:\n    - name: default\n      type: postgresql\n      uri: postgres://user:pass@host/db\n'
       : `_type: ${type}\nregion: us\n`;
   writeFileSync(join(projectDir, SERVICE_FILENAME), content, 'utf8');
+}
+
+function writeCloudServiceYaml(projectDir: string, config: Record<string, unknown>) {
+  writeFileSync(join(projectDir, SERVICE_FILENAME), stringify(config), 'utf8');
 }
 
 function writeLinkYaml(projectDir: string, opts: { instance_id: string; org_id: string; project_id: string }) {
@@ -148,10 +153,81 @@ describe('deploy', () => {
       );
     });
 
+    it('fails before deploy when attempting to change the instance region', async () => {
+      managementClientMock.getInstanceConfig.mockResolvedValue({
+        config: { region: 'eu', replication: { connections: [{ name: 'default', type: 'postgresql' }] } },
+        id: INSTANCE_ID,
+        name: 'test-instance',
+        sync_rules: ''
+      });
+
+      const result = await runDeployDirect();
+
+      expect(managementClientMock.deployInstance).not.toHaveBeenCalled();
+      expect(result.error?.message).toBe('Validation tests failed. Fix the issues and try deploying again.');
+      expect(result.stdout).toContain('The region cannot be changed after initial deployment.');
+      expect(result.stdout).toContain('Existing region: eu. Configured region: us.');
+    });
+
     it('skips sync config validation when --skip-validations=sync-config is passed', async () => {
       const result = await runDeployDirect({ args: ['--skip-validations=sync-config'] });
       expect(managementClientMock.validateSyncRules).not.toHaveBeenCalled();
       expect(managementClientMock.deployInstance).toHaveBeenCalled();
+      expect(result.error?.message).toMatch(
+        new RegExp(`Failed to .* instance ${INSTANCE_ID} in project ${PROJECT_ID} in org ${ORG_ID}`)
+      );
+    });
+
+    it('deploys with additional config properties when configuration validation is skipped', async () => {
+      const projectDir = join(tmpDir, PROJECT_DIR);
+      const extraConnectionConfig = {
+        max_parameter_query_results: 123,
+        parallelism: {
+          fetch: 4
+        }
+      };
+      writeCloudServiceYaml(projectDir, {
+        _type: 'cloud',
+        name: 'test-instance',
+        region: 'us',
+        replication: {
+          connections: [
+            {
+              config: extraConnectionConfig,
+              name: 'default',
+              type: 'postgresql',
+              uri: 'postgres://user:pass@host/db'
+            }
+          ]
+        }
+      });
+
+      const result = await runDeployDirect({ args: ['--skip-validations=configuration'] });
+
+      expect(managementClientMock.testConnection).toHaveBeenCalled();
+      expect(managementClientMock.validateSyncRules).toHaveBeenCalled();
+      expect(managementClientMock.deployInstance).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app_id: PROJECT_ID,
+          config: expect.objectContaining({
+            region: 'us',
+            replication: {
+              connections: [
+                {
+                  config: extraConnectionConfig,
+                  name: 'default',
+                  type: 'postgresql',
+                  uri: 'postgres://user:pass@host/db'
+                }
+              ]
+            }
+          }),
+          id: INSTANCE_ID,
+          name: 'test-instance',
+          org_id: ORG_ID,
+          sync_rules: 'bucket_definitions:\n  global:\n    include: true\n'
+        })
+      );
       expect(result.error?.message).toMatch(
         new RegExp(`Failed to .* instance ${INSTANCE_ID} in project ${PROJECT_ID} in org ${ORG_ID}`)
       );

@@ -109,8 +109,7 @@ export default class DeploySyncConfig extends BaseDeployCommand {
     this.serviceConfig = {
       _type: linked.type,
       name: cloudConfigState.name,
-      ...cloudConfigState.config,
-      ...linked
+      ...cloudConfigState.config
     };
 
     // Validate sync config
@@ -133,7 +132,7 @@ export default class DeploySyncConfig extends BaseDeployCommand {
         `\nThe instance is not currently provisioned. Triggering a deploy in order to reprovision. This may take a few minutes.\n`
       );
       // Don't yet update the sync config since the instance is not provisioned, but deploy to trigger provisioning
-      await this.deployAll({ cloudConfigState, deployTimeoutMs, updateSyncConfig: false });
+      await this.provision({ cloudConfigState, deployTimeoutMs, indentationLevel: 1 });
     }
 
     this.log('Performing validations before deploy...');
@@ -141,7 +140,12 @@ export default class DeploySyncConfig extends BaseDeployCommand {
     const validationsFilter = SYNC_CONFIG_VALIDATION_FLAGS.parseValidationTestFlags(flags);
     const validationRunner = new ValidationsRunner({
       skippedTests: validationsFilter.skipped,
-      tests: getCloudValidations({ project, tests: validationsFilter.testsToRun })
+      tests: getCloudValidations({
+        cloudConfigState,
+        project,
+        serviceConfigState: this.serviceConfig!,
+        tests: validationsFilter.testsToRun
+      })
     });
 
     const result = await validationRunner.runWithProgress({ printSummary: (summary) => this.log(summary) });

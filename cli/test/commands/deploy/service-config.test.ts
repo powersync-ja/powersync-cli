@@ -164,6 +164,23 @@ describe('deploy:service-config', () => {
       expect(result.error?.message).toMatch(/mock deploy failure/);
     });
 
+    it('fails before deploy when attempting to change the instance region', async () => {
+      managementClientMock.getInstanceConfig.mockResolvedValue({
+        ...MOCK_CLOUD_CONFIG,
+        config: {
+          region: 'eu',
+          replication: { connections: [{ name: 'default', type: 'postgresql', uri: 'postgres://user:pass@host/db' }] }
+        }
+      });
+
+      const result = await runServiceConfigDirect();
+
+      expect(managementClientMock.deployInstance).not.toHaveBeenCalled();
+      expect(result.error?.message).toBe('Validation tests failed. Fix the issues and try deploying again.');
+      expect(result.stdout).toContain('The region cannot be changed after initial deployment.');
+      expect(result.stdout).toContain('Existing region: eu. Configured region: us.');
+    });
+
     it('does not call testConnection when --skip-validations=connections is passed', async () => {
       const result = await runServiceConfigDirect(['--skip-validations=connections']);
       expect(managementClientMock.testConnection).not.toHaveBeenCalled();

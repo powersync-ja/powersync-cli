@@ -23,6 +23,24 @@ export const STABLE_OUTPUT_NAMES: Record<ValidationTest, string> = {
 };
 
 /**
+ * Merges two or more `ValidationTestRunResult` objects into one.
+ * The merged result passes only if all inputs passed.
+ * Errors, warnings, and prettyOutput from all inputs are combined.
+ */
+export function mergeValidationTestRunResults(...results: ValidationTestRunResult[]): ValidationTestRunResult {
+  const errors = results.flatMap((r) => r.errors ?? []);
+  const warnings = results.flatMap((r) => r.warnings ?? []);
+  const prettyParts = results.map((r) => r.prettyOutput).filter(Boolean);
+
+  return {
+    errors: errors.length > 0 ? errors : undefined,
+    passed: results.every((r) => r.passed),
+    prettyOutput: prettyParts.length > 0 ? prettyParts.join('\n') : undefined,
+    warnings: warnings.length > 0 ? warnings : undefined
+  };
+}
+
+/**
  * Formats spinner text showing per-test progress while tests are running.
  * These logs are indeted with bullets for readability, and update in-place as each test settles to show pass/fail status.
  */

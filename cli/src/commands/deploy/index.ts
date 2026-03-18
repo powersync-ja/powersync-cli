@@ -35,16 +35,19 @@ export default class DeployAll extends BaseDeployCommand {
 
     const deployTimeoutMs = (flags['deploy-timeout'] ?? DEFAULT_DEPLOY_TIMEOUT_MS / 1000) * 1000;
 
-    // Parse and store for later
-    this.parseLocalConfig(project.projectDirectory);
+    const validationTestsFilter = GENERAL_VALIDATION_FLAG_HELPERS.parseValidationTestFlags(flags);
 
     // The existing config is required to deploy changes. The instance should have been created already.
     const cloudConfigState = await this.loadCloudConfigState();
 
+    // Parse and store for later
+    this.parseLocalConfig(
+      project.projectDirectory,
+      validationTestsFilter.skipped.includes(ValidationTest.CONFIGURATION)
+    );
+
     // Start of validations
     this.log('Performing validations before deploy...');
-
-    const validationTestsFilter = GENERAL_VALIDATION_FLAG_HELPERS.parseValidationTestFlags(flags);
 
     const instanceStatus = await this.client
       .getInstanceStatus({
@@ -74,7 +77,9 @@ export default class DeployAll extends BaseDeployCommand {
       const runner = new ValidationsRunner({
         skippedTests: validationTestsFilter.skipped,
         tests: getCloudValidations({
+          cloudConfigState,
           project,
+          serviceConfigState: this.serviceConfig!,
           // We only remove the sync-config validation, this allows users to additionally skip other validations like connections and service config.
           tests: validationTestsFilter.testsToRun.filter((test) => test !== ValidationTest['SYNC-CONFIG'])
         })
@@ -123,7 +128,12 @@ export default class DeployAll extends BaseDeployCommand {
 
     const runner = new ValidationsRunner({
       skippedTests: finalSkippedTests,
-      tests: getCloudValidations({ project, tests: finalTestsToRun })
+      tests: getCloudValidations({
+        cloudConfigState,
+        project,
+        serviceConfigState: this.serviceConfig!,
+        tests: finalTestsToRun
+      })
     });
 
     const result = await runner.runWithProgress({ printSummary: (summary) => this.log(summary) });

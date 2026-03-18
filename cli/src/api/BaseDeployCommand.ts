@@ -1,11 +1,15 @@
 import { Flags, ux } from '@oclif/core';
 import { CloudInstanceCommand, SERVICE_FILENAME } from '@powersync/cli-core';
-import { ServiceCloudConfigDecoded } from '@powersync/cli-schemas';
+import {
+  AdditionalCloudConfigFields,
+  BasePowerSyncHostedConfigDecoded,
+  ServiceCloudConfigDecoded
+} from '@powersync/cli-schemas';
 import { routes } from '@powersync/management-types';
-import { ObjectId } from 'bson';
 import ora from 'ora';
 
 import { DEFAULT_DEPLOY_TIMEOUT_MS, waitForOperationStatusChange } from './cloud/wait-for-operation.js';
+import { parseLocalCloudServiceConfig } from './parse-local-cloud-service-config.js';
 
 export default abstract class BaseDeployCommand extends CloudInstanceCommand {
   static flags = {
@@ -54,21 +58,21 @@ export default abstract class BaseDeployCommand extends CloudInstanceCommand {
       });
     }
 
-    return client.deployInstance(
-      routes.DeployInstanceRequest.encode({
-        // Spread the existing config like name, and program version contraints.
-        // Should we allow specifying these in the config file?
-        ...cloudConfigState,
-        app_id: new ObjectId(linked.project_id),
-        // The encoding will ensure the correct typing
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        config: config as any,
-        // Allow updating the instance name
-        name: config.name,
-        org_id: new ObjectId(linked.org_id),
-        sync_rules: updateSyncConfig ? syncRulesContent : cloudConfigState.sync_rules
-      })
-    );
+    // We don't want to add the additional fields which specify the cli cloud config.
+    const filteredConfig = Object.fromEntries(
+      Object.entries(config).filter(([key]) => !Object.keys(AdditionalCloudConfigFields.props.shape).includes(key))
+    ) as BasePowerSyncHostedConfigDecoded;
+
+    return client.deployInstance({
+      app_id: linked.project_id,
+      config: filteredConfig,
+      id: cloudConfigState.id,
+      name: config.name,
+      org_id: linked.org_id,
+      // TODO Should we allow specifying these in the config file?
+      program_version: cloudConfigState.program_version,
+      sync_rules: updateSyncConfig ? syncRulesContent : cloudConfigState.sync_rules
+    });
   }
 
   protected async loadCloudConfigState(): Promise<routes.InstanceConfigResponse> {
@@ -88,8 +92,15 @@ export default abstract class BaseDeployCommand extends CloudInstanceCommand {
       });
   }
 
-  override parseLocalConfig(projectDirectory: string): ServiceCloudConfigDecoded {
-    const config = super.parseLocalConfig(projectDirectory);
+  override parseLocalConfig(projectDirectory: string, useRawConfig?: boolean): ServiceCloudConfigDecoded {
+    const config = parseLocalCloudServiceConfig(projectDirectory, useRawConfig ?? false);
+    if (!config) {
+      throw new Error(
+        `Service config file not found in ${projectDirectory}. Please create a ${SERVICE_FILENAME} file.`
+      );
+    }
+
+    this.serviceConfig = config;
 
     /**
      * This is a temporary hack to maintain compatibilty with the PowerSync Dashboard.

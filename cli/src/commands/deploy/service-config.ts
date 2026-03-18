@@ -32,17 +32,23 @@ export default class DeployServiceConfig extends BaseDeployCommand {
 
     const deployTimeoutMs = (flags['deploy-timeout'] ?? DEFAULT_DEPLOY_TIMEOUT_MS / 1000) * 1000;
 
+    const validationsFilter = SERVICE_CONFIG_VALIDATION_FLAGS.parseValidationTestFlags(flags);
+
     // Parse and store for later
-    this.parseLocalConfig(project.projectDirectory);
+    this.parseLocalConfig(project.projectDirectory, validationsFilter.skipped.includes(ValidationTest.CONFIGURATION));
 
     // The existing config is required to deploy changes. The instance should have been created already.
     const cloudConfigState = await this.loadCloudConfigState();
 
     this.log('Performing validations before deploy...');
-    const validationsFilter = SERVICE_CONFIG_VALIDATION_FLAGS.parseValidationTestFlags(flags);
     const validationRunner = new ValidationsRunner({
       skippedTests: validationsFilter.skipped,
-      tests: getCloudValidations({ project, tests: validationsFilter.testsToRun })
+      tests: getCloudValidations({
+        cloudConfigState,
+        project,
+        serviceConfigState: this.serviceConfig!,
+        tests: validationsFilter.testsToRun
+      })
     });
 
     const result = await validationRunner.runWithProgress({ printSummary: (summary) => this.log(summary) });
