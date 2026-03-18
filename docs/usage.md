@@ -45,7 +45,7 @@ powersync deploy sync-config --directory=powersync      # sync-config.yaml only
 
 **Alternate sync config file**
 
-These commands accept **`--sync-config-file-path=/path/to/sync.yaml`** instead of **`sync-config.yaml`** in the project directory: **`powersync deploy`**, **`powersync deploy sync-config`**, **`powersync validate`**. Other Cloud commands (e.g. **`deploy service-config`**, **`destroy`**, **`status`**) do not expose this flag.
+These commands accept **`--sync-config-file-path=/path/to/sync.yaml`** instead of **`sync-config.yaml`** in the project directory: **`powersync deploy`**, **`powersync deploy sync-config`**, **`powersync validate`**, **`powersync generate schema`**. Other commands (e.g. **`deploy service-config`**, **`generate token`**, **`destroy`**, **`status`**) do not expose this flag.
 
 **Single directory and link file, with `!env` substitution**
 
