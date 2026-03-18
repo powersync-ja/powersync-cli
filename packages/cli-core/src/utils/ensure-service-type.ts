@@ -29,7 +29,7 @@ export function ensureServiceTypeMatches(options: EnsureServiceTypeMatchesOption
   if (!existsSync(servicePath)) {
     if (configRequired) {
       command.styledError({
-        message: `${SERVICE_FILENAME} in "${directoryLabel}" is missing. Add \`_type: ${expectedType}\` for this command.`
+        message: `${SERVICE_FILENAME} in "./${directoryLabel}/" is missing. Ensure it exists and has \`_type: ${expectedType}\`. Use ${ux.colorize('blue', `powersync init ${expectedType}`)} to create a project of the correct type.`
       });
     }
 
@@ -41,7 +41,7 @@ export function ensureServiceTypeMatches(options: EnsureServiceTypeMatchesOption
 
   if (serviceJson?._type === undefined || serviceJson?._type === null) {
     command.styledError({
-      message: `${SERVICE_FILENAME} in "${directoryLabel}" is missing \`_type\`. Add \`_type: ${expectedType}\` for this command.`
+      message: `${SERVICE_FILENAME} in "./${directoryLabel}/" is missing \`_type\`. Add \`_type: ${expectedType}\` for this command.`
     });
   }
 

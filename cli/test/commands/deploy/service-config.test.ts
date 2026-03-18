@@ -151,6 +151,58 @@ describe('deploy:service-config', () => {
     });
   });
 
+  describe('--skip-validations / --validate-only', () => {
+    beforeEach(() => {
+      const projectDir = makeProjectDir(tmpDir);
+      writeServiceYaml(projectDir);
+      writeLinkYaml(projectDir);
+    });
+
+    it('calls testConnection when no flags are passed', async () => {
+      const result = await runServiceConfigDirect();
+      expect(managementClientMock.testConnection).toHaveBeenCalled();
+      expect(result.error?.message).toMatch(/mock deploy failure/);
+    });
+
+    it('fails before deploy when attempting to change the instance region', async () => {
+      managementClientMock.getInstanceConfig.mockResolvedValue({
+        ...MOCK_CLOUD_CONFIG,
+        config: {
+          region: 'eu',
+          replication: { connections: [{ name: 'default', type: 'postgresql', uri: 'postgres://user:pass@host/db' }] }
+        }
+      });
+
+      const result = await runServiceConfigDirect();
+
+      expect(managementClientMock.deployInstance).not.toHaveBeenCalled();
+      expect(result.error?.message).toBe('Validation tests failed. Fix the issues and try deploying again.');
+      expect(result.stdout).toContain('The region cannot be changed after initial deployment.');
+      expect(result.stdout).toContain('Existing region: eu. Configured region: us.');
+    });
+
+    it('does not call testConnection when --skip-validations=connections is passed', async () => {
+      const result = await runServiceConfigDirect(['--skip-validations=connections']);
+      expect(managementClientMock.testConnection).not.toHaveBeenCalled();
+      expect(managementClientMock.deployInstance).toHaveBeenCalled();
+      expect(result.error?.message).toMatch(/mock deploy failure/);
+    });
+
+    it('does not call testConnection when --validate-only=configuration is passed', async () => {
+      const result = await runServiceConfigDirect(['--validate-only=configuration']);
+      expect(managementClientMock.testConnection).not.toHaveBeenCalled();
+      expect(managementClientMock.deployInstance).toHaveBeenCalled();
+      expect(result.error?.message).toMatch(/mock deploy failure/);
+    });
+
+    it('calls testConnection when --validate-only=connections is passed', async () => {
+      const result = await runServiceConfigDirect(['--validate-only=connections']);
+      expect(managementClientMock.testConnection).toHaveBeenCalled();
+      expect(managementClientMock.deployInstance).toHaveBeenCalled();
+      expect(result.error?.message).toMatch(/mock deploy failure/);
+    });
+  });
+
   it('errors when service.yaml is missing', async () => {
     const projectDir = makeProjectDir(tmpDir);
     writeLinkYaml(projectDir);

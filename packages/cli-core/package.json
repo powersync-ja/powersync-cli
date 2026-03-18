@@ -32,9 +32,9 @@
     "@journeyapps-labs/micro-errors": "^1.0.1",
     "yaml": "^2",
     "@journeyapps-labs/common-sdk": "1.0.2",
-    "@powersync/management-client": "^0.0.6",
-    "@powersync/management-types": "^0.0.5",
-    "@powersync/service-client": "^0.0.3",
+    "@powersync/management-client": "catalog:",
+    "@powersync/management-types": "catalog:",
+    "@powersync/service-client": "catalog:",
     "keychain": "^1.5.0"
   },
   "devDependencies": {
