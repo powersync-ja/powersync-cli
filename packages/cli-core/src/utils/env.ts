@@ -1,5 +1,5 @@
 const DEFAULT_PS_MANAGEMENT_SERVICE_URL = 'https://powersync-api.journeyapps.com';
-const DEFAULT_PS_ACCOUNTS_HUB_SERVICE_URL = 'https://accounts.journeyapps.com';
+const DEFAULT_PS_ACCOUNTS_HUB_SERVICE_URL = 'https://accounts.powersync.com';
 const DEFAULT_PS_DASHBOARD_URL = 'https://dashboard.powersync.com';
 
 export type ENV = {

@@ -16,8 +16,8 @@ catalogs:
       specifier: ^0.0.3
       version: 0.0.3
     '@powersync/service-schema':
-      specifier: ^1.20.1
-      version: 1.20.1
+      specifier: ^1.20.2
+      version: 1.20.2
     '@powersync/service-sync-rules':
       specifier: ^0.33.0
       version: 0.33.0
@@ -342,7 +342,7 @@ importers:
         version: 0.0.5
       '@powersync/service-schema':
         specifier: 'catalog:'
-        version: 1.20.1
+        version: 1.20.2
       '@powersync/service-types':
         specifier: 'catalog:'
         version: 0.15.0
@@ -416,7 +416,7 @@ importers:
         version: link:../../packages/schemas
       '@powersync/service-schema':
         specifier: 'catalog:'
-        version: 1.20.1
+        version: 1.20.2
       '@powersync/service-types':
         specifier: 'catalog:'
         version: 0.15.0
@@ -1620,8 +1620,8 @@ packages:
   '@powersync/service-jsonbig@0.17.12':
     resolution: {integrity: sha512-ilssJP6I+v8LfBCIwRJlKZhuxVT7pGhYg/B2+xsodVRRmTkyRDpmBpV+RlabksbtR1H0G3aXm5AtNYwmfblBkQ==}
 
-  '@powersync/service-schema@1.20.1':
-    resolution: {integrity: sha512-NH045fvrVrn2rkkFG4oREzD2kdX7NzXiS1d1V8U04+ck+26c+56yWYPQKBymovU3QGLNdwkFz/OWcNYnIN4n1w==}
+  '@powersync/service-schema@1.20.2':
+    resolution: {integrity: sha512-hfhKYSkTGVMKMTDt/s91NjyCZYf0Zv5/ptQtGdY0BGYfbMXXNv7J+BJDtGYtkeqqbZKbMe4rXZ/ijckIznk08w==}
 
   '@powersync/service-sync-rules@0.33.0':
     resolution: {integrity: sha512-1KrvKWRPp4dZEB/8mWqIKXyZ0A0W6hnAky48jZMlhKQHPybm4QVmJh/809MJkhdkZaus+C37PHg1K/gQaa42Hg==}
@@ -9053,7 +9053,7 @@ snapshots:
     dependencies:
       lossless-json: 2.0.11
 
-  '@powersync/service-schema@1.20.1': {}
+  '@powersync/service-schema@1.20.2': {}
 
   '@powersync/service-sync-rules@0.33.0':
     dependencies:
