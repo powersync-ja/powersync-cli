@@ -70,6 +70,9 @@ importers:
       '@inquirer/prompts':
         specifier: ^7.2.0
         version: 7.10.1(@types/node@24.10.10)
+      '@journeyapps-labs/common-utils':
+        specifier: ^1.0.1
+        version: 1.0.1
       '@oclif/core':
         specifier: ^4
         version: 4.8.0
@@ -1447,6 +1450,9 @@ packages:
 
   '@journeyapps-labs/common-sdk@1.0.3':
     resolution: {integrity: sha512-FjmLBhy6VjT+jrQc/uKKpHetFS+qW/s8rAZd4i+4T5Iv5kNs0kAkDBdK0ArmryMDvdrDmFZukkziGIv1Sgw3jA==}
+
+  '@journeyapps-labs/common-utils@1.0.1':
+    resolution: {integrity: sha512-9P1f++wHSveqMQIWulLdGnDgvMdEqXP+j8eIscDm2bAuiMCIbij856AQgdrG0mQPPhL5SlUNlSGrfdKfhul2QA==}
 
   '@journeyapps-labs/micro-codecs@1.0.1':
     resolution: {integrity: sha512-Iy2sElOvk6C9NpzLHi0M2CYmVHVSRYK0y+BP/wRzaJ45z/3OUuXdwp9TqCEfVlqDIdDafoia7ES6X7oBWEBODw==}
@@ -8473,6 +8479,10 @@ snapshots:
       - terser
       - tsx
       - yaml
+
+  '@journeyapps-labs/common-utils@1.0.1':
+    dependencies:
+      uuid: 13.0.0
 
   '@journeyapps-labs/micro-codecs@1.0.1(@types/debug@4.1.12)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)':
     dependencies:

@@ -206,4 +206,28 @@ describe('deploy:sync-config', () => {
 
     expect(result.error?.message).toMatch(/nonexistent/);
   });
+
+  it('validates sync config before deploying', async () => {
+    const projectDir = makeProjectDir(tmpDir);
+    writeLinkYaml(projectDir);
+    writeFileSync(join(projectDir, SYNC_FILENAME), SYNC_CONFIG_CONTENT, 'utf8');
+
+    const result = await runSyncConfigDirect();
+
+    expect(managementClientMock.validateSyncRules).toHaveBeenCalled();
+    expect(managementClientMock.deployInstance).toHaveBeenCalled();
+    expect(result.error?.message).toMatch(/mock deploy failure/);
+  });
+
+  it('skips sync config validation when --skip-validations=sync-config is passed', async () => {
+    const projectDir = makeProjectDir(tmpDir);
+    writeLinkYaml(projectDir);
+    writeFileSync(join(projectDir, SYNC_FILENAME), SYNC_CONFIG_CONTENT, 'utf8');
+
+    const result = await runSyncConfigDirect(['--skip-validations=sync-config']);
+
+    expect(managementClientMock.validateSyncRules).not.toHaveBeenCalled();
+    expect(managementClientMock.deployInstance).toHaveBeenCalled();
+    expect(result.error?.message).toMatch(/mock deploy failure/);
+  });
 });

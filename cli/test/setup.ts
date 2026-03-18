@@ -12,6 +12,27 @@ export const MOCK_CLOUD_IDS = {
   projectId: '699ef9c371c56d0007320543'
 } as const;
 
+export const MOCK_CLOUD_CONFIG: routes.InstanceConfigResponse = {
+  config: {
+    region: 'us',
+    replication: {
+      connections: [
+        {
+          type: ConnectionType.MONGODB,
+          uri: 'mongodb://user:pass@host/db'
+        }
+      ]
+    }
+  },
+  id: MOCK_CLOUD_IDS.instanceId,
+  name: 'test-instance',
+  org_id: MOCK_CLOUD_IDS.orgId,
+  program_version: {
+    channel: 'stable'
+  },
+  project_id: MOCK_CLOUD_IDS.projectId
+} as const;
+
 export const managementClientMock = {
   createInstance: vi.fn(),
   deactivateInstance: vi.fn(),
@@ -53,9 +74,24 @@ class MockPowerSyncManagementClient {
   }
 }
 
+// Mocked for core-api usages
+vi.mock('../../packages/cli-core/dist/clients/create-cloud-client.js', async () => ({
+  createCloudClient: () => managementClientMock
+}));
+
+// Mocked for usages in this package's imports.
+vi.mock('@powersync/cli-core', async () => {
+  const actual = await vi.importActual('@powersync/cli-core');
+  return {
+    ...actual,
+    createCloudClient: () => managementClientMock
+  };
+});
 vi.mock('@powersync/management-client', () => ({
   PowerSyncManagementClient: MockPowerSyncManagementClient
 }));
+
+import { ConnectionType, routes } from '@powersync/management-types';
 
 import { root } from './helpers/root.js';
 

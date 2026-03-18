@@ -1,12 +1,14 @@
 import { ux } from '@oclif/core';
 
+import BaseDeployCommand from '../../api/BaseDeployCommand.js';
 import { DEFAULT_DEPLOY_TIMEOUT_MS } from '../../api/cloud/wait-for-operation.js';
-import { DeployCommandBaseWithSyncPath } from './deploy-with-sync-base.js';
+import { getCloudValidations } from '../../api/validations/cloud-validations.js';
+import { GENERAL_VALIDATION_FLAG_HELPERS } from '../../api/validations/validation-flags.js';
+import { formatValidationHuman } from '../../api/validations/validation-utils.js';
+import { ValidationsRunner } from '../../api/validations/ValidationsRunner.js';
+import { ValidationTest } from '../../api/validations/ValidationTestDefinition.js';
 
-/**
- * Deploys the sync config and service configuration
- */
-export default class DeployAll extends DeployCommandBaseWithSyncPath {
+export default class DeployAll extends BaseDeployCommand {
   static description = [
     'Deploy local config (service.yaml, sync config) to the linked PowerSync Cloud instance.',
     'Validates connections and sync config before deploying.',
@@ -18,7 +20,8 @@ export default class DeployAll extends DeployCommandBaseWithSyncPath {
     '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id>'
   ];
   static flags = {
-    ...DeployCommandBaseWithSyncPath.flags
+    ...BaseDeployCommand.flags,
+    ...GENERAL_VALIDATION_FLAG_HELPERS.flags
   };
   static summary = '[Cloud only] Deploy local config to the linked Cloud instance (connections + auth + sync config).';
 
@@ -31,10 +34,17 @@ export default class DeployAll extends DeployCommandBaseWithSyncPath {
 
     const deployTimeoutMs = (flags['deploy-timeout'] ?? DEFAULT_DEPLOY_TIMEOUT_MS / 1000) * 1000;
 
-    this.parseLocalConfig(project.projectDirectory);
+    const validationTestsFilter = GENERAL_VALIDATION_FLAG_HELPERS.parseValidationTestFlags(flags);
 
     const cloudConfigState = await this.loadCloudConfigState();
 
+    // Parse and store for later
+    this.parseLocalConfig(
+      project.projectDirectory,
+      validationTestsFilter.skipped.includes(ValidationTest.CONFIGURATION)
+    );
+
+    // Start of validations
     this.log('Performing validations before deploy...');
 
     const instanceStatus = await this.client
@@ -54,11 +64,39 @@ export default class DeployAll extends DeployCommandBaseWithSyncPath {
     const requiresReprovision = instanceStatus.provisioned === false;
     const syncConfigHasChanges = project.syncRulesContent !== cloudConfigState.sync_rules;
 
-    await this.validateServiceConfig({ cloudConfigState });
-    await this.testConnections();
+    let didReprovision = false;
 
-    this.log('\tValidating sync config...');
-    if (requiresReprovision) {
+    if (requiresReprovision && validationTestsFilter.testsToRun.includes(ValidationTest['SYNC-CONFIG'])) {
+      /**
+       * The instance is deprovisioned and sync-config validation is requested.
+       * Sync-config validation requires a provisioned instance, so we can't validate it yet.
+       * We must first validate everything else, reprovision, and then validate sync-config separately.
+       */
+      const runner = new ValidationsRunner({
+        skippedTests: validationTestsFilter.skipped,
+        tests: getCloudValidations({
+          cloudConfigState,
+          project,
+          serviceConfigState: this.serviceConfig!,
+          // We only remove the sync-config validation, this allows users to additionally skip other validations like connections and service config.
+          tests: validationTestsFilter.testsToRun.filter((test) => test !== ValidationTest['SYNC-CONFIG'])
+        })
+      });
+      const intermediateResult = await runner.run();
+      // Always print the intermediate results so the user can see those tests passed before we reprovision.
+      this.log(formatValidationHuman(intermediateResult));
+      if (!intermediateResult.passed) {
+        this.styledError({
+          message:
+            'The instance is currently deprovisioned. We need to reprovision the instance to validate the sync config, but there are other validation errors that need to be fixed first.',
+          suggestions: ['Review the validation test results above, fix any issues, and run deploy again.']
+        });
+      }
+
+      /**
+       * The non-sync-config validations passed. Reprovision now so that the instance is active
+       * and we can validate the sync config against it in the second pass below.
+       */
       this.log(
         [
           `The instance is ${ux.colorize('yellow', 'not currently provisioned')} and we have detected changes to the sync config.`,
@@ -71,11 +109,38 @@ export default class DeployAll extends DeployCommandBaseWithSyncPath {
         deployTimeoutMs,
         indentationLevel: 1
       });
+      didReprovision = true;
     }
 
-    await this.validateSyncConfig();
+    /**
+     * Run the final validation pass.
+     * If we reprovisioned above, all non-sync-config tests already passed and their results were
+     * printed, so we only need to run SYNC-CONFIG here. We don't re-list the already-run tests
+     * as skipped either — the printed intermediate results already communicated their status.
+     * If no reprovision was needed, run all requested tests as normal.
+     */
+    const finalTestsToRun = didReprovision ? [ValidationTest['SYNC-CONFIG']] : validationTestsFilter.testsToRun;
+    // Always use only the user-specified skipped tests. If we reprovisioned, all other requested tests
+    // already ran and their results were printed — there's no need to re-surface them as skipped here.
+    const finalSkippedTests = validationTestsFilter.skipped;
 
-    this.log('Validations completed successfully.\n');
+    const runner = new ValidationsRunner({
+      skippedTests: finalSkippedTests,
+      tests: getCloudValidations({
+        cloudConfigState,
+        project,
+        serviceConfigState: this.serviceConfig!,
+        tests: finalTestsToRun
+      })
+    });
+
+    const result = await runner.runWithProgress({ printSummary: (summary) => this.log(summary) });
+    if (!result.passed) {
+      this.styledError({
+        message: 'Validation tests failed. Fix the issues and try deploying again.',
+        suggestions: ['Review the validation test results above, fix any issues, and run deploy again.']
+      });
+    }
 
     await this.deployAll({ cloudConfigState, deployTimeoutMs, updateSyncConfig: syncConfigHasChanges });
   }

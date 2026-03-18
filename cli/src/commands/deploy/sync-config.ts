@@ -2,17 +2,32 @@ import { ux } from '@oclif/core/ux';
 import { routes } from '@powersync/management-types';
 import { ObjectId } from 'bson';
 
+import BaseDeployCommand from '../../api/BaseDeployCommand.js';
 import { DEFAULT_DEPLOY_TIMEOUT_MS } from '../../api/cloud/wait-for-operation.js';
-import { DeployCommandBaseWithSyncPath } from './deploy-with-sync-base.js';
+import { getCloudValidations } from '../../api/validations/cloud-validations.js';
+import { generateValidationTestFlags } from '../../api/validations/validation-flags.js';
+import { ValidationsRunner } from '../../api/validations/ValidationsRunner.js';
+import { ValidationTest } from '../../api/validations/ValidationTestDefinition.js';
 
-export default class DeploySyncConfig extends DeployCommandBaseWithSyncPath {
+const SYNC_CONFIG_VALIDATION_FLAGS = generateValidationTestFlags({
+  // We currently only validate sync config for this command.
+  limitOptions: [ValidationTest['SYNC-CONFIG']]
+});
+
+export default class DeploySyncConfig extends BaseDeployCommand {
   static description = 'Deploy only sync config changes.';
   static examples = [
     '<%= config.bin %> <%= command.id %>',
     '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id>'
   ];
   static flags = {
-    ...DeployCommandBaseWithSyncPath.flags
+    ...BaseDeployCommand.flags,
+    ...SYNC_CONFIG_VALIDATION_FLAGS.flags,
+    'sync-config-file-path': Flags.file({
+      description:
+        'Path to a sync config file. If provided, this file will be validated and deployed instead of the default sync-config.yaml.',
+      exists: true
+    })
   };
   static summary = '[Cloud only] Deploy only local sync config to the linked Cloud instance.';
 
@@ -67,6 +82,17 @@ export default class DeploySyncConfig extends DeployCommandBaseWithSyncPath {
     const { linked } = project;
     const deployTimeoutMs = (flags['deploy-timeout'] ?? DEFAULT_DEPLOY_TIMEOUT_MS / 1000) * 1000;
 
+    const syncConfigFilePath = flags['sync-config-file-path'];
+    if (syncConfigFilePath) {
+      project.syncRulesContent = readFileSync(syncConfigFilePath, 'utf8');
+    }
+
+    if (!project.syncRulesContent) {
+      this.styledError({
+        message: `Sync config content not loaded. Ensure sync config is present and valid.`
+      });
+    }
+
     // The existing config is required to deploy changes. The instance should have been created already.
     const cloudConfigState = await this.loadCloudConfigState();
 
@@ -81,11 +107,10 @@ export default class DeploySyncConfig extends DeployCommandBaseWithSyncPath {
     this.serviceConfig = {
       _type: linked.type,
       name: cloudConfigState.name,
-      ...cloudConfigState.config,
-      ...linked
+      ...cloudConfigState.config
     };
-    this.log('Performing validations before deploy...');
 
+    // Validate sync config
     const instanceStatus = await this.client
       .getInstanceStatus({
         app_id: project.linked.project_id,
@@ -105,14 +130,29 @@ export default class DeploySyncConfig extends DeployCommandBaseWithSyncPath {
         `\nThe instance is not currently provisioned. Triggering a deploy in order to reprovision. This may take a few minutes.\n`
       );
       // Don't yet update the sync config since the instance is not provisioned, but deploy to trigger provisioning
-      await this.deployAll({ cloudConfigState, deployTimeoutMs, updateSyncConfig: false });
+      await this.provision({ cloudConfigState, deployTimeoutMs, indentationLevel: 1 });
     }
 
-    // Validate sync config
-    this.log('\tValidating sync config...');
-    await this.validateSyncConfig();
+    this.log('Performing validations before deploy...');
 
-    this.log('Validations completed successfully.\n');
+    const validationsFilter = SYNC_CONFIG_VALIDATION_FLAGS.parseValidationTestFlags(flags);
+    const validationRunner = new ValidationsRunner({
+      skippedTests: validationsFilter.skipped,
+      tests: getCloudValidations({
+        cloudConfigState,
+        project,
+        serviceConfigState: this.serviceConfig!,
+        tests: validationsFilter.testsToRun
+      })
+    });
+
+    const result = await validationRunner.runWithProgress({ printSummary: (summary) => this.log(summary) });
+    if (!result.passed) {
+      this.styledError({
+        message: 'Validation tests failed. Fix the issues and try deploying again.',
+        suggestions: ['Review the validation test results above, fix any issues, and run deploy again.']
+      });
+    }
 
     await this.deploySyncConfig({ cloudConfigState, timeout: deployTimeoutMs });
   }
