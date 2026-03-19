@@ -1,5 +1,24 @@
 # powersync
 
+## 0.9.3
+
+### Patch Changes
+
+- 0a44213: Added `--sync-config-file-path` so local sync YAML can be read from a path other than `sync-config.yaml` for **`powersync deploy`**, **`powersync deploy sync-config`**, **`powersync validate`**, and **`powersync generate schema`**.
+- 6e9e81d: Upgrade internal PowerSync dependencies.
+- ef92f08: Add `--skip-validations` and `--validate-only` flags to `deploy` and `validate` commands.
+
+  These mutually exclusive flags accept a comma-separated list of validation tests (`configuration`, `connections`, `sync-config`) and allow users to skip or isolate specific validation checks. This is useful when deploying behind VPC endpoints, dealing with transient sync config timeouts, or bypassing schema validation for older configs.
+
+- a81df21: Reduce NPM dependency size
+- 4620c7b: Added `overwrite` flag to the `powersync pull instance` command. Specifying this flag will overwrite existing config files instead of writing to temporary files.
+- c5ae2d5: Improved formatting for PowerSync management service call errors.
+- 4620c7b: Added YAML comments to the configuration files genered when running powersync pull instance
+  - @powersync/cli-core@0.9.3
+  - @powersync/cli-schemas@0.9.3
+  - @powersync/cli-plugin-docker@0.9.3
+  - @powersync/cli-plugin-config-edit@0.9.3
+
 ## 0.9.2
 
 ### Patch Changes
