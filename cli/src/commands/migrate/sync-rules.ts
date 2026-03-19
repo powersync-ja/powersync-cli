@@ -1,6 +1,6 @@
 import { Flags, ux } from '@oclif/core';
-import { instantiate } from '@powersync-community/sync-config-rewriter';
 import { SharedInstanceCommand, SYNC_FILENAME, YAML_SYNC_RULES_SCHEMA } from '@powersync/cli-core';
+import { instantiate } from '@powersync/sync-config-tools';
 import { access, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -37,9 +37,7 @@ export default class MigrateSyncRules extends SharedInstanceCommand {
 
     const syncInputContent = await readFile(syncInputPath, 'utf8');
 
-    const wasmBuffer = await readFile(
-      fileURLToPath(import.meta.resolve('@powersync-community/sync-config-rewriter/compiled.wasm'))
-    );
+    const wasmBuffer = await readFile(fileURLToPath(import.meta.resolve('@powersync/sync-config-tools/compiled.wasm')));
 
     const SyncStreamsRewriter = await instantiate(wasmBuffer);
 
