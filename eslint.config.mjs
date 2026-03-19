@@ -18,6 +18,8 @@ export default [
   prettier,
   {
     rules: {
+      // Allow PascalCase factory/mixin calls (e.g. WithSyncConfigFilePath(Base)) without `new`.
+      'new-cap': ['error', { capIsNew: false, newIsCap: true }],
       camelcase: 'off',
       eqeqeq: ['error', 'always', { null: 'ignore' }],
       'n/no-unsupported-features/node-builtins': 'off',

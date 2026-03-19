@@ -12,8 +12,7 @@ export default class Stop extends CloudInstanceCommand {
     confirm: Flags.string({
       description: 'Set to "yes" to confirm stopping the instance.',
       options: ['yes']
-    }),
-    ...CloudInstanceCommand.flags
+    })
   };
   static summary = '[Cloud only] Stop the linked Cloud instance (restart with deploy).';
 

@@ -20,8 +20,8 @@ export const DEFAULT_INSTANCE_DIRECTORY = 'powersync';
 
 /** Base command for operations that target a PowerSync project directory (e.g. link, init). */
 export abstract class InstanceCommand extends PowerSyncCommand {
-  static flags = {
-    ...PowerSyncCommand.flags,
+  static baseFlags = {
+    ...PowerSyncCommand.baseFlags,
     directory: Flags.string({
       async default() {
         // Before we default, we need to ensure only 1 linked project is present.

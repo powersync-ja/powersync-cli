@@ -17,8 +17,7 @@ export default class FetchStatus extends SharedInstanceCommand {
       default: 'human',
       description: 'Output format: human-readable, json, or yaml.',
       options: ['human', 'json', 'yaml']
-    }),
-    ...SharedInstanceCommand.flags
+    })
   };
   static summary = 'Show instance diagnostics (connections, sync config, replication).';
 

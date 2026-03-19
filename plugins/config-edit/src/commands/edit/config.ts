@@ -12,7 +12,6 @@ export default class EditConfig extends SharedInstanceCommand {
   static description = 'Loads the linked project context and runs the editor Nitro server to edit config files.';
   static examples = ['<%= config.bin %> edit config', '<%= config.bin %> edit config --directory ./powersync'];
   static flags = {
-    ...SharedInstanceCommand.flags,
     host: Flags.string({
       default: '127.0.0.1',
       description: 'Host to bind the editor preview server. Pass 0.0.0.0 to expose on all interfaces.',

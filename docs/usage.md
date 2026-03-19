@@ -43,6 +43,10 @@ powersync deploy service-config --directory=powersync   # service.yaml only (kee
 powersync deploy sync-config --directory=powersync      # sync-config.yaml only
 ```
 
+**Alternate sync config file**
+
+These commands accept **`--sync-config-file-path=/path/to/sync.yaml`** instead of **`sync-config.yaml`** in the project directory: **`powersync deploy`**, **`powersync deploy sync-config`**, **`powersync validate`**, **`powersync generate schema`**. Other commands (e.g. **`deploy service-config`**, **`generate token`**, **`destroy`**, **`status`**) do not expose this flag.
+
 **Single directory and link file, with `!env` substitution**
 
 Use a single `powersync/` folder and a single `cli.yaml`, and use the **`!env`** custom tag in your YAML to substitute values from the environment. That way you can keep one set of config files and one link file, while varying things like instance IDs, API URLs, or database URLs per environment (e.g. production database URL from an env var). Both the link file and the main config (e.g. `service.yaml`) can use `!env` so that the same repo works for dev, staging, and prod by changing only environment variables.

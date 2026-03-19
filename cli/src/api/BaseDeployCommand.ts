@@ -12,7 +12,7 @@ import { DEFAULT_DEPLOY_TIMEOUT_MS, waitForOperationStatusChange } from './cloud
 import { parseLocalCloudServiceConfig } from './parse-local-cloud-service-config.js';
 
 export default abstract class BaseDeployCommand extends CloudInstanceCommand {
-  static flags = {
+  static baseFlags = {
     'deploy-timeout': Flags.integer({
       default: DEFAULT_DEPLOY_TIMEOUT_MS / 1000,
       description:
@@ -26,7 +26,7 @@ export default abstract class BaseDeployCommand extends CloudInstanceCommand {
         return value;
       }
     }),
-    ...CloudInstanceCommand.flags
+    ...CloudInstanceCommand.baseFlags
   };
 
   protected async deployAll(params: {

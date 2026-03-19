@@ -13,14 +13,15 @@ import {
   validateSelfHostedConfig
 } from '@powersync/cli-schemas';
 import { PowerSyncManagementClient } from '@powersync/management-client';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { getDefaultOrgId } from '../clients/AccountsHubClientSDKClient.js';
 import { createCloudClient } from '../clients/create-cloud-client.js';
 import { ensureServiceTypeMatches, ServiceType } from '../utils/ensure-service-type.js';
 import { env } from '../utils/env.js';
-import { CLI_FILENAME, SERVICE_FILENAME, SYNC_FILENAME } from '../utils/project-config.js';
+import { CLI_FILENAME, SERVICE_FILENAME } from '../utils/project-config.js';
+import { resolveSyncRulesContent } from '../utils/resolve-sync-rules-content.js';
 import { parseYamlFile } from '../utils/yaml.js';
 import { CloudProject } from './CloudInstanceCommand.js';
 import { CommandHelpGroup, HelpGroup } from './HelpGroup.js';
@@ -56,8 +57,7 @@ export type SharedInstanceCommandFlags = Interfaces.InferredFlags<
  * pnpm exec powersync some-shared-cmd --instance-id=... --org-id=... --project-id=...
  */
 export abstract class SharedInstanceCommand extends InstanceCommand {
-  static commandHelpGroup = CommandHelpGroup.INSTANCE;
-  static flags = {
+  static baseFlags = {
     'api-url': Flags.string({
       description:
         '[Self-hosted] PowerSync API URL. When set, context is treated as self-hosted (exclusive with --instance-id). Resolved: flag → cli.yaml → API_URL.',
@@ -84,9 +84,17 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
       helpGroup: HelpGroup.CLOUD_PROJECT,
       required: false
     }),
-    ...InstanceCommand.flags
+    ...InstanceCommand.baseFlags
   };
+  static commandHelpGroup = CommandHelpGroup.INSTANCE;
   cloudClient: PowerSyncManagementClient = createCloudClient();
+
+  async _loadProjectHook(
+    flags: SharedInstanceCommandFlags,
+    project: CloudProject | SelfHostedProject
+  ): Promise<CloudProject | SelfHostedProject> {
+    return project;
+  }
 
   /**
    * Some commands require contacting a provisioned PowerSync instance.
@@ -211,11 +219,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
       projectDir
     });
 
-    const syncRulesPath = join(projectDir, SYNC_FILENAME);
-    let syncRulesContent: string | undefined;
-    if (existsSync(syncRulesPath)) {
-      syncRulesContent = readFileSync(syncRulesPath, 'utf8');
-    }
+    const syncRulesContent = resolveSyncRulesContent({ projectDirectory: projectDir });
 
     if (!existsSync(join(projectDir, SERVICE_FILENAME)) && resolvedOptions.configFileRequired) {
       this.styledError({
@@ -224,18 +228,18 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     }
 
     if (projectType === ServiceType.CLOUD) {
-      return {
+      return this._loadProjectHook(flags, {
         linked: cliConfig as ResolvedCloudCLIConfig,
         projectDirectory: projectDir,
         syncRulesContent
-      };
+      });
     }
 
-    return {
+    return this._loadProjectHook(flags, {
       linked: cliConfig as ResolvedSelfHostedCLIConfig,
       projectDirectory: projectDir,
       syncRulesContent
-    };
+    });
   }
 
   parseCloudConfig(projectDirectory: string): ServiceCloudConfigDecoded {

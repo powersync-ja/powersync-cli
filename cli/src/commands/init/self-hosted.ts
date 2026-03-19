@@ -27,9 +27,6 @@ export default class InitSelfHosted extends InstanceCommand {
     '<%= config.bin %> <%= command.id %>',
     '<%= config.bin %> <%= command.id %> --directory=powersync'
   ];
-  static flags = {
-    ...InstanceCommand.flags
-  };
   static summary = 'Scaffold a PowerSync self-hosted config directory from a template.';
 
   async run(): Promise<void> {

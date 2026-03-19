@@ -5,7 +5,6 @@ import {
   CommandHelpGroup,
   ensureServiceTypeMatches,
   env,
-  InstanceCommand,
   parseYamlFile,
   SelfHostedInstanceCommand,
   ServiceType
@@ -25,8 +24,7 @@ export default class LinkSelfHosted extends SelfHostedInstanceCommand {
     'api-url': Flags.string({
       description: 'Self-hosted PowerSync API base URL (e.g. https://powersync.example.com).',
       required: true
-    }),
-    ...InstanceCommand.flags
+    })
   };
   static summary = 'Link to a self-hosted PowerSync instance by API URL.';
 

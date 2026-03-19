@@ -1,8 +1,7 @@
-import { Flags } from '@oclif/core';
 import { ux } from '@oclif/core/ux';
+import { WithSyncConfigFilePath } from '@powersync/cli-core';
 import { routes } from '@powersync/management-types';
 import { ObjectId } from 'bson';
-import { readFileSync } from 'node:fs';
 
 import BaseDeployCommand from '../../api/BaseDeployCommand.js';
 import { DEFAULT_DEPLOY_TIMEOUT_MS } from '../../api/cloud/wait-for-operation.js';
@@ -16,20 +15,14 @@ const SYNC_CONFIG_VALIDATION_FLAGS = generateValidationTestFlags({
   limitOptions: [ValidationTest['SYNC-CONFIG']]
 });
 
-export default class DeploySyncConfig extends BaseDeployCommand {
+export default class DeploySyncConfig extends WithSyncConfigFilePath(BaseDeployCommand) {
   static description = 'Deploy only sync config changes.';
   static examples = [
     '<%= config.bin %> <%= command.id %>',
     '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id>'
   ];
   static flags = {
-    ...BaseDeployCommand.flags,
-    ...SYNC_CONFIG_VALIDATION_FLAGS.flags,
-    'sync-config-file-path': Flags.file({
-      description:
-        'Path to a sync config file. If provided, this file will be validated and deployed instead of the default sync-config.yaml.',
-      exists: true
-    })
+    ...SYNC_CONFIG_VALIDATION_FLAGS.flags
   };
   static summary = '[Cloud only] Deploy only local sync config to the linked Cloud instance.';
 
@@ -84,9 +77,10 @@ export default class DeploySyncConfig extends BaseDeployCommand {
     const { linked } = project;
     const deployTimeoutMs = (flags['deploy-timeout'] ?? DEFAULT_DEPLOY_TIMEOUT_MS / 1000) * 1000;
 
-    const syncConfigFilePath = flags['sync-config-file-path'];
-    if (syncConfigFilePath) {
-      project.syncRulesContent = readFileSync(syncConfigFilePath, 'utf8');
+    if (!project.syncRulesContent) {
+      this.styledError({
+        message: `Sync config content not loaded. Ensure sync config is present and valid.`
+      });
     }
 
     if (!project.syncRulesContent) {

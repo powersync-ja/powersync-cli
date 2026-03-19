@@ -269,5 +269,34 @@ describe('deploy', () => {
         new RegExp(`Failed to .* instance ${INSTANCE_ID} in project ${PROJECT_ID} in org ${ORG_ID}`)
       );
     });
+
+    it('uses sync rules from --sync-config-file-path instead of sync-config.yaml', async () => {
+      const projectDir = join(tmpDir, PROJECT_DIR);
+      const fromDefaultFile = 'bucket_definitions:\n  only_in_sync_config_yaml: true\n';
+      const fromCustomPath = 'bucket_definitions:\n  only_in_custom_path: true\n';
+      writeFileSync(join(projectDir, SYNC_FILENAME), fromDefaultFile, 'utf8');
+      const customPath = join(tmpDir, 'other-sync.yaml');
+      writeFileSync(customPath, fromCustomPath, 'utf8');
+
+      managementClientMock.validateSyncRules.mockImplementation(({ sync_rules }) => {
+        expect(sync_rules).toBe(fromCustomPath);
+        expect(sync_rules).not.toContain('only_in_sync_config_yaml');
+        return Promise.resolve({ errors: [] });
+      });
+
+      const result = await runDeployDirect({
+        args: ['--sync-config-file-path', customPath]
+      });
+
+      expect(managementClientMock.validateSyncRules).toHaveBeenCalled();
+      expect(managementClientMock.deployInstance).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sync_rules: fromCustomPath
+        })
+      );
+      expect(result.error?.message).toMatch(
+        new RegExp(`Failed to .* instance ${INSTANCE_ID} in project ${PROJECT_ID} in org ${ORG_ID}`)
+      );
+    });
   });
 });

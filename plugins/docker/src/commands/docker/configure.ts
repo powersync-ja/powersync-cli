@@ -47,7 +47,6 @@ export default class DockerConfigure extends DockerCommand {
     '<%= config.bin %> <%= command.id %> --database=postgres --storage=postgres'
   ];
   static flags = {
-    ...DockerCommand.flags,
     database: Flags.string({
       description: 'Database module for replication source. Omit to be prompted.',
       options: [...TEMPLATES[DockerModuleType.SOURCE_DATABASE].map((t) => t.name), NONE_OPTION],

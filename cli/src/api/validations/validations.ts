@@ -97,16 +97,14 @@ export async function runSyncConfigTestCloud(project: CloudProject): Promise<Syn
  * Runs self-hosted sync-rules validation and maps diagnostics into warning/error message arrays.
  */
 export async function runSyncConfigTestSelfHosted(project: SelfHostedProject): Promise<SyncValidationTestRunResult> {
-  const syncRulesPath = join(project.projectDirectory, SYNC_FILENAME);
-  const syncRulesContent = existsSync(syncRulesPath) ? readFileSync(syncRulesPath, 'utf8') : undefined;
-  const syncText = syncRulesContent ?? '';
+  const syncRulesContent = project.syncRulesContent ?? '';
   try {
     return wrapsSyncValidation({
       result: await validateSelfHostedSyncRules({
         linked: project.linked,
-        syncRulesContent: syncText
+        syncRulesContent
       }),
-      syncText
+      syncText: syncRulesContent
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

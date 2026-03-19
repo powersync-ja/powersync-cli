@@ -17,8 +17,7 @@ export default class DeployServiceConfig extends BaseDeployCommand {
     '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id>'
   ];
   static flags = {
-    ...SERVICE_CONFIG_VALIDATION_FLAGS.flags,
-    ...BaseDeployCommand.flags
+    ...SERVICE_CONFIG_VALIDATION_FLAGS.flags
   };
   static summary = '[Cloud only] Deploy only local service config to the linked Cloud instance.';
 

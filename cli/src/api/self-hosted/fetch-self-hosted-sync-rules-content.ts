@@ -1,6 +1,4 @@
-import { createSelfHostedClient, SelfHostedProject, SYNC_FILENAME } from '@powersync/cli-core';
-import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { createSelfHostedClient, SelfHostedProject } from '@powersync/cli-core';
 
 /**
  * Fetches the sync config content for a self-hosted project.
@@ -8,18 +6,18 @@ import { join } from 'node:path';
  * @returns The sync config content.
  */
 export async function fetchSelfHostedSyncRulesContent(project: SelfHostedProject): Promise<string> {
+  // First try and use the local file
+  if (project.syncRulesContent) {
+    return project.syncRulesContent;
+  }
+
   const { linked } = project;
   const client = createSelfHostedClient({
     apiKey: linked.api_key,
     apiUrl: linked.api_url
   });
 
-  // First try and use the local file
-  if (existsSync(join(project.projectDirectory, SYNC_FILENAME))) {
-    return readFileSync(join(project.projectDirectory, SYNC_FILENAME), 'utf8');
-  }
-
-  // Try and fetch from the cloud config
+  // Try and fetch from the self-hosted config
   const instanceConfig = await client.diagnostics({});
   const content = instanceConfig.active_sync_rules?.content;
 

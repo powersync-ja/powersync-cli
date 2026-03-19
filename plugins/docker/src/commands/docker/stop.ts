@@ -12,7 +12,6 @@ export default class DockerStop extends DockerCommand {
     '<%= config.bin %> <%= command.id %> --project-name=powersync_myapp --remove'
   ];
   static flags = {
-    ...DockerCommand.flags,
     'project-name': Flags.string({
       description:
         'Docker Compose project name to stop (e.g. powersync_myapp). If omitted and run from a project directory, uses plugins.docker.project_name from cli.yaml. Pass this to stop from any directory without loading the project.'
@@ -34,7 +33,7 @@ export default class DockerStop extends DockerCommand {
 
     let projectName = flags['project-name'];
     if (projectName == null || projectName === '') {
-      const { projectDirectory } = this.loadProject(flags as SelfHostedInstanceCommandFlags, {
+      const { projectDirectory } = await this.loadProject(flags as SelfHostedInstanceCommandFlags, {
         configFileRequired: true
       });
       projectName = getDockerProjectName(projectDirectory) ?? undefined;

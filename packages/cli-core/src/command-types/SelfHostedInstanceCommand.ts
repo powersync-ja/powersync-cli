@@ -18,6 +18,8 @@ import { DEFAULT_ENSURE_CONFIG_OPTIONS, EnsureConfigOptions, InstanceCommand } f
 export type SelfHostedProject = {
   linked: ResolvedSelfHostedCLIConfig;
   projectDirectory: string;
+  /** Present when using SharedInstanceCommand with a local sync config file (default or --sync-config-file-path). */
+  syncRulesContent?: string;
 };
 
 export type SelfHostedInstanceCommandFlags = Interfaces.InferredFlags<
@@ -29,8 +31,8 @@ export type SelfHostedInstanceCommandFlags = Interfaces.InferredFlags<
  * Import from @powersync/cli-core when building plugins.
  */
 export abstract class SelfHostedInstanceCommand extends InstanceCommand {
-  static flags = {
-    ...InstanceCommand.flags,
+  static baseFlags = {
+    ...InstanceCommand.baseFlags,
     'api-url': Flags.string({
       description: 'PowerSync API URL. Resolved: flag → cli.yaml → API_URL environment variable.',
       helpGroup: HelpGroup.SELF_HOSTED_PROJECT,
@@ -50,10 +52,17 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
     return this._project;
   }
 
-  loadProject(
+  async _loadProjectHook(
+    flags: SelfHostedInstanceCommandFlags,
+    project: SelfHostedProject
+  ): Promise<SelfHostedProject> {
+    return project;
+  }
+
+  async loadProject(
     flags: SelfHostedInstanceCommandFlags,
     options: EnsureConfigOptions = DEFAULT_ENSURE_CONFIG_OPTIONS
-  ): SelfHostedProject {
+  ): Promise<SelfHostedProject> {
     const resolvedOptions = {
       ...DEFAULT_ENSURE_CONFIG_OPTIONS,
       // Keep this order so call-site options override defaults.
@@ -106,10 +115,10 @@ export abstract class SelfHostedInstanceCommand extends InstanceCommand {
       });
     }
 
-    this._project = {
+    this._project = await this._loadProjectHook(flags, {
       linked,
       projectDirectory: projectDir
-    };
+    });
     return this._project;
   }
 

@@ -7,14 +7,11 @@ export default class DockerStart extends DockerCommand {
   static description =
     'Runs `docker compose up -d --wait` for the project docker/ compose file; waits for services (including PowerSync) to be healthy. Use `powersync status` to debug running instances.';
   static examples = ['<%= config.bin %> <%= command.id %>'];
-  static flags = {
-    ...DockerCommand.flags
-  };
   static summary = 'Start the self-hosted PowerSync stack via Docker Compose.';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(DockerStart);
-    const { projectDirectory } = this.loadProject(flags, {
+    const { projectDirectory } = await this.loadProject(flags, {
       configFileRequired: true
     });
 

@@ -4,7 +4,8 @@ import {
   createCloudClient,
   createSelfHostedClient,
   SelfHostedProject,
-  SharedInstanceCommand
+  SharedInstanceCommand,
+  WithSyncConfigFilePath
 } from '@powersync/cli-core';
 import { routes } from '@powersync/management-types';
 import { schemaGenerators, SqlSyncRules, StaticSchema } from '@powersync/service-sync-rules';
@@ -13,7 +14,7 @@ import { writeFileSync } from 'node:fs';
 import { fetchCloudSyncRulesContent } from '../../api/cloud/fetch-cloud-sync-rules-content.js';
 import { fetchSelfHostedSyncRulesContent } from '../../api/self-hosted/fetch-self-hosted-sync-rules-content.js';
 
-export default class GenerateSchema extends SharedInstanceCommand {
+export default class GenerateSchema extends WithSyncConfigFilePath(SharedInstanceCommand) {
   static description =
     'Generate a client-side schema file from the instance database schema and sync config. Supports multiple output types (e.g. type, dart). Requires a linked instance. Cloud and self-hosted.';
   static examples = [
@@ -30,8 +31,7 @@ export default class GenerateSchema extends SharedInstanceCommand {
     'output-path': Flags.string({
       description: 'Path to output the schema file.',
       required: true
-    }),
-    ...SharedInstanceCommand.flags
+    })
   };
   static summary = 'Generate client schema file from instance schema and sync config.';
 

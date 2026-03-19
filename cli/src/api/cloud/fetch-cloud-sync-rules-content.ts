@@ -1,6 +1,4 @@
-import { CloudProject, createCloudClient, SYNC_FILENAME } from '@powersync/cli-core';
-import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { CloudProject, createCloudClient } from '@powersync/cli-core';
 
 /**
  * Fetches the sync config content for a cloud project.
@@ -8,13 +6,13 @@ import { join } from 'node:path';
  * @returns The sync config content.
  */
 export async function fetchCloudSyncRulesContent(project: CloudProject): Promise<string> {
-  const { linked } = project;
-  const client = await createCloudClient();
-
   // First try and use the local file
-  if (existsSync(join(project.projectDirectory, SYNC_FILENAME))) {
-    return readFileSync(join(project.projectDirectory, SYNC_FILENAME), 'utf8');
+  if (project.syncRulesContent) {
+    return project.syncRulesContent;
   }
+
+  const { linked } = project;
+  const client = createCloudClient();
 
   // Try and fetch from the cloud config
   const instanceConfig = await client.getInstanceConfig({

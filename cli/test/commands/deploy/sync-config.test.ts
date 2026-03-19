@@ -198,6 +198,26 @@ describe('deploy:sync-config', () => {
     expect(managementClientMock.validateSyncRules).toHaveBeenCalled();
   });
 
+  it('deploy sync-config sends custom file YAML to deployInstance, not default sync-config.yaml', async () => {
+    const projectDir = makeProjectDir(tmpDir);
+    writeLinkYaml(projectDir);
+    writeFileSync(join(projectDir, SYNC_FILENAME), 'bucket_definitions:\n  only_default:\n    data: []\n', 'utf8');
+    const customPath = join(tmpDir, 'custom-sync.yaml');
+    const customYaml = 'bucket_definitions:\n  only_custom_flag:\n    data:\n      - SELECT 1 FROM custom_path\n';
+    writeFileSync(customPath, customYaml, 'utf8');
+
+    managementClientMock.deployInstance.mockImplementation((req: unknown) => {
+      const s = JSON.stringify(req);
+      expect(s).toContain('SELECT 1 FROM custom_path');
+      expect(s).not.toContain('only_default');
+      return Promise.reject(new Error('mock deploy failure'));
+    });
+
+    const result = await runSyncConfigDirect(['--sync-config-file-path', customPath]);
+    expect(result.error?.message).toMatch(/mock deploy failure/);
+    expect(managementClientMock.deployInstance).toHaveBeenCalled();
+  });
+
   it('errors when --sync-config-file-path points to a non-existent file', async () => {
     const projectDir = makeProjectDir(tmpDir);
     writeLinkYaml(projectDir);

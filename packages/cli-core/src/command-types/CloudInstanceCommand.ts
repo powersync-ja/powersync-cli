@@ -6,7 +6,7 @@ import {
   validateCloudConfig
 } from '@powersync/cli-schemas';
 import { PowerSyncManagementClient } from '@powersync/management-client';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { getDefaultOrgId } from '../clients/AccountsHubClientSDKClient.js';
@@ -14,7 +14,8 @@ import { createCloudClient } from '../clients/create-cloud-client.js';
 import { ensureServiceTypeMatches, ServiceType } from '../utils/ensure-service-type.js';
 import { env } from '../utils/env.js';
 import { OBJECT_ID_REGEX } from '../utils/object-id.js';
-import { CLI_FILENAME, SERVICE_FILENAME, SYNC_FILENAME } from '../utils/project-config.js';
+import { CLI_FILENAME, SERVICE_FILENAME } from '../utils/project-config.js';
+import { resolveSyncRulesContent } from '../utils/resolve-sync-rules-content.js';
 import { parseYamlFile } from '../utils/yaml.js';
 import { CommandHelpGroup, HelpGroup } from './HelpGroup.js';
 import { DEFAULT_ENSURE_CONFIG_OPTIONS, EnsureConfigOptions, InstanceCommand } from './InstanceCommand.js';
@@ -51,12 +52,11 @@ export type CloudInstanceCommandFlags = Interfaces.InferredFlags<
  * pnpm exec powersync some-cloud-cmd --instance-id=... --org-id=... --project-id=...
  */
 export abstract class CloudInstanceCommand extends InstanceCommand {
-  static commandHelpGroup = CommandHelpGroup.CLOUD;
-  static flags = {
+  static baseFlags = {
     /**
      * Instance ID, org ID, and project ID are resolved in order: flags → cli.yaml → env (INSTANCE_ID, ORG_ID, PROJECT_ID).
      */
-    ...InstanceCommand.flags,
+    ...InstanceCommand.baseFlags,
     'instance-id': Flags.string({
       dependsOn: ['project-id'],
       description: 'PowerSync Cloud instance ID. Manually passed if the current context has not been linked.',
@@ -75,6 +75,7 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
       required: false
     })
   };
+  static commandHelpGroup = CommandHelpGroup.CLOUD;
   protected _project: CloudProject | null = null;
   /**
    * Used to interface with the PowerSync Management API for Cloud instances. Automatically created with the token from login (or PS_ADMIN_TOKEN env variable).
@@ -94,6 +95,10 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
     }
 
     return this._project;
+  }
+
+  async _loadProjectHook(flags: CloudInstanceCommandFlags, project: CloudProject): Promise<CloudProject> {
+    return project;
   }
 
   /**
@@ -194,17 +199,13 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
       });
     }
 
-    const syncRulesPath = join(projectDir, SYNC_FILENAME);
-    let syncRulesContent: string | undefined;
-    if (existsSync(syncRulesPath)) {
-      syncRulesContent = readFileSync(syncRulesPath, 'utf8');
-    }
+    const syncRulesContent = resolveSyncRulesContent({ projectDirectory: projectDir });
 
-    this._project = {
+    this._project = await this._loadProjectHook(flags, {
       linked,
       projectDirectory: projectDir,
       syncRulesContent
-    };
+    });
 
     return this._project;
   }

@@ -6,7 +6,6 @@ import {
   ensureServiceTypeMatches,
   env,
   getDefaultOrgId,
-  InstanceCommand,
   ServiceType
 } from '@powersync/cli-core';
 
@@ -44,8 +43,7 @@ export default class LinkCloud extends CloudInstanceCommand {
       default: env.PROJECT_ID,
       description: 'Project ID. Resolved: flag → PROJECT_ID → cli.yaml.',
       required: true
-    }),
-    ...InstanceCommand.flags
+    })
   };
   static summary = '[Cloud only] Link to a PowerSync Cloud instance (or create one with --create).';
 
