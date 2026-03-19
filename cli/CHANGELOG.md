@@ -1,5 +1,15 @@
 # powersync
 
+## 0.9.4
+
+### Patch Changes
+
+- 1a4fa81: Fix crash when trying to transform Sync Rules containing `::` casts to Sync Streams.
+  - @powersync/cli-core@0.9.4
+  - @powersync/cli-schemas@0.9.4
+  - @powersync/cli-plugin-docker@0.9.4
+  - @powersync/cli-plugin-config-edit@0.9.4
+
 ## 0.9.3
 
 ### Patch Changes
