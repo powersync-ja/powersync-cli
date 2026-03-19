@@ -239,7 +239,7 @@ $ npm install -g powersync
 $ powersync COMMAND
 running command...
 $ powersync (--version)
-powersync/0.9.2 linux-x64 node-v24.14.0
+powersync/0.9.3 linux-x64 node-v24.14.0
 $ powersync --help [COMMAND]
 USAGE
   $ powersync COMMAND
@@ -388,7 +388,7 @@ EXAMPLES
   $ powersync configure ide
 ```
 
-_See code: [src/commands/configure/ide.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.2/src/commands/configure/ide.ts)_
+_See code: [src/commands/configure/ide.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.3/src/commands/configure/ide.ts)_
 
 ## `powersync deploy`
 
@@ -397,7 +397,7 @@ _See code: [src/commands/configure/ide.ts](https://github.com/powersync-ja/power
 ```
 USAGE
   $ powersync deploy [--deploy-timeout <value>] [--directory <value>] [--instance-id <value> --project-id
-    <value>] [--org-id <value>] [--skip-validations <value> | --validate-only <value>]
+    <value>] [--org-id <value>] [--sync-config-file-path <value>] [--skip-validations <value> | --validate-only <value>]
 
 FLAGS
   --deploy-timeout=<value>    [default: 300] Seconds to wait after scheduling a deploy before timing out while polling
@@ -408,9 +408,11 @@ FLAGS
                               configuration, connections, sync-config. Example: --validate-only="configuration"
 
 PROJECT FLAGS
-  --directory=<value>  [default: powersync] Directory containing PowerSync config. Defaults to "powersync". This is
-                       required if multiple powersync config files are present in subdirectories of the current working
-                       directory.
+  --directory=<value>              [default: powersync] Directory containing PowerSync config. Defaults to "powersync".
+                                   This is required if multiple powersync config files are present in subdirectories of
+                                   the current working directory.
+  --sync-config-file-path=<value>  [Optional] Override the path to a sync config file. When set, this file is used
+                                   instead of sync-config.yaml in the project directory.
 
 CLOUD_PROJECT FLAGS
   --instance-id=<value>  PowerSync Cloud instance ID. Manually passed if the current context has not been linked.
@@ -432,7 +434,7 @@ EXAMPLES
   $ powersync deploy --instance-id=<id> --project-id=<id>
 ```
 
-_See code: [src/commands/deploy/index.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.2/src/commands/deploy/index.ts)_
+_See code: [src/commands/deploy/index.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.3/src/commands/deploy/index.ts)_
 
 ## `powersync deploy service-config`
 
@@ -440,8 +442,8 @@ _See code: [src/commands/deploy/index.ts](https://github.com/powersync-ja/powers
 
 ```
 USAGE
-  $ powersync deploy service-config [--skip-validations <value> | --validate-only <value>] [--deploy-timeout <value>]
-    [--directory <value>] [--instance-id <value> --project-id <value>] [--org-id <value>]
+  $ powersync deploy service-config [--deploy-timeout <value>] [--directory <value>] [--instance-id <value> --project-id
+    <value>] [--org-id <value>] [--skip-validations <value> | --validate-only <value>]
 
 FLAGS
   --deploy-timeout=<value>    [default: 300] Seconds to wait after scheduling a deploy before timing out while polling
@@ -473,7 +475,7 @@ EXAMPLES
   $ powersync deploy service-config --instance-id=<id> --project-id=<id>
 ```
 
-_See code: [src/commands/deploy/service-config.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.2/src/commands/deploy/service-config.ts)_
+_See code: [src/commands/deploy/service-config.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.3/src/commands/deploy/service-config.ts)_
 
 ## `powersync deploy sync-config`
 
@@ -482,20 +484,20 @@ _See code: [src/commands/deploy/service-config.ts](https://github.com/powersync-
 ```
 USAGE
   $ powersync deploy sync-config [--deploy-timeout <value>] [--directory <value>] [--instance-id <value> --project-id
-    <value>] [--org-id <value>] [--skip-validations <value> | ] [--sync-config-file-path <value>]
+    <value>] [--org-id <value>] [--sync-config-file-path <value>] [--skip-validations <value> | ]
 
 FLAGS
-  --deploy-timeout=<value>         [default: 300] Seconds to wait after scheduling a deploy before timing out while
-                                   polling status (default 300 seconds).
-  --skip-validations=<value>       Comma-separated list of validation tests to skip. Options: sync-config. Example:
-                                   --skip-validations="sync-config"
-  --sync-config-file-path=<value>  Path to a sync config file. If provided, this file will be validated and deployed
-                                   instead of the default sync-config.yaml.
+  --deploy-timeout=<value>    [default: 300] Seconds to wait after scheduling a deploy before timing out while polling
+                              status (default 300 seconds).
+  --skip-validations=<value>  Comma-separated list of validation tests to skip. Options: sync-config. Example:
+                              --skip-validations="sync-config"
 
 PROJECT FLAGS
-  --directory=<value>  [default: powersync] Directory containing PowerSync config. Defaults to "powersync". This is
-                       required if multiple powersync config files are present in subdirectories of the current working
-                       directory.
+  --directory=<value>              [default: powersync] Directory containing PowerSync config. Defaults to "powersync".
+                                   This is required if multiple powersync config files are present in subdirectories of
+                                   the current working directory.
+  --sync-config-file-path=<value>  [Optional] Override the path to a sync config file. When set, this file is used
+                                   instead of sync-config.yaml in the project directory.
 
 CLOUD_PROJECT FLAGS
   --instance-id=<value>  PowerSync Cloud instance ID. Manually passed if the current context has not been linked.
@@ -514,7 +516,7 @@ EXAMPLES
   $ powersync deploy sync-config --instance-id=<id> --project-id=<id>
 ```
 
-_See code: [src/commands/deploy/sync-config.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.2/src/commands/deploy/sync-config.ts)_
+_See code: [src/commands/deploy/sync-config.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.3/src/commands/deploy/sync-config.ts)_
 
 ## `powersync destroy`
 
@@ -522,8 +524,8 @@ _See code: [src/commands/deploy/sync-config.ts](https://github.com/powersync-ja/
 
 ```
 USAGE
-  $ powersync destroy [--confirm yes] [--directory <value>] [--instance-id <value> --project-id <value>]
-    [--org-id <value>]
+  $ powersync destroy [--directory <value>] [--instance-id <value> --project-id <value>] [--org-id <value>]
+    [--confirm yes]
 
 FLAGS
   --confirm=<option>  Set to "yes" to confirm destruction of the instance.
@@ -551,7 +553,7 @@ EXAMPLES
   $ powersync destroy --confirm=yes
 ```
 
-_See code: [src/commands/destroy.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.2/src/commands/destroy.ts)_
+_See code: [src/commands/destroy.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.3/src/commands/destroy.ts)_
 
 ## `powersync docker configure`
 
@@ -589,7 +591,7 @@ EXAMPLES
   $ powersync docker configure --database=postgres --storage=postgres
 ```
 
-_See code: [@powersync/cli-plugin-docker](https://github.com/powersync-ja/powersync-cli/blob/v0.9.2/src/commands/docker/configure.ts)_
+_See code: [@powersync/cli-plugin-docker](https://github.com/powersync-ja/powersync-cli/blob/v0.9.3/src/commands/docker/configure.ts)_
 
 ## `powersync docker reset`
 
@@ -618,7 +620,7 @@ EXAMPLES
   $ powersync docker reset
 ```
 
-_See code: [@powersync/cli-plugin-docker](https://github.com/powersync-ja/powersync-cli/blob/v0.9.2/src/commands/docker/reset.ts)_
+_See code: [@powersync/cli-plugin-docker](https://github.com/powersync-ja/powersync-cli/blob/v0.9.3/src/commands/docker/reset.ts)_
 
 ## `powersync docker start`
 
@@ -646,7 +648,7 @@ EXAMPLES
   $ powersync docker start
 ```
 
-_See code: [@powersync/cli-plugin-docker](https://github.com/powersync-ja/powersync-cli/blob/v0.9.2/src/commands/docker/start.ts)_
+_See code: [@powersync/cli-plugin-docker](https://github.com/powersync-ja/powersync-cli/blob/v0.9.3/src/commands/docker/start.ts)_
 
 ## `powersync docker stop`
 
@@ -688,7 +690,7 @@ EXAMPLES
   $ powersync docker stop --project-name=powersync_myapp --remove
 ```
 
-_See code: [@powersync/cli-plugin-docker](https://github.com/powersync-ja/powersync-cli/blob/v0.9.2/src/commands/docker/stop.ts)_
+_See code: [@powersync/cli-plugin-docker](https://github.com/powersync-ja/powersync-cli/blob/v0.9.3/src/commands/docker/stop.ts)_
 
 ## `powersync edit config`
 
@@ -730,7 +732,7 @@ EXAMPLES
   $ powersync edit config --directory ./powersync
 ```
 
-_See code: [@powersync/cli-plugin-config-edit](https://github.com/powersync-ja/powersync-cli/blob/v0.9.2/src/commands/edit/config.ts)_
+_See code: [@powersync/cli-plugin-config-edit](https://github.com/powersync-ja/powersync-cli/blob/v0.9.3/src/commands/edit/config.ts)_
 
 ## `powersync fetch config`
 
@@ -738,8 +740,8 @@ _See code: [@powersync/cli-plugin-config-edit](https://github.com/powersync-ja/p
 
 ```
 USAGE
-  $ powersync fetch config [--output json|yaml] [--directory <value>] [--instance-id <value> --project-id <value>]
-    [--org-id <value>]
+  $ powersync fetch config [--directory <value>] [--instance-id <value> --project-id <value>] [--org-id <value>]
+    [--output json|yaml]
 
 FLAGS
   --output=<option>  [default: yaml] Output format: yaml or json.
@@ -767,7 +769,7 @@ EXAMPLES
   $ powersync fetch config --output=json
 ```
 
-_See code: [src/commands/fetch/config.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.2/src/commands/fetch/config.ts)_
+_See code: [src/commands/fetch/config.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.3/src/commands/fetch/config.ts)_
 
 ## `powersync fetch instances`
 
@@ -795,7 +797,7 @@ EXAMPLES
   $ powersync fetch instances --project-id=<id> --output=json
 ```
 
-_See code: [src/commands/fetch/instances.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.2/src/commands/fetch/instances.ts)_
+_See code: [src/commands/fetch/instances.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.3/src/commands/fetch/instances.ts)_
 
 ## `powersync fetch status`
 
@@ -803,8 +805,8 @@ Show instance diagnostics (connections, sync config, replication).
 
 ```
 USAGE
-  $ powersync fetch status [--output human|json|yaml] [--api-url <value> | --instance-id <value> | --org-id
-    <value> | --project-id <value>] [--directory <value>]
+  $ powersync fetch status [--api-url <value> | --instance-id <value> | --org-id <value> | --project-id <value>]
+    [--directory <value>] [--output human|json|yaml]
 
 FLAGS
   --output=<option>  [default: human] Output format: human-readable, json, or yaml.
@@ -840,7 +842,7 @@ EXAMPLES
   $ powersync fetch status --instance-id=<id> --project-id=<id>
 ```
 
-_See code: [src/commands/fetch/status.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.2/src/commands/fetch/status.ts)_
+_See code: [src/commands/fetch/status.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.3/src/commands/fetch/status.ts)_
 
 ## `powersync generate schema`
 
@@ -848,12 +850,14 @@ Generate client schema file from instance schema and sync config.
 
 ```
 USAGE
-  $ powersync generate schema --output dart|dotNet|js|jsLegacy|kotlin|swift|ts --output-path <value> [--api-url
-    <value> | --instance-id <value> | --org-id <value> | --project-id <value>] [--directory <value>]
+  $ powersync generate schema --output dart|dotNet|dotNetClass|js|jsLegacy|kotlin|swift|ts --output-path <value>
+    [--api-url <value> | --instance-id <value> | --org-id <value> | --project-id <value>] [--directory <value>]
+    [--sync-config-file-path <value>]
 
 FLAGS
-  --output=<option>      (required) [default: type] Output type: dart, dotNet, js, jsLegacy, kotlin, swift, ts
-                         <options: dart|dotNet|js|jsLegacy|kotlin|swift|ts>
+  --output=<option>      (required) [default: type] Output type: dart, dotNet, dotNetClass, js, jsLegacy, kotlin, swift,
+                         ts
+                         <options: dart|dotNet|dotNetClass|js|jsLegacy|kotlin|swift|ts>
   --output-path=<value>  (required) Path to output the schema file.
 
 SELF_HOSTED_PROJECT FLAGS
@@ -861,9 +865,11 @@ SELF_HOSTED_PROJECT FLAGS
                      --instance-id). Resolved: flag → cli.yaml → API_URL.
 
 PROJECT FLAGS
-  --directory=<value>  [default: powersync] Directory containing PowerSync config. Defaults to "powersync". This is
-                       required if multiple powersync config files are present in subdirectories of the current working
-                       directory.
+  --directory=<value>              [default: powersync] Directory containing PowerSync config. Defaults to "powersync".
+                                   This is required if multiple powersync config files are present in subdirectories of
+                                   the current working directory.
+  --sync-config-file-path=<value>  [Optional] Override the path to a sync config file. When set, this file is used
+                                   instead of sync-config.yaml in the project directory.
 
 CLOUD_PROJECT FLAGS
   --instance-id=<value>  [Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud
@@ -884,7 +890,7 @@ EXAMPLES
   $ powersync generate schema --output=dart --output-path=lib/schema.dart --instance-id=<id> --project-id=<id>
 ```
 
-_See code: [src/commands/generate/schema.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.2/src/commands/generate/schema.ts)_
+_See code: [src/commands/generate/schema.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.3/src/commands/generate/schema.ts)_
 
 ## `powersync generate token`
 
@@ -892,8 +898,8 @@ Generate a development JWT for client connections.
 
 ```
 USAGE
-  $ powersync generate token --subject <value> [--expires-in-seconds <value>] [--kid <value>] [--api-url <value> |
-    --instance-id <value> | --org-id <value> | --project-id <value>] [--directory <value>]
+  $ powersync generate token --subject <value> [--api-url <value> | --instance-id <value> | --org-id <value> |
+    --project-id <value>] [--directory <value>] [--expires-in-seconds <value>] [--kid <value>]
 
 FLAGS
   --expires-in-seconds=<value>  [default: 43200] Expiration time in seconds. Default is 43,200 (12 hours).
@@ -930,7 +936,7 @@ EXAMPLES
   $ powersync generate token --subject=user-123 --expires-in-seconds=3600
 ```
 
-_See code: [src/commands/generate/token.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.2/src/commands/generate/token.ts)_
+_See code: [src/commands/generate/token.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.3/src/commands/generate/token.ts)_
 
 ## `powersync help [COMMAND]`
 
@@ -976,7 +982,7 @@ EXAMPLES
   $ powersync init cloud --directory=powersync
 ```
 
-_See code: [src/commands/init/cloud.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.2/src/commands/init/cloud.ts)_
+_See code: [src/commands/init/cloud.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.3/src/commands/init/cloud.ts)_
 
 ## `powersync init self-hosted`
 
@@ -1003,7 +1009,7 @@ EXAMPLES
   $ powersync init self-hosted --directory=powersync
 ```
 
-_See code: [src/commands/init/self-hosted.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.2/src/commands/init/self-hosted.ts)_
+_See code: [src/commands/init/self-hosted.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.3/src/commands/init/self-hosted.ts)_
 
 ## `powersync link cloud`
 
@@ -1011,8 +1017,8 @@ _See code: [src/commands/init/self-hosted.ts](https://github.com/powersync-ja/po
 
 ```
 USAGE
-  $ powersync link cloud --project-id <value> [--create] [--instance-id <value>] [--org-id <value>] [--directory
-    <value>]
+  $ powersync link cloud --project-id <value> [--directory <value>] [--instance-id <value>] [--org-id <value>]
+    [--create]
 
 FLAGS
   --create               Create a new Cloud instance in the given org and project, then link. Do not supply
@@ -1042,7 +1048,7 @@ EXAMPLES
   $ powersync link cloud --instance-id=<id> --project-id=<project-id> --org-id=<org-id>
 ```
 
-_See code: [src/commands/link/cloud.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.2/src/commands/link/cloud.ts)_
+_See code: [src/commands/link/cloud.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.3/src/commands/link/cloud.ts)_
 
 ## `powersync link self-hosted`
 
@@ -1070,7 +1076,7 @@ EXAMPLES
   $ powersync link self-hosted --api-url=https://powersync.example.com
 ```
 
-_See code: [src/commands/link/self-hosted.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.2/src/commands/link/self-hosted.ts)_
+_See code: [src/commands/link/self-hosted.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.3/src/commands/link/self-hosted.ts)_
 
 ## `powersync login`
 
@@ -1091,7 +1097,7 @@ EXAMPLES
   $ powersync login
 ```
 
-_See code: [src/commands/login.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.2/src/commands/login.ts)_
+_See code: [src/commands/login.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.3/src/commands/login.ts)_
 
 ## `powersync logout`
 
@@ -1111,7 +1117,7 @@ EXAMPLES
   $ powersync logout
 ```
 
-_See code: [src/commands/logout.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.2/src/commands/logout.ts)_
+_See code: [src/commands/logout.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.3/src/commands/logout.ts)_
 
 ## `powersync migrate sync-rules`
 
@@ -1119,8 +1125,8 @@ Migrates Sync Rules to Sync Streams
 
 ```
 USAGE
-  $ powersync migrate sync-rules [--input-file <value>] [--output-file <value>] [--api-url <value> | --instance-id
-    <value> | --org-id <value> | --project-id <value>] [--directory <value>]
+  $ powersync migrate sync-rules [--api-url <value> | --instance-id <value> | --org-id <value> | --project-id <value>]
+    [--directory <value>] [--input-file <value>] [--output-file <value>]
 
 FLAGS
   --input-file=<value>   Path to the input sync rules file. Defaults to the project sync-config.yaml file.
@@ -1148,7 +1154,7 @@ DESCRIPTION
   Migrates Sync Rules to Sync Streams
 ```
 
-_See code: [src/commands/migrate/sync-rules.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.2/src/commands/migrate/sync-rules.ts)_
+_See code: [src/commands/migrate/sync-rules.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.3/src/commands/migrate/sync-rules.ts)_
 
 ## `powersync plugins`
 
@@ -1480,7 +1486,7 @@ EXAMPLES
   $ powersync pull instance --instance-id=<id> --project-id=<id> --org-id=<org-id>
 ```
 
-_See code: [src/commands/pull/instance.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.2/src/commands/pull/instance.ts)_
+_See code: [src/commands/pull/instance.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.3/src/commands/pull/instance.ts)_
 
 ## `powersync status`
 
@@ -1488,8 +1494,8 @@ Show instance diagnostics (connections, sync config, replication).
 
 ```
 USAGE
-  $ powersync status [--output human|json|yaml] [--api-url <value> | --instance-id <value> | --org-id
-    <value> | --project-id <value>] [--directory <value>]
+  $ powersync status [--api-url <value> | --instance-id <value> | --org-id <value> | --project-id <value>]
+    [--directory <value>] [--output human|json|yaml]
 
 FLAGS
   --output=<option>  [default: human] Output format: human-readable, json, or yaml.
@@ -1525,7 +1531,7 @@ EXAMPLES
   $ powersync status --instance-id=<id> --project-id=<id>
 ```
 
-_See code: [src/commands/status.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.2/src/commands/status.ts)_
+_See code: [src/commands/status.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.3/src/commands/status.ts)_
 
 ## `powersync stop`
 
@@ -1533,8 +1539,8 @@ _See code: [src/commands/status.ts](https://github.com/powersync-ja/powersync-cl
 
 ```
 USAGE
-  $ powersync stop [--confirm yes] [--directory <value>] [--instance-id <value> --project-id <value>]
-    [--org-id <value>]
+  $ powersync stop [--directory <value>] [--instance-id <value> --project-id <value>] [--org-id <value>]
+    [--confirm yes]
 
 FLAGS
   --confirm=<option>  Set to "yes" to confirm stopping the instance.
@@ -1562,7 +1568,7 @@ EXAMPLES
   $ powersync stop --confirm=yes
 ```
 
-_See code: [src/commands/stop.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.2/src/commands/stop.ts)_
+_See code: [src/commands/stop.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.3/src/commands/stop.ts)_
 
 ## `powersync validate`
 
@@ -1570,8 +1576,9 @@ Validate config schema, connections, and sync config before deploy.
 
 ```
 USAGE
-  $ powersync validate [--output human|json|yaml] [--skip-validations <value> | --validate-only <value>]
-    [--api-url <value> | --instance-id <value> | --org-id <value> | --project-id <value>] [--directory <value>]
+  $ powersync validate [--api-url <value> | --instance-id <value> | --org-id <value> | --project-id <value>]
+    [--directory <value>] [--sync-config-file-path <value>] [--output human|json|yaml] [--skip-validations <value> |
+    --validate-only <value>]
 
 FLAGS
   --output=<option>           [default: human] Output format: human-readable, json, or yaml.
@@ -1586,9 +1593,11 @@ SELF_HOSTED_PROJECT FLAGS
                      --instance-id). Resolved: flag → cli.yaml → API_URL.
 
 PROJECT FLAGS
-  --directory=<value>  [default: powersync] Directory containing PowerSync config. Defaults to "powersync". This is
-                       required if multiple powersync config files are present in subdirectories of the current working
-                       directory.
+  --directory=<value>              [default: powersync] Directory containing PowerSync config. Defaults to "powersync".
+                                   This is required if multiple powersync config files are present in subdirectories of
+                                   the current working directory.
+  --sync-config-file-path=<value>  [Optional] Override the path to a sync config file. When set, this file is used
+                                   instead of sync-config.yaml in the project directory.
 
 CLOUD_PROJECT FLAGS
   --instance-id=<value>  [Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud
@@ -1611,6 +1620,6 @@ EXAMPLES
   $ powersync validate --api-url=https://powersync.example.com
 ```
 
-_See code: [src/commands/validate.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.2/src/commands/validate.ts)_
+_See code: [src/commands/validate.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.3/src/commands/validate.ts)_
 
 <!-- commandsstop -->
