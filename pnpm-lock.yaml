@@ -88,9 +88,6 @@ importers:
       '@oclif/plugin-plugins':
         specifier: ^5
         version: 5.4.55
-      '@powersync-community/sync-config-rewriter':
-        specifier: ^0.1.4
-        version: 0.1.4
       '@powersync/cli-core':
         specifier: workspace:*
         version: link:../packages/cli-core
@@ -115,6 +112,9 @@ importers:
       '@powersync/service-types':
         specifier: 'catalog:'
         version: 0.15.0
+      '@powersync/sync-config-tools':
+        specifier: ^0.1.1
+        version: 0.1.1
       bson:
         specifier: ^7.2.0
         version: 7.2.0
@@ -1605,9 +1605,6 @@ packages:
     resolution: {integrity: sha512-h104Kh26rR8tm+a3Qkc5S4VLYint3FE48as7+/5oCEcKR2idC/pF1G6AhIXKI+eHPJa/3J9i5z0Al47IeGHPkA==}
     engines: {node: '>=12'}
 
-  '@powersync-community/sync-config-rewriter@0.1.4':
-    resolution: {integrity: sha512-xJez2HuLg7XIdy6D5BMe1OyzAML7I80eBaYzHEsZlsmoAyp5xpoouWXFlnquQYM662phv+eYm3TtOuGXHk6ewQ==}
-
   '@powersync/management-client@0.0.6':
     resolution: {integrity: sha512-s5tvk/3JUw9B1ry0X8YH30sMscqf5xkbGK0XNSZ4X6o0ATtJWxxe97Fgg1HoNTfN2W7lMSyTyZnBdf9jsVOluQ==}
 
@@ -1628,6 +1625,9 @@ packages:
 
   '@powersync/service-types@0.15.0':
     resolution: {integrity: sha512-wIdHCT+vhwoJAMZ414/dwG8fd51+fEWnPbwShkwNE5XTwA0UGOT8aGyVZqzT8PT0sVos5famYYqG203Mjb7q6g==}
+
+  '@powersync/sync-config-tools@0.1.1':
+    resolution: {integrity: sha512-+lSmE6uGDUmUFc+XnYIatp746LMMLCw0DK+VyWnheuk4LRxENSqaZwLYySekWTDg9fBsXQJakAQ6sHHVMSTsbg==}
 
   '@radix-ui/primitive@1.1.3':
     resolution: {integrity: sha512-JTF99U/6XIjCBo0wqkU5sK10glYe27MRRsfwoiq5zzOEZLHU3A3KCMa5X/azekYRCJ0HlwI0crAXS/5dEHTzDg==}
@@ -8960,8 +8960,6 @@ snapshots:
       '@pnpm/network.ca-file': 1.0.2
       config-chain: 1.1.13
 
-  '@powersync-community/sync-config-rewriter@0.1.4': {}
-
   '@powersync/management-client@0.0.6(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)':
     dependencies:
       '@journeyapps-labs/common-sdk': 1.0.3(@types/debug@4.1.12)(@types/json-schema@7.0.15)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2)
@@ -9071,6 +9069,8 @@ snapshots:
       uri-js: 4.4.1
     transitivePeerDependencies:
       - babel-plugin-macros
+
+  '@powersync/sync-config-tools@0.1.1': {}
 
   '@radix-ui/primitive@1.1.3': {}
 
