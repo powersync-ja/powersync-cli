@@ -16,10 +16,7 @@ export default class DeployAll extends WithSyncConfigFilePath(BaseDeployCommand)
     `See also ${ux.colorize('blue', 'powersync deploy sync-config')} to deploy only sync config changes.`,
     `See also ${ux.colorize('blue', 'powersync deploy service-config')} to deploy only service config changes.`
   ].join('\n');
-  static examples = [
-    '<%= config.bin %> <%= command.id %>',
-    '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id>'
-  ];
+  static examples = ['<%= config.bin %> <%= command.id %>', '<%= config.bin %> <%= command.id %> --instance-id=<id>'];
   static flags = {
     ...GENERAL_VALIDATION_FLAG_HELPERS.flags
   };

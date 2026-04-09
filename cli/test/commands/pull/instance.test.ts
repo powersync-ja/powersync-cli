@@ -34,6 +34,7 @@ const MOCK_CONFIG_WITH_EMPTY_JWKS_KEYS = {
 
 const mockCloudClient = {
   deployInstance: vi.fn(),
+  getInstance: vi.fn(),
   getInstanceConfig: vi.fn()
 };
 
@@ -79,6 +80,8 @@ describe('pull instance', () => {
     origCwd = process.cwd();
     tmpDir = mkdtempSync(join(tmpdir(), 'pull-instance-test-'));
     process.chdir(tmpDir);
+    mockCloudClient.getInstance.mockReset();
+    mockCloudClient.getInstance.mockResolvedValue({ app_id: PROJECT_ID, id: INSTANCE_ID, org_id: ORG_ID });
     mockCloudClient.getInstanceConfig.mockReset();
     mockCloudClient.getInstanceConfig.mockRejectedValue(new Error('network error'));
     accountsClientMock.getOrganization.mockResolvedValue({ id: ORG_ID, label: 'Test Org' });
@@ -105,9 +108,7 @@ describe('pull instance', () => {
     expect(existsSync(projectDir)).toBe(false);
     mockCloudClient.getInstanceConfig.mockResolvedValueOnce({ config: MOCK_CONFIG });
     const result = await runPullInstanceDirect({
-      instanceId: INSTANCE_ID,
-      orgId: ORG_ID,
-      projectId: PROJECT_ID
+      instanceId: INSTANCE_ID
     });
     expect(result.error).toBeUndefined();
     expect(existsSync(projectDir)).toBe(true);
@@ -138,9 +139,7 @@ describe('pull instance', () => {
     // No service.yaml; ensureServiceTypeMatches allows missing when configFileRequired is false
     mockCloudClient.getInstanceConfig.mockResolvedValueOnce({ config: MOCK_CONFIG });
     const result = await runPullInstanceDirect({
-      instanceId: INSTANCE_ID,
-      orgId: ORG_ID,
-      projectId: PROJECT_ID
+      instanceId: INSTANCE_ID
     });
     expect(result.error).toBeUndefined();
     expect(existsSync(join(projectDir, 'cli.yaml'))).toBe(true);

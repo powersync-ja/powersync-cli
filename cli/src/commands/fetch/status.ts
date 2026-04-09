@@ -10,7 +10,7 @@ export default class FetchStatus extends SharedInstanceCommand {
   static examples = [
     '<%= config.bin %> <%= command.id %>',
     '<%= config.bin %> <%= command.id %> --output=json',
-    '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id>'
+    '<%= config.bin %> <%= command.id %> --instance-id=<id>'
   ];
   static flags = {
     output: Flags.string({

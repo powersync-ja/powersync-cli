@@ -16,11 +16,11 @@ import { writeCloudLink } from '../../api/cloud/write-cloud-link.js';
 export default class LinkCloud extends CloudInstanceCommand {
   static commandHelpGroup = CommandHelpGroup.PROJECT_SETUP;
   static description =
-    'Write or update cli.yaml with a Cloud instance (instance-id, org-id, project-id). Use --create to create a new instance from service.yaml name/region and link it; omit --instance-id when using --create. Org ID is optional when the token has a single organization.';
+    'Write or update cli.yaml with a Cloud instance link. Pass --instance-id to link an existing instance (org-id and project-id are resolved automatically). Use --create with --project-id to create a new instance from service.yaml and link it.';
   static examples = [
-    '<%= config.bin %> <%= command.id %> --project-id=<project-id>',
+    '<%= config.bin %> <%= command.id %> --instance-id=<id>',
     '<%= config.bin %> <%= command.id %> --create --project-id=<project-id>',
-    '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<project-id> --org-id=<org-id>'
+    '<%= config.bin %> <%= command.id %> --create --project-id=<project-id> --org-id=<org-id>'
   ];
   static flags = {
     create: Flags.boolean({
@@ -30,19 +30,20 @@ export default class LinkCloud extends CloudInstanceCommand {
     }),
     'instance-id': Flags.string({
       default: env.INSTANCE_ID,
-      description: 'PowerSync Cloud instance ID. Omit when using --create. Resolved: flag → INSTANCE_ID → cli.yaml.',
+      description: 'PowerSync Cloud instance ID. Omit when using --create. Resolved: flag → INSTANCE_ID.',
       required: false
     }),
     'org-id': Flags.string({
       default: env.ORG_ID,
       description:
-        'Organization ID. Optional when the token has a single org; required when the token has multiple orgs. Resolved: flag → ORG_ID → cli.yaml.',
+        'Organization ID. Auto-resolved from the instance when linking an existing instance; required (or auto-resolved if single org) when using --create. Resolved: flag → ORG_ID.',
       required: false
     }),
     'project-id': Flags.string({
       default: env.PROJECT_ID,
-      description: 'Project ID. Resolved: flag → PROJECT_ID → cli.yaml.',
-      required: true
+      description:
+        'Project ID. Required when using --create; auto-resolved from the instance otherwise. Resolved: flag → PROJECT_ID.',
+      required: false
     })
   };
   static summary = '[Cloud only] Link to a PowerSync Cloud instance (or create one with --create).';
@@ -51,16 +52,22 @@ export default class LinkCloud extends CloudInstanceCommand {
     const { flags } = await this.parse(LinkCloud);
     let { create, directory, 'instance-id': instanceId, 'org-id': orgId, 'project-id': projectId } = flags;
 
-    if (!orgId) {
-      orgId = await getDefaultOrgId();
-    }
-
     const projectDirectory = this.resolveProjectDir(flags);
     if (create) {
       if (instanceId) {
         this.styledError({
           message: 'Do not supply --instance-id when using --create. The instance will be created and linked.'
         });
+      }
+
+      if (!projectId) {
+        this.styledError({
+          message: 'Pass --project-id when using --create.'
+        });
+      }
+
+      if (!orgId) {
+        orgId = await getDefaultOrgId();
       }
 
       try {
@@ -111,13 +118,13 @@ export default class LinkCloud extends CloudInstanceCommand {
     }
 
     try {
-      await validateCloudLinkConfig({
-        cloudClient: this.client,
-        input: { instanceId, orgId, projectId },
-        validateInstance: true
+      const instanceMeta = await this.client.getInstance({ id: instanceId });
+      orgId = instanceMeta.org_id;
+      projectId = instanceMeta.app_id;
+    } catch {
+      this.styledError({
+        message: `Instance ${instanceId} was not found, or is not accessible with the current token.`
       });
-    } catch (error) {
-      this.styledError({ message: error instanceof Error ? error.message : String(error) });
     }
 
     writeCloudLink(projectDirectory, { instanceId, orgId, projectId });

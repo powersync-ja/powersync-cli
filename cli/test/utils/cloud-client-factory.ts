@@ -4,6 +4,7 @@ import { vi } from 'vitest';
 /** Stub used as the cloud client in tests. Created once, returned by createCloudClient and exposed for mocking. */
 const stub: PowerSyncManagementClient = {
   createInstance: vi.fn(),
+  getInstance: vi.fn(),
   getInstanceConfig: vi.fn(),
   getInstanceDiagnostics: vi.fn(),
   getInstanceStatus: vi.fn()

@@ -38,6 +38,7 @@ export const managementClientMock = {
   deactivateInstance: vi.fn(),
   deployInstance: vi.fn(),
   destroyInstance: vi.fn(),
+  getInstance: vi.fn(),
   getInstanceConfig: vi.fn(),
   getInstanceStatus: vi.fn(),
   listRegions: vi.fn(),
@@ -54,6 +55,11 @@ export function resetManagementClientMocks(): void {
   managementClientMock.destroyInstance.mockRejectedValue(new Error('mock destroy failure'));
   managementClientMock.deactivateInstance.mockRejectedValue(new Error('mock deactivate failure'));
   managementClientMock.deployInstance.mockRejectedValue(new Error('mock deploy failure'));
+  managementClientMock.getInstance.mockResolvedValue({
+    app_id: MOCK_CLOUD_IDS.projectId,
+    id: MOCK_CLOUD_IDS.instanceId,
+    org_id: MOCK_CLOUD_IDS.orgId
+  });
   managementClientMock.getInstanceConfig.mockRejectedValue(new Error('mock getInstanceConfig failure'));
   managementClientMock.getInstanceStatus.mockRejectedValue(new Error('mock getInstanceStatus failure'));
   managementClientMock.listRegions.mockResolvedValue({ regions: [{ name: 'us' }] });

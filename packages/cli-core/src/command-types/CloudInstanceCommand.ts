@@ -9,7 +9,6 @@ import { PowerSyncManagementClient } from '@powersync/management-client';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { getDefaultOrgId } from '../clients/AccountsHubClientSDKClient.js';
 import { createCloudClient } from '../clients/create-cloud-client.js';
 import { ensureServiceTypeMatches, ServiceType } from '../utils/ensure-service-type.js';
 import { env } from '../utils/env.js';
@@ -41,36 +40,36 @@ export type CloudInstanceCommandFlags = Interfaces.InferredFlags<
  * 1. Command-line flags (--instance-id, --org-id, --project-id)
  * 2. Linked config from cli.yaml
  * 3. Environment variables (INSTANCE_ID, ORG_ID, PROJECT_ID)
- * 4. If org_id is still missing: token's single org (via accounts API); error if multiple orgs.
+ * 4. If org_id or project_id is still missing but instance_id is known: resolved via client.getInstance.
  *
  * @example
  * # Use linked project (cli.yaml)
  * pnpm exec powersync some-cloud-cmd
  * # Override with env
- * INSTANCE_ID=... ORG_ID=... PROJECT_ID=... pnpm exec powersync some-cloud-cmd
- * # Override with flags
- * pnpm exec powersync some-cloud-cmd --instance-id=... --org-id=... --project-id=...
+ * INSTANCE_ID=... pnpm exec powersync some-cloud-cmd
+ * # Override with flags (--instance-id alone is sufficient)
+ * pnpm exec powersync some-cloud-cmd --instance-id=...
  */
 export abstract class CloudInstanceCommand extends InstanceCommand {
   static baseFlags = {
     /**
      * Instance ID, org ID, and project ID are resolved in order: flags → cli.yaml → env (INSTANCE_ID, ORG_ID, PROJECT_ID).
+     * When only instance_id is available, org_id and project_id are resolved automatically via the management API.
      */
     ...InstanceCommand.baseFlags,
     'instance-id': Flags.string({
-      dependsOn: ['project-id'],
-      description: 'PowerSync Cloud instance ID. Manually passed if the current context has not been linked.',
+      description:
+        'PowerSync Cloud instance ID. Pass when the current directory is not yet linked. org-id and project-id are resolved automatically.',
       helpGroup: HelpGroup.CLOUD_PROJECT,
       required: false
     }),
     'org-id': Flags.string({
-      description:
-        'Organization ID (optional). Defaults to the token’s single org when only one is available; pass explicitly if the token has multiple orgs.',
+      description: 'Organization ID. Auto-resolved from the instance when --instance-id is passed; rarely needed.',
       helpGroup: HelpGroup.CLOUD_PROJECT,
       required: false
     }),
     'project-id': Flags.string({
-      description: 'Project ID. Manually passed if the current context has not been linked.',
+      description: 'Project ID. Auto-resolved from the instance when --instance-id is passed; rarely needed.',
       helpGroup: HelpGroup.CLOUD_PROJECT,
       required: false
     })
@@ -156,19 +155,27 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
     }
 
     const instance_id = flags['instance-id'] ?? (rawLink?.instance_id as string | undefined) ?? env.INSTANCE_ID;
-    const project_id = flags['project-id'] ?? (rawLink?.project_id as string | undefined) ?? env.PROJECT_ID;
-    let org_id = flags['org-id'] ?? (rawLink?.org_id as string | undefined) ?? env.ORG_ID;
+    // When --instance-id is explicitly passed, always resolve org/project from the API.
+    // --org-id / --project-id flags are accepted for backward compatibility but ignored.
+    const instanceIdFromFlag = flags['instance-id'] != null;
+    let project_id = instanceIdFromFlag
+      ? undefined
+      : (flags['project-id'] ?? (rawLink?.project_id as string | undefined) ?? env.PROJECT_ID);
+    let org_id = instanceIdFromFlag
+      ? undefined
+      : (flags['org-id'] ?? (rawLink?.org_id as string | undefined) ?? env.ORG_ID);
 
-    try {
-      if (org_id == null && instance_id != null) {
-        org_id = await getDefaultOrgId();
+    if (instance_id != null && (org_id == null || project_id == null)) {
+      try {
+        const instanceMeta = await this.client.getInstance({ id: instance_id });
+        org_id ??= instanceMeta.org_id;
+        project_id ??= instanceMeta.app_id;
+      } catch (error) {
+        this.styledError({
+          error,
+          message: `Instance ${instance_id} was not found, or is not accessible with the current token.`
+        });
       }
-    } catch (error) {
-      this.styledError({
-        error,
-        message:
-          'Linking is required before using this command. Provide flags, link the project (cli.yaml), or set environment variables.'
-      });
     }
 
     if (instance_id != null || project_id != null || org_id != null) {

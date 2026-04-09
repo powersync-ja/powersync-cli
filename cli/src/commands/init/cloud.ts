@@ -68,12 +68,9 @@ export default class InitCloud extends InstanceCommand {
 
     const instructions = [
       'Create a new instance with ',
-      ux.colorize('blue', '\tpowersync link cloud --create --org-id=<org-id> --project-id=<project-id>'),
+      ux.colorize('blue', '\tpowersync link cloud --create --project-id=<project-id>'),
       'or pull an existing instance with ',
-      ux.colorize(
-        'blue',
-        '\tpowersync pull instance --org-id=<org-id> --project-id=<project-id> --instance-id=<instance-id>'
-      ),
+      ux.colorize('blue', '\tpowersync pull instance --instance-id=<instance-id>'),
       `Tip: use ${ux.colorize('blue', 'powersync fetch instances')} to see available organizations and projects for your token.`,
       'Then run',
       ux.colorize('blue', '\tpowersync deploy'),

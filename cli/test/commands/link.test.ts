@@ -75,7 +75,7 @@ describe('link', () => {
         objects: [{ id: PROJECT_ID, name: 'Test Project' }],
         total: 1
       });
-      managementClientMock.getInstanceConfig.mockResolvedValue({});
+      managementClientMock.getInstance.mockResolvedValue({ app_id: PROJECT_ID, id: INSTANCE_ID, org_id: ORG_ID });
       origCwd = process.cwd();
       tmpDir = mkdtempSync(join(tmpdir(), 'link-test-'));
       process.chdir(tmpDir);
@@ -213,40 +213,22 @@ type: cloud
       expect(linkYaml.instance_id).toBe(INSTANCE_ID);
     });
 
-    it('errors for invalid ObjectID flag values', async () => {
-      const { error } = await runLinkCloudDirect([
-        `--instance-id=${INSTANCE_ID}`,
-        `--org-id=${ORG_ID}`,
-        '--project-id=invalid/project-id'
-      ]);
-      expect(error?.message).toContain('Invalid --project-id');
-    });
-
-    it('errors when project does not exist in the organization', async () => {
-      accountsClientMock.listProjects.mockResolvedValueOnce({ objects: [], total: 0 });
-
-      const { error } = await runLinkCloudDirect([
-        `--instance-id=${INSTANCE_ID}`,
-        `--org-id=${ORG_ID}`,
-        `--project-id=${PROJECT_ID}`
-      ]);
-
-      expect(error?.message).toContain(`Project ${PROJECT_ID} was not found in organization ${ORG_ID}`);
-      expect(error?.message).not.toContain(', ::');
+    it('links with instance-id only (resolves org and project automatically)', async () => {
+      const { error, stdout } = await runLinkCloudDirect([`--instance-id=${INSTANCE_ID}`]);
+      expect(error).toBeUndefined();
+      expect(stdout).toContain(`Updated ${PROJECT_DIR}/${CLI_FILENAME} with Cloud instance link.`);
+      const linkYaml = parseYaml(readFileSync(join(tmpDir, PROJECT_DIR, CLI_FILENAME), 'utf8'));
+      expect(linkYaml.instance_id).toBe(INSTANCE_ID);
+      expect(linkYaml.org_id).toBe(ORG_ID);
+      expect(linkYaml.project_id).toBe(PROJECT_ID);
     });
 
     it('errors when instance does not exist and --create is not used', async () => {
-      managementClientMock.getInstanceConfig.mockRejectedValueOnce(new Error('not found'));
+      managementClientMock.getInstance.mockRejectedValueOnce(new Error('not found'));
 
-      const { error } = await runLinkCloudDirect([
-        `--instance-id=${INSTANCE_ID}`,
-        `--org-id=${ORG_ID}`,
-        `--project-id=${PROJECT_ID}`
-      ]);
+      const { error } = await runLinkCloudDirect([`--instance-id=${INSTANCE_ID}`]);
 
-      expect(error?.message).toContain(
-        `Instance ${INSTANCE_ID} was not found in project ${PROJECT_ID} in organization ${ORG_ID}`
-      );
+      expect(error?.message).toContain(`Instance ${INSTANCE_ID} was not found`);
     });
   });
 

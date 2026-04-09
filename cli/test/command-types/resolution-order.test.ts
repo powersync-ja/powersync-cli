@@ -9,6 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import DestroyCommand from '../../src/commands/destroy.js';
 import FetchStatusCommand from '../../src/commands/fetch/status.js';
 import { root } from '../helpers/root.js';
+import { managementClientMock, resetManagementClientMocks } from '../setup.js';
 
 type EnvSnapshot = {
   API_URL: string | undefined;
@@ -57,6 +58,7 @@ describe('instance resolution order', () => {
     origCwd = process.cwd();
     tmpRoot = mkdtempSync(join(tmpdir(), 'resolution-order-'));
     process.chdir(tmpRoot);
+    resetManagementClientMocks();
     envSnapshot = {
       API_URL: env.API_URL,
       INSTANCE_ID: env.INSTANCE_ID,
@@ -100,6 +102,13 @@ describe('instance resolution order', () => {
 
     const loadProjectSpy = vi.spyOn(CloudInstanceCommand.prototype, 'loadProject');
 
+    // When --instance-id is passed as a flag, --org-id/--project-id are ignored;
+    // org and project are always resolved from getInstance.
+    managementClientMock.getInstance.mockResolvedValueOnce({
+      app_id: IDS.flag.project,
+      id: IDS.flag.instance,
+      org_id: IDS.flag.org
+    });
     await runDestroyDirect([
       '--confirm=yes',
       `--instance-id=${IDS.flag.instance}`,
@@ -210,6 +219,13 @@ describe('instance resolution order', () => {
     const loadProjectSpy = vi.spyOn(SharedInstanceCommand.prototype, 'loadProject');
     vi.spyOn(FetchStatusCommand.prototype, 'getCloudStatus').mockRejectedValue(new Error('expected-test-failure'));
 
+    // When --instance-id is passed as a flag, --org-id/--project-id are ignored;
+    // org and project are always resolved from getInstance.
+    managementClientMock.getInstance.mockResolvedValueOnce({
+      app_id: IDS.flag.project,
+      id: IDS.flag.instance,
+      org_id: IDS.flag.org
+    });
     await runFetchStatusDirect([
       '--output=json',
       `--instance-id=${IDS.flag.instance}`,

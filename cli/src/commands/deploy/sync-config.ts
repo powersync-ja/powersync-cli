@@ -17,10 +17,7 @@ const SYNC_CONFIG_VALIDATION_FLAGS = generateValidationTestFlags({
 
 export default class DeploySyncConfig extends WithSyncConfigFilePath(BaseDeployCommand) {
   static description = 'Deploy only sync config changes.';
-  static examples = [
-    '<%= config.bin %> <%= command.id %>',
-    '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id>'
-  ];
+  static examples = ['<%= config.bin %> <%= command.id %>', '<%= config.bin %> <%= command.id %> --instance-id=<id>'];
   static flags = {
     ...SYNC_CONFIG_VALIDATION_FLAGS.flags
   };
