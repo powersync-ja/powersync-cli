@@ -143,6 +143,7 @@ playground/
 
 # PNPM
 .pnpm-store/
+.pnpmfile.cjs
 
 # MacOS
 .DS_Store

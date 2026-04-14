@@ -9,12 +9,12 @@ import { PowerSyncManagementClient } from '@powersync/management-client';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { getDefaultOrgId } from '../clients/AccountsHubClientSDKClient.js';
 import { createCloudClient } from '../clients/create-cloud-client.js';
 import { ensureServiceTypeMatches, ServiceType } from '../utils/ensure-service-type.js';
 import { env } from '../utils/env.js';
 import { OBJECT_ID_REGEX } from '../utils/object-id.js';
 import { CLI_FILENAME, SERVICE_FILENAME } from '../utils/project-config.js';
+import { resolveCloudInstanceLink } from '../utils/resolve-cloud-instance-link.js';
 import { resolveSyncRulesContent } from '../utils/resolve-sync-rules-content.js';
 import { parseYamlFile } from '../utils/yaml.js';
 import { CommandHelpGroup, HelpGroup } from './HelpGroup.js';
@@ -41,36 +41,35 @@ export type CloudInstanceCommandFlags = Interfaces.InferredFlags<
  * 1. Command-line flags (--instance-id, --org-id, --project-id)
  * 2. Linked config from cli.yaml
  * 3. Environment variables (INSTANCE_ID, ORG_ID, PROJECT_ID)
- * 4. If org_id is still missing: token's single org (via accounts API); error if multiple orgs.
+ * 4. If org_id or project_id is still missing: resolve it from the Cloud instance.
  *
  * @example
  * # Use linked project (cli.yaml)
  * pnpm exec powersync some-cloud-cmd
  * # Override with env
- * INSTANCE_ID=... ORG_ID=... PROJECT_ID=... pnpm exec powersync some-cloud-cmd
+ * INSTANCE_ID=... pnpm exec powersync some-cloud-cmd
  * # Override with flags
- * pnpm exec powersync some-cloud-cmd --instance-id=... --org-id=... --project-id=...
+ * pnpm exec powersync some-cloud-cmd --instance-id=...
  */
 export abstract class CloudInstanceCommand extends InstanceCommand {
   static baseFlags = {
     /**
      * Instance ID, org ID, and project ID are resolved in order: flags → cli.yaml → env (INSTANCE_ID, ORG_ID, PROJECT_ID).
+     * Missing org/project IDs are resolved from the Cloud instance.
      */
     ...InstanceCommand.baseFlags,
     'instance-id': Flags.string({
-      dependsOn: ['project-id'],
       description: 'PowerSync Cloud instance ID. Manually passed if the current context has not been linked.',
       helpGroup: HelpGroup.CLOUD_PROJECT,
       required: false
     }),
     'org-id': Flags.string({
-      description:
-        'Organization ID (optional). Defaults to the token’s single org when only one is available; pass explicitly if the token has multiple orgs.',
+      description: 'Organization ID (optional). Resolved from the Cloud instance when omitted.',
       helpGroup: HelpGroup.CLOUD_PROJECT,
       required: false
     }),
     'project-id': Flags.string({
-      description: 'Project ID. Manually passed if the current context has not been linked.',
+      description: 'Project ID (optional). Resolved from the Cloud instance when omitted.',
       helpGroup: HelpGroup.CLOUD_PROJECT,
       required: false
     })
@@ -157,19 +156,7 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
 
     const instance_id = flags['instance-id'] ?? (rawLink?.instance_id as string | undefined) ?? env.INSTANCE_ID;
     const project_id = flags['project-id'] ?? (rawLink?.project_id as string | undefined) ?? env.PROJECT_ID;
-    let org_id = flags['org-id'] ?? (rawLink?.org_id as string | undefined) ?? env.ORG_ID;
-
-    try {
-      if (org_id == null && instance_id != null) {
-        org_id = await getDefaultOrgId();
-      }
-    } catch (error) {
-      this.styledError({
-        error,
-        message:
-          'Linking is required before using this command. Provide flags, link the project (cli.yaml), or set environment variables.'
-      });
-    }
+    const org_id = flags['org-id'] ?? (rawLink?.org_id as string | undefined) ?? env.ORG_ID;
 
     if (instance_id != null || project_id != null || org_id != null) {
       this.ensureObjectIdIfPresent(instance_id, '--instance-id');
@@ -177,17 +164,19 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
       this.ensureObjectIdIfPresent(project_id, '--project-id');
 
       try {
-        linked = ResolvedCloudCLIConfig.decode({
-          instance_id: instance_id!,
-          org_id: org_id!,
-          project_id: project_id!,
-          type: 'cloud'
-        });
+        linked = ResolvedCloudCLIConfig.decode(
+          await resolveCloudInstanceLink({
+            client: this.client,
+            instanceId: instance_id,
+            orgId: org_id,
+            projectId: project_id
+          })
+        );
       } catch (error) {
         this.styledError({
           error,
           message:
-            'Linking is required before using this command. Provide flags, link the project (cli.yaml), or set environment variables.'
+            'Linking is required before using this command. Provide --instance-id, link the project (cli.yaml), or set environment variables.'
         });
       }
     }

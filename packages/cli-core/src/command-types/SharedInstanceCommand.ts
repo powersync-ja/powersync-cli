@@ -16,11 +16,11 @@ import { PowerSyncManagementClient } from '@powersync/management-client';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { getDefaultOrgId } from '../clients/AccountsHubClientSDKClient.js';
 import { createCloudClient } from '../clients/create-cloud-client.js';
 import { ensureServiceTypeMatches, ServiceType } from '../utils/ensure-service-type.js';
 import { env } from '../utils/env.js';
 import { CLI_FILENAME, SERVICE_FILENAME } from '../utils/project-config.js';
+import { resolveCloudInstanceLink } from '../utils/resolve-cloud-instance-link.js';
 import { resolveSyncRulesContent } from '../utils/resolve-sync-rules-content.js';
 import { parseYamlFile } from '../utils/yaml.js';
 import { CloudProject } from './CloudInstanceCommand.js';
@@ -50,11 +50,11 @@ export type SharedInstanceCommandFlags = Interfaces.InferredFlags<
  * # Use linked project (cli.yaml determines cloud vs self-hosted)
  * pnpm exec powersync some-shared-cmd
  * # Force cloud with env
- * INSTANCE_ID=... ORG_ID=... PROJECT_ID=... pnpm exec powersync some-shared-cmd
+ * INSTANCE_ID=... pnpm exec powersync some-shared-cmd
  * # Force self-hosted with flag
  * pnpm exec powersync some-shared-cmd --api-url=https://...
  * # Force cloud with flags
- * pnpm exec powersync some-shared-cmd --instance-id=... --org-id=... --project-id=...
+ * pnpm exec powersync some-shared-cmd --instance-id=...
  */
 export abstract class SharedInstanceCommand extends InstanceCommand {
   static baseFlags = {
@@ -67,20 +67,18 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
       required: false
     }),
     'instance-id': Flags.string({
-      dependsOn: ['project-id'],
       description:
         '[Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud (exclusive with --api-url). Resolved: flag → cli.yaml → INSTANCE_ID.',
       helpGroup: HelpGroup.CLOUD_PROJECT,
       required: false
     }),
     'org-id': Flags.string({
-      description:
-        '[Cloud] Organization ID (optional). Defaults to the token’s single org when only one is available; pass explicitly if the token has multiple orgs. Resolved: flag → cli.yaml → ORG_ID.',
+      description: '[Cloud] Organization ID (optional). Resolved from the Cloud instance when omitted.',
       helpGroup: HelpGroup.CLOUD_PROJECT,
       required: false
     }),
     'project-id': Flags.string({
-      description: '[Cloud] Project ID. Resolved: flag → cli.yaml → PROJECT_ID.',
+      description: '[Cloud] Project ID (optional). Resolved from the Cloud instance when omitted.',
       helpGroup: HelpGroup.CLOUD_PROJECT,
       required: false
     }),
@@ -166,7 +164,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
 
     const linkMissingErrorMessage = [
       'Linking is required before using this command.',
-      'Provide --api-url (self-hosted) or --instance-id with --org-id and --project-id (cloud), or link the project first.'
+      'Provide --api-url (self-hosted) or --instance-id (cloud), or link the project first.'
     ].join('\n');
 
     // If we don't have a project type by now, we need to error
@@ -190,17 +188,14 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     } else {
       const _rawCloudCLIConfig = (rawCLIConfig as CloudCLIConfig) ?? { type: 'cloud' };
       try {
-        let org_id = flags['org-id'] ?? _rawCloudCLIConfig.org_id ?? env.ORG_ID;
-        if (org_id == null && (flags['instance-id'] || env.INSTANCE_ID)) {
-          org_id = await getDefaultOrgId();
-        }
-
-        cliConfig = ResolvedCloudCLIConfig.decode({
-          ..._rawCloudCLIConfig,
-          instance_id: flags['instance-id'] ?? _rawCloudCLIConfig.instance_id! ?? env.INSTANCE_ID,
-          org_id: org_id!,
-          project_id: flags['project-id'] ?? _rawCloudCLIConfig.project_id! ?? env.PROJECT_ID
-        });
+        cliConfig = ResolvedCloudCLIConfig.decode(
+          await resolveCloudInstanceLink({
+            client: this.cloudClient,
+            instanceId: flags['instance-id'] ?? _rawCloudCLIConfig.instance_id ?? env.INSTANCE_ID,
+            orgId: flags['org-id'] ?? _rawCloudCLIConfig.org_id ?? env.ORG_ID,
+            projectId: flags['project-id'] ?? _rawCloudCLIConfig.project_id ?? env.PROJECT_ID
+          })
+        );
       } catch (error) {
         this.styledError({ error, message: linkMissingErrorMessage });
       }

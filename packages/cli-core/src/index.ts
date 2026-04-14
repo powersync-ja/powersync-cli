@@ -23,6 +23,7 @@ export * from './utils/ensure-service-type.js';
 export * from './utils/env.js';
 export * from './utils/object-id.js';
 export * from './utils/project-config.js';
+export * from './utils/resolve-cloud-instance-link.js';
 export * from './utils/resolve-sync-rules-content.js';
 export * from './utils/sync-config-file-path-flags.js';
 export * from './utils/yaml.js';

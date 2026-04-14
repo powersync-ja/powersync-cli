@@ -1,10 +1,12 @@
+import type { ResolvedCloudCLIConfig } from '@powersync/cli-schemas';
+
 import { Flags, ux } from '@oclif/core';
 import {
   CLI_FILENAME,
   CloudInstanceCommand,
   CommandHelpGroup,
   ensureServiceTypeMatches,
-  getDefaultOrgId,
+  env,
   SERVICE_FILENAME,
   ServiceType,
   SYNC_FILENAME,
@@ -30,10 +32,10 @@ const PULL_CONFIG_HEADER = `# PowerSync Cloud config (fetched from cloud)
 export default class PullInstance extends CloudInstanceCommand {
   static commandHelpGroup = CommandHelpGroup.PROJECT_SETUP;
   static description =
-    'Fetch an existing Cloud instance by ID: create the config directory if needed, write cli.yaml, and download service.yaml and sync-config.yaml. Pass --instance-id and --project-id when the directory is not yet linked; --org-id is optional when the token has a single organization. Cloud only.';
+    'Fetch an existing Cloud instance by ID: create the config directory if needed, write cli.yaml, and download service.yaml and sync-config.yaml. Cloud only.';
   static examples = [
     '<%= config.bin %> <%= command.id %>',
-    '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id>',
+    '<%= config.bin %> <%= command.id %> --instance-id=<id>',
     '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id> --org-id=<org-id>'
   ];
   static flags = {
@@ -48,20 +50,36 @@ export default class PullInstance extends CloudInstanceCommand {
   async run(): Promise<void> {
     const { flags } = await this.parse(PullInstance);
     const { directory, 'instance-id': instanceId, 'org-id': _orgId, 'project-id': projectId } = flags;
+    const inputInstanceId = instanceId ?? env.INSTANCE_ID;
+    const inputOrgId = _orgId ?? env.ORG_ID;
+    const inputProjectId = projectId ?? env.PROJECT_ID;
 
-    const resolvedOrgId = _orgId ?? (await getDefaultOrgId().catch(() => null));
+    let resolvedLink: ResolvedCloudCLIConfig | undefined;
+    let instanceConfig;
     /**
      * The pull instance command can be used to create a new powersync project directory
      */
     const projectDir = this.resolveProjectDir(flags);
     if (!existsSync(projectDir)) {
-      if (instanceId && resolvedOrgId && projectId) {
-        mkdirSync(projectDir, { recursive: true });
-      } else {
+      if (!inputInstanceId) {
         this.styledError({
-          message: `Directory "${directory}" not found. Pass --instance-id, and --project-id to create the config directory and link, or run this command from a directory that already contains a linked PowerSync config.`
+          message: `Directory "${directory}" not found. Pass --instance-id to create the config directory and link, or run this command from a directory that already contains a linked PowerSync config.`
         });
       }
+
+      try {
+        const validationResult = await validateCloudLinkConfig({
+          cloudClient: this.client,
+          input: { instanceId: inputInstanceId, orgId: inputOrgId, projectId: inputProjectId },
+          validateInstance: true
+        });
+        resolvedLink = validationResult.linked;
+        instanceConfig = validationResult.instanceConfig;
+      } catch (error) {
+        this.styledError({ message: error instanceof Error ? error.message : String(error) });
+      }
+
+      mkdirSync(projectDir, { recursive: true });
     }
 
     ensureServiceTypeMatches({
@@ -74,32 +92,57 @@ export default class PullInstance extends CloudInstanceCommand {
 
     const linkPath = join(projectDir, CLI_FILENAME);
     if (!existsSync(linkPath)) {
-      if (!instanceId || !resolvedOrgId || !projectId) {
+      if (!resolvedLink) {
+        if (!inputInstanceId) {
+          this.styledError({
+            message: `Linking is required. Pass --instance-id to this command, or run ${ux.colorize('blue', 'powersync link cloud --instance-id=<id>')} first.`
+          });
+        }
+
+        try {
+          const validationResult = await validateCloudLinkConfig({
+            cloudClient: this.client,
+            input: { instanceId: inputInstanceId, orgId: inputOrgId, projectId: inputProjectId },
+            validateInstance: true
+          });
+          resolvedLink = validationResult.linked;
+          instanceConfig = validationResult.instanceConfig;
+        } catch (error) {
+          this.styledError({ message: error instanceof Error ? error.message : String(error) });
+        }
+      }
+
+      if (!resolvedLink) {
         this.styledError({
-          message: `Linking is required. Pass --instance-id, --org-id, and --project-id to this command, or run ${ux.colorize('blue', 'powersync link cloud --instance-id=<id> --org-id=<id> --project-id=<id>')} first.`
+          message: `Failed to resolve Cloud instance ${inputInstanceId}.`
         });
       }
 
-      writeCloudLink(projectDir, { instanceId, orgId: resolvedOrgId, projectId });
+      writeCloudLink(projectDir, {
+        instanceId: resolvedLink.instance_id,
+        orgId: resolvedLink.org_id,
+        projectId: resolvedLink.project_id
+      });
       this.log(`Created ${ux.colorize('blue', `${directory}/${CLI_FILENAME}`)} with Cloud instance link.`);
     }
 
     const { linked } = await this.loadProject(flags);
 
-    let instanceConfig;
-    try {
-      const validationResult = await validateCloudLinkConfig({
-        cloudClient: this.client,
-        input: {
-          instanceId: linked.instance_id,
-          orgId: linked.org_id,
-          projectId: linked.project_id
-        },
-        validateInstance: true
-      });
-      instanceConfig = validationResult.instanceConfig;
-    } catch (error) {
-      this.styledError({ message: error instanceof Error ? error.message : String(error) });
+    if (!instanceConfig) {
+      try {
+        const validationResult = await validateCloudLinkConfig({
+          cloudClient: this.client,
+          input: {
+            instanceId: linked.instance_id,
+            orgId: linked.org_id,
+            projectId: linked.project_id
+          },
+          validateInstance: true
+        });
+        instanceConfig = validationResult.instanceConfig;
+      } catch (error) {
+        this.styledError({ message: error instanceof Error ? error.message : String(error) });
+      }
     }
 
     if (!instanceConfig) {

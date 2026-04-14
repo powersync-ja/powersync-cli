@@ -1,3 +1,5 @@
+import type { ResolvedCloudCLIConfig } from '@powersync/cli-schemas';
+
 import { Flags, ux } from '@oclif/core';
 import {
   CLI_FILENAME,
@@ -16,9 +18,9 @@ import { writeCloudLink } from '../../api/cloud/write-cloud-link.js';
 export default class LinkCloud extends CloudInstanceCommand {
   static commandHelpGroup = CommandHelpGroup.PROJECT_SETUP;
   static description =
-    'Write or update cli.yaml with a Cloud instance (instance-id, org-id, project-id). Use --create to create a new instance from service.yaml name/region and link it; omit --instance-id when using --create. Org ID is optional when the token has a single organization.';
+    'Write or update cli.yaml with a Cloud instance. Use --create to create a new instance from service.yaml name/region and link it; omit --instance-id when using --create.';
   static examples = [
-    '<%= config.bin %> <%= command.id %> --project-id=<project-id>',
+    '<%= config.bin %> <%= command.id %> --instance-id=<id>',
     '<%= config.bin %> <%= command.id %> --create --project-id=<project-id>',
     '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<project-id> --org-id=<org-id>'
   ];
@@ -36,13 +38,13 @@ export default class LinkCloud extends CloudInstanceCommand {
     'org-id': Flags.string({
       default: env.ORG_ID,
       description:
-        'Organization ID. Optional when the token has a single org; required when the token has multiple orgs. Resolved: flag → ORG_ID → cli.yaml.',
+        'Organization ID. Required with --create when the token has multiple orgs; optional when linking an existing instance.',
       required: false
     }),
     'project-id': Flags.string({
       default: env.PROJECT_ID,
-      description: 'Project ID. Resolved: flag → PROJECT_ID → cli.yaml.',
-      required: true
+      description: 'Project ID. Required with --create; optional assertion when linking an existing instance.',
+      required: false
     })
   };
   static summary = '[Cloud only] Link to a PowerSync Cloud instance (or create one with --create).';
@@ -50,10 +52,6 @@ export default class LinkCloud extends CloudInstanceCommand {
   async run(): Promise<void> {
     const { flags } = await this.parse(LinkCloud);
     let { create, directory, 'instance-id': instanceId, 'org-id': orgId, 'project-id': projectId } = flags;
-
-    if (!orgId) {
-      orgId = await getDefaultOrgId();
-    }
 
     const projectDirectory = this.resolveProjectDir(flags);
     if (create) {
@@ -63,10 +61,23 @@ export default class LinkCloud extends CloudInstanceCommand {
         });
       }
 
+      if (!projectId) {
+        this.styledError({
+          message: 'Creating a Cloud instance requires --project-id.'
+        });
+      }
+
+      if (!orgId) {
+        orgId = await getDefaultOrgId();
+      }
+
+      const createOrgId = orgId!;
+      const createProjectId = projectId!;
+
       try {
         await validateCloudLinkConfig({
           cloudClient: this.client,
-          input: { orgId, projectId },
+          input: { orgId: createOrgId, projectId: createProjectId },
           validateInstance: false
         });
       } catch (error) {
@@ -80,8 +91,8 @@ export default class LinkCloud extends CloudInstanceCommand {
       try {
         const result = await createCloudInstance(client, {
           name: config.name,
-          orgId,
-          projectId,
+          orgId: createOrgId,
+          projectId: createProjectId,
           region: config.region
         });
         newInstanceId = result.instanceId;
@@ -96,7 +107,7 @@ export default class LinkCloud extends CloudInstanceCommand {
         expectedType: ServiceType.CLOUD,
         projectDir: projectDirectory
       });
-      writeCloudLink(projectDirectory, { instanceId: newInstanceId, orgId, projectId });
+      writeCloudLink(projectDirectory, { instanceId: newInstanceId, orgId: createOrgId, projectId: createProjectId });
       this.log(
         ux.colorize('green', `Created Cloud instance ${newInstanceId} and updated ${directory}/${CLI_FILENAME}.`)
       );
@@ -110,17 +121,27 @@ export default class LinkCloud extends CloudInstanceCommand {
       });
     }
 
+    let linked: ResolvedCloudCLIConfig | undefined;
     try {
-      await validateCloudLinkConfig({
+      const validationResult = await validateCloudLinkConfig({
         cloudClient: this.client,
         input: { instanceId, orgId, projectId },
         validateInstance: true
       });
+      linked = validationResult.linked;
     } catch (error) {
       this.styledError({ message: error instanceof Error ? error.message : String(error) });
     }
 
-    writeCloudLink(projectDirectory, { instanceId, orgId, projectId });
+    if (!linked) {
+      this.styledError({ message: `Failed to resolve Cloud instance ${instanceId}.` });
+    }
+
+    writeCloudLink(projectDirectory, {
+      instanceId: linked.instance_id,
+      orgId: linked.org_id,
+      projectId: linked.project_id
+    });
     ensureServiceTypeMatches({
       command: this,
       configRequired: false,
