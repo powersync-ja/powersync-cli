@@ -1,7 +1,7 @@
 {
   "name": "@powersync/cli-core",
   "description": "Core types and base commands for PowerSync CLI and plugins (shared by CLI and plugin-docker).",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "license": "FSL-1.1-ALv2",
   "author": "POWERSYNC",
   "type": "module",
