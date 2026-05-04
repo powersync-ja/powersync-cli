@@ -27,20 +27,20 @@
   },
   "bugs": "https://github.com/powersync-ja/powersync-cli/issues",
   "dependencies": {
-    "@oclif/core": "^4",
-    "@powersync/cli-schemas": "workspace:*",
+    "@journeyapps-labs/common-sdk": "^1.0.2",
     "@journeyapps-labs/micro-errors": "^1.0.1",
-    "yaml": "^2",
-    "@journeyapps-labs/common-sdk": "1.0.2",
+    "@oclif/core": "catalog:",
+    "@powersync/cli-schemas": "workspace:*",
     "@powersync/management-client": "catalog:",
     "@powersync/management-types": "catalog:",
     "@powersync/service-client": "catalog:",
-    "keychain": "^1.5.0"
+    "keychain": "^1.5.0",
+    "yaml": "^2.8.3"
   },
   "devDependencies": {
-    "@types/node": "^24",
-    "typescript": "^5",
-    "@types/keychain": "^1.4.4"
+    "@types/keychain": "^1.4.4",
+    "@types/node": "^24.12.2",
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=18.0.0"
