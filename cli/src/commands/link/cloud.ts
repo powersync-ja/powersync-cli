@@ -12,7 +12,7 @@ import {
 } from '@powersync/cli-core';
 
 import { createCloudInstance } from '../../api/cloud/create-cloud-instance.js';
-import { validateCloudLinkConfig } from '../../api/cloud/validate-cloud-link-config.js';
+import { fetchCloudInstanceConfig, validateCloudProject } from '../../api/cloud/validate-cloud-link-config.js';
 import { writeCloudLink } from '../../api/cloud/write-cloud-link.js';
 
 export default class LinkCloud extends CloudInstanceCommand {
@@ -71,15 +71,8 @@ export default class LinkCloud extends CloudInstanceCommand {
         orgId = await getDefaultOrgId();
       }
 
-      const createOrgId = orgId!;
-      const createProjectId = projectId!;
-
       try {
-        await validateCloudLinkConfig({
-          cloudClient: this.client,
-          input: { orgId: createOrgId, projectId: createProjectId },
-          validateInstance: false
-        });
+        await validateCloudProject({ cloudClient: this.client, orgId: orgId!, projectId: projectId! });
       } catch (error) {
         this.styledError({ message: error instanceof Error ? error.message : String(error) });
       }
@@ -91,8 +84,8 @@ export default class LinkCloud extends CloudInstanceCommand {
       try {
         const result = await createCloudInstance(client, {
           name: config.name,
-          orgId: createOrgId,
-          projectId: createProjectId,
+          orgId: orgId!,
+          projectId: projectId!,
           region: config.region
         });
         newInstanceId = result.instanceId;
@@ -107,7 +100,7 @@ export default class LinkCloud extends CloudInstanceCommand {
         expectedType: ServiceType.CLOUD,
         projectDir: projectDirectory
       });
-      writeCloudLink(projectDirectory, { instanceId: newInstanceId, orgId: createOrgId, projectId: createProjectId });
+      writeCloudLink(projectDirectory, { instanceId: newInstanceId, orgId: orgId!, projectId: projectId! });
       this.log(
         ux.colorize('green', `Created Cloud instance ${newInstanceId} and updated ${directory}/${CLI_FILENAME}.`)
       );
@@ -123,10 +116,11 @@ export default class LinkCloud extends CloudInstanceCommand {
 
     let linked: ResolvedCloudCLIConfig | undefined;
     try {
-      const validationResult = await validateCloudLinkConfig({
+      const validationResult = await fetchCloudInstanceConfig({
         cloudClient: this.client,
-        input: { instanceId, orgId, projectId },
-        validateInstance: true
+        instanceId,
+        orgId,
+        projectId
       });
       linked = validationResult.linked;
     } catch (error) {
