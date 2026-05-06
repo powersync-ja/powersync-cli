@@ -22,6 +22,7 @@ export default class LinkCloud extends CloudInstanceCommand {
   static examples = [
     '<%= config.bin %> <%= command.id %> --instance-id=<id>',
     '<%= config.bin %> <%= command.id %> --create --project-id=<project-id>',
+    '<%= config.bin %> <%= command.id %> --create --project-id=<project-id> --org-id=<org-id>',
     '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<project-id> --org-id=<org-id>'
   ];
   static flags = {
