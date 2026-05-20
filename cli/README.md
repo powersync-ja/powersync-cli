@@ -239,7 +239,7 @@ $ npm install -g powersync
 $ powersync COMMAND
 running command...
 $ powersync (--version)
-powersync/0.9.4 linux-x64 node-v24.14.0
+powersync/0.9.4 darwin-arm64 node-v24.12.0
 $ powersync --help [COMMAND]
 USAGE
   $ powersync COMMAND
@@ -272,6 +272,7 @@ See [docs/usage.md](../docs/usage.md) for full usage and resolution order (flags
 
 - [`powersync autocomplete [SHELL]`](#powersync-autocomplete-shell)
 - [`powersync commands`](#powersync-commands)
+- [`powersync compact`](#powersync-compact)
 - [`powersync configure ide`](#powersync-configure-ide)
 - [`powersync deploy`](#powersync-deploy)
 - [`powersync deploy service-config`](#powersync-deploy-service-config)
@@ -369,6 +370,45 @@ DESCRIPTION
 ```
 
 _See code: [@oclif/plugin-commands](https://github.com/oclif/plugin-commands/blob/v4.1.40/src/commands/commands.ts)_
+
+## `powersync compact`
+
+[Cloud only] Compact the linked Cloud instance.
+
+```
+USAGE
+  $ powersync compact [--directory <value>] [--instance-id <value> --project-id <value>] [--org-id <value>]
+    [--timeout <value>]
+
+FLAGS
+  --timeout=<value>  [default: 30] Maximum time to wait for compaction to complete, in minutes. Use 0 to wait
+                     indefinitely.
+
+PROJECT FLAGS
+  --directory=<value>  [default: powersync] Directory containing PowerSync config. Defaults to "powersync". This is
+                       required if multiple powersync config files are present in subdirectories of the current working
+                       directory.
+
+CLOUD_PROJECT FLAGS
+  --instance-id=<value>  PowerSync Cloud instance ID. Manually passed if the current context has not been linked.
+  --org-id=<value>       Organization ID (optional). Defaults to the token’s single org when only one is available; pass
+                         explicitly if the token has multiple orgs.
+  --project-id=<value>   Project ID. Manually passed if the current context has not been linked.
+
+DESCRIPTION
+  [Cloud only] Compact the linked Cloud instance.
+
+  Trigger compaction on the linked PowerSync Cloud instance to reclaim sync bucket storage.
+
+EXAMPLES
+  $ powersync compact
+
+  $ powersync compact --timeout=120
+
+  $ powersync compact --timeout=0
+```
+
+_See code: [src/commands/compact.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.4/src/commands/compact.ts)_
 
 ## `powersync configure ide`
 
