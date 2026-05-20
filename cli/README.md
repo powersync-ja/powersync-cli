@@ -378,6 +378,11 @@ _See code: [@oclif/plugin-commands](https://github.com/oclif/plugin-commands/blo
 ```
 USAGE
   $ powersync compact [--directory <value>] [--instance-id <value> --project-id <value>] [--org-id <value>]
+    [--timeout <value>]
+
+FLAGS
+  --timeout=<value>  [default: 30] Maximum time to wait for compaction to complete, in minutes. Use 0 to wait
+                     indefinitely.
 
 PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config. Defaults to "powersync". This is
@@ -397,6 +402,10 @@ DESCRIPTION
 
 EXAMPLES
   $ powersync compact
+
+  $ powersync compact --timeout=120
+
+  $ powersync compact --timeout=0
 ```
 
 _See code: [src/commands/compact.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.4/src/commands/compact.ts)_

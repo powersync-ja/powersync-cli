@@ -1,18 +1,32 @@
-import { ux } from '@oclif/core';
+import { Flags, ux } from '@oclif/core';
 import { CloudInstanceCommand } from '@powersync/cli-core';
 import ora from 'ora';
 
 import { waitForOperationStatusChange } from '../api/cloud/wait-for-operation.js';
 
+const DEFAULT_COMPACT_TIMEOUT_MINUTES = 30;
+
 export default class Compact extends CloudInstanceCommand {
   static description = 'Trigger compaction on the linked PowerSync Cloud instance to reclaim sync bucket storage.';
-  static examples = ['<%= config.bin %> <%= command.id %>'];
+  static examples = [
+    '<%= config.bin %> <%= command.id %>',
+    '<%= config.bin %> <%= command.id %> --timeout=120',
+    '<%= config.bin %> <%= command.id %> --timeout=0'
+  ];
+  static flags = {
+    timeout: Flags.integer({
+      default: DEFAULT_COMPACT_TIMEOUT_MINUTES,
+      description: 'Maximum time to wait for compaction to complete, in minutes. Use 0 to wait indefinitely.',
+      min: 0
+    })
+  };
   static summary = '[Cloud only] Compact the linked Cloud instance.';
 
   async run(): Promise<void> {
     const { flags } = await this.parse(Compact);
     const { linked } = await this.loadProject(flags);
     const { client } = this;
+    const timeoutMs = flags.timeout === 0 ? Number.POSITIVE_INFINITY : flags.timeout * 60 * 1000;
 
     const spinner = ora({
       discardStdin: false,
@@ -36,7 +50,7 @@ export default class Compact extends CloudInstanceCommand {
           instanceId: linked.instance_id,
           linked,
           operationId: compactResult.operation_id,
-          timeoutMs: 30 * 60 * 1000
+          timeoutMs
         });
 
         spinner.stop();

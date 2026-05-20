@@ -151,6 +151,13 @@ describe('compact', () => {
       expect(result.error?.oclif?.exit).toBe(1);
     });
 
+    it('rejects negative --timeout values', async () => {
+      const result = await runCompactDirect(['--timeout=-5']);
+      expect(result.error).toBeDefined();
+      expect(result.error?.message).toMatch(/Expected an integer greater than or equal to 0/);
+      expect(managementClientMock.compact).not.toHaveBeenCalled();
+    });
+
     it('errors with exit 1 when client compact call fails (network error)', async () => {
       managementClientMock.compact.mockRejectedValue(new Error('network down'));
 
