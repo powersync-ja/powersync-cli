@@ -10,23 +10,23 @@ catalogs:
       specifier: ^4.10.6
       version: 4.10.6
     '@powersync/management-client':
-      specifier: ^0.0.6
-      version: 0.0.6
+      specifier: ^0.1.0
+      version: 0.1.0
     '@powersync/management-types':
-      specifier: ^0.0.5
-      version: 0.0.5
+      specifier: ^0.1.0
+      version: 0.1.0
     '@powersync/service-client':
       specifier: ^0.0.3
       version: 0.0.3
     '@powersync/service-schema':
-      specifier: ^1.20.5
-      version: 1.20.5
+      specifier: ^1.21.0
+      version: 1.21.0
     '@powersync/service-sync-rules':
-      specifier: ^0.34.1
-      version: 0.34.1
+      specifier: ^0.36.0
+      version: 0.36.0
     '@powersync/service-types':
-      specifier: ^0.15.1
-      version: 0.15.1
+      specifier: ^0.15.2
+      version: 0.15.2
     oclif:
       specifier: 4.23.0
       version: 4.23.0
@@ -108,16 +108,16 @@ importers:
         version: link:../packages/schemas
       '@powersync/management-client':
         specifier: 'catalog:'
-        version: 0.0.6(@types/json-schema@7.0.15)
+        version: 0.1.0(@types/json-schema@7.0.15)
       '@powersync/management-types':
         specifier: 'catalog:'
-        version: 0.0.5
+        version: 0.1.0
       '@powersync/service-sync-rules':
         specifier: 'catalog:'
-        version: 0.34.1
+        version: 0.36.0
       '@powersync/service-types':
         specifier: 'catalog:'
-        version: 0.15.1
+        version: 0.15.2
       '@powersync/sync-config-tools':
         specifier: ^0.1.2
         version: 0.1.2
@@ -190,10 +190,10 @@ importers:
         version: link:../schemas
       '@powersync/management-client':
         specifier: 'catalog:'
-        version: 0.0.6(@types/json-schema@7.0.15)
+        version: 0.1.0(@types/json-schema@7.0.15)
       '@powersync/management-types':
         specifier: 'catalog:'
-        version: 0.0.5
+        version: 0.1.0
       '@powersync/service-client':
         specifier: 'catalog:'
         version: 0.0.3(@types/json-schema@7.0.15)
@@ -342,13 +342,13 @@ importers:
     dependencies:
       '@powersync/management-types':
         specifier: 'catalog:'
-        version: 0.0.5
+        version: 0.1.0
       '@powersync/service-schema':
         specifier: 'catalog:'
-        version: 1.20.5
+        version: 1.21.0
       '@powersync/service-types':
         specifier: 'catalog:'
-        version: 0.15.1
+        version: 0.15.2
       ajv:
         specifier: ^8.20.0
         version: 8.20.0
@@ -361,7 +361,7 @@ importers:
     devDependencies:
       '@powersync/service-sync-rules':
         specifier: 'catalog:'
-        version: 0.34.1
+        version: 0.36.0
       '@types/node':
         specifier: ^22.19.17
         version: 22.19.17
@@ -416,10 +416,10 @@ importers:
         version: link:../../packages/schemas
       '@powersync/service-schema':
         specifier: 'catalog:'
-        version: 1.20.5
+        version: 1.21.0
       '@powersync/service-types':
         specifier: 'catalog:'
-        version: 0.15.1
+        version: 0.15.2
       yaml:
         specifier: ^2.8.3
         version: 2.8.3
@@ -1491,29 +1491,29 @@ packages:
     resolution: {integrity: sha512-h104Kh26rR8tm+a3Qkc5S4VLYint3FE48as7+/5oCEcKR2idC/pF1G6AhIXKI+eHPJa/3J9i5z0Al47IeGHPkA==}
     engines: {node: '>=12'}
 
-  '@powersync/management-client@0.0.6':
-    resolution: {integrity: sha512-s5tvk/3JUw9B1ry0X8YH30sMscqf5xkbGK0XNSZ4X6o0ATtJWxxe97Fgg1HoNTfN2W7lMSyTyZnBdf9jsVOluQ==}
+  '@powersync/management-client@0.1.0':
+    resolution: {integrity: sha512-YGJPNZHrSwUF3ofhz8VhbU1/QCF4KUKWGTyfzsDkmGJ9p8DESF5tZ1r0O7Nnmt1o2C0JOaQ0pV8z2pgnE1qb0g==}
 
-  '@powersync/management-types@0.0.5':
-    resolution: {integrity: sha512-sh1vRo1pq0D2oxijiyy0bHz1fIVkuiZkW+hTSyDSumNtbmT18ELe7+Mto29xlCzQ10oJ1YeyskUwpi+ZWzfuIQ==}
+  '@powersync/management-types@0.1.0':
+    resolution: {integrity: sha512-Ypv1UCu2rOlTKS8HjGl21aMd1NQnsG9isrs7OyIamjlMM1n2wLjbGuZNacu7Wzqc9CPeNZisUO4QXKyfuXa2kw==}
 
   '@powersync/service-client@0.0.3':
     resolution: {integrity: sha512-K83tOFdjRyFh76c4CKViRFyGJfBH9wSvtOvF2PxtbajAIPMzZEeunpnFj3vphx8CQyrDFWkR8/1Qa0BiCo30xQ==}
 
-  '@powersync/service-jsonbig@0.17.12':
-    resolution: {integrity: sha512-ilssJP6I+v8LfBCIwRJlKZhuxVT7pGhYg/B2+xsodVRRmTkyRDpmBpV+RlabksbtR1H0G3aXm5AtNYwmfblBkQ==}
+  '@powersync/service-jsonbig@0.17.13':
+    resolution: {integrity: sha512-S90x8xgYYaiNBi6pnBbSxqiZlXUhEDb10HfTs5maLPVYIlDKXG5YlhP1DVv/csFNCuIuMC1F5ABXnN2rNjfajg==}
 
-  '@powersync/service-schema@1.20.5':
-    resolution: {integrity: sha512-4PLmDDG4t0sQhyL/jIY4W/42z0HqU4xayMp8hEIMWR3ipF5TXFhKyJojxfFlgRa+BhqXRsj92/CcdBRoKLn1Ig==}
+  '@powersync/service-schema@1.21.0':
+    resolution: {integrity: sha512-m5QfEwOMk8Gu+6qNeWqS9RaNDNL8WQb3kaeMyo98egpasWPeQzD2BE1nhzJLpbsVSV9WchnNDDr1jRikvnRjLg==}
 
-  '@powersync/service-sync-rules@0.34.1':
-    resolution: {integrity: sha512-lHn4i3u5waEzGpbhx4A7AtOwXQ5e/Tuk5wS1/jmsbktl9a6mvKjB9UA2RY69/dUmBDbYzrdS+PGD9DBaHoFzCw==}
+  '@powersync/service-sync-rules@0.36.0':
+    resolution: {integrity: sha512-WlV4pOK1QwsM+6Bvy5Vkq04xmb0E1FcbWgqnQcbVJpKnSGul8osRDoIC/2JSNOauwxTqNXf0Ec8n6tzD9SSWOQ==}
 
   '@powersync/service-types@0.15.0':
     resolution: {integrity: sha512-wIdHCT+vhwoJAMZ414/dwG8fd51+fEWnPbwShkwNE5XTwA0UGOT8aGyVZqzT8PT0sVos5famYYqG203Mjb7q6g==}
 
-  '@powersync/service-types@0.15.1':
-    resolution: {integrity: sha512-SwTRPLrw4kP0ll93v1/pVP6Mu5ynft4Vqczur9tU8uRxeey+HHaB7yGMXeRfH7IXxlwctpBRGtPVSUamfKwZkw==}
+  '@powersync/service-types@0.15.2':
+    resolution: {integrity: sha512-GXQqCuTME+S1nV9CLbxtgYuAtMGFFLkDubm+DRTNGQqur8wBVzJp3haHCHFBVJ03Bhec+K7AIrB6CTii7b/HJg==}
 
   '@powersync/sync-config-tools@0.1.2':
     resolution: {integrity: sha512-/K/FgVRvOLPZgREKHHf4C9WZ7macygzVSuqW2GvLHaFjbRaEtSgENrCqF06+JdPP14UxkrPkLCyqXfpj9yNVAQ==}
@@ -6013,12 +6013,12 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  uuid@11.1.1:
-    resolution: {integrity: sha512-vIYxrBCC/N/K+Js3qSN88go7kIfNPssr/hHCesKCQNAjmgvYS2oqr69kIufEG+O4+PfezOH4EbIeHCfFov8ZgQ==}
-    hasBin: true
-
   uuid@13.0.1:
     resolution: {integrity: sha512-9ezox2roIft6ExBVTVqibSd5dc5/47Sw/uY6b4SjQUT2TzQ0tltNquWA46y4xPQmdZYqvnio22SgWd41M86+jw==}
+    hasBin: true
+
+  uuid@14.0.0:
+    resolution: {integrity: sha512-Qo+uWgilfSmAhXCMav1uYFynlQO7fMFiMVZsQqZRMIXp0O7rR7qjkj+cPvBHLgBqi960QCoo/PH2/6ZtVqKvrg==}
     hasBin: true
 
   uuid@8.3.2:
@@ -7966,18 +7966,18 @@ snapshots:
       '@pnpm/network.ca-file': 1.0.2
       config-chain: 1.1.13
 
-  '@powersync/management-client@0.0.6(@types/json-schema@7.0.15)':
+  '@powersync/management-client@0.1.0(@types/json-schema@7.0.15)':
     dependencies:
       '@journeyapps-labs/common-sdk': 1.0.4(@types/json-schema@7.0.15)
-      '@powersync/management-types': 0.0.5
+      '@powersync/management-types': 0.1.0
     transitivePeerDependencies:
       - '@types/json-schema'
       - babel-plugin-macros
 
-  '@powersync/management-types@0.0.5':
+  '@powersync/management-types@0.1.0':
     dependencies:
       '@journeyapps-labs/micro-codecs': 1.0.3
-      '@powersync/service-types': 0.15.0
+      '@powersync/service-types': 0.15.2
       bson: 6.10.4
       ts-codec: 1.3.0
     transitivePeerDependencies:
@@ -7991,19 +7991,19 @@ snapshots:
       - '@types/json-schema'
       - babel-plugin-macros
 
-  '@powersync/service-jsonbig@0.17.12':
+  '@powersync/service-jsonbig@0.17.13':
     dependencies:
       lossless-json: 2.0.11
 
-  '@powersync/service-schema@1.20.5': {}
+  '@powersync/service-schema@1.21.0': {}
 
-  '@powersync/service-sync-rules@0.34.1':
+  '@powersync/service-sync-rules@0.36.0':
     dependencies:
-      '@powersync/service-jsonbig': 0.17.12
+      '@powersync/service-jsonbig': 0.17.13
       '@syncpoint/wkx': 0.5.2
       ajv: 8.20.0
       pgsql-ast-parser: 11.2.0
-      uuid: 11.1.1
+      uuid: 14.0.0
       yaml: 2.8.3
 
   '@powersync/service-types@0.15.0':
@@ -8014,7 +8014,7 @@ snapshots:
     transitivePeerDependencies:
       - babel-plugin-macros
 
-  '@powersync/service-types@0.15.1':
+  '@powersync/service-types@0.15.2':
     dependencies:
       dedent: 1.7.2
       ts-codec: 1.3.0
@@ -12735,9 +12735,9 @@ snapshots:
     dependencies:
       react: 19.2.5
 
-  uuid@11.1.1: {}
-
   uuid@13.0.1: {}
+
+  uuid@14.0.0: {}
 
   uuid@8.3.2:
     optional: true
