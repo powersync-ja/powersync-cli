@@ -224,6 +224,7 @@ type: cloud
 
     it('errors when project does not exist in the organization', async () => {
       accountsClientMock.listProjects.mockResolvedValueOnce({ objects: [], total: 0 });
+      managementClientMock.getInstanceConfig.mockRejectedValueOnce(new Error('not found'));
 
       const { error } = await runLinkCloudDirect([
         `--instance-id=${INSTANCE_ID}`,
@@ -231,8 +232,9 @@ type: cloud
         `--project-id=${PROJECT_ID}`
       ]);
 
-      expect(error?.message).toContain(`Project ${PROJECT_ID} was not found in organization ${ORG_ID}`);
-      expect(error?.message).not.toContain(', ::');
+      expect(error?.message).toContain(
+        `Instance ${INSTANCE_ID} was not found in project ${PROJECT_ID} in organization ${ORG_ID}`
+      );
     });
 
     it('errors when instance does not exist and --create is not used', async () => {

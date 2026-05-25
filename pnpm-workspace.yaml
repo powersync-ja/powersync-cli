@@ -4,8 +4,8 @@ packages:
   - plugins/*
 
 catalog:
-  '@powersync/management-client': ^0.0.6
-  '@powersync/management-types': ^0.0.5
+  '@powersync/management-client': ^0.1.0
+  '@powersync/management-types': ^0.1.0
   '@powersync/service-client': ^0.0.3
   '@powersync/service-schema': ^1.20.2
   '@powersync/service-sync-rules': ^0.34.0

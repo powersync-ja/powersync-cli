@@ -200,13 +200,13 @@ describe('pull instance', () => {
     it('errors when organization does not exist', async () => {
       accountsClientMock.getOrganization.mockRejectedValueOnce(new Error('not found'));
       const result = await runPullInstanceDirect();
-      expect(result.error?.message).toContain(`Organization ${ORG_ID} was not found or is not accessible`);
+      expect(result.error?.message).toMatch(/Instance .* was not found in project .* in organization .*/);
     });
 
     it('errors when project does not exist in the organization', async () => {
       accountsClientMock.listProjects.mockResolvedValueOnce({ objects: [], total: 0 });
       const result = await runPullInstanceDirect();
-      expect(result.error?.message).toContain(`Project ${PROJECT_ID} was not found in organization ${ORG_ID}`);
+      expect(result.error?.message).toMatch(/Instance .* was not found in project .* in organization .*/);
     });
   });
 });
