@@ -34,6 +34,7 @@ export const MOCK_CLOUD_CONFIG: routes.InstanceConfigResponse = {
 } as const;
 
 export const managementClientMock = {
+  compact: vi.fn(),
   createInstance: vi.fn(),
   deactivateInstance: vi.fn(),
   deployInstance: vi.fn(),
@@ -51,6 +52,7 @@ export function resetManagementClientMocks(): void {
     mockFn.mockReset();
   }
 
+  managementClientMock.compact.mockRejectedValue(new Error('mock compact failure'));
   managementClientMock.createInstance.mockResolvedValue({ id: MOCK_CLOUD_IDS.instanceId });
   managementClientMock.getInstance.mockResolvedValue({
     app_id: MOCK_CLOUD_IDS.projectId,

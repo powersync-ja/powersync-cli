@@ -1,5 +1,25 @@
 # powersync
 
+## 0.9.5
+
+### Patch Changes
+
+- 85f9438: Added **`powersync compact`** to trigger compaction on the linked PowerSync Cloud instance and reclaim sync bucket storage. Supports an optional `--timeout=<minutes>` flag (default 30, use `0` to wait indefinitely) for long-running compactions on large buckets.
+  - @powersync/cli-core@0.9.5
+  - @powersync/cli-schemas@0.9.5
+  - @powersync/cli-plugin-docker@0.9.5
+  - @powersync/cli-plugin-config-edit@0.9.5
+
+## 0.9.4
+
+### Patch Changes
+
+- 1a4fa81: Fix crash when trying to transform Sync Rules containing `::` casts to Sync Streams.
+  - @powersync/cli-core@0.9.4
+  - @powersync/cli-schemas@0.9.4
+  - @powersync/cli-plugin-docker@0.9.4
+  - @powersync/cli-plugin-config-edit@0.9.4
+
 ## 0.9.3
 
 ### Patch Changes

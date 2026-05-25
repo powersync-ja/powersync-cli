@@ -147,3 +147,6 @@ playground/
 
 # MacOS
 .DS_Store
+
+# IDE
+.idea
