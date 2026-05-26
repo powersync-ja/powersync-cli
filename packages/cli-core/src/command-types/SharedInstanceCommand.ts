@@ -19,6 +19,7 @@ import { join } from 'node:path';
 import { createCloudClient } from '../clients/create-cloud-client.js';
 import { ensureServiceTypeMatches, ServiceType } from '../utils/ensure-service-type.js';
 import { env } from '../utils/env.js';
+import { LINK_MISSING_ERROR_MESSAGE } from '../utils/errors.js';
 import { CLI_FILENAME, SERVICE_FILENAME } from '../utils/project-config.js';
 import { resolveCloudInstanceLink } from '../utils/resolve-cloud-instance-link.js';
 import { resolveSyncRulesContent } from '../utils/resolve-sync-rules-content.js';
@@ -170,14 +171,9 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
       projectType = hasSelfHostedEnvInputs ? ServiceType.SELF_HOSTED : hasCloudEnvInputs ? ServiceType.CLOUD : null;
     }
 
-    const linkMissingErrorMessage = [
-      'Linking is required before using this command.',
-      'Provide --api-url (self-hosted) or --instance-id (cloud), or link the project first.'
-    ].join('\n');
-
     // If we don't have a project type by now, we need to error
     if (!projectType) {
-      this.styledError({ message: linkMissingErrorMessage });
+      this.styledError({ message: LINK_MISSING_ERROR_MESSAGE });
     }
 
     // 2) Per-field: flags → link file → env (see class JSDoc).
@@ -191,26 +187,31 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
           api_url: flags['api-url'] ?? _rawSelfHostedCLIConfig.api_url! ?? env.API_URL
         });
       } catch (error) {
-        this.styledError({ error, message: linkMissingErrorMessage });
+        this.styledError({ error, message: LINK_MISSING_ERROR_MESSAGE });
       }
     } else {
       const _rawCloudCLIConfig = (rawCLIConfig as CloudCLIConfig) ?? { type: 'cloud' };
+      const instanceId = flags['instance-id'] ?? _rawCloudCLIConfig.instance_id ?? env.INSTANCE_ID;
+      if (!instanceId) {
+        this.styledError({ message: LINK_MISSING_ERROR_MESSAGE });
+      }
+
       try {
         cliConfig = ResolvedCloudCLIConfig.decode(
           await resolveCloudInstanceLink({
             client: this.cloudClient,
-            instanceId: flags['instance-id'] ?? _rawCloudCLIConfig.instance_id ?? env.INSTANCE_ID,
+            instanceId,
             orgId: flags['org-id'] ?? _rawCloudCLIConfig.org_id ?? env.ORG_ID,
             projectId: flags['project-id'] ?? _rawCloudCLIConfig.project_id ?? env.PROJECT_ID
           })
         );
       } catch (error) {
-        this.styledError({ error, message: linkMissingErrorMessage });
+        this.styledError({ error, message: LINK_MISSING_ERROR_MESSAGE });
       }
     }
 
     if (!cliConfig) {
-      this.styledError({ message: linkMissingErrorMessage });
+      this.styledError({ message: LINK_MISSING_ERROR_MESSAGE });
     }
 
     // ensure the link config is valid

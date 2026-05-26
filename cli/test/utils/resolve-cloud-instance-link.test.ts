@@ -20,13 +20,6 @@ describe('resolveCloudInstanceLink', () => {
     vi.restoreAllMocks();
   });
 
-  it('throws when no instanceId is provided', async () => {
-    await expect(resolveCloudInstanceLink({ client: mockClient })).rejects.toThrow(
-      'Cloud instance resolution requires an instance ID.'
-    );
-    expect(managementClientMock.getInstance).not.toHaveBeenCalled();
-  });
-
   it('throws when instanceId has an invalid format', async () => {
     await expect(resolveCloudInstanceLink({ client: mockClient, instanceId: 'not-a-valid-id' })).rejects.toThrow(
       'Invalid --instance-id'

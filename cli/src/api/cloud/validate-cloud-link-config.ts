@@ -13,7 +13,7 @@ export type ValidateCloudProjectOptions = {
 
 export type FetchCloudInstanceConfigOptions = {
   cloudClient: PowerSyncManagementClient;
-  instanceId?: string;
+  instanceId: string;
   orgId?: string;
   projectId?: string;
 };

@@ -12,6 +12,7 @@ import { join } from 'node:path';
 import { createCloudClient } from '../clients/create-cloud-client.js';
 import { ensureServiceTypeMatches, ServiceType } from '../utils/ensure-service-type.js';
 import { env } from '../utils/env.js';
+import { LINK_MISSING_ERROR_MESSAGE } from '../utils/errors.js';
 import { OBJECT_ID_REGEX } from '../utils/object-id.js';
 import { CLI_FILENAME, SERVICE_FILENAME } from '../utils/project-config.js';
 import { resolveCloudInstanceLink } from '../utils/resolve-cloud-instance-link.js';
@@ -171,6 +172,10 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
       this.ensureObjectIdIfPresent(org_id, '--org-id');
       this.ensureObjectIdIfPresent(project_id, '--project-id');
 
+      if (!instance_id) {
+        this.styledError({ message: LINK_MISSING_ERROR_MESSAGE });
+      }
+
       try {
         linked = ResolvedCloudCLIConfig.decode(
           await resolveCloudInstanceLink({
@@ -181,11 +186,7 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
           })
         );
       } catch (error) {
-        this.styledError({
-          error,
-          message:
-            'Linking is required before using this command. Provide --instance-id, link the project (cli.yaml), or set environment variables.'
-        });
+        this.styledError({ error, message: LINK_MISSING_ERROR_MESSAGE });
       }
     }
 

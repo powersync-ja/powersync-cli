@@ -5,7 +5,7 @@ import { ensureObjectId } from './object-id.js';
 
 export type ResolveCloudInstanceLinkInput = {
   client: PowerSyncManagementClient;
-  instanceId?: string;
+  instanceId: string;
   orgId?: string;
   projectId?: string;
 };
@@ -15,10 +15,6 @@ export type ResolveCloudInstanceLinkInput = {
  */
 export async function resolveCloudInstanceLink(input: ResolveCloudInstanceLinkInput): Promise<ResolvedCloudCLIConfig> {
   const { client, instanceId, orgId, projectId } = input;
-
-  if (!instanceId) {
-    throw new Error('Cloud instance resolution requires an instance ID.');
-  }
 
   ensureObjectId(instanceId, '--instance-id');
 
