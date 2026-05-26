@@ -73,12 +73,20 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
       required: false
     }),
     'org-id': Flags.string({
-      description: '[Cloud] Organization ID (optional). Resolved from the Cloud instance when omitted.',
+      deprecated: {
+        message:
+          '--org-id is automatically resolved from --instance-id. This option currently remains as a manual override, but may be removed in a future version.'
+      },
+      description: '[Cloud] [Deprecated] Organization ID. Automatically resolved from --instance-id.',
       helpGroup: HelpGroup.CLOUD_PROJECT,
       required: false
     }),
     'project-id': Flags.string({
-      description: '[Cloud] Project ID (optional). Resolved from the Cloud instance when omitted.',
+      deprecated: {
+        message:
+          '--project-id is automatically resolved from --instance-id. This option currently remains as a manual override, but may be removed in a future version.'
+      },
+      description: '[Cloud] [Deprecated] Project ID. Automatically resolved from --instance-id.',
       helpGroup: HelpGroup.CLOUD_PROJECT,
       required: false
     }),
