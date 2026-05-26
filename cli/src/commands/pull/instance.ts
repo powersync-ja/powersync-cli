@@ -33,11 +33,7 @@ export default class PullInstance extends CloudInstanceCommand {
   static commandHelpGroup = CommandHelpGroup.PROJECT_SETUP;
   static description =
     'Fetch an existing Cloud instance by ID: create the config directory if needed, write cli.yaml, and download service.yaml and sync-config.yaml. Cloud only.';
-  static examples = [
-    '<%= config.bin %> <%= command.id %>',
-    '<%= config.bin %> <%= command.id %> --instance-id=<id>',
-    '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id> --org-id=<org-id>'
-  ];
+  static examples = ['<%= config.bin %> <%= command.id %>', '<%= config.bin %> <%= command.id %> --instance-id=<id>'];
   static flags = {
     overwrite: Flags.boolean({
       description:

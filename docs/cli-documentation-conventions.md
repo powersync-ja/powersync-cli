@@ -8,7 +8,7 @@ This document describes how we document commands and help text in the PowerSync 
 - **`static summary`** — Short one-liner for the command list (e.g. in `powersync --help`). Prefer a terse summary; use `[Cloud only]` or `[Self-hosted only]` when applicable.
 - **`static examples`** — Array of example invocations. Always include at least:
   - `'<%= config.bin %> <%= command.id %>'` (base form).
-  - Additional entries for common flag combinations (e.g. `--confirm=yes`, `--output=json`, `--instance-id=<id> --project-id=<id>`).
+  - Additional entries for common flag combinations (e.g. `--confirm=yes`, `--output=json`, `--instance-id=<id>`).
     Use the oclif template so the bin name stays correct when the CLI is installed under a different name.
 
 ## Flag descriptions
@@ -27,7 +27,7 @@ For grouped commands (e.g. `fetch`, `generate`, `init`, `link`, `pull`, `migrate
 ## README
 
 - The CLI README (`cli/README.md`) uses oclif markers: `<!-- toc -->`, `<!-- usage -->`, `<!-- commands -->`. Content between these is replaced by `oclif readme` (run on `prepack` and `version`). Do not hand-edit the generated command blocks.
-- An **Environment variables** section (after the usage block) documents `PS_ADMIN_TOKEN`, `ORG_ID`, `PROJECT_ID`, `INSTANCE_ID`, and `API_URL` for script/CI use, with a short example.
+- An **Environment variables** section (after the usage block) documents `PS_ADMIN_TOKEN`, `INSTANCE_ID`, and `API_URL` for script/CI use, with a short example.
 
 ## Regenerating command docs
 
