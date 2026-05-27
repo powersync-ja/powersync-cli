@@ -2,12 +2,12 @@ import { runCommand } from '@oclif/test';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { describe, expect, onTestFinished, test } from 'vitest';
+import { describe, expect, it, onTestFinished } from 'vitest';
 
 import { root } from '../helpers/root.js';
 
-describe('migrations', () => {
-  test('migrates from sync rules to sync streams', async () => {
+describe('migrate', () => {
+  it('migrates from sync rules to sync streams', async () => {
     const testDirectory = mkdtempSync(join(tmpdir(), 'migrate-test-'));
     onTestFinished(() => rmSync(testDirectory, { recursive: true }));
 
@@ -15,13 +15,13 @@ describe('migrations', () => {
     const outputFile = join(testDirectory, 'output.yaml');
     writeFileSync(
       inputFile,
-      /* yaml */ `
+      `
 bucket_definitions:
   user_lists:
-    parameters: SELECT request.user_id() as user_id 
+    parameters: SELECT request.user_id() as user_id
     data:
-      - SELECT * FROM lists WHERE owner_id = bucket.user_id   
-      `
+      - SELECT * FROM lists WHERE owner_id = bucket.user_id
+`
     );
 
     const result = await runCommand(`migrate sync-rules --input-file ${inputFile} --output-file ${outputFile}`, {
@@ -31,7 +31,7 @@ bucket_definitions:
 
     const transformed = readFileSync(outputFile).toString('utf8');
     expect(transformed)
-      .toStrictEqual(/* yaml */ `# Adds YAML Schema support for VSCode users with the YAML extension installed. This enables features like validation and autocompletion based on the provided schema.
+      .toStrictEqual(`# Adds YAML Schema support for VSCode users with the YAML extension installed. This enables features like validation and autocompletion based on the provided schema.
 # yaml-language-server: $schema=https://unpkg.com/@powersync/service-sync-rules@latest/schema/sync_rules.json
 config:
   edition: 3
