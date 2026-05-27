@@ -1,7 +1,7 @@
 {
   "name": "@powersync/cli-plugin-config-edit",
   "description": "PowerSync CLI plugin to launch the configuration editor",
-  "version": "0.9.5",
+  "version": "0.9.6",
   "license": "FSL-1.1-ALv2",
   "author": "POWERSYNC",
   "type": "module",
@@ -28,16 +28,16 @@
     "prepack": "oclif manifest"
   },
   "dependencies": {
-    "@oclif/core": "^4",
+    "@oclif/core": "catalog:",
     "@powersync/cli-core": "workspace:*",
-    "open": "^11",
-    "wait-port": "^1"
+    "open": "^11.0.0",
+    "wait-port": "^1.1.0"
   },
   "devDependencies": {
-    "@types/node": "^24",
-    "eslint": "^9",
-    "oclif": "^4",
-    "typescript": "^5"
+    "@types/node": "^24.12.2",
+    "eslint": "^9.39.4",
+    "oclif": "catalog:",
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=18.0.0"

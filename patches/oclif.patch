@@ -1,8 +1,8 @@
 diff --git a/lib/tarballs/build.js b/lib/tarballs/build.js
-index cbae61146324ef6ac0935c625b7858007ac238d1..ebc55cad4adadac568c031469d8ee6f4773c8b01 100644
+index cbae61146324ef6ac0935c625b7858007ac238d1..ace6356be6dd557775b0ac1f79418833054e0324 100644
 --- a/lib/tarballs/build.js
 +++ b/lib/tarballs/build.js
-@@ -69,9 +69,25 @@ const copyCoreYarnFiles = async (yarnRootPath, workspacePath) => {
+@@ -69,9 +69,26 @@ const copyCoreYarnFiles = async (yarnRootPath, workspacePath) => {
  };
  async function build(c, options = {}) {
      (0, log_1.log)(`gathering workspace for ${c.config.bin} to ${c.workspace()}`);
@@ -28,6 +28,7 @@ index cbae61146324ef6ac0935c625b7858007ac238d1..ebc55cad4adadac568c031469d8ee6f4
 +        await updatePJSON(c);
 +        await addDependencies(c);
 +    }
++
      await (0, bin_1.writeBinScripts)({
          baseWorkspace: c.workspace(),
          config: c.config,

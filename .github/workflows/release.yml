@@ -21,6 +21,9 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    outputs:
+      published: ${{ steps.changesets.outputs.published }}
+      release-tag: ${{ steps.release-tag.outputs.tag }}
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v6
@@ -53,6 +56,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Resolve release tag
+        id: release-tag
+        if: ${{ steps.changesets.outputs.published == 'true' }}
+        run: echo "tag=powersync@$(jq -r '.version' cli/package.json)" >> "$GITHUB_OUTPUT"
+
       - name: Dev publish
         if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
@@ -61,3 +69,31 @@ jobs:
           pnpm changeset publish --tag dev
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-artifacts:
+    needs: [release]
+    # Changesets links all package versions, so any publish means the powersync package was published.
+    if: needs.release.outputs.published == 'true'
+    uses: ./.github/workflows/buildArtifacts.yml
+    with:
+      retention-days: 1
+
+  publish-release-assets:
+    needs: [release, build-artifacts]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+      - name: Upload assets to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tag="${{ needs.release.outputs.release-tag }}"
+          files=$(find release-assets -type f \( -name "*.pkg" -o -name "*.exe" -o -name "*.deb" -o -name "*.tar.gz" -o -name "*.tar.xz" \))
+          if [ -z "$files" ]; then
+            echo "Error: No artifacts found to upload"
+            exit 1
+          fi
+          gh release upload "$tag" $files --clobber

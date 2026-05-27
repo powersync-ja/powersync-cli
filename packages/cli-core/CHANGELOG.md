@@ -1,5 +1,11 @@
 # @powersync/cli-core
 
+## 0.9.6
+
+### Patch Changes
+
+- @powersync/cli-schemas@0.9.6
+
 ## 0.9.5
 
 ### Patch Changes
