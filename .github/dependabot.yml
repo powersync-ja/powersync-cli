@@ -1,0 +1,11 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: daily
+    versioning-strategy: increase
+    open-pull-requests-limit: 3
+    allow:
+      - dependency-name: '@powersync/*'
+      - dependency-name: '@journeyapps-labs/*'

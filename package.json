@@ -3,15 +3,15 @@
   "private": true,
   "description": "PowerSync CLI monorepo",
   "devDependencies": {
-    "@changesets/cli": "^2.29.8",
-    "@eslint/compat": "^1",
-    "eslint": "^9",
-    "eslint-config-oclif": "^6",
-    "eslint-config-prettier": "^10",
+    "@changesets/cli": "^2.31.0",
+    "@eslint/compat": "^1.4.1",
+    "eslint": "^9.39.4",
+    "eslint-config-oclif": "^6.0.160",
+    "eslint-config-prettier": "^10.1.8",
     "husky": "^9.1.7",
     "powersync": "workspace:*",
-    "prettier": "^3.0.0",
-    "tsx": "^4"
+    "prettier": "^3.8.3",
+    "tsx": "^4.21.0"
   },
   "scripts": {
     "build": "pnpm -r run build",
