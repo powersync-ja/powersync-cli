@@ -1,5 +1,15 @@
 # powersync
 
+## 0.9.6
+
+### Patch Changes
+
+- 284e9cb: [Internal] Update dependencies
+  - @powersync/cli-core@0.9.6
+  - @powersync/cli-schemas@0.9.6
+  - @powersync/cli-plugin-docker@0.9.6
+  - @powersync/cli-plugin-config-edit@0.9.6
+
 ## 0.9.5
 
 ### Patch Changes
