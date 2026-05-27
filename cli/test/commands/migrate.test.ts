@@ -35,7 +35,6 @@ bucket_definitions:
 # yaml-language-server: $schema=https://unpkg.com/@powersync/service-sync-rules@latest/schema/sync_rules.json
 config:
   edition: 3
-      
 streams:
   # This Sync Stream has been translated from bucket definitions. There may be more efficient ways to express these queries.
   # You can add additional queries to this list if you need them.
