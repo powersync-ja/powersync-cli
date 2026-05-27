@@ -34,6 +34,7 @@ const MOCK_CONFIG_WITH_EMPTY_JWKS_KEYS = {
 
 const mockCloudClient = {
   deployInstance: vi.fn(),
+  getInstance: vi.fn(),
   getInstanceConfig: vi.fn()
 };
 
@@ -79,6 +80,8 @@ describe('pull instance', () => {
     origCwd = process.cwd();
     tmpDir = mkdtempSync(join(tmpdir(), 'pull-instance-test-'));
     process.chdir(tmpDir);
+    mockCloudClient.getInstance.mockReset();
+    mockCloudClient.getInstance.mockResolvedValue({ app_id: PROJECT_ID, id: INSTANCE_ID, org_id: ORG_ID });
     mockCloudClient.getInstanceConfig.mockReset();
     mockCloudClient.getInstanceConfig.mockRejectedValue(new Error('network error'));
     accountsClientMock.getOrganization.mockResolvedValue({ id: ORG_ID, label: 'Test Org' });
