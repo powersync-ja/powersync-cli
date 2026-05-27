@@ -66,20 +66,20 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
     }),
     'org-id': Flags.string({
       deprecated: {
-        message:
-          '--org-id is automatically resolved from --instance-id. This option currently remains as a manual override, but may be removed in a future version.'
+        message: '--org-id is a no-op. Organization ID is resolved automatically.'
       },
       description: '[Deprecated] Organization ID. Automatically resolved from --instance-id.',
       helpGroup: HelpGroup.CLOUD_PROJECT,
+      hidden: true,
       required: false
     }),
     'project-id': Flags.string({
       deprecated: {
-        message:
-          '--project-id is automatically resolved from --instance-id. This option currently remains as a manual override, but may be removed in a future version.'
+        message: '--project-id is a no-op. Project ID is resolved automatically.'
       },
       description: '[Deprecated] Project ID. Automatically resolved from --instance-id.',
       helpGroup: HelpGroup.CLOUD_PROJECT,
+      hidden: true,
       required: false
     })
   };
@@ -163,9 +163,10 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
       }
     }
 
+    // Only instance_id is accepted as a CLI flag - project_id and org_id overrides must come from cli.yaml
     const instance_id = flags['instance-id'] ?? (rawLink?.instance_id as string | undefined) ?? env.INSTANCE_ID;
-    const project_id = flags['project-id'] ?? (rawLink?.project_id as string | undefined) ?? env.PROJECT_ID;
-    const org_id = flags['org-id'] ?? (rawLink?.org_id as string | undefined) ?? env.ORG_ID;
+    const project_id = rawLink?.project_id as string | undefined;
+    const org_id = rawLink?.org_id as string | undefined;
 
     if (instance_id != null || project_id != null || org_id != null) {
       this.ensureObjectIdIfPresent(instance_id, '--instance-id');

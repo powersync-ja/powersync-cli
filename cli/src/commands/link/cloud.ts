@@ -37,13 +37,12 @@ export default class LinkCloud extends CloudInstanceCommand {
     }),
     'org-id': Flags.string({
       default: env.ORG_ID,
-      description:
-        'Organization ID. Required with --create when the token has multiple orgs; optional when linking an existing instance.',
+      description: 'Organization ID. Required with --create when the token has multiple orgs.',
       required: false
     }),
     'project-id': Flags.string({
       default: env.PROJECT_ID,
-      description: 'Project ID. Required with --create; optional assertion when linking an existing instance.',
+      description: 'Project ID. Required with --create.',
       required: false
     })
   };
@@ -131,17 +130,18 @@ export default class LinkCloud extends CloudInstanceCommand {
       this.styledError({ message: `Failed to resolve Cloud instance ${instanceId}.` });
     }
 
-    writeCloudLink(projectDirectory, {
-      instanceId: linked.instance_id,
-      orgId: linked.org_id,
-      projectId: linked.project_id
-    });
     ensureServiceTypeMatches({
       command: this,
       configRequired: false,
       directoryLabel: directory,
       expectedType: ServiceType.CLOUD,
       projectDir: projectDirectory
+    });
+
+    writeCloudLink(projectDirectory, {
+      instanceId: linked.instance_id,
+      orgId: linked.org_id,
+      projectId: linked.project_id
     });
     this.log(ux.colorize('green', `Updated ${directory}/${CLI_FILENAME} with Cloud instance link.`));
   }

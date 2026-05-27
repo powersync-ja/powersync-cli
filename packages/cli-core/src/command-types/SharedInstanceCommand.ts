@@ -75,20 +75,20 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     }),
     'org-id': Flags.string({
       deprecated: {
-        message:
-          '--org-id is automatically resolved from --instance-id. This option currently remains as a manual override, but may be removed in a future version.'
+        message: '--org-id is a no-op. Organization ID is resolved automatically.'
       },
       description: '[Cloud] [Deprecated] Organization ID. Automatically resolved from --instance-id.',
       helpGroup: HelpGroup.CLOUD_PROJECT,
+      hidden: true,
       required: false
     }),
     'project-id': Flags.string({
       deprecated: {
-        message:
-          '--project-id is automatically resolved from --instance-id. This option currently remains as a manual override, but may be removed in a future version.'
+        message: '--project-id is a no-op. Project ID is resolved automatically.'
       },
       description: '[Cloud] [Deprecated] Project ID. Automatically resolved from --instance-id.',
       helpGroup: HelpGroup.CLOUD_PROJECT,
+      hidden: true,
       required: false
     }),
     ...InstanceCommand.baseFlags
@@ -134,7 +134,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     const linkPath = join(projectDir, CLI_FILENAME);
 
     // 1) Context type: flags first, then link file, then env (see class JSDoc for resolution order).
-    const hasCloudFlagInputs = flags['instance-id'] || flags['org-id'] || flags['project-id'];
+    const hasCloudFlagInputs = flags['instance-id'];
     const hasSelfHostedFlagInputs = flags['api-url'];
 
     if (hasCloudFlagInputs && hasSelfHostedFlagInputs) {
@@ -161,7 +161,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
 
     // If type still not set, use env inputs.
     if (!projectType) {
-      const hasCloudEnvInputs = env.INSTANCE_ID || env.ORG_ID || env.PROJECT_ID;
+      const hasCloudEnvInputs = env.INSTANCE_ID;
       const hasSelfHostedEnvInputs = env.API_URL;
 
       if (hasCloudEnvInputs && hasSelfHostedEnvInputs) {
@@ -201,8 +201,9 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
           await resolveCloudInstanceLink({
             client: this.cloudClient,
             instanceId,
-            orgId: flags['org-id'] ?? _rawCloudCLIConfig.org_id ?? env.ORG_ID,
-            projectId: flags['project-id'] ?? _rawCloudCLIConfig.project_id ?? env.PROJECT_ID
+            // orgId and projectId can either be set via cli.yaml or resolved via instanceId
+            orgId: _rawCloudCLIConfig.org_id,
+            projectId: _rawCloudCLIConfig.project_id
           })
         );
       } catch (error) {

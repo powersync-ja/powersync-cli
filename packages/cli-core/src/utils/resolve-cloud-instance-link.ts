@@ -12,12 +12,15 @@ export type ResolveCloudInstanceLinkInput = {
 
 /**
  * Resolves the full Cloud link from an instance ID. If org/project IDs are missing, fetches them from the instance.
+ *
+ * Note that this function does NOT check if the org/project IDs reference valid destinations if provided manually.
  */
 export async function resolveCloudInstanceLink(input: ResolveCloudInstanceLinkInput): Promise<ResolvedCloudCLIConfig> {
   const { client, instanceId, orgId, projectId } = input;
 
   ensureObjectId(instanceId, '--instance-id');
 
+  // Skip API request when org and project IDs are both provided; otherwise fetch them via getInstance
   if (orgId && projectId) {
     ensureObjectId(orgId, '--org-id');
     ensureObjectId(projectId, '--project-id');
@@ -28,10 +31,6 @@ export async function resolveCloudInstanceLink(input: ResolveCloudInstanceLinkIn
       type: 'cloud'
     };
   }
-
-  // Fail fast on bad IDs
-  if (orgId) ensureObjectId(orgId, '--org-id');
-  if (projectId) ensureObjectId(projectId, '--project-id');
 
   let instance;
   try {

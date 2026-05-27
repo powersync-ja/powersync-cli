@@ -45,10 +45,8 @@ export default class PullInstance extends CloudInstanceCommand {
 
   async run(): Promise<void> {
     const { flags } = await this.parse(PullInstance);
-    const { directory, 'instance-id': instanceId, 'org-id': _orgId, 'project-id': projectId } = flags;
+    const { directory, 'instance-id': instanceId } = flags;
     const inputInstanceId = instanceId ?? env.INSTANCE_ID;
-    const inputOrgId = _orgId ?? env.ORG_ID;
-    const inputProjectId = projectId ?? env.PROJECT_ID;
 
     let resolvedLink: ResolvedCloudCLIConfig | undefined;
     let instanceConfig;
@@ -63,9 +61,7 @@ export default class PullInstance extends CloudInstanceCommand {
       try {
         const validationResult = await fetchCloudInstanceConfig({
           cloudClient: this.client,
-          instanceId: inputInstanceId,
-          orgId: inputOrgId,
-          projectId: inputProjectId
+          instanceId: inputInstanceId
         });
         resolvedLink = validationResult.linked;
         instanceConfig = validationResult.instanceConfig;
@@ -96,9 +92,7 @@ export default class PullInstance extends CloudInstanceCommand {
         try {
           const validationResult = await fetchCloudInstanceConfig({
             cloudClient: this.client,
-            instanceId: inputInstanceId,
-            orgId: inputOrgId,
-            projectId: inputProjectId
+            instanceId: inputInstanceId
           });
           resolvedLink = validationResult.linked;
           instanceConfig = validationResult.instanceConfig;
