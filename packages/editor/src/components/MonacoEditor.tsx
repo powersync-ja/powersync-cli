@@ -4,7 +4,7 @@ import MonacoReactEditor, { type BeforeMount, loader, type Monaco, type OnMount 
 import * as monaco from 'monaco-editor';
 // eslint-disable-next-line import/default
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
-import { configureMonacoYaml, SchemasSettings } from 'monaco-yaml';
+import { configureMonacoYaml, type SchemasSettings } from 'monaco-yaml';
 // eslint-disable-next-line import/default
 import YamlWorker from 'monaco-yaml/yaml.worker?worker';
 import { useRef } from 'react';
