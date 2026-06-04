@@ -19,7 +19,7 @@ export default class GenerateSchema extends WithSyncConfigFilePath(SharedInstanc
     'Generate a client-side schema file from the instance database schema and sync config. Supports multiple output types (e.g. type, dart). Requires a linked instance. Cloud and self-hosted.';
   static examples = [
     '<%= config.bin %> <%= command.id %> --output=ts --output-path=schema.ts',
-    '<%= config.bin %> <%= command.id %> --output=dart --output-path=lib/schema.dart --instance-id=<id> --project-id=<id>'
+    '<%= config.bin %> <%= command.id %> --output=dart --output-path=lib/schema.dart --instance-id=<id>'
   ];
   static flags = {
     output: Flags.string({

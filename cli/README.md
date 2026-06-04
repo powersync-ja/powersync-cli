@@ -129,11 +129,11 @@ This avoids re-supplying the raw password in subsequent deploys while reusing th
 
 ## Using an existing instance (pull)
 
-Run **`powersync pull instance`** with the instance identifiers (from the PowerSync Dashboard URL or **`powersync fetch instances`**). This creates the config directory, writes **`cli.yaml`**, and downloads **`service.yaml`** and **`sync-config.yaml`**. Edit as needed, then run **`powersync deploy`**.
+Run **`powersync pull instance`** with the instance ID (from the PowerSync Dashboard URL or **`powersync fetch instances`**). This creates the config directory, writes **`cli.yaml`**, and downloads **`service.yaml`** and **`sync-config.yaml`**. Edit as needed, then run **`powersync deploy`**.
 
 ```sh
 powersync login
-powersync pull instance --project-id=<project-id> --instance-id=<instance-id>   # add --org-id if multiple orgs
+powersync pull instance --instance-id=<instance-id>
   # then edit powersync/service.yaml and sync-config.yaml as needed
 powersync deploy
 ```
@@ -144,18 +144,17 @@ To refresh local config after external edits from the cloud when already linked,
 
 You can run CLI commands (e.g. **`powersync generate schema`**, **`powersync generate token`**, **`powersync status`**) against a Cloud instance whose configuration is managed elsewhere—for example in the PowerSync Dashboard. No local config directory or link file is required.
 
-Specify the instance using **environment variables** or **CLI flags** (flags take precedence): `--instance-id` and `--project-id` (or `INSTANCE_ID`, `PROJECT_ID`). **`--org-id` is optional**: when omitted, the CLI uses the token’s single organization if the token has access to exactly one; if the token has multiple orgs, you must pass **`--org-id`** (or set `ORG_ID`).
+Specify the instance using **`--instance-id`** (or the `INSTANCE_ID` environment variable). Org and project are resolved automatically from the instance.
 
 ```sh
 powersync login
-powersync generate schema --instance-id=<id> --project-id=<project-id> --output-path=schema.ts --output=ts   # add --org-id if multiple orgs
-  # or with env vars (set ORG_ID only if your token has multiple orgs):
-export PROJECT_ID=<project-id>
+powersync generate schema --instance-id=<id> --output-path=schema.ts --output=ts
+  # or with an env var:
 export INSTANCE_ID=<instance-id>
 powersync generate schema --output-path=schema.ts --output=ts
 ```
 
-**Tip:** To avoid passing instance params on every command, run **`powersync link cloud`** (e.g. `powersync link cloud --instance-id=<id> --project-id=<project-id>`) once. The CLI writes `cli.yaml` in the current directory, and subsequent commands use that instance without flags or env vars.
+**Tip:** To avoid passing `--instance-id` on every command, run **`powersync link cloud --instance-id=<id>`** once. The CLI writes `cli.yaml` in the current directory, and subsequent commands use that instance without flags or env vars.
 
 # Self-hosted
 
@@ -253,15 +252,13 @@ USAGE
 You can supply instance and auth context via environment variables (useful for CI or scripts):
 
 - **`PS_ADMIN_TOKEN`** — PowerSync personal access token for Cloud commands. [Learn more](https://docs.powersync.com/usage/tools/cli#personal-access-token).
-- **`ORG_ID`** — Organization ID (optional for Cloud). Omit when your token has a single organization; required when it has multiple.
-- **`PROJECT_ID`** — Project ID (Cloud).
 - **`INSTANCE_ID`** — Instance ID (Cloud). Get IDs from the [PowerSync Dashboard](https://dashboard.powersync.com) or **`powersync fetch instances`**.
 - **`API_URL`** — Self-hosted PowerSync API base URL (e.g. `https://powersync.example.com`).
 
 Example (Cloud):
 
 ```sh
-PS_ADMIN_TOKEN=your-token PROJECT_ID=456 INSTANCE_ID=789 powersync status
+PS_ADMIN_TOKEN=your-token INSTANCE_ID=123 powersync status
 ```
 
 See [docs/usage.md](../docs/usage.md) for full usage and resolution order (flags, env, cli.yaml).
@@ -377,7 +374,7 @@ _See code: [@oclif/plugin-commands](https://github.com/oclif/plugin-commands/blo
 
 ```
 USAGE
-  $ powersync compact [--directory <value>] [--instance-id <value> --project-id <value>] [--org-id <value>]
+  $ powersync compact [--directory <value>] [--instance-id <value>] [--org-id <value>] [--project-id <value>]
     [--timeout <value>]
 
 FLAGS
@@ -391,9 +388,8 @@ PROJECT FLAGS
 
 CLOUD_PROJECT FLAGS
   --instance-id=<value>  PowerSync Cloud instance ID. Manually passed if the current context has not been linked.
-  --org-id=<value>       Organization ID (optional). Defaults to the token’s single org when only one is available; pass
-                         explicitly if the token has multiple orgs.
-  --project-id=<value>   Project ID. Manually passed if the current context has not been linked.
+  --org-id=<value>       [Deprecated] Organization ID. Automatically resolved from --instance-id.
+  --project-id=<value>   [Deprecated] Project ID. Automatically resolved from --instance-id.
 
 DESCRIPTION
   [Cloud only] Compact the linked Cloud instance.
@@ -436,8 +432,9 @@ _See code: [src/commands/configure/ide.ts](https://github.com/powersync-ja/power
 
 ```
 USAGE
-  $ powersync deploy [--deploy-timeout <value>] [--directory <value>] [--instance-id <value> --project-id
-    <value>] [--org-id <value>] [--sync-config-file-path <value>] [--skip-validations <value> | --validate-only <value>]
+  $ powersync deploy [--deploy-timeout <value>] [--directory <value>] [--instance-id <value>] [--org-id
+    <value>] [--project-id <value>] [--sync-config-file-path <value>] [--skip-validations <value> | --validate-only
+    <value>]
 
 FLAGS
   --deploy-timeout=<value>    [default: 300] Seconds to wait after scheduling a deploy before timing out while polling
@@ -456,9 +453,8 @@ PROJECT FLAGS
 
 CLOUD_PROJECT FLAGS
   --instance-id=<value>  PowerSync Cloud instance ID. Manually passed if the current context has not been linked.
-  --org-id=<value>       Organization ID (optional). Defaults to the token’s single org when only one is available; pass
-                         explicitly if the token has multiple orgs.
-  --project-id=<value>   Project ID. Manually passed if the current context has not been linked.
+  --org-id=<value>       [Deprecated] Organization ID. Automatically resolved from --instance-id.
+  --project-id=<value>   [Deprecated] Project ID. Automatically resolved from --instance-id.
 
 DESCRIPTION
   [Cloud only] Deploy local config to the linked Cloud instance (connections + auth + sync config).
@@ -471,7 +467,7 @@ DESCRIPTION
 EXAMPLES
   $ powersync deploy
 
-  $ powersync deploy --instance-id=<id> --project-id=<id>
+  $ powersync deploy --instance-id=<id>
 ```
 
 _See code: [src/commands/deploy/index.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.6/src/commands/deploy/index.ts)_
@@ -482,8 +478,8 @@ _See code: [src/commands/deploy/index.ts](https://github.com/powersync-ja/powers
 
 ```
 USAGE
-  $ powersync deploy service-config [--deploy-timeout <value>] [--directory <value>] [--instance-id <value> --project-id
-    <value>] [--org-id <value>] [--skip-validations <value> | --validate-only <value>]
+  $ powersync deploy service-config [--deploy-timeout <value>] [--directory <value>] [--instance-id <value>] [--org-id
+    <value>] [--project-id <value>] [--skip-validations <value> | --validate-only <value>]
 
 FLAGS
   --deploy-timeout=<value>    [default: 300] Seconds to wait after scheduling a deploy before timing out while polling
@@ -500,9 +496,8 @@ PROJECT FLAGS
 
 CLOUD_PROJECT FLAGS
   --instance-id=<value>  PowerSync Cloud instance ID. Manually passed if the current context has not been linked.
-  --org-id=<value>       Organization ID (optional). Defaults to the token’s single org when only one is available; pass
-                         explicitly if the token has multiple orgs.
-  --project-id=<value>   Project ID. Manually passed if the current context has not been linked.
+  --org-id=<value>       [Deprecated] Organization ID. Automatically resolved from --instance-id.
+  --project-id=<value>   [Deprecated] Project ID. Automatically resolved from --instance-id.
 
 DESCRIPTION
   [Cloud only] Deploy only local service config to the linked Cloud instance.
@@ -512,7 +507,7 @@ DESCRIPTION
 EXAMPLES
   $ powersync deploy service-config
 
-  $ powersync deploy service-config --instance-id=<id> --project-id=<id>
+  $ powersync deploy service-config --instance-id=<id>
 ```
 
 _See code: [src/commands/deploy/service-config.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.6/src/commands/deploy/service-config.ts)_
@@ -523,8 +518,8 @@ _See code: [src/commands/deploy/service-config.ts](https://github.com/powersync-
 
 ```
 USAGE
-  $ powersync deploy sync-config [--deploy-timeout <value>] [--directory <value>] [--instance-id <value> --project-id
-    <value>] [--org-id <value>] [--sync-config-file-path <value>] [--skip-validations <value> | ]
+  $ powersync deploy sync-config [--deploy-timeout <value>] [--directory <value>] [--instance-id <value>] [--org-id
+    <value>] [--project-id <value>] [--sync-config-file-path <value>] [--skip-validations <value> | ]
 
 FLAGS
   --deploy-timeout=<value>    [default: 300] Seconds to wait after scheduling a deploy before timing out while polling
@@ -541,9 +536,8 @@ PROJECT FLAGS
 
 CLOUD_PROJECT FLAGS
   --instance-id=<value>  PowerSync Cloud instance ID. Manually passed if the current context has not been linked.
-  --org-id=<value>       Organization ID (optional). Defaults to the token’s single org when only one is available; pass
-                         explicitly if the token has multiple orgs.
-  --project-id=<value>   Project ID. Manually passed if the current context has not been linked.
+  --org-id=<value>       [Deprecated] Organization ID. Automatically resolved from --instance-id.
+  --project-id=<value>   [Deprecated] Project ID. Automatically resolved from --instance-id.
 
 DESCRIPTION
   [Cloud only] Deploy only local sync config to the linked Cloud instance.
@@ -553,7 +547,7 @@ DESCRIPTION
 EXAMPLES
   $ powersync deploy sync-config
 
-  $ powersync deploy sync-config --instance-id=<id> --project-id=<id>
+  $ powersync deploy sync-config --instance-id=<id>
 ```
 
 _See code: [src/commands/deploy/sync-config.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.6/src/commands/deploy/sync-config.ts)_
@@ -564,7 +558,7 @@ _See code: [src/commands/deploy/sync-config.ts](https://github.com/powersync-ja/
 
 ```
 USAGE
-  $ powersync destroy [--directory <value>] [--instance-id <value> --project-id <value>] [--org-id <value>]
+  $ powersync destroy [--directory <value>] [--instance-id <value>] [--org-id <value>] [--project-id <value>]
     [--confirm yes]
 
 FLAGS
@@ -578,9 +572,8 @@ PROJECT FLAGS
 
 CLOUD_PROJECT FLAGS
   --instance-id=<value>  PowerSync Cloud instance ID. Manually passed if the current context has not been linked.
-  --org-id=<value>       Organization ID (optional). Defaults to the token’s single org when only one is available; pass
-                         explicitly if the token has multiple orgs.
-  --project-id=<value>   Project ID. Manually passed if the current context has not been linked.
+  --org-id=<value>       [Deprecated] Organization ID. Automatically resolved from --instance-id.
+  --project-id=<value>   [Deprecated] Project ID. Automatically resolved from --instance-id.
 
 DESCRIPTION
   [Cloud only] Permanently destroy the linked Cloud instance.
@@ -757,9 +750,8 @@ PROJECT FLAGS
 CLOUD_PROJECT FLAGS
   --instance-id=<value>  [Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud
                          (exclusive with --api-url). Resolved: flag → cli.yaml → INSTANCE_ID.
-  --org-id=<value>       [Cloud] Organization ID (optional). Defaults to the token’s single org when only one is
-                         available; pass explicitly if the token has multiple orgs. Resolved: flag → cli.yaml → ORG_ID.
-  --project-id=<value>   [Cloud] Project ID. Resolved: flag → cli.yaml → PROJECT_ID.
+  --org-id=<value>       [Cloud] [Deprecated] Organization ID. Automatically resolved from --instance-id.
+  --project-id=<value>   [Cloud] [Deprecated] Project ID. Automatically resolved from --instance-id.
 
 DESCRIPTION
   Open the PowerSync configuration editor (Nitro server).
@@ -780,7 +772,7 @@ _See code: [@powersync/cli-plugin-config-edit](https://github.com/powersync-ja/p
 
 ```
 USAGE
-  $ powersync fetch config [--directory <value>] [--instance-id <value> --project-id <value>] [--org-id <value>]
+  $ powersync fetch config [--directory <value>] [--instance-id <value>] [--org-id <value>] [--project-id <value>]
     [--output json|yaml]
 
 FLAGS
@@ -794,9 +786,8 @@ PROJECT FLAGS
 
 CLOUD_PROJECT FLAGS
   --instance-id=<value>  PowerSync Cloud instance ID. Manually passed if the current context has not been linked.
-  --org-id=<value>       Organization ID (optional). Defaults to the token’s single org when only one is available; pass
-                         explicitly if the token has multiple orgs.
-  --project-id=<value>   Project ID. Manually passed if the current context has not been linked.
+  --org-id=<value>       [Deprecated] Organization ID. Automatically resolved from --instance-id.
+  --project-id=<value>   [Deprecated] Project ID. Automatically resolved from --instance-id.
 
 DESCRIPTION
   [Cloud only] Print linked Cloud instance config (YAML or JSON).
@@ -864,9 +855,8 @@ PROJECT FLAGS
 CLOUD_PROJECT FLAGS
   --instance-id=<value>  [Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud
                          (exclusive with --api-url). Resolved: flag → cli.yaml → INSTANCE_ID.
-  --org-id=<value>       [Cloud] Organization ID (optional). Defaults to the token’s single org when only one is
-                         available; pass explicitly if the token has multiple orgs. Resolved: flag → cli.yaml → ORG_ID.
-  --project-id=<value>   [Cloud] Project ID. Resolved: flag → cli.yaml → PROJECT_ID.
+  --org-id=<value>       [Cloud] [Deprecated] Organization ID. Automatically resolved from --instance-id.
+  --project-id=<value>   [Cloud] [Deprecated] Project ID. Automatically resolved from --instance-id.
 
 DESCRIPTION
   Show instance diagnostics (connections, sync config, replication).
@@ -879,7 +869,7 @@ EXAMPLES
 
   $ powersync fetch status --output=json
 
-  $ powersync fetch status --instance-id=<id> --project-id=<id>
+  $ powersync fetch status --instance-id=<id>
 ```
 
 _See code: [src/commands/fetch/status.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.6/src/commands/fetch/status.ts)_
@@ -914,9 +904,8 @@ PROJECT FLAGS
 CLOUD_PROJECT FLAGS
   --instance-id=<value>  [Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud
                          (exclusive with --api-url). Resolved: flag → cli.yaml → INSTANCE_ID.
-  --org-id=<value>       [Cloud] Organization ID (optional). Defaults to the token’s single org when only one is
-                         available; pass explicitly if the token has multiple orgs. Resolved: flag → cli.yaml → ORG_ID.
-  --project-id=<value>   [Cloud] Project ID. Resolved: flag → cli.yaml → PROJECT_ID.
+  --org-id=<value>       [Cloud] [Deprecated] Organization ID. Automatically resolved from --instance-id.
+  --project-id=<value>   [Cloud] [Deprecated] Project ID. Automatically resolved from --instance-id.
 
 DESCRIPTION
   Generate client schema file from instance schema and sync config.
@@ -927,7 +916,7 @@ DESCRIPTION
 EXAMPLES
   $ powersync generate schema --output=ts --output-path=schema.ts
 
-  $ powersync generate schema --output=dart --output-path=lib/schema.dart --instance-id=<id> --project-id=<id>
+  $ powersync generate schema --output=dart --output-path=lib/schema.dart --instance-id=<id>
 ```
 
 _See code: [src/commands/generate/schema.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.6/src/commands/generate/schema.ts)_
@@ -959,9 +948,8 @@ PROJECT FLAGS
 CLOUD_PROJECT FLAGS
   --instance-id=<value>  [Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud
                          (exclusive with --api-url). Resolved: flag → cli.yaml → INSTANCE_ID.
-  --org-id=<value>       [Cloud] Organization ID (optional). Defaults to the token’s single org when only one is
-                         available; pass explicitly if the token has multiple orgs. Resolved: flag → cli.yaml → ORG_ID.
-  --project-id=<value>   [Cloud] Project ID. Resolved: flag → cli.yaml → PROJECT_ID.
+  --org-id=<value>       [Cloud] [Deprecated] Organization ID. Automatically resolved from --instance-id.
+  --project-id=<value>   [Cloud] [Deprecated] Project ID. Automatically resolved from --instance-id.
 
 DESCRIPTION
   Generate a development JWT for client connections.
@@ -1057,16 +1045,16 @@ _See code: [src/commands/init/self-hosted.ts](https://github.com/powersync-ja/po
 
 ```
 USAGE
-  $ powersync link cloud --project-id <value> [--directory <value>] [--instance-id <value>] [--org-id <value>]
+  $ powersync link cloud [--directory <value>] [--instance-id <value>] [--org-id <value>] [--project-id <value>]
     [--create]
 
 FLAGS
   --create               Create a new Cloud instance in the given org and project, then link. Do not supply
                          --instance-id when using --create.
   --instance-id=<value>  PowerSync Cloud instance ID. Omit when using --create. Resolved: flag → INSTANCE_ID → cli.yaml.
-  --org-id=<value>       Organization ID. Optional when the token has a single org; required when the token has multiple
-                         orgs. Resolved: flag → ORG_ID → cli.yaml.
-  --project-id=<value>   (required) Project ID. Resolved: flag → PROJECT_ID → cli.yaml.
+  --org-id=<value>       Organization ID. Required with --create when the token has multiple orgs; optional when linking
+                         an existing instance.
+  --project-id=<value>   Project ID. Required with --create; optional assertion when linking an existing instance.
 
 PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config. Defaults to "powersync". This is
@@ -1076,16 +1064,15 @@ PROJECT FLAGS
 DESCRIPTION
   [Cloud only] Link to a PowerSync Cloud instance (or create one with --create).
 
-  Write or update cli.yaml with a Cloud instance (instance-id, org-id, project-id). Use --create to create a new
-  instance from service.yaml name/region and link it; omit --instance-id when using --create. Org ID is optional when
-  the token has a single organization.
+  Write or update cli.yaml with a Cloud instance. Use --create to create a new instance from service.yaml name/region
+  and link it; omit --instance-id when using --create.
 
 EXAMPLES
-  $ powersync link cloud --project-id=<project-id>
+  $ powersync link cloud --instance-id=<id>
 
   $ powersync link cloud --create --project-id=<project-id>
 
-  $ powersync link cloud --instance-id=<id> --project-id=<project-id> --org-id=<org-id>
+  $ powersync link cloud --create --project-id=<project-id> --org-id=<org-id>
 ```
 
 _See code: [src/commands/link/cloud.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.6/src/commands/link/cloud.ts)_
@@ -1184,9 +1171,8 @@ PROJECT FLAGS
 CLOUD_PROJECT FLAGS
   --instance-id=<value>  [Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud
                          (exclusive with --api-url). Resolved: flag → cli.yaml → INSTANCE_ID.
-  --org-id=<value>       [Cloud] Organization ID (optional). Defaults to the token’s single org when only one is
-                         available; pass explicitly if the token has multiple orgs. Resolved: flag → cli.yaml → ORG_ID.
-  --project-id=<value>   [Cloud] Project ID. Resolved: flag → cli.yaml → PROJECT_ID.
+  --org-id=<value>       [Cloud] [Deprecated] Organization ID. Automatically resolved from --instance-id.
+  --project-id=<value>   [Cloud] [Deprecated] Project ID. Automatically resolved from --instance-id.
 
 DESCRIPTION
   Migrates Sync Rules to Sync Streams
@@ -1492,7 +1478,7 @@ _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/
 
 ```
 USAGE
-  $ powersync pull instance [--directory <value>] [--instance-id <value> --project-id <value>] [--org-id <value>]
+  $ powersync pull instance [--directory <value>] [--instance-id <value>] [--org-id <value>] [--project-id <value>]
     [--overwrite]
 
 FLAGS
@@ -1507,23 +1493,19 @@ PROJECT FLAGS
 
 CLOUD_PROJECT FLAGS
   --instance-id=<value>  PowerSync Cloud instance ID. Manually passed if the current context has not been linked.
-  --org-id=<value>       Organization ID (optional). Defaults to the token’s single org when only one is available; pass
-                         explicitly if the token has multiple orgs.
-  --project-id=<value>   Project ID. Manually passed if the current context has not been linked.
+  --org-id=<value>       [Deprecated] Organization ID. Automatically resolved from --instance-id.
+  --project-id=<value>   [Deprecated] Project ID. Automatically resolved from --instance-id.
 
 DESCRIPTION
   [Cloud only] Pull an existing Cloud instance: link and download config into local service.yaml and sync-config.yaml.
 
   Fetch an existing Cloud instance by ID: create the config directory if needed, write cli.yaml, and download
-  service.yaml and sync-config.yaml. Pass --instance-id and --project-id when the directory is not yet linked; --org-id
-  is optional when the token has a single organization. Cloud only.
+  service.yaml and sync-config.yaml. Cloud only.
 
 EXAMPLES
   $ powersync pull instance
 
-  $ powersync pull instance --instance-id=<id> --project-id=<id>
-
-  $ powersync pull instance --instance-id=<id> --project-id=<id> --org-id=<org-id>
+  $ powersync pull instance --instance-id=<id>
 ```
 
 _See code: [src/commands/pull/instance.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.6/src/commands/pull/instance.ts)_
@@ -1553,9 +1535,8 @@ PROJECT FLAGS
 CLOUD_PROJECT FLAGS
   --instance-id=<value>  [Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud
                          (exclusive with --api-url). Resolved: flag → cli.yaml → INSTANCE_ID.
-  --org-id=<value>       [Cloud] Organization ID (optional). Defaults to the token’s single org when only one is
-                         available; pass explicitly if the token has multiple orgs. Resolved: flag → cli.yaml → ORG_ID.
-  --project-id=<value>   [Cloud] Project ID. Resolved: flag → cli.yaml → PROJECT_ID.
+  --org-id=<value>       [Cloud] [Deprecated] Organization ID. Automatically resolved from --instance-id.
+  --project-id=<value>   [Cloud] [Deprecated] Project ID. Automatically resolved from --instance-id.
 
 DESCRIPTION
   Show instance diagnostics (connections, sync config, replication).
@@ -1568,7 +1549,7 @@ EXAMPLES
 
   $ powersync status --output=json
 
-  $ powersync status --instance-id=<id> --project-id=<id>
+  $ powersync status --instance-id=<id>
 ```
 
 _See code: [src/commands/status.ts](https://github.com/powersync-ja/powersync-cli/blob/v0.9.6/src/commands/status.ts)_
@@ -1579,7 +1560,7 @@ _See code: [src/commands/status.ts](https://github.com/powersync-ja/powersync-cl
 
 ```
 USAGE
-  $ powersync stop [--directory <value>] [--instance-id <value> --project-id <value>] [--org-id <value>]
+  $ powersync stop [--directory <value>] [--instance-id <value>] [--org-id <value>] [--project-id <value>]
     [--confirm yes]
 
 FLAGS
@@ -1593,9 +1574,8 @@ PROJECT FLAGS
 
 CLOUD_PROJECT FLAGS
   --instance-id=<value>  PowerSync Cloud instance ID. Manually passed if the current context has not been linked.
-  --org-id=<value>       Organization ID (optional). Defaults to the token’s single org when only one is available; pass
-                         explicitly if the token has multiple orgs.
-  --project-id=<value>   Project ID. Manually passed if the current context has not been linked.
+  --org-id=<value>       [Deprecated] Organization ID. Automatically resolved from --instance-id.
+  --project-id=<value>   [Deprecated] Project ID. Automatically resolved from --instance-id.
 
 DESCRIPTION
   [Cloud only] Stop the linked Cloud instance (restart with deploy).
@@ -1642,9 +1622,8 @@ PROJECT FLAGS
 CLOUD_PROJECT FLAGS
   --instance-id=<value>  [Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud
                          (exclusive with --api-url). Resolved: flag → cli.yaml → INSTANCE_ID.
-  --org-id=<value>       [Cloud] Organization ID (optional). Defaults to the token’s single org when only one is
-                         available; pass explicitly if the token has multiple orgs. Resolved: flag → cli.yaml → ORG_ID.
-  --project-id=<value>   [Cloud] Project ID. Resolved: flag → cli.yaml → PROJECT_ID.
+  --org-id=<value>       [Cloud] [Deprecated] Organization ID. Automatically resolved from --instance-id.
+  --project-id=<value>   [Cloud] [Deprecated] Project ID. Automatically resolved from --instance-id.
 
 DESCRIPTION
   Validate config schema, connections, and sync config before deploy.

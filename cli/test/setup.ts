@@ -39,6 +39,7 @@ export const managementClientMock = {
   deactivateInstance: vi.fn(),
   deployInstance: vi.fn(),
   destroyInstance: vi.fn(),
+  getInstance: vi.fn(),
   getInstanceConfig: vi.fn(),
   getInstanceStatus: vi.fn(),
   listRegions: vi.fn(),
@@ -53,6 +54,11 @@ export function resetManagementClientMocks(): void {
 
   managementClientMock.compact.mockRejectedValue(new Error('mock compact failure'));
   managementClientMock.createInstance.mockResolvedValue({ id: MOCK_CLOUD_IDS.instanceId });
+  managementClientMock.getInstance.mockResolvedValue({
+    app_id: MOCK_CLOUD_IDS.projectId,
+    id: MOCK_CLOUD_IDS.instanceId,
+    org_id: MOCK_CLOUD_IDS.orgId
+  });
   managementClientMock.destroyInstance.mockRejectedValue(new Error('mock destroy failure'));
   managementClientMock.deactivateInstance.mockRejectedValue(new Error('mock deactivate failure'));
   managementClientMock.deployInstance.mockRejectedValue(new Error('mock deploy failure'));

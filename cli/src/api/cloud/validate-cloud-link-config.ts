@@ -1,35 +1,30 @@
-import { createAccountsHubClient, OBJECT_ID_REGEX } from '@powersync/cli-core';
+import type { ResolvedCloudCLIConfig } from '@powersync/cli-schemas';
+
+import { createAccountsHubClient, ensureObjectId, resolveCloudInstanceLink } from '@powersync/cli-core';
 import { PowerSyncManagementClient } from '@powersync/management-client';
 
 type InstanceConfigResponse = Awaited<ReturnType<PowerSyncManagementClient['getInstanceConfig']>>;
 
-export type CloudLinkValidationInput = {
-  instanceId?: string;
+export type ValidateCloudProjectOptions = {
+  cloudClient: PowerSyncManagementClient;
   orgId: string;
   projectId: string;
 };
 
-export type ValidateCloudLinkConfigOptions = {
+export type FetchCloudInstanceConfigOptions = {
   cloudClient: PowerSyncManagementClient;
-  input: CloudLinkValidationInput;
-  validateInstance?: boolean;
+  instanceId: string;
+  orgId?: string;
+  projectId?: string;
 };
 
-export type ValidateCloudLinkConfigResult = {
-  instanceConfig?: InstanceConfigResponse;
+export type FetchCloudInstanceConfigResult = {
+  instanceConfig: InstanceConfigResponse;
+  linked: ResolvedCloudCLIConfig;
 };
 
-function ensureObjectId(value: string, flagName: '--instance-id' | '--org-id' | '--project-id') {
-  if (!OBJECT_ID_REGEX.test(value)) {
-    throw new Error(`Invalid ${flagName} "${value}". Expected a BSON ObjectID (24 hex characters).`);
-  }
-}
-
-export async function validateCloudLinkConfig(
-  options: ValidateCloudLinkConfigOptions
-): Promise<ValidateCloudLinkConfigResult> {
-  const { cloudClient, input, validateInstance = false } = options;
-  const { instanceId, orgId, projectId } = input;
+export async function validateCloudProject(options: ValidateCloudProjectOptions): Promise<void> {
+  const { orgId, projectId } = options;
 
   ensureObjectId(orgId, '--org-id');
   ensureObjectId(projectId, '--project-id');
@@ -56,27 +51,27 @@ export async function validateCloudLinkConfig(
       `Project ${projectId} was not found in organization ${orgId}, or is not accessible with the current token.`
     );
   }
+}
 
-  if (!validateInstance) {
-    return {};
-  }
+export async function fetchCloudInstanceConfig(
+  options: FetchCloudInstanceConfigOptions
+): Promise<FetchCloudInstanceConfigResult> {
+  const { cloudClient, instanceId, orgId, projectId } = options;
 
-  if (!instanceId) {
-    throw new Error('Instance validation requested but no instance ID was provided.');
-  }
+  const linked = await resolveCloudInstanceLink({ client: cloudClient, instanceId, orgId, projectId });
 
-  ensureObjectId(instanceId, '--instance-id');
-
+  let instanceConfig: InstanceConfigResponse;
   try {
-    const instanceConfig = await cloudClient.getInstanceConfig({
-      app_id: projectId,
-      id: instanceId,
-      org_id: orgId
+    instanceConfig = await cloudClient.getInstanceConfig({
+      app_id: linked.project_id,
+      id: linked.instance_id,
+      org_id: linked.org_id
     });
-    return { instanceConfig };
   } catch {
     throw new Error(
-      `Instance ${instanceId} was not found in project ${projectId} in organization ${orgId}, or is not accessible with the current token.`
+      `Instance ${linked.instance_id} was not found in project ${linked.project_id} in organization ${linked.org_id}, or is not accessible with the current token.`
     );
   }
+
+  return { instanceConfig, linked };
 }

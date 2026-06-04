@@ -39,7 +39,7 @@ export function ensureServiceTypeMatches(options: EnsureServiceTypeMatchesOption
   const service = parseYamlFile(servicePath);
   const serviceJson = service.contents?.toJSON();
 
-  if (serviceJson?._type === undefined || serviceJson?._type === null) {
+  if (serviceJson?._type == null) {
     command.styledError({
       message: `${SERVICE_FILENAME} in "./${directoryLabel}/" is missing \`_type\`. Add \`_type: ${expectedType}\` for this command.`
     });

@@ -1,10 +1,12 @@
+import type { ResolvedCloudCLIConfig } from '@powersync/cli-schemas';
+
 import { Flags, ux } from '@oclif/core';
 import {
   CLI_FILENAME,
   CloudInstanceCommand,
   CommandHelpGroup,
   ensureServiceTypeMatches,
-  getDefaultOrgId,
+  env,
   SERVICE_FILENAME,
   ServiceType,
   SYNC_FILENAME,
@@ -17,7 +19,7 @@ import { join } from 'node:path';
 import { buildServiceYaml } from '../../api/build-service-yaml.js';
 import { CLOUD_SERVICE_TEMPLATE_PATH, writeCloudSyncConfigFile } from '../../api/cloud/create-cloud-template.js';
 import { decodeFetchedCloudConfig } from '../../api/cloud/fetch-cloud-config.js';
-import { validateCloudLinkConfig } from '../../api/cloud/validate-cloud-link-config.js';
+import { fetchCloudInstanceConfig } from '../../api/cloud/validate-cloud-link-config.js';
 import { writeCloudLink } from '../../api/cloud/write-cloud-link.js';
 
 const SERVICE_FETCHED_FILENAME = 'service-fetched.yaml';
@@ -30,12 +32,8 @@ const PULL_CONFIG_HEADER = `# PowerSync Cloud config (fetched from cloud)
 export default class PullInstance extends CloudInstanceCommand {
   static commandHelpGroup = CommandHelpGroup.PROJECT_SETUP;
   static description =
-    'Fetch an existing Cloud instance by ID: create the config directory if needed, write cli.yaml, and download service.yaml and sync-config.yaml. Pass --instance-id and --project-id when the directory is not yet linked; --org-id is optional when the token has a single organization. Cloud only.';
-  static examples = [
-    '<%= config.bin %> <%= command.id %>',
-    '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id>',
-    '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id> --org-id=<org-id>'
-  ];
+    'Fetch an existing Cloud instance by ID: create the config directory if needed, write cli.yaml, and download service.yaml and sync-config.yaml. Cloud only.';
+  static examples = ['<%= config.bin %> <%= command.id %>', '<%= config.bin %> <%= command.id %> --instance-id=<id>'];
   static flags = {
     overwrite: Flags.boolean({
       description:
@@ -47,21 +45,31 @@ export default class PullInstance extends CloudInstanceCommand {
 
   async run(): Promise<void> {
     const { flags } = await this.parse(PullInstance);
-    const { directory, 'instance-id': instanceId, 'org-id': _orgId, 'project-id': projectId } = flags;
+    const { directory, 'instance-id': instanceId } = flags;
+    const inputInstanceId = instanceId ?? env.INSTANCE_ID;
 
-    const resolvedOrgId = _orgId ?? (await getDefaultOrgId().catch(() => null));
-    /**
-     * The pull instance command can be used to create a new powersync project directory
-     */
+    let resolvedLink: ResolvedCloudCLIConfig | undefined;
+    let instanceConfig;
     const projectDir = this.resolveProjectDir(flags);
     if (!existsSync(projectDir)) {
-      if (instanceId && resolvedOrgId && projectId) {
-        mkdirSync(projectDir, { recursive: true });
-      } else {
+      if (!inputInstanceId) {
         this.styledError({
-          message: `Directory "${directory}" not found. Pass --instance-id, and --project-id to create the config directory and link, or run this command from a directory that already contains a linked PowerSync config.`
+          message: `Directory "${directory}" not found. Pass --instance-id to create the config directory and link, or run this command from a directory that already contains a linked PowerSync config.`
         });
       }
+
+      try {
+        const validationResult = await fetchCloudInstanceConfig({
+          cloudClient: this.client,
+          instanceId: inputInstanceId
+        });
+        resolvedLink = validationResult.linked;
+        instanceConfig = validationResult.instanceConfig;
+      } catch (error) {
+        this.styledError({ message: error instanceof Error ? error.message : String(error) });
+      }
+
+      mkdirSync(projectDir, { recursive: true });
     }
 
     ensureServiceTypeMatches({
@@ -74,32 +82,53 @@ export default class PullInstance extends CloudInstanceCommand {
 
     const linkPath = join(projectDir, CLI_FILENAME);
     if (!existsSync(linkPath)) {
-      if (!instanceId || !resolvedOrgId || !projectId) {
+      if (!resolvedLink) {
+        if (!inputInstanceId) {
+          this.styledError({
+            message: `Linking is required. Pass --instance-id to this command, or run ${ux.colorize('blue', 'powersync link cloud --instance-id=<id>')} first.`
+          });
+        }
+
+        try {
+          const validationResult = await fetchCloudInstanceConfig({
+            cloudClient: this.client,
+            instanceId: inputInstanceId
+          });
+          resolvedLink = validationResult.linked;
+          instanceConfig = validationResult.instanceConfig;
+        } catch (error) {
+          this.styledError({ message: error instanceof Error ? error.message : String(error) });
+        }
+      }
+
+      if (!resolvedLink) {
         this.styledError({
-          message: `Linking is required. Pass --instance-id, --org-id, and --project-id to this command, or run ${ux.colorize('blue', 'powersync link cloud --instance-id=<id> --org-id=<id> --project-id=<id>')} first.`
+          message: `Failed to resolve Cloud instance ${inputInstanceId}.`
         });
       }
 
-      writeCloudLink(projectDir, { instanceId, orgId: resolvedOrgId, projectId });
+      writeCloudLink(projectDir, {
+        instanceId: resolvedLink.instance_id,
+        orgId: resolvedLink.org_id,
+        projectId: resolvedLink.project_id
+      });
       this.log(`Created ${ux.colorize('blue', `${directory}/${CLI_FILENAME}`)} with Cloud instance link.`);
     }
 
     const { linked } = await this.loadProject(flags);
 
-    let instanceConfig;
-    try {
-      const validationResult = await validateCloudLinkConfig({
-        cloudClient: this.client,
-        input: {
+    if (!instanceConfig) {
+      try {
+        const validationResult = await fetchCloudInstanceConfig({
+          cloudClient: this.client,
           instanceId: linked.instance_id,
           orgId: linked.org_id,
           projectId: linked.project_id
-        },
-        validateInstance: true
-      });
-      instanceConfig = validationResult.instanceConfig;
-    } catch (error) {
-      this.styledError({ message: error instanceof Error ? error.message : String(error) });
+        });
+        instanceConfig = validationResult.instanceConfig;
+      } catch (error) {
+        this.styledError({ message: error instanceof Error ? error.message : String(error) });
+      }
     }
 
     if (!instanceConfig) {
@@ -148,7 +177,6 @@ export default class PullInstance extends CloudInstanceCommand {
       writeFileSync(syncOutputPath, YAML_SYNC_RULES_SCHEMA + '\n' + fetched.syncRules, 'utf8');
       this.log(`Wrote ${ux.colorize('blue', syncOutputName)} with sync config from the cloud.`);
     } else if (!fetched.syncRules && !syncExists) {
-      // If there is no sync config in the cloud and no existing sync config locally, we should still create an empty sync-config.yaml with the correct header and schema reference
       await writeCloudSyncConfigFile({ targetDir: projectDir });
       this.log(
         `Wrote ${ux.colorize('blue', SYNC_FILENAME)} with template sync config (no sync config found in the cloud).`

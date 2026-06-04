@@ -64,7 +64,7 @@ function writeLinkYaml(projectDir: string): void {
 describe('deploy:service-config', () => {
   let tmpDir: string;
   let origCwd: string;
-  let origEnv: { INSTANCE_ID?: string; ORG_ID?: string; PROJECT_ID?: string; PS_ADMIN_TOKEN?: string };
+  let origEnv: { INSTANCE_ID?: string; PS_ADMIN_TOKEN?: string };
 
   beforeEach(() => {
     resetManagementClientMocks();
@@ -72,8 +72,6 @@ describe('deploy:service-config', () => {
     origCwd = process.cwd();
     origEnv = {
       INSTANCE_ID: env.INSTANCE_ID,
-      ORG_ID: env.ORG_ID,
-      PROJECT_ID: env.PROJECT_ID,
       PS_ADMIN_TOKEN: env.PS_ADMIN_TOKEN
     };
 
@@ -81,8 +79,6 @@ describe('deploy:service-config', () => {
     process.chdir(tmpDir);
     env.PS_ADMIN_TOKEN = 'test-token';
     env.INSTANCE_ID = undefined;
-    env.ORG_ID = undefined;
-    env.PROJECT_ID = undefined;
 
     managementClientMock.getInstanceConfig.mockResolvedValue(MOCK_CLOUD_CONFIG);
     managementClientMock.getInstanceStatus.mockResolvedValue({ operations: [], provisioned: true });
@@ -100,8 +96,6 @@ describe('deploy:service-config', () => {
 
     env.PS_ADMIN_TOKEN = origEnv.PS_ADMIN_TOKEN;
     env.INSTANCE_ID = origEnv.INSTANCE_ID;
-    env.ORG_ID = origEnv.ORG_ID;
-    env.PROJECT_ID = origEnv.PROJECT_ID;
 
     if (tmpDir && existsSync(tmpDir)) rmSync(tmpDir, { recursive: true });
   });
@@ -119,31 +113,22 @@ describe('deploy:service-config', () => {
       expect(result.error?.message).toMatch(/mock deploy failure/);
     });
 
-    it('works with --instance-id / --project-id / --org-id flags (no sync-config.yaml)', async () => {
+    it('works with --instance-id flag (no sync-config.yaml)', async () => {
       const projectDir = makeProjectDir(tmpDir);
       writeServiceYaml(projectDir);
       // No cli.yaml, no sync-config.yaml
 
-      const result = await runServiceConfigDirect([
-        '--instance-id',
-        INSTANCE_ID,
-        '--project-id',
-        PROJECT_ID,
-        '--org-id',
-        ORG_ID
-      ]);
+      const result = await runServiceConfigDirect(['--instance-id', INSTANCE_ID]);
 
       expect(result.error?.message).toMatch(/mock deploy failure/);
     });
 
-    it('works with INSTANCE_ID / ORG_ID / PROJECT_ID env vars (no sync-config.yaml)', async () => {
+    it('works with INSTANCE_ID env var (no sync-config.yaml)', async () => {
       const projectDir = makeProjectDir(tmpDir);
       writeServiceYaml(projectDir);
       // No cli.yaml, no sync-config.yaml
 
       env.INSTANCE_ID = INSTANCE_ID;
-      env.ORG_ID = ORG_ID;
-      env.PROJECT_ID = PROJECT_ID;
 
       const result = await runServiceConfigDirect();
 

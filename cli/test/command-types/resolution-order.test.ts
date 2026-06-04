@@ -9,12 +9,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import DestroyCommand from '../../src/commands/destroy.js';
 import FetchStatusCommand from '../../src/commands/fetch/status.js';
 import { root } from '../helpers/root.js';
+import { managementClientMock, MOCK_CLOUD_IDS } from '../setup.js';
 
 type EnvSnapshot = {
   API_URL: string | undefined;
   INSTANCE_ID: string | undefined;
-  ORG_ID: string | undefined;
-  PROJECT_ID: string | undefined;
   PS_ADMIN_TOKEN: string | undefined;
 };
 
@@ -60,8 +59,6 @@ describe('instance resolution order', () => {
     envSnapshot = {
       API_URL: env.API_URL,
       INSTANCE_ID: env.INSTANCE_ID,
-      ORG_ID: env.ORG_ID,
-      PROJECT_ID: env.PROJECT_ID,
       PS_ADMIN_TOKEN: env.PS_ADMIN_TOKEN
     };
   });
@@ -70,14 +67,17 @@ describe('instance resolution order', () => {
     process.chdir(origCwd);
     env.API_URL = envSnapshot.API_URL;
     env.INSTANCE_ID = envSnapshot.INSTANCE_ID;
-    env.ORG_ID = envSnapshot.ORG_ID;
     env.PS_ADMIN_TOKEN = envSnapshot.PS_ADMIN_TOKEN;
-    env.PROJECT_ID = envSnapshot.PROJECT_ID;
     vi.restoreAllMocks();
     rmSync(tmpRoot, { force: true, recursive: true });
   });
 
-  it('CloudInstanceCommand resolves cloud fields as flag → cli.yaml → env', async () => {
+  it('CloudInstanceCommand resolves instance_id as flag → cli.yaml → env; org/project from cli.yaml or API', async () => {
+    // getInstance echoes the requested id so we can verify which instance was resolved
+    managementClientMock.getInstance.mockImplementation(({ id }: { id: string }) =>
+      Promise.resolve({ app_id: MOCK_CLOUD_IDS.projectId, id, org_id: MOCK_CLOUD_IDS.orgId })
+    );
+
     const projectDir = join(tmpRoot, 'powersync');
     const cliPath = join(projectDir, 'cli.yaml');
     mkdirSync(projectDir, { recursive: true });
@@ -95,23 +95,18 @@ describe('instance resolution order', () => {
     );
 
     env.INSTANCE_ID = IDS.env.instance;
-    env.ORG_ID = IDS.env.org;
-    env.PROJECT_ID = IDS.env.project;
 
     const loadProjectSpy = vi.spyOn(CloudInstanceCommand.prototype, 'loadProject');
 
-    await runDestroyDirect([
-      '--confirm=yes',
-      `--instance-id=${IDS.flag.instance}`,
-      `--org-id=${IDS.flag.org}`,
-      `--project-id=${IDS.flag.project}`
-    ]);
+    // Flag takes precedence for instance_id; org/project come from cli.yaml (API skipped when both present)
+    await runDestroyDirect(['--confirm=yes', `--instance-id=${IDS.flag.instance}`]);
     expect(loadProjectSpy).toHaveBeenCalledTimes(1);
     const fromFlag = await loadProjectSpy.mock.results[0]!.value;
     expect(fromFlag.linked.instance_id).toBe(IDS.flag.instance);
-    expect(fromFlag.linked.org_id).toBe(IDS.flag.org);
-    expect(fromFlag.linked.project_id).toBe(IDS.flag.project);
+    expect(fromFlag.linked.org_id).toBe(IDS.cli.org);
+    expect(fromFlag.linked.project_id).toBe(IDS.cli.project);
 
+    // cli.yaml is the source for all three fields when no flag is passed
     await runDestroyDirect(['--confirm=yes']);
     expect(loadProjectSpy).toHaveBeenCalledTimes(2);
     const fromCli = await loadProjectSpy.mock.results[1]!.value;
@@ -119,13 +114,14 @@ describe('instance resolution order', () => {
     expect(fromCli.linked.org_id).toBe(IDS.cli.org);
     expect(fromCli.linked.project_id).toBe(IDS.cli.project);
 
+    // With no cli.yaml, instance_id comes from env and org/project are resolved via getInstance
     rmSync(cliPath, { force: true });
     await runDestroyDirect(['--confirm=yes']);
     expect(loadProjectSpy).toHaveBeenCalledTimes(3);
     const fromEnv = await loadProjectSpy.mock.results[2]!.value;
     expect(fromEnv.linked.instance_id).toBe(IDS.env.instance);
-    expect(fromEnv.linked.org_id).toBe(IDS.env.org);
-    expect(fromEnv.linked.project_id).toBe(IDS.env.project);
+    expect(fromEnv.linked.org_id).toBe(MOCK_CLOUD_IDS.orgId);
+    expect(fromEnv.linked.project_id).toBe(MOCK_CLOUD_IDS.projectId);
   });
 
   it('CloudInstanceCommand rejects invalid cloud BSON ObjectID values', async () => {
@@ -185,7 +181,12 @@ describe('instance resolution order', () => {
     expect(fromEnv.linked.api_url).toBe('https://env.example.com');
   });
 
-  it('SharedInstanceCommand resolves cloud context and fields as flag → cli.yaml → env', async () => {
+  it('SharedInstanceCommand resolves cloud instance_id as flag → cli.yaml → env; org/project from cli.yaml or API', async () => {
+    // getInstance echoes the requested id so we can verify which instance was resolved
+    managementClientMock.getInstance.mockImplementation(({ id }: { id: string }) =>
+      Promise.resolve({ app_id: MOCK_CLOUD_IDS.projectId, id, org_id: MOCK_CLOUD_IDS.orgId })
+    );
+
     const projectDir = join(tmpRoot, 'powersync');
     const cliPath = join(projectDir, 'cli.yaml');
     mkdirSync(projectDir, { recursive: true });
@@ -204,25 +205,20 @@ describe('instance resolution order', () => {
 
     env.API_URL = 'https://env-self-hosted.example.com';
     env.INSTANCE_ID = IDS.env.instance;
-    env.ORG_ID = IDS.env.org;
-    env.PROJECT_ID = IDS.env.project;
 
     const loadProjectSpy = vi.spyOn(SharedInstanceCommand.prototype, 'loadProject');
     vi.spyOn(FetchStatusCommand.prototype, 'getCloudStatus').mockRejectedValue(new Error('expected-test-failure'));
 
-    await runFetchStatusDirect([
-      '--output=json',
-      `--instance-id=${IDS.flag.instance}`,
-      `--org-id=${IDS.flag.org}`,
-      `--project-id=${IDS.flag.project}`
-    ]);
+    // Flag takes precedence for instance_id; org/project come from cli.yaml (API skipped when both present)
+    await runFetchStatusDirect(['--output=json', `--instance-id=${IDS.flag.instance}`]);
     expect(loadProjectSpy).toHaveBeenCalledTimes(1);
-    const fromCli = await loadProjectSpy.mock.results[0]!.value;
-    expect(fromCli.linked.type).toBe('cloud');
-    expect(fromCli.linked.instance_id).toBe(IDS.flag.instance);
-    expect(fromCli.linked.org_id).toBe(IDS.flag.org);
-    expect(fromCli.linked.project_id).toBe(IDS.flag.project);
+    const fromFlag = await loadProjectSpy.mock.results[0]!.value;
+    expect(fromFlag.linked.type).toBe('cloud');
+    expect(fromFlag.linked.instance_id).toBe(IDS.flag.instance);
+    expect(fromFlag.linked.org_id).toBe(IDS.cli.org);
+    expect(fromFlag.linked.project_id).toBe(IDS.cli.project);
 
+    // cli.yaml is the source for all three fields when no flag is passed
     await runFetchStatusDirect(['--output=json']);
     expect(loadProjectSpy).toHaveBeenCalledTimes(2);
     const fromLink = await loadProjectSpy.mock.results[1]!.value;
@@ -231,6 +227,7 @@ describe('instance resolution order', () => {
     expect(fromLink.linked.org_id).toBe(IDS.cli.org);
     expect(fromLink.linked.project_id).toBe(IDS.cli.project);
 
+    // With no cli.yaml, instance_id comes from env and org/project are resolved via getInstance
     rmSync(cliPath, { force: true });
     env.API_URL = undefined;
     await runFetchStatusDirect(['--output=json']);
@@ -238,7 +235,7 @@ describe('instance resolution order', () => {
     const fromEnv = await loadProjectSpy.mock.results[2]!.value;
     expect(fromEnv.linked.type).toBe('cloud');
     expect(fromEnv.linked.instance_id).toBe(IDS.env.instance);
-    expect(fromEnv.linked.org_id).toBe(IDS.env.org);
-    expect(fromEnv.linked.project_id).toBe(IDS.env.project);
+    expect(fromEnv.linked.org_id).toBe(MOCK_CLOUD_IDS.orgId);
+    expect(fromEnv.linked.project_id).toBe(MOCK_CLOUD_IDS.projectId);
   });
 });

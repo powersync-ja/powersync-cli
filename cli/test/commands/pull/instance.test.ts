@@ -34,6 +34,7 @@ const MOCK_CONFIG_WITH_EMPTY_JWKS_KEYS = {
 
 const mockCloudClient = {
   deployInstance: vi.fn(),
+  getInstance: vi.fn(),
   getInstanceConfig: vi.fn()
 };
 
@@ -79,6 +80,8 @@ describe('pull instance', () => {
     origCwd = process.cwd();
     tmpDir = mkdtempSync(join(tmpdir(), 'pull-instance-test-'));
     process.chdir(tmpDir);
+    mockCloudClient.getInstance.mockReset();
+    mockCloudClient.getInstance.mockResolvedValue({ app_id: PROJECT_ID, id: INSTANCE_ID, org_id: ORG_ID });
     mockCloudClient.getInstanceConfig.mockReset();
     mockCloudClient.getInstanceConfig.mockRejectedValue(new Error('network error'));
     accountsClientMock.getOrganization.mockResolvedValue({ id: ORG_ID, label: 'Test Org' });
@@ -200,13 +203,13 @@ describe('pull instance', () => {
     it('errors when organization does not exist', async () => {
       accountsClientMock.getOrganization.mockRejectedValueOnce(new Error('not found'));
       const result = await runPullInstanceDirect();
-      expect(result.error?.message).toContain(`Organization ${ORG_ID} was not found or is not accessible`);
+      expect(result.error?.message).toMatch(/Instance .* was not found in project .* in organization .*/);
     });
 
     it('errors when project does not exist in the organization', async () => {
       accountsClientMock.listProjects.mockResolvedValueOnce({ objects: [], total: 0 });
       const result = await runPullInstanceDirect();
-      expect(result.error?.message).toContain(`Project ${PROJECT_ID} was not found in organization ${ORG_ID}`);
+      expect(result.error?.message).toMatch(/Instance .* was not found in project .* in organization .*/);
     });
   });
 });

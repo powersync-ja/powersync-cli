@@ -12,10 +12,7 @@ const SERVICE_CONFIG_VALIDATION_FLAGS = generateValidationTestFlags({
 
 export default class DeployServiceConfig extends BaseDeployCommand {
   static description = 'Deploy only service config changes (without sync config updates).';
-  static examples = [
-    '<%= config.bin %> <%= command.id %>',
-    '<%= config.bin %> <%= command.id %> --instance-id=<id> --project-id=<id>'
-  ];
+  static examples = ['<%= config.bin %> <%= command.id %>', '<%= config.bin %> <%= command.id %> --instance-id=<id>'];
   static flags = {
     ...SERVICE_CONFIG_VALIDATION_FLAGS.flags
   };
