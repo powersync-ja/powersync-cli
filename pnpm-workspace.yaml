@@ -6,7 +6,7 @@ packages:
 catalog:
   '@oclif/core': ^4.10.6
   '@powersync/management-client': ^0.1.1
-  '@powersync/management-types': ^0.2.0
+  '@powersync/management-types': ^0.2.2
   '@powersync/service-client': ^0.0.6
   '@powersync/service-schema': ^1.21.0
   '@powersync/service-sync-rules': ^0.36.0
