@@ -6,10 +6,12 @@ import * as Monaco from 'monaco-editor';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type { SaveFileRequest } from '../../utils/files/files';
+import type { ValidationError } from './ValidationError';
 
 import { saveData as saveDataFn } from '../../utils/files/files.functions';
 import { useTrackedFiles } from '../hooks/useFiles';
 import { MonacoEditor } from '../MonacoEditor';
+import { ValidationDetailsPanel } from './ValidationDetailsPanel';
 
 function toSaveFilename(filename: string): null | SaveFileRequest['filename'] {
   if (filename === 'service.yaml' || filename === 'sync-config.yaml') {
@@ -37,6 +39,7 @@ export type ValidationHookParams = {
 export type ValidationHookResult = {
   markerOwner: string;
   markers: Monaco.editor.IMarker[];
+  validationErrors: ValidationError[];
 };
 
 /**
@@ -55,7 +58,8 @@ export type BaseEditorWidgetProps = {
 
 const useEmptyValidationHook: UseValidationHook = () => ({
   markerOwner: '',
-  markers: []
+  markers: [],
+  validationErrors: []
 });
 
 function getStatusBadge(status: Status, hasChanges: boolean) {
@@ -106,45 +110,6 @@ function getValidationBadge(validationSummary: { errors: number; warnings: numbe
   };
 }
 
-function ValidationDetailsPanel({ markers, onHide }: { markers: Monaco.editor.IMarker[]; onHide: () => void }) {
-  return (
-    <div className="rounded-xl border border-destructive/25 bg-destructive/5 px-4 py-3 text-sm text-foreground">
-      <div className="mb-2 flex items-center justify-between">
-        <div className="flex items-center gap-2 font-semibold text-destructive-foreground">
-          <Info className="text-destructive" size={16} /> Validation details
-        </div>
-        <button
-          className="text-xs font-semibold text-muted-foreground underline-offset-4 hover:text-foreground"
-          onClick={onHide}
-          type="button">
-          Hide
-        </button>
-      </div>
-      <ul className="space-y-2">
-        {markers.map((marker, idx) => {
-          const isError = Monaco.MarkerSeverity.Error === marker.severity;
-          const tone = isError
-            ? 'text-destructive-foreground bg-destructive/15 border-destructive/40'
-            : 'text-warning-foreground bg-warning/15 border-warning/40';
-          const label = isError ? 'Error' : 'Warning';
-          return (
-            <li className="flex items-start gap-3" key={`${marker.message}-${marker.startLineNumber}-${idx}`}>
-              <span
-                className={`mt-0.5 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${tone}`}>
-                {label}
-              </span>
-              <div className="flex-1 leading-relaxed text-foreground">
-                <div className="font-semibold text-foreground">Line {marker.startLineNumber}</div>
-                <div className="text-muted-foreground">{marker.message}</div>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
-}
-
 /**
  * Shared editor shell used by all file-specific editor providers.
  */
@@ -160,7 +125,6 @@ export function BaseEditorWidget({
   const { error, isPending, isRefetching, refetch } = upstream;
   const saveData = useServerFn(saveDataFn);
   const file = useMemo(() => trackedFilesState[filename], [trackedFilesState, filename]);
-  const [schemaMarkers, setSchemaMarkers] = useState<Monaco.editor.IMarker[]>([]);
   const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<null | typeof Monaco>(null);
   const validation = useValidationHook({
@@ -170,16 +134,13 @@ export function BaseEditorWidget({
     monacoRef
   });
 
-  const validationMarkers = useMemo(
-    () => [...schemaMarkers, ...validation.markers],
-    [schemaMarkers, validation.markers]
-  );
+  const validationDetails = validation.validationErrors;
 
   const validationSummary = useMemo(() => {
-    const errors = validationMarkers.filter((m) => Monaco.MarkerSeverity.Error === m.severity).length;
-    const warnings = validationMarkers.filter((m) => Monaco.MarkerSeverity.Warning === m.severity).length;
+    const errors = validationDetails.filter((detail) => detail.level === 'fatal').length;
+    const warnings = validationDetails.filter((detail) => detail.level === 'warning').length;
     return { errors, warnings };
-  }, [validationMarkers]);
+  }, [validationDetails]);
 
   const hasChanges = trackedFilesState[filename]?.hasChanges ?? false;
   const hasValidationIssues = validationSummary.errors > 0 || validationSummary.warnings > 0;
@@ -321,8 +282,8 @@ export function BaseEditorWidget({
         </div>
       )}
 
-      {showValidation && validationMarkers.length > 0 && (
-        <ValidationDetailsPanel markers={validationMarkers} onHide={() => setShowValidation(false)} />
+      {showValidation && validationDetails.length > 0 && (
+        <ValidationDetailsPanel details={validationDetails} onHide={() => setShowValidation(false)} />
       )}
 
       <div className="flex min-h-0 flex-1 overflow-hidden rounded-xl border border-border bg-card shadow-[0_16px_72px_rgba(0,0,0,0.08)]">
@@ -336,19 +297,6 @@ export function BaseEditorWidget({
           onMount={(editorInstance, monacoInstance) => {
             editorRef.current = editorInstance;
             monacoRef.current = monacoInstance;
-          }}
-          onValidate={(markers) => {
-            if (!validation.markerOwner) {
-              setSchemaMarkers(markers);
-              return;
-            }
-
-            const filteredMarkers = markers.filter((marker) => {
-              const markerOwner = (marker as Monaco.editor.IMarker & { owner?: string }).owner;
-              return markerOwner !== validation.markerOwner;
-            });
-
-            setSchemaMarkers(filteredMarkers);
           }}
           options={{ readOnly: isSaveOrRefetchInProgress }}
           path={filename}
