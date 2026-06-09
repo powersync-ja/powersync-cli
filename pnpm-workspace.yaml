@@ -3,6 +3,27 @@ packages:
   - packages/*
   - plugins/*
 
+allowBuilds:
+  esbuild: false
+  unrs-resolver: false
+  yarn: false
+
+trustPolicy: no-downgrade
+trustPolicyExclude:
+  # Pinned in eslint-config-oclif
+  - 'eslint-import-resolver-typescript@3.10.1'
+  # Pinned in @babel/core, eslint-plugin-import, resolve, and read-pkg
+  - 'semver@5.7.2 || 6.3.1'
+  # Pinned in oclif >> @inquirer/* >> @inquirer/core@9 >> @types/node@22
+  #   - @types/node is a runtime dependency in old @inquirer/core versions.
+  - 'undici-types@6.21.0'
+
+minimumReleaseAgeExclude:
+  - '@powersync/*'
+  - '@journeyapps/*'
+  - '@journeyapps-labs/*'
+  - '@journeyapps-platform/*'
+
 catalog:
   '@oclif/core': ^4.10.6
   '@powersync/management-client': ^0.1.1
