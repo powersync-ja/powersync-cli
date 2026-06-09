@@ -105,7 +105,7 @@ const EMPTY_SYNC_CONFIG_ERROR: SyncValidation = {
   ]
 };
 
-export async function validateCloudSyncRules(input: {
+export async function validateCloudSyncConfig(input: {
   linked: ResolvedCloudCLIConfig;
   syncConfigContent: string;
 }): Promise<SyncValidation> {
@@ -129,7 +129,7 @@ export async function validateCloudSyncRules(input: {
   }
 }
 
-export async function validateSelfHostedSyncRules(input: {
+export async function validateSelfHostedSyncConfig(input: {
   linked: ResolvedSelfHostedCLIConfig;
   syncConfigContent: string;
 }): Promise<SyncValidation> {
@@ -160,13 +160,13 @@ export async function validateProjectSyncConfig(input: {
   }
 
   if (input.linkedProject.linked.type === 'cloud') {
-    return validateCloudSyncRules({
+    return validateCloudSyncConfig({
       linked: input.linkedProject.linked,
       syncConfigContent: input.syncConfigContent
     });
   }
 
-  return validateSelfHostedSyncRules({
+  return validateSelfHostedSyncConfig({
     linked: input.linkedProject.linked,
     syncConfigContent: input.syncConfigContent
   });
@@ -218,11 +218,11 @@ function getSyncConfigLocation({
 
   return {
     end: getLineAndColumnFromCharOffset({
-      startCharOffset: error.location.end_offset,
+      charOffset: error.location.end_offset,
       text: syncConfigContent
     }),
     start: getLineAndColumnFromCharOffset({
-      startCharOffset: error.location.start_offset,
+      charOffset: error.location.start_offset,
       text: syncConfigContent
     })
   };
@@ -249,10 +249,10 @@ function wrapSyncValidationError({ errorCause, message }: { errorCause: unknown;
  * Maps the API's raw character offsets to one-based line/column positions for editor markers.
  */
 function getLineAndColumnFromCharOffset({
-  startCharOffset,
+  charOffset,
   text
 }: {
-  startCharOffset: number;
+  charOffset: number;
   text: string;
 }): SyncConfigPosition {
   const lines = text.split('\n');
@@ -262,9 +262,9 @@ function getLineAndColumnFromCharOffset({
     const line = line_ || '';
     const lineLengthWithNewline = line.length + 1;
 
-    if (charCount + lineLengthWithNewline > startCharOffset) {
+    if (charCount + lineLengthWithNewline > charOffset) {
       return {
-        column: startCharOffset - charCount + 1,
+        column: charOffset - charCount + 1,
         line: i + 1
       };
     }
