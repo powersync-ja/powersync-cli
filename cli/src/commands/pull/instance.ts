@@ -112,7 +112,7 @@ export default class PullInstance extends CloudInstanceCommand {
         orgId: resolvedLink.org_id,
         projectId: resolvedLink.project_id
       });
-      this.log(`Created ${ux.colorize('blue', `${directory}/${CLI_FILENAME}`)} with Cloud instance link.`);
+      this.log(`Created ${ux.colorize('blue', join(projectDir, CLI_FILENAME))} with Cloud instance link.`);
     }
 
     const { linked } = await this.loadProject(flags);

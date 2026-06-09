@@ -1,6 +1,6 @@
 import { JourneyError } from '@journeyapps-labs/micro-errors';
 import { Command, ux } from '@oclif/core';
-import { join } from 'node:path';
+import { resolve } from 'node:path';
 
 import {
   formatPowersyncServiceErrorDisplay,
@@ -26,7 +26,7 @@ export abstract class PowerSyncCommand extends Command {
 
   /** Resolves the project directory path from the --directory flag (relative to cwd). */
   resolveProjectDir(flags: { directory: string }): string {
-    return join(process.cwd(), flags.directory);
+    return resolve(process.cwd(), flags.directory);
   }
 
   /**
