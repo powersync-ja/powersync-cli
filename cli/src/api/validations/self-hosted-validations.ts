@@ -1,6 +1,6 @@
 import { SelfHostedProject } from '@powersync/cli-core';
 
-import { runConfigTest, runSyncConfigTestSelfHosted } from './validations.js';
+import { runConfigTest, runSyncConfigTest } from './validations.js';
 import { ValidationTest, ValidationTestDefinition } from './ValidationTestDefinition.js';
 
 export type RunSelfHostedValidationsOptions = {
@@ -26,7 +26,7 @@ export function getSelfHostedValidationTests({
     {
       name: ValidationTest['SYNC-CONFIG'],
       async run() {
-        return runSyncConfigTestSelfHosted(project);
+        return runSyncConfigTest(project);
       }
     }
   ] satisfies ValidationTestDefinition[];

@@ -51,7 +51,7 @@ describe('validate', () => {
 
   describe('self-hosted', () => {
     it('validates sync config from --sync-config-file-path, not default sync-config.yaml', async () => {
-      const spy = vi.spyOn(cliCore, 'validateSelfHostedSyncRules').mockResolvedValue(emptySyncValidation as never);
+      const spy = vi.spyOn(cliCore, 'validateProjectSyncConfig').mockResolvedValue(emptySyncValidation as never);
 
       const projectDir = join(tmpRoot, 'powersync');
       mkdirSync(projectDir, { recursive: true });
@@ -103,7 +103,7 @@ describe('validate', () => {
   describe('cloud', () => {
     it('validates sync config from --sync-config-file-path when linked as cloud', async () => {
       resetManagementClientMocks();
-      const spy = vi.spyOn(cliCore, 'validateCloudSyncRules').mockResolvedValue(emptySyncValidation as never);
+      const spy = vi.spyOn(cliCore, 'validateProjectSyncConfig').mockResolvedValue(emptySyncValidation as never);
 
       const { instanceId, orgId, projectId } = MOCK_CLOUD_IDS;
       const projectDir = join(tmpRoot, 'powersync');

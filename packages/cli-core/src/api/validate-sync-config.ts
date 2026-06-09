@@ -155,9 +155,7 @@ export async function validateProjectSyncConfig(input: {
   linkedProject: CloudProject | SelfHostedProject;
   syncConfigContent: string;
 }): Promise<SyncValidation> {
-  // The loaded project keeps its historical `syncRulesContent` field name, but this API
-  // otherwise uses sync-config naming for new validation plumbing.
-  if (!input.linkedProject.syncRulesContent?.trim()) {
+  if (!input.syncConfigContent.trim()) {
     return EMPTY_SYNC_CONFIG_ERROR;
   }
 

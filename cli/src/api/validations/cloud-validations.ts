@@ -5,7 +5,7 @@ import { routes } from '@powersync/management-types';
 
 import { testCloudConnections } from '../cloud/test-connection.js';
 import { mergeValidationTestRunResults } from './validation-utils.js';
-import { runConfigTest, runSyncConfigTestCloud } from './validations.js';
+import { runConfigTest, runSyncConfigTest } from './validations.js';
 import { ValidationTest, ValidationTestDefinition } from './ValidationTestDefinition.js';
 
 export type RunCloudValidationsOptions = {
@@ -139,7 +139,7 @@ export function getCloudValidations({
           };
         }
 
-        return runSyncConfigTestCloud(project);
+        return runSyncConfigTest(project);
       }
     }
   ];

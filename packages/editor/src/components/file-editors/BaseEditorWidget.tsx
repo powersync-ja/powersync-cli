@@ -110,6 +110,14 @@ function getValidationBadge(validationSummary: { errors: number; warnings: numbe
   };
 }
 
+function toSchemaValidationError(marker: Monaco.editor.IMarker): ValidationError {
+  return {
+    level: marker.severity === Monaco.MarkerSeverity.Error ? 'fatal' : 'warning',
+    line: marker.startLineNumber,
+    message: marker.message
+  };
+}
+
 /**
  * Shared editor shell used by all file-specific editor providers.
  */
@@ -127,6 +135,7 @@ export function BaseEditorWidget({
   const file = useMemo(() => trackedFilesState[filename], [trackedFilesState, filename]);
   const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<null | typeof Monaco>(null);
+  const [schemaValidationErrors, setSchemaValidationErrors] = useState<ValidationError[]>([]);
   const validation = useValidationHook({
     content: file?.content ?? null,
     editorRef,
@@ -134,13 +143,17 @@ export function BaseEditorWidget({
     monacoRef
   });
 
-  const validationDetails = validation.validationErrors;
+  const { markerOwner, validationErrors: customValidationErrors } = validation;
+  const validationErrors = useMemo(
+    () => [...schemaValidationErrors, ...customValidationErrors],
+    [customValidationErrors, schemaValidationErrors]
+  );
 
   const validationSummary = useMemo(() => {
-    const errors = validationDetails.filter((detail) => detail.level === 'fatal').length;
-    const warnings = validationDetails.filter((detail) => detail.level === 'warning').length;
+    const errors = validationErrors.filter((detail) => detail.level === 'fatal').length;
+    const warnings = validationErrors.filter((detail) => detail.level === 'warning').length;
     return { errors, warnings };
-  }, [validationDetails]);
+  }, [validationErrors]);
 
   const hasChanges = trackedFilesState[filename]?.hasChanges ?? false;
   const hasValidationIssues = validationSummary.errors > 0 || validationSummary.warnings > 0;
@@ -149,6 +162,20 @@ export function BaseEditorWidget({
   // in-flight keystrokes; useTrackedFiles preserves local content when merging upstream
   // but disabling the editor during this window avoids confusion.
   const isSaveOrRefetchInProgress = status === 'saving' || isRefetching;
+
+  const handleEditorValidate = useCallback(
+    (markers: Monaco.editor.IMarker[]) => {
+      const schemaMarkers = markerOwner
+        ? markers.filter((marker) => {
+            const { owner } = marker as Monaco.editor.IMarker & { owner?: string };
+            return owner !== markerOwner;
+          })
+        : markers;
+
+      setSchemaValidationErrors(schemaMarkers.map((marker) => toSchemaValidationError(marker)));
+    },
+    [markerOwner]
+  );
 
   useEffect(() => {
     if (validationSummary.errors === 0 && validationSummary.warnings === 0) {
@@ -282,8 +309,8 @@ export function BaseEditorWidget({
         </div>
       )}
 
-      {showValidation && validationDetails.length > 0 && (
-        <ValidationDetailsPanel details={validationDetails} onHide={() => setShowValidation(false)} />
+      {showValidation && validationErrors.length > 0 && (
+        <ValidationDetailsPanel details={validationErrors} onHide={() => setShowValidation(false)} />
       )}
 
       <div className="flex min-h-0 flex-1 overflow-hidden rounded-xl border border-border bg-card shadow-[0_16px_72px_rgba(0,0,0,0.08)]">
@@ -298,6 +325,7 @@ export function BaseEditorWidget({
             editorRef.current = editorInstance;
             monacoRef.current = monacoInstance;
           }}
+          onValidate={handleEditorValidate}
           options={{ readOnly: isSaveOrRefetchInProgress }}
           path={filename}
           value={file.content}

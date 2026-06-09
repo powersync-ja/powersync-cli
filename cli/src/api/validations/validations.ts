@@ -7,8 +7,7 @@ import {
   SyncValidation,
   SyncValidationError,
   SyncValidationTestRunResult,
-  validateCloudSyncRules,
-  validateSelfHostedSyncRules,
+  validateProjectSyncConfig,
   ValidationTestRunResult
 } from '@powersync/cli-core';
 import {
@@ -66,43 +65,29 @@ function wrapsSyncValidation(result: SyncValidation): SyncValidationTestRunResul
     .map((issue) => formatSyncValidationErrorForCli(issue));
 
   return {
-    errors,
+    // Keep JSON/YAML output backward-compatible: these fields are optional and
+    // were historically omitted rather than emitted as empty arrays.
+    errors: errors.length > 0 ? errors : undefined,
     passed: errors.length === 0,
-    warnings
+    warnings: warnings.length > 0 ? warnings : undefined
   };
 }
 
 /**
- * Runs cloud sync-config validation and maps warnings/errors into message arrays.
+ * Runs sync-config validation and maps warnings/errors into message arrays.
  */
-export async function runSyncConfigTestCloud(project: CloudProject): Promise<SyncValidationTestRunResult> {
+export async function runSyncConfigTest(
+  project: CloudProject | SelfHostedProject
+): Promise<SyncValidationTestRunResult> {
   const syncConfigPath = join(project.projectDirectory, SYNC_FILENAME);
   const syncConfigContent =
     project.syncRulesContent ?? (existsSync(syncConfigPath) ? readFileSync(syncConfigPath, 'utf8') : undefined);
 
   try {
     return wrapsSyncValidation(
-      await validateCloudSyncRules({
-        linked: project.linked,
+      await validateProjectSyncConfig({
+        linkedProject: project,
         syncConfigContent: syncConfigContent ?? ''
-      })
-    );
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return { errors: [message], passed: false };
-  }
-}
-
-/**
- * Runs self-hosted sync-config validation and maps warnings/errors into message arrays.
- */
-export async function runSyncConfigTestSelfHosted(project: SelfHostedProject): Promise<SyncValidationTestRunResult> {
-  const syncConfigContent = project.syncRulesContent ?? '';
-  try {
-    return wrapsSyncValidation(
-      await validateSelfHostedSyncRules({
-        linked: project.linked,
-        syncConfigContent
       })
     );
   } catch (error) {

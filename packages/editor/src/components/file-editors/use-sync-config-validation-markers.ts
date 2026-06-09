@@ -87,7 +87,7 @@ export const useSyncConfigValidationMarkers: UseValidationHook = ({ content, edi
         const fallbackMarker: editor.IMarkerData = {
           endColumn: 1,
           endLineNumber: 1,
-          message: error instanceof Error ? error.message : 'Sync rules validation failed.',
+          message: error instanceof Error ? error.message : 'Sync config validation failed.',
           severity: 8,
           source: 'validation',
           startColumn: 1,
