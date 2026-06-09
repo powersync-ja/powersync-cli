@@ -1,5 +1,5 @@
 import { ux } from '@oclif/core';
-import { SyncDiagnostic, ValidationResult, ValidationTestResult, ValidationTestRunResult } from '@powersync/cli-core';
+import { ValidationResult, ValidationTestResult, ValidationTestRunResult } from '@powersync/cli-core';
 import { Document } from 'yaml';
 
 import { ValidationTest } from './ValidationTestDefinition.js';
@@ -25,24 +25,22 @@ export const STABLE_OUTPUT_NAMES: Record<ValidationTest, string> = {
 /**
  * Merges two or more `ValidationTestRunResult` objects into one.
  * The merged result passes only if all inputs passed.
- * Errors, warnings, and prettyOutput from all inputs are combined.
+ * Errors and warnings from all inputs are combined so callers can compose validation phases.
  */
 export function mergeValidationTestRunResults(...results: ValidationTestRunResult[]): ValidationTestRunResult {
   const errors = results.flatMap((r) => r.errors ?? []);
   const warnings = results.flatMap((r) => r.warnings ?? []);
-  const prettyParts = results.map((r) => r.prettyOutput).filter(Boolean);
 
   return {
     errors: errors.length > 0 ? errors : undefined,
     passed: results.every((r) => r.passed),
-    prettyOutput: prettyParts.length > 0 ? prettyParts.join('\n') : undefined,
     warnings: warnings.length > 0 ? warnings : undefined
   };
 }
 
 /**
  * Formats spinner text showing per-test progress while tests are running.
- * These logs are indeted with bullets for readability, and update in-place as each test settles to show pass/fail status.
+ * These logs are indented with bullets for readability, and update in-place as each test settles to show pass/fail status.
  */
 export function formatOraMessage(
   tests: ValidationTest[],
@@ -64,16 +62,9 @@ export function formatValidationErrorHuman(error: unknown): string {
   return ux.colorize('red', `${INDENT}${BULLET} ${error}`);
 }
 
-/**
- * Formats one test result into human-readable plain text.
- */
 function formatTestResultHuman(test: ValidationTestResult): string {
   const status = test.passed ? '✓' : '✗';
   const name = `${status} ${STABLE_OUTPUT_NAMES[test.name as ValidationTest] ?? test.name}`;
-  if (test.prettyOutput) {
-    // Use custom pretty output if provided.
-    return `${name}\n${test.prettyOutput}`;
-  }
 
   const warningLines = (test.warnings ?? []).map(
     (warning) => `${INDENT}${BULLET} ${ux.colorize('yellow', '[warning]')} ${warning}`
@@ -106,81 +97,4 @@ export function formatValidationJson(result: ValidationResult): string {
  */
 export function formatValidationYaml(result: ValidationResult): string {
   return new Document(result).toString();
-}
-
-/**
- * Builds a two-line diagnostic message containing a source fragment and location-prefixed message.
- */
-export function formatSyncDiagnosticMessage(diagnostic: SyncDiagnostic, syncRulesContent: string): string {
-  const lineText = getLineAt(syncRulesContent, diagnostic.startLine);
-  const fragment = getLineFragment(lineText, diagnostic.startColumn);
-
-  return `${fragment}\n${diagnostic.startLine}:${diagnostic.startColumn} ${diagnostic.message}`;
-}
-
-/**
- * Retrieves a specific 1-based line from text content.
- */
-function getLineAt(content: string, lineNumber: number): string {
-  if (!content) {
-    return '';
-  }
-
-  const lines = content.split(/\r?\n/);
-  return lines[Math.max(0, lineNumber - 1)] ?? '';
-}
-
-/**
- * Extracts a nearby fragment around `startColumn`, clipping to a fixed width for readability.
- */
-function getLineFragment(lineText: string, startColumn: number): string {
-  if (!lineText) {
-    return '(line unavailable)';
-  }
-
-  const maxWidth = 120;
-  if (lineText.length <= maxWidth) {
-    return lineText;
-  }
-
-  const centerIndex = Math.max(0, startColumn - 1);
-  let start = Math.max(0, centerIndex - Math.floor(maxWidth / 2));
-  const end = Math.min(lineText.length, start + maxWidth);
-
-  if (end - start < maxWidth) {
-    start = Math.max(0, end - maxWidth);
-  }
-
-  const prefix = start > 0 ? '…' : '';
-  const suffix = end < lineText.length ? '…' : '';
-
-  return `${prefix}${lineText.slice(start, end)}${suffix}`;
-}
-
-/**
- * Renders a sync diagnostic into two lines for human output:
- * 1) gray source fragment
- * 2) colored `[error]` or `[warning]` label with `line:column` prefix followed by plain message text
- */
-export function renderDiagnosticForHumanOutput(diagnostic: string, level: 'error' | 'warning'): string[] {
-  const [fragmentRaw, locationAndMessageRaw] = diagnostic.split('\n', 2);
-  const fragment = fragmentRaw ?? '';
-  const locationAndMessage = locationAndMessageRaw ?? '';
-
-  const parsed = locationAndMessage.match(/^(\d+:\d+)\s+([\s\S]+)$/);
-  const location = parsed?.[1] ?? '';
-  const message = parsed?.[2] ?? locationAndMessage;
-
-  const color = level === 'error' ? 'red' : 'yellow';
-  const label = level === 'error' ? '[error]' : '[warning]';
-
-  const lines = [ux.colorize('gray', `${INDENT}${BULLET} ${fragment}`)];
-
-  if (location) {
-    lines.push(`${INDENT}${ux.colorize(color, label)} ${ux.colorize(color, location)} ${message}`);
-  } else {
-    lines.push(`${INDENT}${ux.colorize(color, label)} ${message}`);
-  }
-
-  return lines;
 }

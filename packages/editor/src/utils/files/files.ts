@@ -1,4 +1,4 @@
-import type { SyncDiagnostic } from '@powersync/cli-core';
+import type { SyncValidation } from '@powersync/cli-core';
 
 import { z } from 'zod';
 
@@ -30,18 +30,15 @@ export const SaveFileRequest = z.object({
 export type SaveFileRequest = z.infer<typeof SaveFileRequest>;
 
 /**
- * Validates the sync rules content and returns any issues found.
+ * Validates sync config content and returns any issues found.
  */
-export const ValidateSyncRulesRequest = z.object({
+export const ValidateSyncConfigRequest = z.object({
   content: z.string()
 });
 
-export type ValidateSyncRulesRequest = z.infer<typeof ValidateSyncRulesRequest>;
+export type ValidateSyncConfigRequest = z.infer<typeof ValidateSyncConfigRequest>;
 
 /**
- * Result from sync rules validation.
+ * Result from sync config validation.
  */
-export type ValidateSyncRulesResponse = {
-  issues: SyncDiagnostic[];
-  passed: boolean;
-};
+export type ValidateSyncConfigResponse = SyncValidation;

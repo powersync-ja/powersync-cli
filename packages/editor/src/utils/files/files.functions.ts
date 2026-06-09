@@ -6,8 +6,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { env } from '../../env';
-import { type FilesResponse, SaveFileRequest, ValidateSyncRulesRequest } from './files';
-import { validateSyncRulesWithCli } from './files.server';
+import { type FilesResponse, SaveFileRequest, ValidateSyncConfigRequest } from './files';
+import { validateSyncConfigWithCli } from './files.server';
 
 // GET request (default)
 export const getConfigFiles = createServerFn().handler(async () => {
@@ -57,13 +57,13 @@ export const saveData = createServerFn({ method: 'POST' })
   });
 
 // POST request
-export const validateSyncRules = createServerFn({ method: 'POST' })
-  .inputValidator(ValidateSyncRulesRequest)
+export const validateSyncConfig = createServerFn({ method: 'POST' })
+  .inputValidator(ValidateSyncConfigRequest)
   .handler(async ({ data }) => {
     const projectContext = env.POWERSYNC_PROJECT_CONTEXT;
     if (!projectContext) {
       throw new Error('Missing POWERSYNC_PROJECT_CONTEXT. Start the editor via "powersync edit config".');
     }
 
-    return validateSyncRulesWithCli(data.content);
+    return validateSyncConfigWithCli(data.content);
   });

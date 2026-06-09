@@ -1,5 +1,5 @@
 import { BaseEditorWidget } from './BaseEditorWidget';
-import { useSyncRulesValidationMarkers } from './use-sync-rules-validation-markers';
+import { useSyncConfigValidationMarkers } from './use-sync-config-validation-markers';
 
 /**
  * Props for the sync-config YAML editor provider.
@@ -9,8 +9,10 @@ export type SyncConfigYamlEditorWidgetProviderProps = {
 };
 
 /**
- * Provider for editing `sync-config.yaml` with sync-rules validation enabled.
+ * Provider for editing `sync-config.yaml` with sync-config validation enabled.
  */
 export function SyncConfigYamlEditorWidgetProvider({ filename }: SyncConfigYamlEditorWidgetProviderProps) {
-  return <BaseEditorWidget filename={filename} useValidationHook={useSyncRulesValidationMarkers} yamlCustomTags={[]} />;
+  return (
+    <BaseEditorWidget filename={filename} useValidationHook={useSyncConfigValidationMarkers} yamlCustomTags={[]} />
+  );
 }

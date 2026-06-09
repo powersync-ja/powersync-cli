@@ -1,5 +1,6 @@
 import { ux } from '@oclif/core/ux';
 import { WithSyncConfigFilePath } from '@powersync/cli-core';
+import { ServiceCloudConfigDecoded } from '@powersync/cli-schemas';
 import { routes } from '@powersync/management-types';
 import { ObjectId } from 'bson';
 
@@ -101,7 +102,7 @@ export default class DeploySyncConfig extends WithSyncConfigFilePath(BaseDeployC
       _type: linked.type,
       name: cloudConfigState.name,
       ...cloudConfigState.config
-    };
+    } as ServiceCloudConfigDecoded;
 
     // Validate sync config
     const instanceStatus = await this.client

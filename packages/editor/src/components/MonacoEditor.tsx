@@ -1,4 +1,4 @@
-import type { editor } from 'monaco-editor';
+import type { editor, Environment } from 'monaco-editor';
 
 import MonacoReactEditor, { type BeforeMount, loader, type Monaco, type OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
@@ -14,8 +14,8 @@ import { YAML_SCHEMAS } from '../utils/yaml-schemas';
 loader.config({ monaco });
 
 if (typeof globalThis !== 'undefined') {
-  globalThis.MonacoEnvironment = {
-    getWorker(_, label) {
+  (globalThis as typeof globalThis & { MonacoEnvironment: Environment }).MonacoEnvironment = {
+    getWorker(_: string, label: string) {
       switch (label) {
         case 'yaml': {
           return new YamlWorker();

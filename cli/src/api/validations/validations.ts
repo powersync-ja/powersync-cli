@@ -5,9 +5,9 @@ import {
   SERVICE_FILENAME,
   SYNC_FILENAME,
   SyncValidation,
+  SyncValidationError,
   SyncValidationTestRunResult,
-  validateCloudSyncRules,
-  validateSelfHostedSyncRules,
+  validateProjectSyncConfig,
   ValidationTestRunResult
 } from '@powersync/cli-core';
 import {
@@ -18,8 +18,6 @@ import {
 } from '@powersync/cli-schemas';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-
-import { formatSyncDiagnosticMessage, renderDiagnosticForHumanOutput } from './validation-utils.js';
 
 /**
  * Validates `service.yaml` against the cloud or self-hosted schema, depending on project type.
@@ -43,72 +41,58 @@ export async function runConfigTest(projectDir: string, isCloud: boolean): Promi
 }
 
 /**
- * Wraps the sync validation with enhanced error and warning information.
- *  - Adds line numbers to locations of sync config errors.
- *  - Adds a pretty human-readable output string with color formatting for terminal display.
+ * Formats sync validation messages for CLI output.
+ * Core keeps `enrichedMessage` free of location prefixes so the editor can render location separately.
  */
-function wrapsSyncValidation(params: { result: SyncValidation; syncText: string }): SyncValidationTestRunResult {
-  const { result, syncText } = params;
-  const errors = result.diagnostics
-    .filter((diagnostic) => diagnostic.level === 'fatal')
-    .map((diagnostic) => formatSyncDiagnosticMessage(diagnostic, syncText));
-  const warnings = result.diagnostics
-    .filter((diagnostic) => diagnostic.level === 'warning')
-    .map((diagnostic) => formatSyncDiagnosticMessage(diagnostic, syncText));
+function formatSyncValidationErrorForCli(error: SyncValidationError): string {
+  if (!error.syncConfigLocation) {
+    return error.enrichedMessage;
+  }
 
-  const prettyOutput = [
-    ...errors.map((line) => renderDiagnosticForHumanOutput(line, 'error').join('\n')),
-    ...warnings.map((line) => renderDiagnosticForHumanOutput(line, 'warning').join('\n'))
-  ].join('\n');
+  const { column, line } = error.syncConfigLocation.start;
+  return `[Line ${line}, Column ${column}]: ${error.enrichedMessage}`;
+}
+
+/**
+ * Wraps the sync validation with warning and error information for terminal display.
+ */
+function wrapsSyncValidation(result: SyncValidation): SyncValidationTestRunResult {
+  const errors = result.errors
+    .filter((issue) => issue.level === 'fatal')
+    .map((issue) => formatSyncValidationErrorForCli(issue));
+  const warnings = result.errors
+    .filter((issue) => issue.level === 'warning')
+    .map((issue) => formatSyncValidationErrorForCli(issue));
 
   return {
-    diagnostics: result.diagnostics,
+    // Keep JSON/YAML output backward-compatible: these fields are optional and
+    // were historically omitted rather than emitted as empty arrays.
     errors: errors.length > 0 ? errors : undefined,
     passed: errors.length === 0,
-    prettyOutput,
     warnings: warnings.length > 0 ? warnings : undefined
   };
 }
 
 /**
- * Runs cloud sync-rules validation and maps diagnostics into warning/error message arrays.
+ * Runs sync-config validation and maps warnings/errors into message arrays.
  */
-export async function runSyncConfigTestCloud(project: CloudProject): Promise<SyncValidationTestRunResult> {
-  const syncRulesPath = join(project.projectDirectory, SYNC_FILENAME);
-  const syncRulesContent =
-    project.syncRulesContent ?? (existsSync(syncRulesPath) ? readFileSync(syncRulesPath, 'utf8') : undefined);
-  const syncText = syncRulesContent ?? '';
+export async function runSyncConfigTest(
+  project: CloudProject | SelfHostedProject
+): Promise<SyncValidationTestRunResult> {
+  const syncConfigPath = join(project.projectDirectory, SYNC_FILENAME);
+  const syncConfigContent =
+    project.syncRulesContent ?? (existsSync(syncConfigPath) ? readFileSync(syncConfigPath, 'utf8') : undefined);
 
   try {
-    return wrapsSyncValidation({
-      result: await validateCloudSyncRules({
-        linked: project.linked,
-        syncRulesContent: syncText
-      }),
-      syncText
-    });
+    return wrapsSyncValidation(
+      await validateProjectSyncConfig({
+        linkedProject: project,
+        syncConfigContent: syncConfigContent ?? ''
+      })
+    );
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    return { diagnostics: [], errors: [message], passed: false };
-  }
-}
-
-/**
- * Runs self-hosted sync-rules validation and maps diagnostics into warning/error message arrays.
- */
-export async function runSyncConfigTestSelfHosted(project: SelfHostedProject): Promise<SyncValidationTestRunResult> {
-  const syncRulesContent = project.syncRulesContent ?? '';
-  try {
-    return wrapsSyncValidation({
-      result: await validateSelfHostedSyncRules({
-        linked: project.linked,
-        syncRulesContent
-      }),
-      syncText: syncRulesContent
-    });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return { diagnostics: [], errors: [message], passed: false };
+    return { errors: [message], passed: false };
   }
 }
 

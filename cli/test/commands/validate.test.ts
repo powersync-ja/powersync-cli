@@ -13,8 +13,7 @@ import { managementClientMock, MOCK_CLOUD_IDS, resetManagementClientMocks } from
 
 const emptySyncValidation = {
   connections: [] as { name?: string }[],
-  diagnostics: [] as cliCore.SyncDiagnostic[],
-  errors: [] as { level: string; message: string }[]
+  errors: [] as cliCore.SyncValidationError[]
 };
 
 type EnvSnapshot = {
@@ -52,7 +51,7 @@ describe('validate', () => {
 
   describe('self-hosted', () => {
     it('validates sync config from --sync-config-file-path, not default sync-config.yaml', async () => {
-      const spy = vi.spyOn(cliCore, 'validateSelfHostedSyncRules').mockResolvedValue(emptySyncValidation as never);
+      const spy = vi.spyOn(cliCore, 'validateProjectSyncConfig').mockResolvedValue(emptySyncValidation as never);
 
       const projectDir = join(tmpRoot, 'powersync');
       mkdirSync(projectDir, { recursive: true });
@@ -96,15 +95,15 @@ describe('validate', () => {
 
       expect(spy).toHaveBeenCalledTimes(1);
       const call = spy.mock.calls[0]![0];
-      expect(call.syncRulesContent).toContain('SELECT 1 FROM validate_custom_path_marker');
-      expect(call.syncRulesContent).not.toContain('only_in_default_sync_config_yaml');
+      expect(call.syncConfigContent).toContain('SELECT 1 FROM validate_custom_path_marker');
+      expect(call.syncConfigContent).not.toContain('only_in_default_sync_config_yaml');
     });
   });
 
   describe('cloud', () => {
     it('validates sync config from --sync-config-file-path when linked as cloud', async () => {
       resetManagementClientMocks();
-      const spy = vi.spyOn(cliCore, 'validateCloudSyncRules').mockResolvedValue(emptySyncValidation as never);
+      const spy = vi.spyOn(cliCore, 'validateProjectSyncConfig').mockResolvedValue(emptySyncValidation as never);
 
       const { instanceId, orgId, projectId } = MOCK_CLOUD_IDS;
       const projectDir = join(tmpRoot, 'powersync');
@@ -166,8 +165,8 @@ describe('validate', () => {
 
       expect(spy).toHaveBeenCalledTimes(1);
       const call = spy.mock.calls[0]![0];
-      expect(call.syncRulesContent).toContain('SELECT 1 FROM cloud_validate_override');
-      expect(call.syncRulesContent).not.toContain('cloud_default_file_only');
+      expect(call.syncConfigContent).toContain('SELECT 1 FROM cloud_validate_override');
+      expect(call.syncConfigContent).not.toContain('cloud_default_file_only');
     });
   });
 });
