@@ -119,11 +119,10 @@
   },
   "scripts": {
     "dev": "tsx bin/dev.js",
-    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo oclif.manifest.json",
     "build": "tsc -b",
     "lint": "eslint",
-    "postpack": "rm oclif.manifest.json",
-    "pretest": "pnpm run build",
+    "pretest": "rm -f oclif.manifest.json && pnpm run build",
     "readme:generate": "oclif readme && pnpm exec prettier --write README.md",
     "prepack": "oclif manifest && pnpm run readme:generate",
     "test": "vitest",
