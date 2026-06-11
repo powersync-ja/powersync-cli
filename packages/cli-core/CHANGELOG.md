@@ -1,5 +1,15 @@
 # @powersync/cli-core
 
+## 0.10.0
+
+### Minor Changes
+
+- 90d66db: Resolve organization ID and project ID from instance ID automatically.
+
+### Patch Changes
+
+- @powersync/cli-schemas@0.10.0
+
 ## 0.9.6
 
 ### Patch Changes

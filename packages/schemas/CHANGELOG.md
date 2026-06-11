@@ -1,5 +1,7 @@
 # @powersync/cli-schemas
 
+## 0.10.0
+
 ## 0.9.6
 
 ## 0.9.5

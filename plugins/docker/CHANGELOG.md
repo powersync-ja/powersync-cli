@@ -1,5 +1,13 @@
 # @powersync/cli-plugin-docker
 
+## 0.10.0
+
+### Patch Changes
+
+- Updated dependencies [90d66db]
+  - @powersync/cli-core@0.10.0
+  - @powersync/cli-schemas@0.10.0
+
 ## 0.9.6
 
 ### Patch Changes
