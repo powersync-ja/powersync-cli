@@ -19,6 +19,7 @@
   "references": [
     { "path": "../packages/cli-core" },
     { "path": "../packages/schemas" },
+    { "path": "../packages/sync-config-doctor" },
     { "path": "../plugins/docker" },
     { "path": "../plugins/config-edit" }
   ],

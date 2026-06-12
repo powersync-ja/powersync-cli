@@ -1,0 +1,11 @@
+streams:
+  nested:
+    with:
+      orgs: |
+        SELECT org_id FROM org_memberships WHERE user_id = auth.user_id()
+      projects: |
+        SELECT project_id FROM project_assignments WHERE user_id = auth.user_id()
+    query: |
+      SELECT * FROM tasks
+      WHERE org_id IN (SELECT org_id FROM orgs)
+        AND project_id IN (SELECT project_id FROM projects)

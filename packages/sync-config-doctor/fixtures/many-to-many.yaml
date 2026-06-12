@@ -1,0 +1,10 @@
+streams:
+  team_files:
+    with:
+      teams: |
+        SELECT team_id FROM team_memberships WHERE user_id = auth.user_id()
+    query: |
+      SELECT files.* FROM files
+      JOIN team_memberships ON team_memberships.team_id = files.team_id
+      JOIN users ON users.id = team_memberships.user_id
+      WHERE team_memberships.team_id IN (SELECT team_id FROM teams)

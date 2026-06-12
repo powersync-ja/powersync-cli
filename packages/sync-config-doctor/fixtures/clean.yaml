@@ -1,0 +1,7 @@
+config:
+  edition: 2
+streams:
+  todos:
+    auto_subscribe: true
+    query: |
+      SELECT * FROM todos WHERE user_id = auth.user_id()

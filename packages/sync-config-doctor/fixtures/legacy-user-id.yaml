@@ -1,0 +1,6 @@
+bucket_definitions:
+  instrument_profile_lists:
+    parameters: SELECT request.user_id() as "userId"
+    data:
+      - SELECT "_id" AS "id", * FROM "InstrumentProfile"
+        WHERE "isDeleted" = false AND "ownerId" = bucket."userId"

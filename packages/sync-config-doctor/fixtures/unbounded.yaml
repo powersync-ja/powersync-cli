@@ -1,0 +1,4 @@
+streams:
+  all_widgets:
+    query: |
+      SELECT * FROM widgets

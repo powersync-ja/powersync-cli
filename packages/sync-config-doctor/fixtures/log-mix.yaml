@@ -1,0 +1,9 @@
+streams:
+  audit_view:
+    with:
+      me: |
+        SELECT auth.user_id() AS user_id
+    query: |
+      SELECT * FROM accounts WHERE user_id = auth.user_id()
+    queries:
+      - SELECT * FROM audit_events WHERE actor_id = auth.user_id()

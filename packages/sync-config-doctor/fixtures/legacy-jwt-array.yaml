@@ -1,0 +1,8 @@
+bucket_definitions:
+  node_collections:
+    parameters: SELECT json_each.value as "nodeId" FROM json_each(request.jwt() -> 'nodeIds')
+    data:
+      - SELECT "_id" AS "id", * FROM "FormGroup"
+        WHERE "isDeleted" = false AND bucket."nodeId" IN "nodeIdList"
+      - SELECT "_id" AS "id", * FROM "FieldResult"
+        WHERE "isDeleted" = false AND bucket."nodeId" IN "nodeIdList"

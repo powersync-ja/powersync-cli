@@ -1,0 +1,56 @@
+{
+  "name": "@powersync/sync-config-doctor",
+  "description": "Analyze a PowerSync sync configuration for bucket bloat and anti-patterns. Used by the `powersync doctor` CLI command.",
+  "version": "0.9.6",
+  "license": "FSL-1.1-ALv2",
+  "author": "POWERSYNC",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/powersync-ja/powersync-cli"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "bugs": "https://github.com/powersync-ja/powersync-cli/issues",
+  "dependencies": {
+    "@powersync/service-sync-rules": "catalog:",
+    "cli-table3": "^0.6.5",
+    "picocolors": "^1.1.1",
+    "pgsql-ast-parser": "^11.1.0",
+    "yaml": "^2.8.3"
+  },
+  "optionalDependencies": {
+    "mongodb": "^6.10.0",
+    "mysql2": "^3.11.5",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.12.2",
+    "@types/pg": "^8.11.10",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "lint": "eslint .",
+    "test": "vitest run"
+  }
+}

@@ -1,0 +1,9 @@
+streams:
+  multi_axis:
+    with:
+      keys: |
+        SELECT org_id, project_id FROM scope
+        WHERE org_id IN (SELECT org_id FROM org_memberships WHERE user_id = auth.user_id())
+          AND project_id IN auth.parameter('projects')
+    query: |
+      SELECT * FROM tasks WHERE org_id IN (SELECT org_id FROM keys) AND project_id IN (SELECT project_id FROM keys)

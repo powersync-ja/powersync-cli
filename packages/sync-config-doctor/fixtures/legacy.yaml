@@ -1,0 +1,5 @@
+bucket_definitions:
+  user_todos:
+    parameters: SELECT request.user_id() AS user_id
+    data:
+      - SELECT * FROM todos WHERE user_id = bucket.user_id

@@ -1,0 +1,9 @@
+{
+  "sub": "00000000-0000-0000-0000-000000000001",
+  "iat": 1700000000,
+  "exp": 1800000000,
+  "roles": ["admin", "editor", "viewer"],
+  "parameters": {
+    "projects": ["alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta"]
+  }
+}

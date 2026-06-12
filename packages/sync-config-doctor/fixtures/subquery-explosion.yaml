@@ -1,0 +1,8 @@
+streams:
+  org_docs:
+    with:
+      orgs: |
+        SELECT org_id FROM org_memberships
+        WHERE org_id IN (SELECT org_id FROM org_memberships WHERE user_id = auth.user_id())
+    query: |
+      SELECT * FROM documents WHERE org_id IN (SELECT org_id FROM orgs)
