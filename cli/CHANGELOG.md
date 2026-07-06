@@ -1,5 +1,16 @@
 # powersync
 
+## 0.10.1
+
+### Patch Changes
+
+- 0eaf362: fix `--directory` absolute path resolution in CLI
+- Updated dependencies [0eaf362]
+  - @powersync/cli-core@0.10.1
+  - @powersync/cli-plugin-config-edit@0.10.1
+  - @powersync/cli-plugin-docker@0.10.1
+  - @powersync/cli-schemas@0.10.1
+
 ## 0.10.0
 
 ### Minor Changes
