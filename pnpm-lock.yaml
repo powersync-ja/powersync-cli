@@ -22,8 +22,8 @@ catalogs:
       specifier: ^1.22.0
       version: 1.22.0
     '@powersync/service-sync-rules':
-      specifier: ^0.37.0
-      version: 0.37.0
+      specifier: ^0.38.0
+      version: 0.38.0
     '@powersync/service-types':
       specifier: ^0.15.2
       version: 0.15.2
@@ -112,7 +112,7 @@ importers:
         version: 0.2.2
       '@powersync/service-sync-rules':
         specifier: 'catalog:'
-        version: 0.37.0
+        version: 0.38.0
       '@powersync/service-types':
         specifier: 'catalog:'
         version: 0.15.2
@@ -356,7 +356,7 @@ importers:
     devDependencies:
       '@powersync/service-sync-rules':
         specifier: 'catalog:'
-        version: 0.37.0
+        version: 0.38.0
       '@types/node':
         specifier: ^24.12.2
         version: 24.12.4
@@ -1557,8 +1557,8 @@ packages:
   '@powersync/service-schema@1.22.0':
     resolution: {integrity: sha512-RyCzjNKHqnRKavHSQw7AtNGaItNKtpoJPktAsrt3zFcR0SckRk9aqXZvSYMhJvd6zKAb9B/ZybHhNcBJRjTXGg==}
 
-  '@powersync/service-sync-rules@0.37.0':
-    resolution: {integrity: sha512-9uGwM3EPI4DZfabClth1nDikiqerlKhiG+uS/oie4yUxk6VZGua0UsgfZSGSsulBeiHomzTSQ5MiwIT2KnRzPw==}
+  '@powersync/service-sync-rules@0.38.0':
+    resolution: {integrity: sha512-t3TJ1KtCU8bhLstnrJscQVz4JwnCazuPrY0LPe8sTPQvFnK+sltCCzrO6PJoktU3xPkqi3W5zrCxp5Njwhvw2g==}
 
   '@powersync/service-types@0.15.2':
     resolution: {integrity: sha512-GXQqCuTME+S1nV9CLbxtgYuAtMGFFLkDubm+DRTNGQqur8wBVzJp3haHCHFBVJ03Bhec+K7AIrB6CTii7b/HJg==}
@@ -7522,7 +7522,7 @@ snapshots:
 
   '@powersync/service-schema@1.22.0': {}
 
-  '@powersync/service-sync-rules@0.37.0':
+  '@powersync/service-sync-rules@0.38.0':
     dependencies:
       '@powersync/service-jsonbig': 0.17.13
       '@syncpoint/wkx': 0.5.2
