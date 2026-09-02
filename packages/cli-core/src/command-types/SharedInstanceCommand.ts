@@ -25,7 +25,7 @@ import { logTargetInstance } from '../utils/log-target-instance.js';
 import { CLI_FILENAME, SERVICE_FILENAME } from '../utils/project-config.js';
 import { resolveCloudInstanceLink } from '../utils/resolve-cloud-instance-link.js';
 import { resolveSyncRulesContent } from '../utils/resolve-sync-rules-content.js';
-import { CloudLinkTarget, selectCloudLinkTarget } from '../utils/select-cloud-link-target.js';
+import { CloudLinkTarget, selectCloudLinkTarget, suggestEnvironments } from '../utils/select-cloud-link-target.js';
 import { parseYamlFile } from '../utils/yaml.js';
 import { CloudProject } from './CloudInstanceCommand.js';
 import { CommandHelpGroup, HelpGroup } from './HelpGroup.js';
@@ -201,15 +201,16 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     } else {
       // --instance-id targets one instance directly, so a selected environment does not apply.
       const environment = flags['instance-id'] ? undefined : (flags.environment ?? env.POWERSYNC_ENVIRONMENT);
+      const rawCloudCLIConfig = rawCLIConfig as CloudCLIConfig | null;
       try {
-        target = selectCloudLinkTarget(rawCLIConfig as CloudCLIConfig | null, environment);
+        target = selectCloudLinkTarget(rawCloudCLIConfig, environment);
       } catch (error) {
         this.styledError({ message: error instanceof Error ? error.message : String(error) });
       }
 
       const instanceId = flags['instance-id'] ?? target.instance_id ?? env.INSTANCE_ID;
       if (!instanceId) {
-        this.styledError({ message: LINK_MISSING_ERROR_MESSAGE });
+        this.styledError({ message: LINK_MISSING_ERROR_MESSAGE, suggestions: suggestEnvironments(rawCloudCLIConfig) });
       }
 
       try {

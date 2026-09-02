@@ -20,7 +20,7 @@ import { OBJECT_ID_REGEX } from '../utils/object-id.js';
 import { CLI_FILENAME, SERVICE_FILENAME } from '../utils/project-config.js';
 import { resolveCloudInstanceLink } from '../utils/resolve-cloud-instance-link.js';
 import { resolveSyncRulesContent } from '../utils/resolve-sync-rules-content.js';
-import { CloudLinkTarget, selectCloudLinkTarget } from '../utils/select-cloud-link-target.js';
+import { CloudLinkTarget, selectCloudLinkTarget, suggestEnvironments } from '../utils/select-cloud-link-target.js';
 import { parseYamlFile } from '../utils/yaml.js';
 import { CommandHelpGroup, HelpGroup } from './HelpGroup.js';
 import { DEFAULT_ENSURE_CONFIG_OPTIONS, EnsureConfigOptions, InstanceCommand } from './InstanceCommand.js';
@@ -180,7 +180,7 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
 
     const instance_id = instanceIdFlag ?? target.instance_id ?? env.INSTANCE_ID;
     if (!instance_id) {
-      this.styledError({ message: LINK_MISSING_ERROR_MESSAGE });
+      this.styledError({ message: LINK_MISSING_ERROR_MESSAGE, suggestions: suggestEnvironments(cliConfig) });
     }
 
     const linkField = (field: string) =>
