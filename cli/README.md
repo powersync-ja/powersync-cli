@@ -261,7 +261,7 @@ Example (Cloud):
 PS_ADMIN_TOKEN=your-token INSTANCE_ID=123 powersync status
 ```
 
-See [docs/usage.md](../docs/usage.md) for full usage and resolution order (flags, env, cli.yaml).
+See [docs/usage.md](../docs/usage.md) for full usage and resolution order (flags, cli.yaml, env).
 
 # Commands
 

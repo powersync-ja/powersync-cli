@@ -223,15 +223,15 @@ If you decline this prompt, login exits without storing a token. Use `PS_ADMIN_T
 
 # Supplying Linking Information for Cloud and Self-Hosted Commands
 
-Cloud and self-hosted commands need an instance identifier. **Cloud only:** `powersync deploy`, `powersync deploy service-config`, `powersync deploy sync-config`, `powersync destroy`, `powersync stop`, `powersync fetch config`, `powersync pull instance`. **Both:** `powersync status`, `powersync generate schema`, `powersync generate token`, `powersync validate`. The same three methods apply: the CLI uses the first that is available (flags override environment variables, environment variables override link file). For Cloud commands, the org and project are resolved automatically from the instance.
+Cloud and self-hosted commands need an instance identifier. **Cloud only:** `powersync deploy`, `powersync deploy service-config`, `powersync deploy sync-config`, `powersync destroy`, `powersync stop`, `powersync fetch config`, `powersync pull instance`. **Both:** `powersync status`, `powersync generate schema`, `powersync generate token`, `powersync validate`. The same three methods apply: the CLI uses the first that is available (flags override the link file, and the link file overrides environment variables). For Cloud commands, the org and project are resolved automatically from the instance.
 
 1. **Flags**
    - **Cloud:** `--instance-id`
    - **Self-hosted:** `--api-url` only (API key from env or link file only)
-2. **Environment variables**
+2. **cli.yaml** — a `powersync/cli.yaml` file in the project (written by `powersync link cloud` or `powersync link self-hosted`)
+3. **Environment variables**
    - **Cloud:** `INSTANCE_ID`
    - **Self-hosted:** `API_URL`, `PS_ADMIN_TOKEN` (API key)
-3. **cli.yaml** — a `powersync/cli.yaml` file in the project (written by `powersync link cloud` or `powersync link self-hosted`)
 
 ---
 
