@@ -216,6 +216,11 @@ describe('instance resolution order', () => {
     expect(unknown.error?.message).toContain('Environment "production" is not defined in cli.yaml');
     expect(unknown.error?.message).toContain('staging');
 
+    // No default link and no selection: point at the environments that do exist
+    const unselected = await runDestroyDirect(['--confirm=yes']);
+    expect(unselected.error?.message).toContain('Linking is required');
+    expect(unselected.error?.suggestions?.[0]).toContain('--environment or POWERSYNC_ENVIRONMENT: staging');
+
     const exclusive = await runDestroyDirect([
       '--confirm=yes',
       '--environment=staging',

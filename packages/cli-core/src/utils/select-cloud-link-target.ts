@@ -26,3 +26,11 @@ export function selectCloudLinkTarget(cliConfig: CloudCLIConfig | null, environm
 
   return { ...target, environment };
 }
+
+/** Suggestion for a missing link when cli.yaml defines environments but none was selected. */
+export function suggestEnvironments(cliConfig: CloudCLIConfig | null): string[] {
+  const names = Object.keys(cliConfig?.environments ?? {});
+  return names.length > 0
+    ? [`Select an environment from ${CLI_FILENAME} with --environment or POWERSYNC_ENVIRONMENT: ${names.join(', ')}.`]
+    : [];
+}
