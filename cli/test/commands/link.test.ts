@@ -151,6 +151,35 @@ describe('link', () => {
       expect(linkYaml.project_id).toBe(PROJECT_ID);
     });
 
+    it('stores the link under a named environment with --environment', async () => {
+      const projectDir = join(tmpDir, PROJECT_DIR);
+      mkdirSync(projectDir, { recursive: true });
+      writeServiceYaml(projectDir, 'cloud');
+      const linkPath = join(projectDir, CLI_FILENAME);
+      writeFileSync(
+        linkPath,
+        `type: cloud\ninstance_id: ${INSTANCE_ID}\norg_id: ${ORG_ID}\nproject_id: ${PROJECT_ID}\n`,
+        'utf8'
+      );
+      const stagingInstanceId = '690cf75c96a2ff4fd98b160b';
+
+      const { error, stdout } = await runLinkCloudDirect([
+        '--environment=staging',
+        `--instance-id=${stagingInstanceId}`,
+        `--org-id=${ORG_ID}`,
+        `--project-id=${PROJECT_ID}`
+      ]);
+      expect(error).toBeUndefined();
+      expect(stdout).toContain(
+        `Updated ${PROJECT_DIR}/${CLI_FILENAME} with Cloud instance link (environment "staging").`
+      );
+      const linkYaml = parseYaml(readFileSync(linkPath, 'utf8'));
+      expect(linkYaml.instance_id).toBe(INSTANCE_ID);
+      expect(linkYaml.environments).toEqual({
+        staging: { instance_id: stagingInstanceId, org_id: ORG_ID, project_id: PROJECT_ID }
+      });
+    });
+
     it('creates and links cloud instance when directory exists and --create is used', async () => {
       const projectDir = join(tmpDir, PROJECT_DIR);
       mkdirSync(projectDir, { recursive: true });

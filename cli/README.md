@@ -154,7 +154,7 @@ export INSTANCE_ID=<instance-id>
 powersync generate schema --output-path=schema.ts --output=ts
 ```
 
-**Tip:** To avoid passing `--instance-id` on every command, run **`powersync link cloud --instance-id=<id>`** once. The CLI writes `cli.yaml` in the current directory, and subsequent commands use that instance without flags or env vars.
+**Tip:** To avoid passing `--instance-id` on every command, run **`powersync link cloud --instance-id=<id>`** once. The CLI writes `cli.yaml` in the current directory, and subsequent commands use that instance without flags or env vars. To work with several instances from one directory, link each one as a named environment with **`powersync link cloud --environment=<name> --instance-id=<id>`** and select it with `--environment=<name>` or `POWERSYNC_ENVIRONMENT`.
 
 # Self-hosted
 
@@ -253,6 +253,7 @@ You can supply instance and auth context via environment variables (useful for C
 
 - **`PS_ADMIN_TOKEN`** — PowerSync personal access token for Cloud commands. [Learn more](https://docs.powersync.com/usage/tools/cli#personal-access-token).
 - **`INSTANCE_ID`** — Instance ID (Cloud). Get IDs from the [PowerSync Dashboard](https://dashboard.powersync.com) or **`powersync fetch instances`**.
+- **`POWERSYNC_ENVIRONMENT`** — Name of an environment defined in `cli.yaml` (Cloud). Same as passing `--environment`.
 - **`API_URL`** — Self-hosted PowerSync API base URL (e.g. `https://powersync.example.com`).
 
 Example (Cloud):

@@ -43,6 +43,30 @@ powersync deploy service-config --directory=powersync   # service.yaml only (kee
 powersync deploy sync-config --directory=powersync      # sync-config.yaml only
 ```
 
+**Named environments in one `cli.yaml`**
+
+Keep one config directory and list each instance under `environments` in `cli.yaml`. Link them with `powersync link cloud --environment=<name> --instance-id=<id>`, then pick one per command with `--environment` or the `POWERSYNC_ENVIRONMENT` variable. The top-level fields stay the default target when no environment is selected.
+
+```yaml
+type: cloud
+instance_id: <production instance id> # default target
+org_id: <org id>
+project_id: <project id>
+environments:
+  staging:
+    instance_id: <staging instance id>
+    org_id: <org id>
+    project_id: <project id>
+```
+
+```bash
+powersync link cloud --environment=staging --instance-id=<staging instance id>
+powersync deploy --environment=staging
+POWERSYNC_ENVIRONMENT=staging powersync deploy sync-config # same thing, for CI
+```
+
+Cloud commands print the target instance name and IDs, plus the selected environment, before making changes. Note that deploy writes the `name` from `service.yaml` to the instance, so instances deployed from one `service.yaml` end up with the same name in the dashboard.
+
 **Alternate sync config file**
 
 These commands accept **`--sync-config-file-path=/path/to/sync.yaml`** instead of **`sync-config.yaml`** in the project directory: **`powersync deploy`**, **`powersync deploy sync-config`**, **`powersync validate`**, **`powersync generate schema`**. Other commands (e.g. **`deploy service-config`**, **`generate token`**, **`destroy`**, **`status`**) do not expose this flag.
@@ -226,11 +250,11 @@ If you decline this prompt, login exits without storing a token. Use `PS_ADMIN_T
 Cloud and self-hosted commands need an instance identifier. **Cloud only:** `powersync deploy`, `powersync deploy service-config`, `powersync deploy sync-config`, `powersync destroy`, `powersync stop`, `powersync fetch config`, `powersync pull instance`. **Both:** `powersync status`, `powersync generate schema`, `powersync generate token`, `powersync validate`. The same three methods apply: the CLI uses the first that is available (flags override the link file, and the link file overrides environment variables). For Cloud commands, the org and project are resolved automatically from the instance.
 
 1. **Flags**
-   - **Cloud:** `--instance-id`
+   - **Cloud:** `--instance-id`, or `--environment` to pick a named environment from `cli.yaml`
    - **Self-hosted:** `--api-url` only (API key from env or link file only)
 2. **cli.yaml** — a `powersync/cli.yaml` file in the project (written by `powersync link cloud` or `powersync link self-hosted`)
 3. **Environment variables**
-   - **Cloud:** `INSTANCE_ID`
+   - **Cloud:** `INSTANCE_ID`, or `POWERSYNC_ENVIRONMENT` to pick a named environment from `cli.yaml`
    - **Self-hosted:** `API_URL`, `PS_ADMIN_TOKEN` (API key)
 
 ---
