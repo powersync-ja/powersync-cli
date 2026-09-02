@@ -70,7 +70,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
       helpGroup: HelpGroup.SELF_HOSTED_PROJECT,
       required: false
     }),
-    environment: createEnvironmentFlag(['api-url', 'instance-id']),
+    environment: createEnvironmentFlag({ exclusive: ['api-url', 'instance-id'] }),
     'instance-id': Flags.string({
       description:
         '[Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud (exclusive with --api-url). Resolved: flag → cli.yaml → INSTANCE_ID.',
