@@ -14,6 +14,7 @@ import { managementClientMock, MOCK_CLOUD_IDS } from '../setup.js';
 type EnvSnapshot = {
   API_URL: string | undefined;
   INSTANCE_ID: string | undefined;
+  POWERSYNC_ENVIRONMENT: string | undefined;
   PS_ADMIN_TOKEN: string | undefined;
 };
 
@@ -59,6 +60,7 @@ describe('instance resolution order', () => {
     envSnapshot = {
       API_URL: env.API_URL,
       INSTANCE_ID: env.INSTANCE_ID,
+      POWERSYNC_ENVIRONMENT: env.POWERSYNC_ENVIRONMENT,
       PS_ADMIN_TOKEN: env.PS_ADMIN_TOKEN
     };
   });
@@ -67,6 +69,7 @@ describe('instance resolution order', () => {
     process.chdir(origCwd);
     env.API_URL = envSnapshot.API_URL;
     env.INSTANCE_ID = envSnapshot.INSTANCE_ID;
+    env.POWERSYNC_ENVIRONMENT = envSnapshot.POWERSYNC_ENVIRONMENT;
     env.PS_ADMIN_TOKEN = envSnapshot.PS_ADMIN_TOKEN;
     vi.restoreAllMocks();
     rmSync(tmpRoot, { force: true, recursive: true });
@@ -141,7 +144,84 @@ describe('instance resolution order', () => {
     );
 
     const { error } = await runDestroyDirect(['--confirm=yes']);
-    expect(error?.message).toContain('Invalid --instance-id');
+    expect(error?.message).toContain('Invalid instance_id in cli.yaml');
+  });
+
+  it('CloudInstanceCommand selects a cli.yaml environment from --environment or POWERSYNC_ENVIRONMENT', async () => {
+    managementClientMock.getInstance.mockImplementation(({ id }: { id: string }) =>
+      Promise.resolve({ app_id: MOCK_CLOUD_IDS.projectId, id, org_id: MOCK_CLOUD_IDS.orgId })
+    );
+
+    const projectDir = join(tmpRoot, 'powersync');
+    mkdirSync(projectDir, { recursive: true });
+    writeFileSync(join(projectDir, 'service.yaml'), '_type: cloud\n', 'utf8');
+    writeFileSync(
+      join(projectDir, 'cli.yaml'),
+      [
+        'type: cloud',
+        `instance_id: ${IDS.cli.instance}`,
+        `org_id: ${IDS.cli.org}`,
+        `project_id: ${IDS.cli.project}`,
+        'environments:',
+        '  staging:',
+        `    instance_id: ${IDS.env.instance}`,
+        `    org_id: ${IDS.env.org}`,
+        `    project_id: ${IDS.env.project}`,
+        '  production:',
+        `    instance_id: ${IDS.flag.instance}`,
+        ''
+      ].join('\n'),
+      'utf8'
+    );
+
+    const loadProjectSpy = vi.spyOn(CloudInstanceCommand.prototype, 'loadProject');
+
+    // --environment picks the named entry, including its org/project
+    await runDestroyDirect(['--confirm=yes', '--environment=staging']);
+    const fromFlag = await loadProjectSpy.mock.results[0]!.value;
+    expect(fromFlag.environment).toBe('staging');
+    expect(fromFlag.linked.instance_id).toBe(IDS.env.instance);
+    expect(fromFlag.linked.org_id).toBe(IDS.env.org);
+    expect(fromFlag.linked.project_id).toBe(IDS.env.project);
+
+    // POWERSYNC_ENVIRONMENT selects an entry too; its missing org/project are resolved via getInstance
+    env.POWERSYNC_ENVIRONMENT = 'production';
+    await runDestroyDirect(['--confirm=yes']);
+    const fromEnv = await loadProjectSpy.mock.results[1]!.value;
+    expect(fromEnv.environment).toBe('production');
+    expect(fromEnv.linked.instance_id).toBe(IDS.flag.instance);
+    expect(fromEnv.linked.org_id).toBe(MOCK_CLOUD_IDS.orgId);
+    expect(fromEnv.linked.project_id).toBe(MOCK_CLOUD_IDS.projectId);
+
+    // --instance-id wins over the selected environment and uses the top-level org/project
+    await runDestroyDirect(['--confirm=yes', `--instance-id=${IDS.env.instance}`]);
+    const fromInstanceFlag = await loadProjectSpy.mock.results[2]!.value;
+    expect(fromInstanceFlag.environment).toBeUndefined();
+    expect(fromInstanceFlag.linked.instance_id).toBe(IDS.env.instance);
+    expect(fromInstanceFlag.linked.org_id).toBe(IDS.cli.org);
+    expect(fromInstanceFlag.linked.project_id).toBe(IDS.cli.project);
+  });
+
+  it('CloudInstanceCommand rejects an unknown environment and --environment combined with --instance-id', async () => {
+    const projectDir = join(tmpRoot, 'powersync');
+    mkdirSync(projectDir, { recursive: true });
+    writeFileSync(join(projectDir, 'service.yaml'), '_type: cloud\n', 'utf8');
+    writeFileSync(
+      join(projectDir, 'cli.yaml'),
+      ['type: cloud', 'environments:', '  staging:', `    instance_id: ${IDS.env.instance}`, ''].join('\n'),
+      'utf8'
+    );
+
+    const unknown = await runDestroyDirect(['--confirm=yes', '--environment=production']);
+    expect(unknown.error?.message).toContain('Environment "production" is not defined in cli.yaml');
+    expect(unknown.error?.message).toContain('staging');
+
+    const exclusive = await runDestroyDirect([
+      '--confirm=yes',
+      '--environment=staging',
+      `--instance-id=${IDS.cli.instance}`
+    ]);
+    expect(exclusive.error?.message).toContain('cannot also be provided');
   });
 
   it('SharedInstanceCommand resolves self-hosted api_url as flag → cli.yaml → env', async () => {
@@ -179,6 +259,42 @@ describe('instance resolution order', () => {
     const fromEnv = await loadProjectSpy.mock.results[2]!.value;
     expect(fromEnv.linked.type).toBe('self-hosted');
     expect(fromEnv.linked.api_url).toBe('https://env.example.com');
+  });
+
+  it('SharedInstanceCommand selects a cli.yaml environment from --environment or POWERSYNC_ENVIRONMENT', async () => {
+    const projectDir = join(tmpRoot, 'powersync');
+    mkdirSync(projectDir, { recursive: true });
+    writeFileSync(join(projectDir, 'service.yaml'), '_type: cloud\n', 'utf8');
+    writeFileSync(
+      join(projectDir, 'cli.yaml'),
+      [
+        'type: cloud',
+        'environments:',
+        '  staging:',
+        `    instance_id: ${IDS.env.instance}`,
+        `    org_id: ${IDS.env.org}`,
+        `    project_id: ${IDS.env.project}`,
+        ''
+      ].join('\n'),
+      'utf8'
+    );
+
+    const loadProjectSpy = vi.spyOn(SharedInstanceCommand.prototype, 'loadProject');
+    vi.spyOn(FetchStatusCommand.prototype, 'getCloudStatus').mockRejectedValue(new Error('expected-test-failure'));
+
+    await runFetchStatusDirect(['--output=json', '--environment=staging']);
+    const fromFlag = await loadProjectSpy.mock.results[0]!.value;
+    expect(fromFlag.environment).toBe('staging');
+    expect(fromFlag.linked.type).toBe('cloud');
+    expect(fromFlag.linked.instance_id).toBe(IDS.env.instance);
+    expect(fromFlag.linked.org_id).toBe(IDS.env.org);
+    expect(fromFlag.linked.project_id).toBe(IDS.env.project);
+
+    env.POWERSYNC_ENVIRONMENT = 'staging';
+    await runFetchStatusDirect(['--output=json']);
+    const fromEnv = await loadProjectSpy.mock.results[1]!.value;
+    expect(fromEnv.environment).toBe('staging');
+    expect(fromEnv.linked.instance_id).toBe(IDS.env.instance);
   });
 
   it('SharedInstanceCommand resolves cloud instance_id as flag → cli.yaml → env; org/project from cli.yaml or API', async () => {

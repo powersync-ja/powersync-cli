@@ -9,6 +9,7 @@ export type ENV = {
   API_URL?: string;
   INSTANCE_ID?: string;
   ORG_ID?: string;
+  POWERSYNC_ENVIRONMENT?: string;
   PROJECT_ID?: string;
   PS_ADMIN_TOKEN?: string;
 };
@@ -20,6 +21,7 @@ export const env: ENV = {
   API_URL: process.env.API_URL,
   INSTANCE_ID: process.env.INSTANCE_ID,
   ORG_ID: process.env.ORG_ID,
+  POWERSYNC_ENVIRONMENT: process.env.POWERSYNC_ENVIRONMENT,
   PROJECT_ID: process.env.PROJECT_ID,
   PS_ADMIN_TOKEN: process.env.PS_ADMIN_TOKEN
 };
