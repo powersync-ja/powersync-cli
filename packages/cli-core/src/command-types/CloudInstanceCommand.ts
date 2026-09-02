@@ -209,6 +209,38 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
     return this._project;
   }
 
+  /**
+   * Prints which Cloud instance the command is about to act on, including its name, so users can confirm
+   * they are targeting the correct instance before anything happens.
+   *
+   * Call this after loadProject(). The instance name is fetched from the Management API unless it is
+   * already known (for example from a previous getInstanceConfig call). If the name cannot be fetched,
+   * the IDs are still printed and the command continues; a later API call will surface any real error.
+   *
+   * @returns The instance name, or undefined if it could not be resolved.
+   */
+  async logTargetInstance(options: { instanceName?: string } = {}): Promise<string | undefined> {
+    const { linked } = this.project;
+
+    let { instanceName } = options;
+    if (instanceName == null) {
+      try {
+        ({ name: instanceName } = await this.client.getInstance({ id: linked.instance_id }));
+      } catch {
+        // Fall through, IDs are still printed below.
+      }
+    }
+
+    const nameLabel =
+      instanceName == null ? ux.colorize('yellow', '(name unavailable)') : ux.colorize('blue', instanceName);
+    this.log(`Target instance: ${nameLabel} ${ux.colorize('gray', `id: ${linked.instance_id}`)}`);
+    this.log(
+      `\t${ux.colorize('gray', `project: ${linked.project_id}`)} ${ux.colorize('gray', `org: ${linked.org_id}`)}`
+    );
+
+    return instanceName;
+  }
+
   parseLocalConfig(projectDirectory: string): ServiceCloudConfigDecoded {
     const servicePath = join(projectDirectory, SERVICE_FILENAME);
     const doc = parseYamlFile(servicePath);

@@ -272,6 +272,21 @@ export default abstract class BaseDeployCommand extends CloudInstanceCommand {
     }
   }
 
+  /**
+   * Deploying sends the local service.yaml `name` as the instance name, so a deploy renames the
+   * instance if the two differ. Warn so users targeting several instances from one config notice.
+   */
+  protected warnIfDeployRenamesInstance(cloudConfigState: routes.InstanceConfigResponse): void {
+    const localName = this.serviceConfig?.name;
+    if (!localName || localName === cloudConfigState.name) {
+      return;
+    }
+
+    this.warn(
+      `Deploying will rename the instance from "${cloudConfigState.name}" to "${localName}" because ${SERVICE_FILENAME} has name: ${localName}.`
+    );
+  }
+
   protected async withDeploy(timeoutMs: number, fn: () => Promise<routes.DeployInstanceResponse>): Promise<void> {
     const { project } = this;
 

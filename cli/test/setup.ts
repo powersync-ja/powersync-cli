@@ -57,6 +57,7 @@ export function resetManagementClientMocks(): void {
   managementClientMock.getInstance.mockResolvedValue({
     app_id: MOCK_CLOUD_IDS.projectId,
     id: MOCK_CLOUD_IDS.instanceId,
+    name: 'test-instance',
     org_id: MOCK_CLOUD_IDS.orgId
   });
   managementClientMock.destroyInstance.mockRejectedValue(new Error('mock destroy failure'));

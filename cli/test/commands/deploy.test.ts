@@ -144,6 +144,36 @@ describe('deploy', () => {
       );
     });
 
+    it('prints the target instance name and IDs before validating', async () => {
+      const result = await runDeployDirect();
+
+      // The name comes from the existing cloud config, no extra getInstance call is needed.
+      expect(managementClientMock.getInstance).not.toHaveBeenCalled();
+      expect(result.stdout).toContain('Target instance: test-instance');
+      expect(result.stdout).toContain(`id: ${INSTANCE_ID}`);
+      expect(result.stdout).toContain(`project: ${PROJECT_ID}`);
+      expect(result.stdout).toContain(`org: ${ORG_ID}`);
+      expect(result.stderr).not.toContain('rename');
+    });
+
+    it('warns when deploying would rename the instance', async () => {
+      const projectDir = join(tmpDir, PROJECT_DIR);
+      writeCloudServiceYaml(projectDir, {
+        _type: 'cloud',
+        name: 'instance-b',
+        region: 'us',
+        replication: {
+          connections: [{ name: 'default', type: 'postgresql', uri: 'postgres://user:pass@host/db' }]
+        }
+      });
+
+      const result = await runDeployDirect();
+
+      // oclif wraps warnings and prefixes each line with a marker, so normalise whitespace first.
+      const stderr = result.stderr.replaceAll(/[\s›]+/g, ' ');
+      expect(stderr).toContain('Deploying will rename the instance from "test-instance" to "instance-b"');
+    });
+
     it('validates sync config before deploying', async () => {
       const result = await runDeployDirect();
       expect(managementClientMock.validateSyncRules).toHaveBeenCalled();

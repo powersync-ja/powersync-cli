@@ -35,6 +35,8 @@ export default class DeployServiceConfig extends BaseDeployCommand {
 
     // The existing config is required to deploy changes. The instance should have been created already.
     const cloudConfigState = await this.loadCloudConfigState();
+    await this.logTargetInstance({ instanceName: cloudConfigState.name });
+    this.warnIfDeployRenamesInstance(cloudConfigState);
 
     this.log('Performing validations before deploy...');
     const validationRunner = new ValidationsRunner({
