@@ -169,8 +169,8 @@ describe('deploy', () => {
 
       const result = await runDeployDirect();
 
-      // oclif wraps warnings and prefixes each line with a marker, so normalise whitespace first.
-      const stderr = result.stderr.replaceAll(/[\s›]+/g, ' ');
+      // oclif wraps warnings and prefixes each line with a marker (› on macOS/Linux, » on Windows), so normalise first.
+      const stderr = result.stderr.replaceAll(/[\s›»]+/g, ' ');
       expect(stderr).toContain('Deploying will rename the instance from "test-instance" to "instance-b"');
     });
 
