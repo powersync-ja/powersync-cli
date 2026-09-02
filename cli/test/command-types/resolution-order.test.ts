@@ -300,6 +300,79 @@ describe('instance resolution order', () => {
     const fromEnv = await loadProjectSpy.mock.results[1]!.value;
     expect(fromEnv.environment).toBe('staging');
     expect(fromEnv.linked.instance_id).toBe(IDS.env.instance);
+
+    env.POWERSYNC_ENVIRONMENT = undefined;
+    const unselected = await runFetchStatusDirect(['--output=json']);
+    expect(unselected.error?.message).toContain('Linking is required');
+    expect(unselected.error?.suggestions?.[0]).toContain('--environment or POWERSYNC_ENVIRONMENT: staging');
+  });
+
+  it('SharedInstanceCommand lets --instance-id pick the cloud context over a self-hosted cli.yaml', async () => {
+    managementClientMock.getInstance.mockImplementation(({ id }: { id: string }) =>
+      Promise.resolve({ app_id: MOCK_CLOUD_IDS.projectId, id, org_id: MOCK_CLOUD_IDS.orgId })
+    );
+
+    const projectDir = join(tmpRoot, 'powersync');
+    mkdirSync(projectDir, { recursive: true });
+    writeFileSync(
+      join(projectDir, 'cli.yaml'),
+      ['type: self-hosted', 'api_url: https://cli.example.com', 'api_key: cli-key', ''].join('\n'),
+      'utf8'
+    );
+
+    const loadProjectSpy = vi.spyOn(SharedInstanceCommand.prototype, 'loadProject');
+    vi.spyOn(FetchStatusCommand.prototype, 'getCloudStatus').mockRejectedValue(new Error('expected-test-failure'));
+
+    await runFetchStatusDirect(['--output=json', `--instance-id=${IDS.flag.instance}`]);
+    const project = await loadProjectSpy.mock.results[0]!.value;
+    expect(project.linked.type).toBe('cloud');
+    expect(project.linked.instance_id).toBe(IDS.flag.instance);
+  });
+
+  it('accepts a cli.yaml written by older CLI versions (no environments key)', async () => {
+    managementClientMock.getInstance.mockImplementation(({ id }: { id: string }) =>
+      Promise.resolve({ app_id: MOCK_CLOUD_IDS.projectId, id, org_id: MOCK_CLOUD_IDS.orgId })
+    );
+
+    const projectDir = join(tmpRoot, 'powersync');
+    mkdirSync(projectDir, { recursive: true });
+    writeFileSync(join(projectDir, 'service.yaml'), '_type: cloud\n', 'utf8');
+    writeFileSync(
+      join(projectDir, 'cli.yaml'),
+      [
+        '# yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/cli-config.json',
+        'type: cloud',
+        `instance_id: ${IDS.cli.instance}`,
+        `org_id: ${IDS.cli.org}`,
+        `project_id: ${IDS.cli.project}`,
+        ''
+      ].join('\n'),
+      'utf8'
+    );
+
+    const cloudSpy = vi.spyOn(CloudInstanceCommand.prototype, 'loadProject');
+    await runDestroyDirect(['--confirm=yes']);
+    const cloudProject = await cloudSpy.mock.results[0]!.value;
+    expect(cloudProject.environment).toBeUndefined();
+    expect(cloudProject.linked).toEqual({
+      instance_id: IDS.cli.instance,
+      org_id: IDS.cli.org,
+      project_id: IDS.cli.project,
+      type: 'cloud'
+    });
+
+    const sharedSpy = vi.spyOn(SharedInstanceCommand.prototype, 'loadProject');
+    vi.spyOn(FetchStatusCommand.prototype, 'getCloudStatus').mockRejectedValue(new Error('expected-test-failure'));
+    await runFetchStatusDirect(['--output=json']);
+    const sharedProject = await sharedSpy.mock.results[0]!.value;
+    expect(sharedProject.environment).toBeUndefined();
+    expect(sharedProject.linked.instance_id).toBe(IDS.cli.instance);
+
+    // Selecting an environment on such a file explains how to add one
+    const { error } = await runDestroyDirect(['--confirm=yes', '--environment=staging']);
+    expect(error?.message).toContain(
+      'Environment "staging" is not defined in cli.yaml. Add it with: powersync link cloud --environment=staging'
+    );
   });
 
   it('SharedInstanceCommand resolves cloud instance_id as flag → cli.yaml → env; org/project from cli.yaml or API', async () => {
