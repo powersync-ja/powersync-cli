@@ -68,7 +68,7 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
      * Missing org/project IDs are resolved from the Cloud instance.
      */
     ...InstanceCommand.baseFlags,
-    environment: createEnvironmentFlag(['instance-id']),
+    environment: createEnvironmentFlag({ exclusive: ['instance-id'] }),
     'instance-id': Flags.string({
       description: 'PowerSync Cloud instance ID. Manually passed if the current context has not been linked.',
       helpGroup: HelpGroup.CLOUD_PROJECT,
