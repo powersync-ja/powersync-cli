@@ -100,6 +100,16 @@ describe('deploy', () => {
     expect(result.error?.oclif?.exit).toBe(1);
   });
 
+  it('suggests pull instance when the directory is linked but has no service.yaml', async () => {
+    const projectDir = join(tmpDir, PROJECT_DIR);
+    mkdirSync(projectDir, { recursive: true });
+    writeLinkYaml(projectDir, { instance_id: INSTANCE_ID, org_id: ORG_ID, project_id: PROJECT_ID });
+    const result = await runCommand('deploy', { root });
+    expect(result.error?.message).toContain(`${SERVICE_FILENAME} in "./${PROJECT_DIR}/" is missing`);
+    expect(result.error?.suggestions?.[0]).toContain('powersync pull instance');
+    expect(result.error?.oclif?.exit).toBe(1);
+  });
+
   it('errors when cli.yaml does not exist', async () => {
     const projectDir = join(tmpDir, PROJECT_DIR);
     mkdirSync(projectDir, { recursive: true });
