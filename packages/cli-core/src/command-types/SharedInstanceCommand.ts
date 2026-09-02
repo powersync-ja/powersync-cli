@@ -17,6 +17,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { createCloudClient } from '../clients/create-cloud-client.js';
+import { createEnvironmentFlag } from '../utils/create-environment-flag.js';
 import { ensureServiceTypeMatches, ServiceType } from '../utils/ensure-service-type.js';
 import { env } from '../utils/env.js';
 import { LINK_MISSING_ERROR_MESSAGE } from '../utils/errors.js';
@@ -24,6 +25,7 @@ import { logTargetInstance } from '../utils/log-target-instance.js';
 import { CLI_FILENAME, SERVICE_FILENAME } from '../utils/project-config.js';
 import { resolveCloudInstanceLink } from '../utils/resolve-cloud-instance-link.js';
 import { resolveSyncRulesContent } from '../utils/resolve-sync-rules-content.js';
+import { CloudLinkTarget, selectCloudLinkTarget } from '../utils/select-cloud-link-target.js';
 import { parseYamlFile } from '../utils/yaml.js';
 import { CloudProject } from './CloudInstanceCommand.js';
 import { CommandHelpGroup, HelpGroup } from './HelpGroup.js';
@@ -45,7 +47,7 @@ export type SharedInstanceCommandFlags = Interfaces.InferredFlags<
  *    - Then from environment variables.
  *
  * 2. **Per-field values** (instance_id, org_id, project_id for cloud; api_url, api_key for self-hosted):
- *    - Cloud: flags → cli.yaml → env.
+ *    - Cloud: flags → cli.yaml (environment selected with --environment or POWERSYNC_ENVIRONMENT, then top-level fields) → env.
  *    - Self-hosted: api_url from flag → cli.yaml → env; api_key from env → cli.yaml only (no flag).
  *
  * @example
@@ -68,6 +70,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
       helpGroup: HelpGroup.SELF_HOSTED_PROJECT,
       required: false
     }),
+    environment: createEnvironmentFlag(['api-url', 'instance-id']),
     'instance-id': Flags.string({
       description:
         '[Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud (exclusive with --api-url). Resolved: flag → cli.yaml → INSTANCE_ID.',
@@ -135,7 +138,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     const linkPath = join(projectDir, CLI_FILENAME);
 
     // 1) Context type: flags first, then link file, then env (see class JSDoc for resolution order).
-    const hasCloudFlagInputs = flags['instance-id'];
+    const hasCloudFlagInputs = flags['instance-id'] ?? flags.environment;
     const hasSelfHostedFlagInputs = flags['api-url'];
 
     if (hasCloudFlagInputs && hasSelfHostedFlagInputs) {
@@ -166,7 +169,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
 
     // If type still not set, use env inputs.
     if (!projectType) {
-      const hasCloudEnvInputs = env.INSTANCE_ID;
+      const hasCloudEnvInputs = env.INSTANCE_ID ?? env.POWERSYNC_ENVIRONMENT;
       const hasSelfHostedEnvInputs = env.API_URL;
 
       if (hasCloudEnvInputs && hasSelfHostedEnvInputs) {
@@ -183,6 +186,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
 
     // 2) Per-field: flags → link file → env (see class JSDoc).
     let cliConfig: null | ResolvedCloudCLIConfig | ResolvedSelfHostedCLIConfig = null;
+    let target: CloudLinkTarget | undefined;
     if (projectType === 'self-hosted') {
       const _rawSelfHostedCLIConfig = (rawCLIConfig as SelfHostedCLIConfig) ?? { type: 'self-hosted' };
       try {
@@ -195,8 +199,15 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
         this.styledError({ error, message: LINK_MISSING_ERROR_MESSAGE });
       }
     } else {
-      const _rawCloudCLIConfig = (rawCLIConfig as CloudCLIConfig) ?? { type: 'cloud' };
-      const instanceId = flags['instance-id'] ?? _rawCloudCLIConfig.instance_id ?? env.INSTANCE_ID;
+      // --instance-id targets one instance directly, so a selected environment does not apply.
+      const environment = flags['instance-id'] ? undefined : (flags.environment ?? env.POWERSYNC_ENVIRONMENT);
+      try {
+        target = selectCloudLinkTarget(rawCLIConfig as CloudCLIConfig | null, environment);
+      } catch (error) {
+        this.styledError({ message: error instanceof Error ? error.message : String(error) });
+      }
+
+      const instanceId = flags['instance-id'] ?? target.instance_id ?? env.INSTANCE_ID;
       if (!instanceId) {
         this.styledError({ message: LINK_MISSING_ERROR_MESSAGE });
       }
@@ -207,8 +218,8 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
             client: this.cloudClient,
             instanceId,
             // orgId and projectId can either be set via cli.yaml or resolved via instanceId
-            orgId: _rawCloudCLIConfig.org_id,
-            projectId: _rawCloudCLIConfig.project_id
+            orgId: target.org_id,
+            projectId: target.project_id
           })
         );
       } catch (error) {
@@ -239,6 +250,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
 
     if (projectType === ServiceType.CLOUD) {
       return this._loadProjectHook(flags, {
+        environment: target?.environment,
         linked: cliConfig as ResolvedCloudCLIConfig,
         projectDirectory: projectDir,
         syncRulesContent
