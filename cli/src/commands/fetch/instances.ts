@@ -212,6 +212,11 @@ export default class FetchInstances extends Command {
         if (linked.config.type === 'cloud') {
           this.log(`\t${ux.colorize('blue', 'Project ID: ')} ${linked.config.project_id}`);
           this.log(`\t${ux.colorize('blue', 'Instance ID: ')} ${linked.config.instance_id}`);
+          for (const [name, environment] of Object.entries(linked.config.environments ?? {})) {
+            this.log(
+              `\t${ux.colorize('blue', `Environment ${name}: `)} ${ux.colorize('gray', `instance_id: ${environment.instance_id}`)}`
+            );
+          }
         } else if (linked.config.type === 'self-hosted') {
           this.log(`\t${ux.colorize('blue', 'API URL: ')} ${linked.config.api_url}`);
         }

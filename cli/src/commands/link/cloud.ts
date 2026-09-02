@@ -18,9 +18,10 @@ import { writeCloudLink } from '../../api/cloud/write-cloud-link.js';
 export default class LinkCloud extends CloudInstanceCommand {
   static commandHelpGroup = CommandHelpGroup.PROJECT_SETUP;
   static description =
-    'Write or update cli.yaml with a Cloud instance. Use --create to create a new instance from service.yaml name/region and link it; omit --instance-id when using --create.';
+    'Write or update cli.yaml with a Cloud instance. Use --create to create a new instance from service.yaml name/region and link it; omit --instance-id when using --create. Use --environment to store the link as a named environment, selected later with --environment or POWERSYNC_ENVIRONMENT.';
   static examples = [
     '<%= config.bin %> <%= command.id %> --instance-id=<id>',
+    '<%= config.bin %> <%= command.id %> --environment=staging --instance-id=<id>',
     '<%= config.bin %> <%= command.id %> --create --project-id=<project-id>',
     '<%= config.bin %> <%= command.id %> --create --project-id=<project-id> --org-id=<org-id>'
   ];
@@ -29,6 +30,10 @@ export default class LinkCloud extends CloudInstanceCommand {
       default: false,
       description:
         'Create a new Cloud instance in the given org and project, then link. Do not supply --instance-id when using --create.'
+    }),
+    environment: Flags.string({
+      description: `Store the link under environments.<name> in ${CLI_FILENAME} instead of the top-level fields. Select it later with --environment or POWERSYNC_ENVIRONMENT.`,
+      required: false
     }),
     'instance-id': Flags.string({
       default: env.INSTANCE_ID,
@@ -50,7 +55,8 @@ export default class LinkCloud extends CloudInstanceCommand {
 
   async run(): Promise<void> {
     const { flags } = await this.parse(LinkCloud);
-    let { create, directory, 'instance-id': instanceId, 'org-id': orgId, 'project-id': projectId } = flags;
+    let { create, directory, environment, 'instance-id': instanceId, 'org-id': orgId, 'project-id': projectId } = flags;
+    const linkLabel = environment ? ` (environment "${environment}")` : '';
 
     const projectDirectory = this.resolveProjectDir(flags);
     ensureServiceTypeMatches({
@@ -100,9 +106,17 @@ export default class LinkCloud extends CloudInstanceCommand {
         this.styledError({ error, message: 'Failed to create Cloud instance' });
       }
 
-      writeCloudLink(projectDirectory, { instanceId: newInstanceId, orgId: orgId!, projectId: projectId! });
+      writeCloudLink(projectDirectory, {
+        environment,
+        instanceId: newInstanceId,
+        orgId: orgId!,
+        projectId: projectId!
+      });
       this.log(
-        ux.colorize('green', `Created Cloud instance ${newInstanceId} and updated ${directory}/${CLI_FILENAME}.`)
+        ux.colorize(
+          'green',
+          `Created Cloud instance ${newInstanceId} and updated ${directory}/${CLI_FILENAME}${linkLabel}.`
+        )
       );
       return;
     }
@@ -132,10 +146,11 @@ export default class LinkCloud extends CloudInstanceCommand {
     }
 
     writeCloudLink(projectDirectory, {
+      environment,
       instanceId: linked.instance_id,
       orgId: linked.org_id,
       projectId: linked.project_id
     });
-    this.log(ux.colorize('green', `Updated ${directory}/${CLI_FILENAME} with Cloud instance link.`));
+    this.log(ux.colorize('green', `Updated ${directory}/${CLI_FILENAME} with Cloud instance link${linkLabel}.`));
   }
 }
