@@ -14,7 +14,7 @@ export function selectCloudLinkTarget(cliConfig: CloudCLIConfig | null, environm
   }
 
   const environments = cliConfig?.environments ?? {};
-  const target = environments[environment];
+  const target = Object.hasOwn(environments, environment) ? environments[environment] : undefined;
   if (!target) {
     const available = Object.keys(environments);
     throw new Error(

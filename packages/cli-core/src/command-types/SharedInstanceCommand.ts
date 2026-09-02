@@ -160,11 +160,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
         this.styledError({ error, message: `Failed to parse ${CLI_FILENAME}` });
       }
 
-      if (rawCLIConfig.type === 'self-hosted') {
-        projectType = ServiceType.SELF_HOSTED;
-      } else if (rawCLIConfig.type === 'cloud') {
-        projectType = ServiceType.CLOUD;
-      }
+      projectType ??= rawCLIConfig.type === 'self-hosted' ? ServiceType.SELF_HOSTED : ServiceType.CLOUD;
     }
 
     // If type still not set, use env inputs.

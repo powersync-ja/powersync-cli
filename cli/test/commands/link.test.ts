@@ -151,6 +151,21 @@ describe('link', () => {
       expect(linkYaml.project_id).toBe(PROJECT_ID);
     });
 
+    it('creates cli.yaml with only a named environment when --environment is used in a new directory', async () => {
+      const { error } = await runLinkCloudDirect([
+        '--environment=staging',
+        `--instance-id=${INSTANCE_ID}`,
+        `--org-id=${ORG_ID}`,
+        `--project-id=${PROJECT_ID}`
+      ]);
+      expect(error).toBeUndefined();
+      const linkYaml = parseYaml(readFileSync(join(tmpDir, PROJECT_DIR, CLI_FILENAME), 'utf8'));
+      expect(linkYaml).toEqual({
+        environments: { staging: { instance_id: INSTANCE_ID, org_id: ORG_ID, project_id: PROJECT_ID } },
+        type: 'cloud'
+      });
+    });
+
     it('stores the link under a named environment with --environment', async () => {
       const projectDir = join(tmpDir, PROJECT_DIR);
       mkdirSync(projectDir, { recursive: true });
