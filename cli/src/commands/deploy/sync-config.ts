@@ -81,12 +81,6 @@ export default class DeploySyncConfig extends WithSyncConfigFilePath(BaseDeployC
     const deployTimeoutMs = (flags['deploy-timeout'] ?? DEFAULT_DEPLOY_TIMEOUT_MS / 1000) * 1000;
     const dryRun = flags['dry-run'];
 
-    if (!project.syncRulesContent) {
-      this.styledError({
-        message: `Sync config content not loaded. Ensure sync config is present and valid.`
-      });
-    }
-
     // The existing config is required to deploy changes. The instance should have been created already.
     const cloudConfigState = await this.loadCloudConfigState();
     await this.logTargetInstance({ instanceName: cloudConfigState.name });

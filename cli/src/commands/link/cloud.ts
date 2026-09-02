@@ -32,7 +32,7 @@ export default class LinkCloud extends CloudInstanceCommand {
     }),
     'instance-id': Flags.string({
       default: env.INSTANCE_ID,
-      description: 'PowerSync Cloud instance ID. Omit when using --create. Resolved: flag → INSTANCE_ID → cli.yaml.',
+      description: 'PowerSync Cloud instance ID. Omit when using --create. Resolved: flag → INSTANCE_ID.',
       required: false
     }),
     'org-id': Flags.string({
@@ -53,6 +53,14 @@ export default class LinkCloud extends CloudInstanceCommand {
     let { create, directory, 'instance-id': instanceId, 'org-id': orgId, 'project-id': projectId } = flags;
 
     const projectDirectory = this.resolveProjectDir(flags);
+    ensureServiceTypeMatches({
+      command: this,
+      configRequired: create,
+      directoryLabel: directory,
+      expectedType: ServiceType.CLOUD,
+      projectDir: projectDirectory
+    });
+
     if (create) {
       if (instanceId) {
         this.styledError({
@@ -92,13 +100,6 @@ export default class LinkCloud extends CloudInstanceCommand {
         this.styledError({ error, message: 'Failed to create Cloud instance' });
       }
 
-      ensureServiceTypeMatches({
-        command: this,
-        configRequired: false,
-        directoryLabel: directory,
-        expectedType: ServiceType.CLOUD,
-        projectDir: projectDirectory
-      });
       writeCloudLink(projectDirectory, { instanceId: newInstanceId, orgId: orgId!, projectId: projectId! });
       this.log(
         ux.colorize('green', `Created Cloud instance ${newInstanceId} and updated ${directory}/${CLI_FILENAME}.`)
@@ -129,14 +130,6 @@ export default class LinkCloud extends CloudInstanceCommand {
     if (!linked) {
       this.styledError({ message: `Failed to resolve Cloud instance ${instanceId}.` });
     }
-
-    ensureServiceTypeMatches({
-      command: this,
-      configRequired: false,
-      directoryLabel: directory,
-      expectedType: ServiceType.CLOUD,
-      projectDir: projectDirectory
-    });
 
     writeCloudLink(projectDirectory, {
       instanceId: linked.instance_id,

@@ -151,8 +151,12 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     // If type not set by flags, use link file type (if present).
     let rawCLIConfig: CLIConfig | null = null;
     if (existsSync(linkPath)) {
-      const doc = parseYamlFile(linkPath);
-      rawCLIConfig = CLIConfig.decode(doc.contents?.toJSON());
+      try {
+        rawCLIConfig = CLIConfig.decode(parseYamlFile(linkPath).contents?.toJSON());
+      } catch (error) {
+        this.styledError({ error, message: `Failed to parse ${CLI_FILENAME}` });
+      }
+
       if (rawCLIConfig.type === 'self-hosted') {
         projectType = ServiceType.SELF_HOSTED;
       } else if (rawCLIConfig.type === 'cloud') {
@@ -220,7 +224,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     ensureServiceTypeMatches({
       command: this,
       configRequired: false,
-      directoryLabel: projectDir,
+      directoryLabel: flags.directory,
       expectedType: projectType!,
       projectDir
     });
