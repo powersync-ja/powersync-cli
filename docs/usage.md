@@ -65,7 +65,7 @@ powersync deploy --environment=staging
 POWERSYNC_ENVIRONMENT=staging powersync deploy sync-config # same thing, for CI
 ```
 
-Cloud commands print the target instance name and IDs, plus the selected environment, before making changes. Note that deploy writes the `name` from `service.yaml` to the instance, so instances deployed from one `service.yaml` end up with the same name in the dashboard.
+Older CLI versions ignore `environments` and `POWERSYNC_ENVIRONMENT` and use the top-level fields, so pin the CLI version in CI jobs that rely on them. Cloud commands print the target instance name and IDs, plus the selected environment, before making changes. Note that deploy writes the `name` from `service.yaml` to the instance, so instances deployed from one `service.yaml` end up with the same name in the dashboard.
 
 **Alternate sync config file**
 
