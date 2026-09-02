@@ -23,10 +23,10 @@ export function writeCloudLink(projectDir: string, options: WriteCloudLinkOption
   }
 
   const doc = existsSync(linkPath) ? parseYamlFile(linkPath) : new Document();
-  const path = environment ? ['environments', environment] : [];
+  const basePath = environment ? ['environments', environment] : [];
   doc.set('type', 'cloud');
-  doc.setIn([...path, 'instance_id'], instanceId);
-  doc.setIn([...path, 'org_id'], orgId);
-  doc.setIn([...path, 'project_id'], projectId);
+  doc.setIn([...basePath, 'instance_id'], instanceId);
+  doc.setIn([...basePath, 'org_id'], orgId);
+  doc.setIn([...basePath, 'project_id'], projectId);
   writeFileSync(linkPath, doc.toString(), 'utf8');
 }
