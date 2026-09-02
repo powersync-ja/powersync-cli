@@ -96,6 +96,14 @@ describe('compact', () => {
       writeLinkYaml(projectDir, { instance_id: INSTANCE_ID, org_id: ORG_ID, project_id: PROJECT_ID });
     });
 
+    it('prints the target instance name and IDs before compacting', async () => {
+      managementClientMock.compact.mockResolvedValue({ id: INSTANCE_ID });
+      const result = await runCompactDirect([]);
+
+      expect(result.stdout).toContain('Target instance: test-instance');
+      expect(result.stdout).toContain(`id: ${INSTANCE_ID}`);
+    });
+
     it('calls compact on the management client with linked ids', async () => {
       managementClientMock.compact.mockResolvedValue({ id: INSTANCE_ID });
 

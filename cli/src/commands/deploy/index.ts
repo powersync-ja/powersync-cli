@@ -34,12 +34,14 @@ export default class DeployAll extends WithSyncConfigFilePath(BaseDeployCommand)
     const validationTestsFilter = GENERAL_VALIDATION_FLAG_HELPERS.parseValidationTestFlags(flags);
 
     const cloudConfigState = await this.loadCloudConfigState();
+    await this.logTargetInstance({ instanceName: cloudConfigState.name });
 
     // Parse and store for later
     this.parseLocalConfig(
       project.projectDirectory,
       validationTestsFilter.skipped.includes(ValidationTest.CONFIGURATION)
     );
+    this.warnIfDeployRenamesInstance(cloudConfigState);
 
     // Start of validations
     this.log('Performing validations before deploy...');

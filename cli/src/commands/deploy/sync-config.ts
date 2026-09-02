@@ -89,6 +89,7 @@ export default class DeploySyncConfig extends WithSyncConfigFilePath(BaseDeployC
 
     // The existing config is required to deploy changes. The instance should have been created already.
     const cloudConfigState = await this.loadCloudConfigState();
+    await this.logTargetInstance({ instanceName: cloudConfigState.name });
 
     if (!cloudConfigState.config) {
       this.styledError({

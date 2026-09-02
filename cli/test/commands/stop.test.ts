@@ -140,6 +140,26 @@ describe('stop', () => {
       });
     });
 
+    it('prints the target instance name and IDs before stopping', async () => {
+      const result = await runStopDirect(['--confirm=yes']);
+
+      expect(managementClientMock.getInstance).toHaveBeenCalledWith({ id: INSTANCE_ID });
+      expect(result.stdout).toContain('Target instance: test-instance');
+      expect(result.stdout).toContain(`id: ${INSTANCE_ID}`);
+      expect(result.stdout).toContain(`project: ${PROJECT_ID}`);
+      expect(result.stdout).toContain(`org: ${ORG_ID}`);
+    });
+
+    it('still stops when the instance name cannot be fetched', async () => {
+      managementClientMock.getInstance.mockRejectedValue(new Error('network down'));
+
+      const result = await runStopDirect(['--confirm=yes']);
+
+      expect(result.stdout).toContain('Target instance: (name unavailable)');
+      expect(result.stdout).toContain(`id: ${INSTANCE_ID}`);
+      expect(managementClientMock.deactivateInstance).toHaveBeenCalledTimes(1);
+    });
+
     it('attempts stop and errors with exit 1 when client fails', async () => {
       const result = await runStopDirect(['--confirm=yes']);
       expect(result.error).toBeDefined();
