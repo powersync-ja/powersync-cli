@@ -4,6 +4,11 @@ import { PowerSyncManagementClient } from '@powersync/management-client';
 import type { CloudProject } from '../command-types/CloudInstanceCommand.js';
 import type { SelfHostedProject } from '../command-types/SelfHostedInstanceCommand.js';
 
+/** Labels an instance as "name (id)" when the name is known, otherwise as the id alone. */
+export function formatInstanceLabel(instanceId: string, instanceName?: string): string {
+  return instanceName == null ? instanceId : `${instanceName} (${instanceId})`;
+}
+
 export type LogTargetInstanceParams = {
   client: PowerSyncManagementClient;
   /** Skips the lookup when the Cloud instance name is already known, for example from getInstanceConfig. */

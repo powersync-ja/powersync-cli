@@ -1,5 +1,5 @@
 import { Flags, ux } from '@oclif/core';
-import { CloudInstanceCommand } from '@powersync/cli-core';
+import { CloudInstanceCommand, formatInstanceLabel } from '@powersync/cli-core';
 import ora from 'ora';
 
 import { waitForOperationStatusChange } from '../api/cloud/wait-for-operation.js';
@@ -26,7 +26,7 @@ export default class Compact extends CloudInstanceCommand {
     const { flags } = await this.parse(Compact);
     const { linked } = await this.loadProject(flags);
     const instanceName = await this.logTargetInstance();
-    const instanceLabel = instanceName == null ? linked.instance_id : `${instanceName} (${linked.instance_id})`;
+    const instanceLabel = formatInstanceLabel(linked.instance_id, instanceName);
     const { client } = this;
     const timeoutMs = flags.timeout === 0 ? Number.POSITIVE_INFINITY : flags.timeout * 60 * 1000;
 

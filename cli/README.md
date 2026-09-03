@@ -459,7 +459,7 @@ DESCRIPTION
   Validates connections and sync config before deploying.
   See also powersync deploy sync-config to deploy only sync config changes.
   See also powersync deploy service-config to deploy only service config changes.
-  Use --dry-run to show the target instance and the validation results without deploying.
+  Use --dry-run to show the target instance, the validation results and what would change, without deploying.
 
 EXAMPLES
   $ powersync deploy
@@ -501,8 +501,8 @@ CLOUD_PROJECT FLAGS
 DESCRIPTION
   [Cloud only] Deploy only local service config to the linked Cloud instance.
 
-  Deploy only service config changes (without sync config updates). Use --dry-run to show the target instance and the
-  validation results without deploying.
+  Deploy only service config changes (without sync config updates). Use --dry-run to show the target instance, the
+  validation results and what would change, without deploying.
 
 EXAMPLES
   $ powersync deploy service-config
@@ -544,8 +544,8 @@ CLOUD_PROJECT FLAGS
 DESCRIPTION
   [Cloud only] Deploy only local sync config to the linked Cloud instance.
 
-  Deploy only sync config changes. Use --dry-run to show the target instance and the validation results without
-  deploying.
+  Deploy only sync config changes. Use --dry-run to show the target instance, the validation results and what would
+  change, without deploying.
 
 EXAMPLES
   $ powersync deploy sync-config

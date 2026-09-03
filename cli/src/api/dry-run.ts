@@ -38,7 +38,7 @@ export function changedServiceConfigSections(
 
 /** Unified diff of the deployed sync config against the local one, one colorized entry per line. Empty when identical. */
 export function formatSyncConfigDiff(deployed: string, local: string): string[] {
-  const { hunks } = structuredPatch('deployed', 'local', deployed, local, undefined, undefined, { context: 3 });
+  const { hunks } = structuredPatch('deployed', 'local', deployed, local);
   return hunks.flatMap((hunk) => [
     ux.colorize('cyan', `@@ -${hunk.oldStart},${hunk.oldLines} +${hunk.newStart},${hunk.newLines} @@`),
     ...hunk.lines.map((line) => colorizeDiffLine(line))

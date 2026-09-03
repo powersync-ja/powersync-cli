@@ -122,14 +122,24 @@ export default abstract class BaseDeployCommand extends CloudInstanceCommand {
       });
   }
 
-  /** Ends a --dry-run once the target and validation results are shown: reports what a real run would deploy. */
+  /**
+   * Ends a --dry-run once the target and validation results are shown: reports what a real run would deploy.
+   * Set provisionFirst when the instance is deprovisioned, since a real run would provision it before deploying.
+   */
   protected logDryRun(params: {
     cloudConfigState: routes.InstanceConfigResponse;
+    provisionFirst?: boolean;
     serviceConfig: boolean;
     syncConfig: DryRunSyncConfig;
   }): void {
-    const { cloudConfigState, serviceConfig, syncConfig } = params;
+    const { cloudConfigState, provisionFirst = false, serviceConfig, syncConfig } = params;
     this.log('');
+    if (provisionFirst) {
+      this.log(
+        `The instance is ${ux.colorize('yellow', 'not currently provisioned')}. Deploying would first provision it, then validate and deploy the sync config.`
+      );
+    }
+
     this.log(ux.colorize('yellow', 'Dry run: nothing was deployed.'));
     this.log(
       `\tService config: ${serviceConfig ? this.describeServiceConfigChanges(cloudConfigState) : 'not changed by this command.'}`

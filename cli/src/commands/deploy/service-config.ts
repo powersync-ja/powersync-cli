@@ -12,7 +12,7 @@ const SERVICE_CONFIG_VALIDATION_FLAGS = generateValidationTestFlags({
 
 export default class DeployServiceConfig extends BaseDeployCommand {
   static description =
-    'Deploy only service config changes (without sync config updates). Use --dry-run to show the target instance and the validation results without deploying.';
+    'Deploy only service config changes (without sync config updates). Use --dry-run to show the target instance, the validation results and what would change, without deploying.';
   static examples = [
     '<%= config.bin %> <%= command.id %>',
     '<%= config.bin %> <%= command.id %> --dry-run',
