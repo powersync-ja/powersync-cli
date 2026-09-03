@@ -158,15 +158,15 @@ powersync generate schema --output-path=schema.ts --output=ts
 
 ## Several instances from one directory
 
-Link each instance as a named environment, then pick one per command:
+Link each instance as a named target, then pick one per command:
 
 ```sh
-powersync link cloud --environment=staging --instance-id=<id>
-powersync deploy --environment=staging
-POWERSYNC_ENVIRONMENT=staging powersync deploy sync-config # for scripts and CI
+powersync link cloud --target=staging --instance-id=<id>
+powersync deploy --target=staging
+POWERSYNC_TARGET=staging powersync deploy sync-config # for scripts and CI
 ```
 
-Commands without an environment use the top-level link in `cli.yaml`. See [docs/usage.md](../docs/usage.md#configuring-multiple-instances-eg-dev-staging-production) for the full walkthrough.
+Commands without a target use the top-level link in `cli.yaml`. See [docs/usage.md](../docs/usage.md#configuring-multiple-instances-eg-dev-staging-production) for the full walkthrough.
 
 # Self-hosted
 
@@ -265,7 +265,7 @@ You can supply instance and auth context via environment variables (useful for C
 
 - **`PS_ADMIN_TOKEN`** — PowerSync personal access token for Cloud commands. [Learn more](https://docs.powersync.com/usage/tools/cli#personal-access-token).
 - **`INSTANCE_ID`** — Instance ID (Cloud). Get IDs from the [PowerSync Dashboard](https://dashboard.powersync.com) or **`powersync fetch instances`**.
-- **`POWERSYNC_ENVIRONMENT`** — Name of an environment defined in `cli.yaml` (Cloud). Same as passing `--environment`.
+- **`POWERSYNC_TARGET`** — Name of a target defined in `cli.yaml` (Cloud). Same as passing `--target`.
 - **`API_URL`** — Self-hosted PowerSync API base URL (e.g. `https://powersync.example.com`).
 
 Example (Cloud):
@@ -387,8 +387,7 @@ _See code: [@oclif/plugin-commands](https://github.com/oclif/plugin-commands/blo
 
 ```
 USAGE
-  $ powersync compact [--directory <value>] [--environment <value> | --instance-id <value>] [--timeout
-    <value>]
+  $ powersync compact [--directory <value>] [--target <value> | --instance-id <value>] [--timeout <value>]
 
 FLAGS
   --timeout=<value>  [default: 30] Maximum time to wait for compaction to complete, in minutes. Use 0 to wait
@@ -400,9 +399,8 @@ PROJECT FLAGS
                        directory.
 
 CLOUD_PROJECT FLAGS
-  --environment=<value>  [Cloud] Name of an environment defined in cli.yaml to run against. Resolved: flag →
-                         POWERSYNC_ENVIRONMENT.
   --instance-id=<value>  PowerSync Cloud instance ID. Manually passed if the current context has not been linked.
+  --target=<value>       Name of a target defined in cli.yaml to run against. Resolved: flag → POWERSYNC_TARGET.
 
 DESCRIPTION
   [Cloud only] Compact the linked Cloud instance.
@@ -445,8 +443,8 @@ _See code: [src/commands/configure/ide.ts](https://github.com/powersync-ja/power
 
 ```
 USAGE
-  $ powersync deploy [--deploy-timeout <value>] [--dry-run] [--directory <value>] [--environment <value> | --instance-id
-    <value>] [--sync-config-file-path <value>] [--skip-validations <value> | --validate-only <value>]
+  $ powersync deploy [--deploy-timeout <value>] [--dry-run] [--directory <value>] [--target <value> |
+    --instance-id <value>] [--sync-config-file-path <value>] [--skip-validations <value> | --validate-only <value>]
 
 FLAGS
   --deploy-timeout=<value>    [default: 300] Seconds to wait after scheduling a deploy before timing out while polling
@@ -466,9 +464,8 @@ PROJECT FLAGS
                                    instead of sync-config.yaml in the project directory.
 
 CLOUD_PROJECT FLAGS
-  --environment=<value>  [Cloud] Name of an environment defined in cli.yaml to run against. Resolved: flag →
-                         POWERSYNC_ENVIRONMENT.
   --instance-id=<value>  PowerSync Cloud instance ID. Manually passed if the current context has not been linked.
+  --target=<value>       Name of a target defined in cli.yaml to run against. Resolved: flag → POWERSYNC_TARGET.
 
 DESCRIPTION
   [Cloud only] Deploy local config to the linked Cloud instance (connections + auth + sync config).
@@ -495,8 +492,8 @@ _See code: [src/commands/deploy/index.ts](https://github.com/powersync-ja/powers
 
 ```
 USAGE
-  $ powersync deploy service-config [--deploy-timeout <value>] [--dry-run] [--directory <value>] [--environment <value> | --instance-id
-    <value>] [--skip-validations <value> | --validate-only <value>]
+  $ powersync deploy service-config [--deploy-timeout <value>] [--dry-run] [--directory <value>] [--target <value> |
+    --instance-id <value>] [--skip-validations <value> | --validate-only <value>]
 
 FLAGS
   --deploy-timeout=<value>    [default: 300] Seconds to wait after scheduling a deploy before timing out while polling
@@ -514,9 +511,8 @@ PROJECT FLAGS
                        directory.
 
 CLOUD_PROJECT FLAGS
-  --environment=<value>  [Cloud] Name of an environment defined in cli.yaml to run against. Resolved: flag →
-                         POWERSYNC_ENVIRONMENT.
   --instance-id=<value>  PowerSync Cloud instance ID. Manually passed if the current context has not been linked.
+  --target=<value>       Name of a target defined in cli.yaml to run against. Resolved: flag → POWERSYNC_TARGET.
 
 DESCRIPTION
   [Cloud only] Deploy only local service config to the linked Cloud instance.
@@ -540,8 +536,8 @@ _See code: [src/commands/deploy/service-config.ts](https://github.com/powersync-
 
 ```
 USAGE
-  $ powersync deploy sync-config [--deploy-timeout <value>] [--dry-run] [--directory <value>] [--environment <value> | --instance-id
-    <value>] [--sync-config-file-path <value>] [--skip-validations <value> | ]
+  $ powersync deploy sync-config [--deploy-timeout <value>] [--dry-run] [--directory <value>] [--target <value> |
+    --instance-id <value>] [--sync-config-file-path <value>] [--skip-validations <value> | ]
 
 FLAGS
   --deploy-timeout=<value>    [default: 300] Seconds to wait after scheduling a deploy before timing out while polling
@@ -559,9 +555,8 @@ PROJECT FLAGS
                                    instead of sync-config.yaml in the project directory.
 
 CLOUD_PROJECT FLAGS
-  --environment=<value>  [Cloud] Name of an environment defined in cli.yaml to run against. Resolved: flag →
-                         POWERSYNC_ENVIRONMENT.
   --instance-id=<value>  PowerSync Cloud instance ID. Manually passed if the current context has not been linked.
+  --target=<value>       Name of a target defined in cli.yaml to run against. Resolved: flag → POWERSYNC_TARGET.
 
 DESCRIPTION
   [Cloud only] Deploy only local sync config to the linked Cloud instance.
@@ -585,7 +580,7 @@ _See code: [src/commands/deploy/sync-config.ts](https://github.com/powersync-ja/
 
 ```
 USAGE
-  $ powersync destroy [--directory <value>] [--environment <value> | --instance-id <value>] [--confirm yes]
+  $ powersync destroy [--directory <value>] [--target <value> | --instance-id <value>] [--confirm yes]
 
 FLAGS
   --confirm=<option>  Set to "yes" to confirm destruction of the instance.
@@ -597,9 +592,8 @@ PROJECT FLAGS
                        directory.
 
 CLOUD_PROJECT FLAGS
-  --environment=<value>  [Cloud] Name of an environment defined in cli.yaml to run against. Resolved: flag →
-                         POWERSYNC_ENVIRONMENT.
   --instance-id=<value>  PowerSync Cloud instance ID. Manually passed if the current context has not been linked.
+  --target=<value>       Name of a target defined in cli.yaml to run against. Resolved: flag → POWERSYNC_TARGET.
 
 DESCRIPTION
   [Cloud only] Permanently destroy the linked Cloud instance.
@@ -757,8 +751,8 @@ Open the PowerSync configuration editor (Nitro server).
 
 ```
 USAGE
-  $ powersync edit config [--environment <value> | [--api-url <value> | --instance-id <value> |  | ] | ]
-    [--directory <value>] [--host <value>] [--port <value>]
+  $ powersync edit config [--target <value> | [--api-url <value> | --instance-id <value> |  | ] | ] [--directory
+    <value>] [--host <value>] [--port <value>]
 
 FLAGS
   --host=<value>  [default: 127.0.0.1] Host to bind the editor preview server. Pass 0.0.0.0 to expose on all interfaces.
@@ -774,10 +768,9 @@ PROJECT FLAGS
                        directory.
 
 CLOUD_PROJECT FLAGS
-  --environment=<value>  [Cloud] Name of an environment defined in cli.yaml to run against. Resolved: flag →
-                         POWERSYNC_ENVIRONMENT.
   --instance-id=<value>  [Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud
                          (exclusive with --api-url). Resolved: flag → cli.yaml → INSTANCE_ID.
+  --target=<value>       Name of a target defined in cli.yaml to run against. Resolved: flag → POWERSYNC_TARGET.
 
 DESCRIPTION
   Open the PowerSync configuration editor (Nitro server).
@@ -798,8 +791,7 @@ _See code: [@powersync/cli-plugin-config-edit](https://github.com/powersync-ja/p
 
 ```
 USAGE
-  $ powersync fetch config [--directory <value>] [--environment <value> | --instance-id <value>] [--output
-    json|yaml]
+  $ powersync fetch config [--directory <value>] [--target <value> | --instance-id <value>] [--output json|yaml]
 
 FLAGS
   --output=<option>  [default: yaml] Output format: yaml or json.
@@ -811,9 +803,8 @@ PROJECT FLAGS
                        directory.
 
 CLOUD_PROJECT FLAGS
-  --environment=<value>  [Cloud] Name of an environment defined in cli.yaml to run against. Resolved: flag →
-                         POWERSYNC_ENVIRONMENT.
   --instance-id=<value>  PowerSync Cloud instance ID. Manually passed if the current context has not been linked.
+  --target=<value>       Name of a target defined in cli.yaml to run against. Resolved: flag → POWERSYNC_TARGET.
 
 DESCRIPTION
   [Cloud only] Print linked Cloud instance config (YAML or JSON).
@@ -862,8 +853,8 @@ Show instance diagnostics (connections, sync config, replication).
 
 ```
 USAGE
-  $ powersync fetch status [--environment <value> | [--api-url <value> | --instance-id <value> |  | ] | ]
-    [--directory <value>] [--output human|json|yaml]
+  $ powersync fetch status [--target <value> | [--api-url <value> | --instance-id <value> |  | ] | ] [--directory
+    <value>] [--output human|json|yaml]
 
 FLAGS
   --output=<option>  [default: human] Output format: human-readable, json, or yaml.
@@ -879,10 +870,9 @@ PROJECT FLAGS
                        directory.
 
 CLOUD_PROJECT FLAGS
-  --environment=<value>  [Cloud] Name of an environment defined in cli.yaml to run against. Resolved: flag →
-                         POWERSYNC_ENVIRONMENT.
   --instance-id=<value>  [Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud
                          (exclusive with --api-url). Resolved: flag → cli.yaml → INSTANCE_ID.
+  --target=<value>       Name of a target defined in cli.yaml to run against. Resolved: flag → POWERSYNC_TARGET.
 
 DESCRIPTION
   Show instance diagnostics (connections, sync config, replication).
@@ -907,7 +897,7 @@ Generate client schema file from instance schema and sync config.
 ```
 USAGE
   $ powersync generate schema --output dart|dotNet|dotNetClass|js|jsLegacy|kotlin|swift|ts --output-path <value>
-    [--environment <value> | [--api-url <value> | --instance-id <value> |  | ] | ] [--directory <value>]
+    [--target <value> | [--api-url <value> | --instance-id <value> |  | ] | ] [--directory <value>]
     [--sync-config-file-path <value>]
 
 FLAGS
@@ -928,10 +918,9 @@ PROJECT FLAGS
                                    instead of sync-config.yaml in the project directory.
 
 CLOUD_PROJECT FLAGS
-  --environment=<value>  [Cloud] Name of an environment defined in cli.yaml to run against. Resolved: flag →
-                         POWERSYNC_ENVIRONMENT.
   --instance-id=<value>  [Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud
                          (exclusive with --api-url). Resolved: flag → cli.yaml → INSTANCE_ID.
+  --target=<value>       Name of a target defined in cli.yaml to run against. Resolved: flag → POWERSYNC_TARGET.
 
 DESCRIPTION
   Generate client schema file from instance schema and sync config.
@@ -953,8 +942,8 @@ Generate a development JWT for client connections.
 
 ```
 USAGE
-  $ powersync generate token --subject <value> [--environment <value> | [--api-url <value> | --instance-id <value> |
-    | ] | ] [--directory <value>] [--expires-in-seconds <value>] [--kid <value>]
+  $ powersync generate token --subject <value> [--target <value> | [--api-url <value> | --instance-id <value> |  | ]
+    | ] [--directory <value>] [--expires-in-seconds <value>] [--kid <value>]
 
 FLAGS
   --expires-in-seconds=<value>  [default: 43200] Expiration time in seconds. Default is 43,200 (12 hours).
@@ -972,10 +961,9 @@ PROJECT FLAGS
                        directory.
 
 CLOUD_PROJECT FLAGS
-  --environment=<value>  [Cloud] Name of an environment defined in cli.yaml to run against. Resolved: flag →
-                         POWERSYNC_ENVIRONMENT.
   --instance-id=<value>  [Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud
                          (exclusive with --api-url). Resolved: flag → cli.yaml → INSTANCE_ID.
+  --target=<value>       Name of a target defined in cli.yaml to run against. Resolved: flag → POWERSYNC_TARGET.
 
 DESCRIPTION
   Generate a development JWT for client connections.
@@ -1071,17 +1059,17 @@ _See code: [src/commands/init/self-hosted.ts](https://github.com/powersync-ja/po
 
 ```
 USAGE
-  $ powersync link cloud [--directory <value>] [--environment <value>] [--instance-id <value>] [--org-id
-    <value>] [--project-id <value>] [--create]
+  $ powersync link cloud [--directory <value>] [--instance-id <value>] [--org-id <value>] [--project-id <value>]
+    [--target <value>] [--create]
 
 FLAGS
   --create               Create a new Cloud instance in the given org and project, then link. Do not supply
                          --instance-id when using --create.
-  --environment=<value>  Store the link under environments.<name> in cli.yaml instead of the top-level fields. Select it
-                         later with --environment or POWERSYNC_ENVIRONMENT.
   --instance-id=<value>  PowerSync Cloud instance ID. Omit when using --create. Resolved: flag → INSTANCE_ID.
   --org-id=<value>       Organization ID. Required with --create when the token has multiple orgs.
   --project-id=<value>   Project ID. Required with --create.
+  --target=<value>       Store the link under targets.<name> in cli.yaml instead of the top-level fields. Select it
+                         later with --target or POWERSYNC_TARGET.
 
 PROJECT FLAGS
   --directory=<value>  [default: powersync] Directory containing PowerSync config. Defaults to "powersync". This is
@@ -1092,13 +1080,13 @@ DESCRIPTION
   [Cloud only] Link to a PowerSync Cloud instance (or create one with --create).
 
   Write or update cli.yaml with a Cloud instance. Use --create to create a new instance from service.yaml name/region
-  and link it; omit --instance-id when using --create. Use --environment to store the link as a named environment,
-  selected later with --environment or POWERSYNC_ENVIRONMENT.
+  and link it; omit --instance-id when using --create. Use --target to store the link as a named target, selected later
+  with --target or POWERSYNC_TARGET.
 
 EXAMPLES
   $ powersync link cloud --instance-id=<id>
 
-  $ powersync link cloud --environment=staging --instance-id=<id>
+  $ powersync link cloud --target=staging --instance-id=<id>
 
   $ powersync link cloud --create --project-id=<project-id>
 
@@ -1182,8 +1170,8 @@ Migrates Sync Rules to Sync Streams
 
 ```
 USAGE
-  $ powersync migrate sync-rules [--environment <value> | [--api-url <value> | --instance-id <value> |  | ] | ]
-    [--directory <value>] [--input-file <value>] [--output-file <value>]
+  $ powersync migrate sync-rules [--target <value> | [--api-url <value> | --instance-id <value> |  | ] | ] [--directory
+    <value>] [--input-file <value>] [--output-file <value>]
 
 FLAGS
   --input-file=<value>   Path to the input sync rules file. Defaults to the project sync-config.yaml file.
@@ -1199,10 +1187,9 @@ PROJECT FLAGS
                        directory.
 
 CLOUD_PROJECT FLAGS
-  --environment=<value>  [Cloud] Name of an environment defined in cli.yaml to run against. Resolved: flag →
-                         POWERSYNC_ENVIRONMENT.
   --instance-id=<value>  [Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud
                          (exclusive with --api-url). Resolved: flag → cli.yaml → INSTANCE_ID.
+  --target=<value>       Name of a target defined in cli.yaml to run against. Resolved: flag → POWERSYNC_TARGET.
 
 DESCRIPTION
   Migrates Sync Rules to Sync Streams
@@ -1508,7 +1495,7 @@ _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/
 
 ```
 USAGE
-  $ powersync pull instance [--directory <value>] [--environment <value> | --instance-id <value>] [--overwrite]
+  $ powersync pull instance [--directory <value>] [--target <value> | --instance-id <value>] [--overwrite]
 
 FLAGS
   --overwrite  Overwrite existing service.yaml and sync-config.yaml if they exist. By default, if these files already
@@ -1521,9 +1508,8 @@ PROJECT FLAGS
                        directory.
 
 CLOUD_PROJECT FLAGS
-  --environment=<value>  [Cloud] Name of an environment defined in cli.yaml to run against. Resolved: flag →
-                         POWERSYNC_ENVIRONMENT.
   --instance-id=<value>  PowerSync Cloud instance ID. Manually passed if the current context has not been linked.
+  --target=<value>       Name of a target defined in cli.yaml to run against. Resolved: flag → POWERSYNC_TARGET.
 
 DESCRIPTION
   [Cloud only] Pull an existing Cloud instance: link and download config into local service.yaml and sync-config.yaml.
@@ -1545,8 +1531,8 @@ Show instance diagnostics (connections, sync config, replication).
 
 ```
 USAGE
-  $ powersync status [--environment <value> | [--api-url <value> | --instance-id <value> |  | ] | ]
-    [--directory <value>] [--output human|json|yaml]
+  $ powersync status [--target <value> | [--api-url <value> | --instance-id <value> |  | ] | ] [--directory
+    <value>] [--output human|json|yaml]
 
 FLAGS
   --output=<option>  [default: human] Output format: human-readable, json, or yaml.
@@ -1562,10 +1548,9 @@ PROJECT FLAGS
                        directory.
 
 CLOUD_PROJECT FLAGS
-  --environment=<value>  [Cloud] Name of an environment defined in cli.yaml to run against. Resolved: flag →
-                         POWERSYNC_ENVIRONMENT.
   --instance-id=<value>  [Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud
                          (exclusive with --api-url). Resolved: flag → cli.yaml → INSTANCE_ID.
+  --target=<value>       Name of a target defined in cli.yaml to run against. Resolved: flag → POWERSYNC_TARGET.
 
 DESCRIPTION
   Show instance diagnostics (connections, sync config, replication).
@@ -1589,7 +1574,7 @@ _See code: [src/commands/status.ts](https://github.com/powersync-ja/powersync-cl
 
 ```
 USAGE
-  $ powersync stop [--directory <value>] [--environment <value> | --instance-id <value>] [--confirm yes]
+  $ powersync stop [--directory <value>] [--target <value> | --instance-id <value>] [--confirm yes]
 
 FLAGS
   --confirm=<option>  Set to "yes" to confirm stopping the instance.
@@ -1601,9 +1586,8 @@ PROJECT FLAGS
                        directory.
 
 CLOUD_PROJECT FLAGS
-  --environment=<value>  [Cloud] Name of an environment defined in cli.yaml to run against. Resolved: flag →
-                         POWERSYNC_ENVIRONMENT.
   --instance-id=<value>  PowerSync Cloud instance ID. Manually passed if the current context has not been linked.
+  --target=<value>       Name of a target defined in cli.yaml to run against. Resolved: flag → POWERSYNC_TARGET.
 
 DESCRIPTION
   [Cloud only] Stop the linked Cloud instance (restart with deploy).
@@ -1624,9 +1608,9 @@ Validate config schema, connections, and sync config before deploy.
 
 ```
 USAGE
-  $ powersync validate [--environment <value> | [--api-url <value> | --instance-id <value> |  | ] | ]
-    [--directory <value>] [--sync-config-file-path <value>] [--output human|json|yaml] [--skip-validations <value> |
-    --validate-only <value>]
+  $ powersync validate [--target <value> | [--api-url <value> | --instance-id <value> |  | ] | ] [--directory
+    <value>] [--sync-config-file-path <value>] [--output human|json|yaml] [--skip-validations <value> | --validate-only
+    <value>]
 
 FLAGS
   --output=<option>           [default: human] Output format: human-readable, json, or yaml.
@@ -1648,10 +1632,9 @@ PROJECT FLAGS
                                    instead of sync-config.yaml in the project directory.
 
 CLOUD_PROJECT FLAGS
-  --environment=<value>  [Cloud] Name of an environment defined in cli.yaml to run against. Resolved: flag →
-                         POWERSYNC_ENVIRONMENT.
   --instance-id=<value>  [Cloud] PowerSync Cloud instance ID (BSON ObjectID). When set, context is treated as cloud
                          (exclusive with --api-url). Resolved: flag → cli.yaml → INSTANCE_ID.
+  --target=<value>       Name of a target defined in cli.yaml to run against. Resolved: flag → POWERSYNC_TARGET.
 
 DESCRIPTION
   Validate config schema, connections, and sync config before deploy.

@@ -1,19 +1,19 @@
 import * as t from 'ts-codec';
 
-export const CloudEnvironmentConfig = t.object({
+export const CloudTargetConfig = t.object({
   instance_id: t.string,
   org_id: t.string.optional(),
   project_id: t.string.optional()
 });
 
-export type CloudEnvironmentConfig = t.Encoded<typeof CloudEnvironmentConfig>;
+export type CloudTargetConfig = t.Encoded<typeof CloudTargetConfig>;
 
 export const CloudCLIConfig = t.object({
-  /** Named targets selected with --environment or POWERSYNC_ENVIRONMENT. The top-level fields stay the default target. */
-  environments: t.record(CloudEnvironmentConfig).optional(),
   instance_id: t.string.optional(),
   org_id: t.string.optional(),
   project_id: t.string.optional(),
+  /** Named targets selected with --target or POWERSYNC_TARGET. The top-level fields stay the default. */
+  targets: t.record(CloudTargetConfig).optional(),
   type: t.literal('cloud')
 });
 

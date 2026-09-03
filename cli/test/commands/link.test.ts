@@ -151,9 +151,9 @@ describe('link', () => {
       expect(linkYaml.project_id).toBe(PROJECT_ID);
     });
 
-    it('creates cli.yaml with only a named environment when --environment is used in a new directory', async () => {
+    it('creates cli.yaml with only a named target when --target is used in a new directory', async () => {
       const { error } = await runLinkCloudDirect([
-        '--environment=staging',
+        '--target=staging',
         `--instance-id=${INSTANCE_ID}`,
         `--org-id=${ORG_ID}`,
         `--project-id=${PROJECT_ID}`
@@ -161,12 +161,12 @@ describe('link', () => {
       expect(error).toBeUndefined();
       const linkYaml = parseYaml(readFileSync(join(tmpDir, PROJECT_DIR, CLI_FILENAME), 'utf8'));
       expect(linkYaml).toEqual({
-        environments: { staging: { instance_id: INSTANCE_ID, org_id: ORG_ID, project_id: PROJECT_ID } },
+        targets: { staging: { instance_id: INSTANCE_ID, org_id: ORG_ID, project_id: PROJECT_ID } },
         type: 'cloud'
       });
     });
 
-    it('stores the link under a named environment with --environment', async () => {
+    it('stores the link under a named target with --target', async () => {
       const projectDir = join(tmpDir, PROJECT_DIR);
       mkdirSync(projectDir, { recursive: true });
       writeServiceYaml(projectDir, 'cloud');
@@ -179,18 +179,16 @@ describe('link', () => {
       const stagingInstanceId = '690cf75c96a2ff4fd98b160b';
 
       const { error, stdout } = await runLinkCloudDirect([
-        '--environment=staging',
+        '--target=staging',
         `--instance-id=${stagingInstanceId}`,
         `--org-id=${ORG_ID}`,
         `--project-id=${PROJECT_ID}`
       ]);
       expect(error).toBeUndefined();
-      expect(stdout).toContain(
-        `Updated ${PROJECT_DIR}/${CLI_FILENAME} with Cloud instance link (environment "staging").`
-      );
+      expect(stdout).toContain(`Updated ${PROJECT_DIR}/${CLI_FILENAME} with Cloud instance link (target "staging").`);
       const linkYaml = parseYaml(readFileSync(linkPath, 'utf8'));
       expect(linkYaml.instance_id).toBe(INSTANCE_ID);
-      expect(linkYaml.environments).toEqual({
+      expect(linkYaml.targets).toEqual({
         staging: { instance_id: stagingInstanceId, org_id: ORG_ID, project_id: PROJECT_ID }
       });
     });
@@ -218,6 +216,31 @@ describe('link', () => {
       expect(linkYaml.instance_id).toBe(INSTANCE_ID);
       expect(linkYaml.org_id).toBe(ORG_ID);
       expect(linkYaml.project_id).toBe(PROJECT_ID);
+    });
+
+    it('creates a cloud instance and stores the link under a named target with --create --target', async () => {
+      const projectDir = join(tmpDir, PROJECT_DIR);
+      mkdirSync(projectDir, { recursive: true });
+      writeValidCloudServiceYaml(projectDir);
+      managementClientMock.listRegions.mockResolvedValueOnce({ regions: [{ name: 'us' }] });
+      managementClientMock.createInstance.mockResolvedValueOnce({ id: INSTANCE_ID });
+
+      const { error, stdout } = await runLinkCloudDirect([
+        '--create',
+        '--target=staging',
+        `--org-id=${ORG_ID}`,
+        `--project-id=${PROJECT_ID}`
+      ]);
+
+      expect(error).toBeUndefined();
+      expect(stdout).toContain(
+        `Created Cloud instance ${INSTANCE_ID} and updated ${PROJECT_DIR}/${CLI_FILENAME} (target "staging").`
+      );
+      const linkYaml = parseYaml(readFileSync(join(tmpDir, PROJECT_DIR, CLI_FILENAME), 'utf8'));
+      expect(linkYaml).toEqual({
+        targets: { staging: { instance_id: INSTANCE_ID, org_id: ORG_ID, project_id: PROJECT_ID } },
+        type: 'cloud'
+      });
     });
 
     it('updates existing cli.yaml and preserves comments', async () => {
