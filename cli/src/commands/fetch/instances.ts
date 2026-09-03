@@ -210,8 +210,16 @@ export default class FetchInstances extends Command {
         this.log(`Locally linked in ./${linked.subDirectory}/`);
         this.log(`\t${ux.colorize('blue', 'Project type: ')} ${linked.config.type}`);
         if (linked.config.type === 'cloud') {
-          this.log(`\t${ux.colorize('blue', 'Project ID: ')} ${linked.config.project_id}`);
-          this.log(`\t${ux.colorize('blue', 'Instance ID: ')} ${linked.config.instance_id}`);
+          if (linked.config.instance_id) {
+            this.log(`\t${ux.colorize('blue', 'Project ID: ')} ${linked.config.project_id}`);
+            this.log(`\t${ux.colorize('blue', 'Instance ID: ')} ${linked.config.instance_id}`);
+          }
+
+          for (const [name, target] of Object.entries(linked.config.targets ?? {})) {
+            this.log(
+              `\t${ux.colorize('blue', `Target ${name}: `)} ${ux.colorize('gray', `instance_id: ${target.instance_id}`)}`
+            );
+          }
         } else if (linked.config.type === 'self-hosted') {
           this.log(`\t${ux.colorize('blue', 'API URL: ')} ${linked.config.api_url}`);
         }

@@ -42,7 +42,9 @@ export async function logTargetInstance(params: LogTargetInstanceParams): Promis
 
   const nameLabel =
     instanceName == null ? ux.colorize('yellow', '(name unavailable)') : ux.colorize('blue', instanceName);
-  command.log(`Target instance: ${nameLabel} ${ux.colorize('gray', `id: ${linked.instance_id}`)}`);
+  const target = 'target' in project ? project.target : undefined;
+  const targetLabel = target ? ` ${ux.colorize('gray', `target: ${target}`)}` : '';
+  command.log(`Target instance: ${nameLabel} ${ux.colorize('gray', `id: ${linked.instance_id}`)}${targetLabel}`);
   command.log(
     `\t${ux.colorize('gray', `project: ${linked.project_id}`)} ${ux.colorize('gray', `org: ${linked.org_id}`)}`
   );

@@ -17,6 +17,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { createCloudClient } from '../clients/create-cloud-client.js';
+import { createTargetFlag } from '../utils/create-target-flag.js';
 import { ensureServiceTypeMatches, ServiceType } from '../utils/ensure-service-type.js';
 import { env } from '../utils/env.js';
 import { LINK_MISSING_ERROR_MESSAGE } from '../utils/errors.js';
@@ -24,6 +25,7 @@ import { logTargetInstance } from '../utils/log-target-instance.js';
 import { CLI_FILENAME, SERVICE_FILENAME } from '../utils/project-config.js';
 import { resolveCloudInstanceLink } from '../utils/resolve-cloud-instance-link.js';
 import { resolveSyncRulesContent } from '../utils/resolve-sync-rules-content.js';
+import { CloudLink, selectCloudLink, suggestTargets } from '../utils/select-cloud-link.js';
 import { parseYamlFile } from '../utils/yaml.js';
 import { CloudProject } from './CloudInstanceCommand.js';
 import { CommandHelpGroup, HelpGroup } from './HelpGroup.js';
@@ -45,7 +47,7 @@ export type SharedInstanceCommandFlags = Interfaces.InferredFlags<
  *    - Then from environment variables.
  *
  * 2. **Per-field values** (instance_id, org_id, project_id for cloud; api_url, api_key for self-hosted):
- *    - Cloud: flags → cli.yaml → env.
+ *    - Cloud: flags → cli.yaml (target selected with --target or POWERSYNC_TARGET, then top-level fields) → env.
  *    - Self-hosted: api_url from flag → cli.yaml → env; api_key from env → cli.yaml only (no flag).
  *
  * @example
@@ -92,6 +94,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
       hidden: true,
       required: false
     }),
+    target: createTargetFlag({ exclusive: ['api-url', 'instance-id'] }),
     ...InstanceCommand.baseFlags
   };
   static commandHelpGroup = CommandHelpGroup.INSTANCE;
@@ -135,7 +138,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     const linkPath = join(projectDir, CLI_FILENAME);
 
     // 1) Context type: flags first, then link file, then env (see class JSDoc for resolution order).
-    const hasCloudFlagInputs = flags['instance-id'];
+    const hasCloudFlagInputs = flags['instance-id'] ?? flags.target;
     const hasSelfHostedFlagInputs = flags['api-url'];
 
     if (hasCloudFlagInputs && hasSelfHostedFlagInputs) {
@@ -151,18 +154,18 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     // If type not set by flags, use link file type (if present).
     let rawCLIConfig: CLIConfig | null = null;
     if (existsSync(linkPath)) {
-      const doc = parseYamlFile(linkPath);
-      rawCLIConfig = CLIConfig.decode(doc.contents?.toJSON());
-      if (rawCLIConfig.type === 'self-hosted') {
-        projectType = ServiceType.SELF_HOSTED;
-      } else if (rawCLIConfig.type === 'cloud') {
-        projectType = ServiceType.CLOUD;
+      try {
+        rawCLIConfig = CLIConfig.decode(parseYamlFile(linkPath).contents?.toJSON());
+      } catch (error) {
+        this.styledError({ error, message: `Failed to parse ${CLI_FILENAME}` });
       }
+
+      projectType ??= rawCLIConfig.type === 'self-hosted' ? ServiceType.SELF_HOSTED : ServiceType.CLOUD;
     }
 
     // If type still not set, use env inputs.
     if (!projectType) {
-      const hasCloudEnvInputs = env.INSTANCE_ID;
+      const hasCloudEnvInputs = env.INSTANCE_ID ?? env.POWERSYNC_TARGET;
       const hasSelfHostedEnvInputs = env.API_URL;
 
       if (hasCloudEnvInputs && hasSelfHostedEnvInputs) {
@@ -179,6 +182,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
 
     // 2) Per-field: flags → link file → env (see class JSDoc).
     let cliConfig: null | ResolvedCloudCLIConfig | ResolvedSelfHostedCLIConfig = null;
+    let link: CloudLink | undefined;
     if (projectType === 'self-hosted') {
       const _rawSelfHostedCLIConfig = (rawCLIConfig as SelfHostedCLIConfig) ?? { type: 'self-hosted' };
       try {
@@ -191,10 +195,18 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
         this.styledError({ error, message: LINK_MISSING_ERROR_MESSAGE });
       }
     } else {
-      const _rawCloudCLIConfig = (rawCLIConfig as CloudCLIConfig) ?? { type: 'cloud' };
-      const instanceId = flags['instance-id'] ?? _rawCloudCLIConfig.instance_id ?? env.INSTANCE_ID;
+      // --instance-id points at one instance directly, so a selected target does not apply.
+      const target = flags['instance-id'] ? undefined : (flags.target ?? env.POWERSYNC_TARGET);
+      const rawCloudCLIConfig = rawCLIConfig as CloudCLIConfig | null;
+      try {
+        link = selectCloudLink(rawCloudCLIConfig, target);
+      } catch (error) {
+        this.styledError({ message: error instanceof Error ? error.message : String(error) });
+      }
+
+      const instanceId = flags['instance-id'] ?? link.instance_id ?? env.INSTANCE_ID;
       if (!instanceId) {
-        this.styledError({ message: LINK_MISSING_ERROR_MESSAGE });
+        this.styledError({ message: LINK_MISSING_ERROR_MESSAGE, suggestions: suggestTargets(rawCloudCLIConfig) });
       }
 
       try {
@@ -203,8 +215,8 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
             client: this.cloudClient,
             instanceId,
             // orgId and projectId can either be set via cli.yaml or resolved via instanceId
-            orgId: _rawCloudCLIConfig.org_id,
-            projectId: _rawCloudCLIConfig.project_id
+            orgId: link.org_id,
+            projectId: link.project_id
           })
         );
       } catch (error) {
@@ -220,7 +232,7 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
     ensureServiceTypeMatches({
       command: this,
       configRequired: false,
-      directoryLabel: projectDir,
+      directoryLabel: flags.directory,
       expectedType: projectType!,
       projectDir
     });
@@ -237,7 +249,8 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
       return this._loadProjectHook(flags, {
         linked: cliConfig as ResolvedCloudCLIConfig,
         projectDirectory: projectDir,
-        syncRulesContent
+        syncRulesContent,
+        target: link?.target
       });
     }
 

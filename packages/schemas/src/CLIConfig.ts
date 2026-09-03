@@ -1,9 +1,19 @@
 import * as t from 'ts-codec';
 
+export const CloudTargetConfig = t.object({
+  instance_id: t.string,
+  org_id: t.string.optional(),
+  project_id: t.string.optional()
+});
+
+export type CloudTargetConfig = t.Encoded<typeof CloudTargetConfig>;
+
 export const CloudCLIConfig = t.object({
   instance_id: t.string.optional(),
   org_id: t.string.optional(),
   project_id: t.string.optional(),
+  /** Named targets selected with --target or POWERSYNC_TARGET. The top-level fields stay the default. */
+  targets: t.record(CloudTargetConfig).optional(),
   type: t.literal('cloud')
 });
 

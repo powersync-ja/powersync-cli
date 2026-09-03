@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { PowerSyncCommand } from '../command-types/PowerSyncCommand.js';
-import { SERVICE_FILENAME } from './project-config.js';
+import { CLI_FILENAME, SERVICE_FILENAME } from './project-config.js';
 import { parseYamlFile } from './yaml.js';
 
 export enum ServiceType {
@@ -28,8 +28,16 @@ export function ensureServiceTypeMatches(options: EnsureServiceTypeMatchesOption
 
   if (!existsSync(servicePath)) {
     if (configRequired) {
+      // A linked Cloud directory without config usually just needs its config pulled.
+      const linkedCloud = expectedType === ServiceType.CLOUD && existsSync(join(projectDir, CLI_FILENAME));
       command.styledError({
-        message: `${SERVICE_FILENAME} in "./${directoryLabel}/" is missing. Ensure it exists and has \`_type: ${expectedType}\`. Use ${ux.colorize('blue', `powersync init ${expectedType}`)} to create a project of the correct type.`
+        message: `${SERVICE_FILENAME} in "./${directoryLabel}/" is missing. Ensure it exists and has \`_type: ${expectedType}\`.`,
+        suggestions: [
+          ...(linkedCloud
+            ? [`Run ${ux.colorize('blue', 'powersync pull instance')} to download the linked instance's config.`]
+            : []),
+          `Use ${ux.colorize('blue', `powersync init ${expectedType}`)} to create a project of the correct type.`
+        ]
       });
     }
 
