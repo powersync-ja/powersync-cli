@@ -6,7 +6,7 @@ import { DiagnosticsResponse, formatDiagnosticsHuman } from '../../api/display-s
 
 export default class FetchStatus extends SharedInstanceCommand {
   static description =
-    'Fetch instance diagnostics: connection status, active and deploying sync config, replication state. Output as human-readable, JSON, or YAML. Cloud and self-hosted.';
+    'Fetch instance diagnostics: connection status, active and deploying sync config, replication state. Output as human-readable, JSON, or YAML. Human output starts with the target instance. Cloud and self-hosted.';
   static examples = [
     '<%= config.bin %> <%= command.id %>',
     '<%= config.bin %> <%= command.id %> --output=json',
@@ -45,6 +45,10 @@ export default class FetchStatus extends SharedInstanceCommand {
     const { flags } = await this.parse(FetchStatus);
 
     const project = await this.loadProject(flags);
+    if (flags.output === 'human') {
+      await this.logTargetInstance(project);
+      this.log('');
+    }
 
     try {
       const diagnostics = await (project.linked.type === 'cloud'

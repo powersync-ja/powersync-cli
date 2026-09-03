@@ -13,6 +13,7 @@ import { createCloudClient } from '../clients/create-cloud-client.js';
 import { ensureServiceTypeMatches, ServiceType } from '../utils/ensure-service-type.js';
 import { env } from '../utils/env.js';
 import { LINK_MISSING_ERROR_MESSAGE } from '../utils/errors.js';
+import { logTargetInstance } from '../utils/log-target-instance.js';
 import { OBJECT_ID_REGEX } from '../utils/object-id.js';
 import { CLI_FILENAME, SERVICE_FILENAME } from '../utils/project-config.js';
 import { resolveCloudInstanceLink } from '../utils/resolve-cloud-instance-link.js';
@@ -210,35 +211,18 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
   }
 
   /**
-   * Prints which Cloud instance the command is about to act on, including its name, so users can confirm
-   * they are targeting the correct instance before anything happens.
-   *
-   * Call this after loadProject(). The instance name is fetched from the Management API unless it is
-   * already known (for example from a previous getInstanceConfig call). If the name cannot be fetched,
-   * the IDs are still printed and the command continues; a later API call will surface any real error.
+   * Prints which Cloud instance the command is about to act on. Call this after loadProject().
+   * See {@link logTargetInstance} for details.
    *
    * @returns The instance name, or undefined if it could not be resolved.
    */
   async logTargetInstance(options: { instanceName?: string } = {}): Promise<string | undefined> {
-    const { linked } = this.project;
-
-    let { instanceName } = options;
-    if (instanceName == null) {
-      try {
-        ({ name: instanceName } = await this.client.getInstance({ id: linked.instance_id }));
-      } catch {
-        // Fall through, IDs are still printed below.
-      }
-    }
-
-    const nameLabel =
-      instanceName == null ? ux.colorize('yellow', '(name unavailable)') : ux.colorize('blue', instanceName);
-    this.log(`Target instance: ${nameLabel} ${ux.colorize('gray', `id: ${linked.instance_id}`)}`);
-    this.log(
-      `\t${ux.colorize('gray', `project: ${linked.project_id}`)} ${ux.colorize('gray', `org: ${linked.org_id}`)}`
-    );
-
-    return instanceName;
+    return logTargetInstance({
+      client: this.client,
+      instanceName: options.instanceName,
+      log: (message) => this.log(message),
+      project: this.project
+    });
   }
 
   parseLocalConfig(projectDirectory: string): ServiceCloudConfigDecoded {

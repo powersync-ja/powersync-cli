@@ -41,6 +41,7 @@ export const managementClientMock = {
   destroyInstance: vi.fn(),
   getInstance: vi.fn(),
   getInstanceConfig: vi.fn(),
+  getInstanceDiagnostics: vi.fn(),
   getInstanceStatus: vi.fn(),
   listRegions: vi.fn(),
   testConnection: vi.fn(),

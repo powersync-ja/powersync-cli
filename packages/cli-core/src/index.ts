@@ -21,6 +21,7 @@ export * from './services/storage/StorageImp.js';
 export * from './services/storage/StorageService.js';
 export * from './utils/ensure-service-type.js';
 export * from './utils/env.js';
+export * from './utils/log-target-instance.js';
 export * from './utils/object-id.js';
 export * from './utils/project-config.js';
 export * from './utils/resolve-cloud-instance-link.js';
