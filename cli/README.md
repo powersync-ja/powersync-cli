@@ -99,7 +99,7 @@ powersync link cloud --create --project-id=<project-id>   # add --org-id if toke
 powersync deploy
 ```
 
-Use `--directory` for a different config folder. The **powersync init cloud** command has a `--vscode` flag to configure your workspace for YAML custom tag support.
+Use `--directory` for a different config folder. Add `--dry-run` to a deploy command to print the target instance, run the validations and see what would change, without deploying. The **powersync init cloud** command has a `--vscode` flag to configure your workspace for YAML custom tag support.
 
 ## Cloud secrets format (`service.yaml`)
 
@@ -429,12 +429,14 @@ _See code: [src/commands/configure/ide.ts](https://github.com/powersync-ja/power
 
 ```
 USAGE
-  $ powersync deploy [--deploy-timeout <value>] [--directory <value>] [--instance-id <value>]
+  $ powersync deploy [--deploy-timeout <value>] [--dry-run] [--directory <value>] [--instance-id <value>]
     [--sync-config-file-path <value>] [--skip-validations <value> | --validate-only <value>]
 
 FLAGS
   --deploy-timeout=<value>    [default: 300] Seconds to wait after scheduling a deploy before timing out while polling
                               status (default 300 seconds).
+  --dry-run                   Show the target instance, run the validations and print what would change, then exit
+                              without deploying.
   --skip-validations=<value>  Comma-separated list of validation tests to skip. Options: configuration, connections,
                               sync-config. Example: --skip-validations="configuration"
   --validate-only=<value>     Comma-separated list of validation tests to run, skipping all others. Options:
@@ -457,9 +459,12 @@ DESCRIPTION
   Validates connections and sync config before deploying.
   See also powersync deploy sync-config to deploy only sync config changes.
   See also powersync deploy service-config to deploy only service config changes.
+  Use --dry-run to show the target instance and the validation results without deploying.
 
 EXAMPLES
   $ powersync deploy
+
+  $ powersync deploy --dry-run
 
   $ powersync deploy --instance-id=<id>
 ```
@@ -472,12 +477,14 @@ _See code: [src/commands/deploy/index.ts](https://github.com/powersync-ja/powers
 
 ```
 USAGE
-  $ powersync deploy service-config [--deploy-timeout <value>] [--directory <value>] [--instance-id <value>]
+  $ powersync deploy service-config [--deploy-timeout <value>] [--dry-run] [--directory <value>] [--instance-id <value>]
     [--skip-validations <value> | --validate-only <value>]
 
 FLAGS
   --deploy-timeout=<value>    [default: 300] Seconds to wait after scheduling a deploy before timing out while polling
                               status (default 300 seconds).
+  --dry-run                   Show the target instance, run the validations and print what would change, then exit
+                              without deploying.
   --skip-validations=<value>  Comma-separated list of validation tests to skip. Options: configuration, connections.
                               Example: --skip-validations="configuration"
   --validate-only=<value>     Comma-separated list of validation tests to run, skipping all others. Options:
@@ -494,10 +501,13 @@ CLOUD_PROJECT FLAGS
 DESCRIPTION
   [Cloud only] Deploy only local service config to the linked Cloud instance.
 
-  Deploy only service config changes (without sync config updates).
+  Deploy only service config changes (without sync config updates). Use --dry-run to show the target instance and the
+  validation results without deploying.
 
 EXAMPLES
   $ powersync deploy service-config
+
+  $ powersync deploy service-config --dry-run
 
   $ powersync deploy service-config --instance-id=<id>
 ```
@@ -510,12 +520,14 @@ _See code: [src/commands/deploy/service-config.ts](https://github.com/powersync-
 
 ```
 USAGE
-  $ powersync deploy sync-config [--deploy-timeout <value>] [--directory <value>] [--instance-id <value>]
+  $ powersync deploy sync-config [--deploy-timeout <value>] [--dry-run] [--directory <value>] [--instance-id <value>]
     [--sync-config-file-path <value>] [--skip-validations <value> | ]
 
 FLAGS
   --deploy-timeout=<value>    [default: 300] Seconds to wait after scheduling a deploy before timing out while polling
                               status (default 300 seconds).
+  --dry-run                   Show the target instance, run the validations and print what would change, then exit
+                              without deploying.
   --skip-validations=<value>  Comma-separated list of validation tests to skip. Options: sync-config. Example:
                               --skip-validations="sync-config"
 
@@ -532,10 +544,13 @@ CLOUD_PROJECT FLAGS
 DESCRIPTION
   [Cloud only] Deploy only local sync config to the linked Cloud instance.
 
-  Deploy only sync config changes.
+  Deploy only sync config changes. Use --dry-run to show the target instance and the validation results without
+  deploying.
 
 EXAMPLES
   $ powersync deploy sync-config
+
+  $ powersync deploy sync-config --dry-run
 
   $ powersync deploy sync-config --instance-id=<id>
 ```

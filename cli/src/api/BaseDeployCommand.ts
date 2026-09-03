@@ -9,7 +9,16 @@ import { routes } from '@powersync/management-types';
 import ora from 'ora';
 
 import { DEFAULT_DEPLOY_TIMEOUT_MS, waitForOperationStatusChange } from './cloud/wait-for-operation.js';
+import { changedServiceConfigSections, formatSyncConfigDiff } from './dry-run.js';
 import { parseLocalCloudServiceConfig } from './parse-local-cloud-service-config.js';
+
+const DRY_RUN_SYNC_CONFIG_LABELS = {
+  changed: 'would deploy the local sync config. Diff against the deployed sync config:',
+  skipped: 'not changed by this command.',
+  unchanged: 'matches the deployed sync config, nothing to update.'
+};
+
+export type DryRunSyncConfig = keyof typeof DRY_RUN_SYNC_CONFIG_LABELS;
 
 export default abstract class BaseDeployCommand extends CloudInstanceCommand {
   static baseFlags = {
@@ -25,6 +34,11 @@ export default abstract class BaseDeployCommand extends CloudInstanceCommand {
 
         return value;
       }
+    }),
+    'dry-run': Flags.boolean({
+      default: false,
+      description:
+        'Show the target instance, run the validations and print what would change, then exit without deploying.'
     }),
     ...CloudInstanceCommand.baseFlags
   };
@@ -75,6 +89,22 @@ export default abstract class BaseDeployCommand extends CloudInstanceCommand {
     });
   }
 
+  protected describeServiceConfigChanges(cloudConfigState: routes.InstanceConfigResponse): string {
+    const summary = `would deploy ${SERVICE_FILENAME}.`;
+    if (!cloudConfigState.config) {
+      return `${summary} No config is deployed yet.`;
+    }
+
+    const sections = changedServiceConfigSections(this.serviceConfig!, cloudConfigState);
+    if (!sections) {
+      return `${summary} Could not compare with the deployed config.`;
+    }
+
+    return sections.length > 0
+      ? `${summary} Changes in: ${sections.join(', ')}.`
+      : `${summary} No changes compared to the deployed config.`;
+  }
+
   protected async loadCloudConfigState(): Promise<routes.InstanceConfigResponse> {
     const { client, project } = this;
     const { linked } = project;
@@ -90,6 +120,26 @@ export default abstract class BaseDeployCommand extends CloudInstanceCommand {
           message: `Failed to get existing config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}. Ensure the instance has been created before deploying.`
         });
       });
+  }
+
+  /** Ends a --dry-run once the target and validation results are shown: reports what a real run would deploy. */
+  protected logDryRun(params: {
+    cloudConfigState: routes.InstanceConfigResponse;
+    serviceConfig: boolean;
+    syncConfig: DryRunSyncConfig;
+  }): void {
+    const { cloudConfigState, serviceConfig, syncConfig } = params;
+    this.log('');
+    this.log(ux.colorize('yellow', 'Dry run: nothing was deployed.'));
+    this.log(
+      `\tService config: ${serviceConfig ? this.describeServiceConfigChanges(cloudConfigState) : 'not changed by this command.'}`
+    );
+    this.log(`\tSync config: ${DRY_RUN_SYNC_CONFIG_LABELS[syncConfig]}`);
+    if (syncConfig === 'changed') {
+      for (const line of formatSyncConfigDiff(cloudConfigState.sync_rules ?? '', this.project.syncRulesContent ?? '')) {
+        this.log(`\t\t${line}`);
+      }
+    }
   }
 
   override parseLocalConfig(projectDirectory: string, useRawConfig?: boolean): ServiceCloudConfigDecoded {

@@ -14,9 +14,14 @@ export default class DeployAll extends WithSyncConfigFilePath(BaseDeployCommand)
     'Deploy local config (service.yaml, sync config) to the linked PowerSync Cloud instance.',
     'Validates connections and sync config before deploying.',
     `See also ${ux.colorize('blue', 'powersync deploy sync-config')} to deploy only sync config changes.`,
-    `See also ${ux.colorize('blue', 'powersync deploy service-config')} to deploy only service config changes.`
+    `See also ${ux.colorize('blue', 'powersync deploy service-config')} to deploy only service config changes.`,
+    'Use --dry-run to show the target instance and the validation results without deploying.'
   ].join('\n');
-  static examples = ['<%= config.bin %> <%= command.id %>', '<%= config.bin %> <%= command.id %> --instance-id=<id>'];
+  static examples = [
+    '<%= config.bin %> <%= command.id %>',
+    '<%= config.bin %> <%= command.id %> --dry-run',
+    '<%= config.bin %> <%= command.id %> --instance-id=<id>'
+  ];
   static flags = {
     ...GENERAL_VALIDATION_FLAG_HELPERS.flags
   };
@@ -30,6 +35,7 @@ export default class DeployAll extends WithSyncConfigFilePath(BaseDeployCommand)
     });
 
     const deployTimeoutMs = (flags['deploy-timeout'] ?? DEFAULT_DEPLOY_TIMEOUT_MS / 1000) * 1000;
+    const dryRun = flags['dry-run'];
 
     const validationTestsFilter = GENERAL_VALIDATION_FLAG_HELPERS.parseValidationTestFlags(flags);
 
@@ -62,6 +68,11 @@ export default class DeployAll extends WithSyncConfigFilePath(BaseDeployCommand)
 
     const requiresReprovision = instanceStatus.provisioned === false;
     const syncConfigHasChanges = project.syncRulesContent !== cloudConfigState.sync_rules;
+    const dryRunSummary = {
+      cloudConfigState,
+      serviceConfig: true,
+      syncConfig: syncConfigHasChanges ? 'changed' : 'unchanged'
+    } as const;
 
     let didReprovision = false;
 
@@ -90,6 +101,14 @@ export default class DeployAll extends WithSyncConfigFilePath(BaseDeployCommand)
             'The instance is currently deprovisioned. We need to reprovision the instance to validate the sync config, but there are other validation errors that need to be fixed first.',
           suggestions: ['Review the validation test results above, fix any issues, and run deploy again.']
         });
+      }
+
+      if (dryRun) {
+        this.log(
+          `The instance is ${ux.colorize('yellow', 'not currently provisioned')}. Deploying would first provision it, then validate and deploy the sync config.`
+        );
+        this.logDryRun(dryRunSummary);
+        return;
       }
 
       /**
@@ -139,6 +158,11 @@ export default class DeployAll extends WithSyncConfigFilePath(BaseDeployCommand)
         message: 'Validation tests failed. Fix the issues and try deploying again.',
         suggestions: ['Review the validation test results above, fix any issues, and run deploy again.']
       });
+    }
+
+    if (dryRun) {
+      this.logDryRun(dryRunSummary);
+      return;
     }
 
     await this.deployAll({ cloudConfigState, deployTimeoutMs, updateSyncConfig: syncConfigHasChanges });

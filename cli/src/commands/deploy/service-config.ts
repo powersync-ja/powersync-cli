@@ -11,8 +11,13 @@ const SERVICE_CONFIG_VALIDATION_FLAGS = generateValidationTestFlags({
 });
 
 export default class DeployServiceConfig extends BaseDeployCommand {
-  static description = 'Deploy only service config changes (without sync config updates).';
-  static examples = ['<%= config.bin %> <%= command.id %>', '<%= config.bin %> <%= command.id %> --instance-id=<id>'];
+  static description =
+    'Deploy only service config changes (without sync config updates). Use --dry-run to show the target instance and the validation results without deploying.';
+  static examples = [
+    '<%= config.bin %> <%= command.id %>',
+    '<%= config.bin %> <%= command.id %> --dry-run',
+    '<%= config.bin %> <%= command.id %> --instance-id=<id>'
+  ];
   static flags = {
     ...SERVICE_CONFIG_VALIDATION_FLAGS.flags
   };
@@ -55,6 +60,11 @@ export default class DeployServiceConfig extends BaseDeployCommand {
         message: 'Validation tests failed. Fix the issues and try deploying again.',
         suggestions: ['Review the validation test results above, fix any issues, and run deploy again.']
       });
+    }
+
+    if (flags['dry-run']) {
+      this.logDryRun({ cloudConfigState, serviceConfig: true, syncConfig: 'skipped' });
+      return;
     }
 
     await this.deployAll({ cloudConfigState, deployTimeoutMs, updateSyncConfig: false });

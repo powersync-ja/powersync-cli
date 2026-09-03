@@ -122,6 +122,9 @@ importers:
       bson:
         specifier: ^7.2.0
         version: 7.2.0
+      diff:
+        specifier: ^8.0.4
+        version: 8.0.4
       fastify:
         specifier: ^5.8.5
         version: 5.8.5
