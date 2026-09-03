@@ -857,7 +857,7 @@ DESCRIPTION
   Show instance diagnostics (connections, sync config, replication).
 
   Fetch instance diagnostics: connection status, active and deploying sync config, replication state. Output as
-  human-readable, JSON, or YAML. Cloud and self-hosted.
+  human-readable, JSON, or YAML. Human output starts with the target instance. Cloud and self-hosted.
 
 EXAMPLES
   $ powersync fetch status
@@ -1524,7 +1524,7 @@ DESCRIPTION
   Show instance diagnostics (connections, sync config, replication).
 
   Fetch instance diagnostics: connection status, active and deploying sync config, replication state. Output as
-  human-readable, JSON, or YAML. Cloud and self-hosted.
+  human-readable, JSON, or YAML. Human output starts with the target instance. Cloud and self-hosted.
 
 EXAMPLES
   $ powersync status
