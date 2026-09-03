@@ -4,6 +4,7 @@ import { vi } from 'vitest';
 // Normalize env so tests don't inherit real linking values
 delete process.env.INSTANCE_ID;
 delete process.env.ORG_ID;
+delete process.env.POWERSYNC_TARGET;
 delete process.env.PROJECT_ID;
 
 export const MOCK_CLOUD_IDS = {

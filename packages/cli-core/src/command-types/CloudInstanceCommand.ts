@@ -11,7 +11,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { createCloudClient } from '../clients/create-cloud-client.js';
-import { createEnvironmentFlag } from '../utils/create-environment-flag.js';
+import { createTargetFlag } from '../utils/create-target-flag.js';
 import { ensureServiceTypeMatches, ServiceType } from '../utils/ensure-service-type.js';
 import { env } from '../utils/env.js';
 import { LINK_MISSING_ERROR_MESSAGE } from '../utils/errors.js';
@@ -20,17 +20,17 @@ import { OBJECT_ID_REGEX } from '../utils/object-id.js';
 import { CLI_FILENAME, SERVICE_FILENAME } from '../utils/project-config.js';
 import { resolveCloudInstanceLink } from '../utils/resolve-cloud-instance-link.js';
 import { resolveSyncRulesContent } from '../utils/resolve-sync-rules-content.js';
-import { CloudLinkTarget, selectCloudLinkTarget, suggestEnvironments } from '../utils/select-cloud-link-target.js';
+import { CloudLink, selectCloudLink, suggestTargets } from '../utils/select-cloud-link.js';
 import { parseYamlFile } from '../utils/yaml.js';
 import { CommandHelpGroup, HelpGroup } from './HelpGroup.js';
 import { DEFAULT_ENSURE_CONFIG_OPTIONS, EnsureConfigOptions, InstanceCommand } from './InstanceCommand.js';
 
 export type CloudProject = {
-  /** Name of the cli.yaml environment the link was selected from, if any. */
-  environment?: string;
   linked: ResolvedCloudCLIConfig;
   projectDirectory: string;
   syncRulesContent?: string;
+  /** Name of the cli.yaml target the link was selected from, if any. */
+  target?: string;
 };
 
 /**
@@ -46,7 +46,7 @@ export type CloudInstanceCommandFlags = Interfaces.InferredFlags<
  *
  * Instance context (instance_id, org_id, project_id) is resolved in this order:
  * 1. --instance-id
- * 2. The cli.yaml environment selected with --environment or POWERSYNC_ENVIRONMENT
+ * 2. The cli.yaml target selected with --target or POWERSYNC_TARGET
  * 3. The top-level fields in cli.yaml
  * 4. INSTANCE_ID
  * 5. If org_id or project_id is still missing: resolve it from the Cloud instance.
@@ -54,8 +54,8 @@ export type CloudInstanceCommandFlags = Interfaces.InferredFlags<
  * @example
  * # Use linked project (cli.yaml)
  * pnpm exec powersync some-cloud-cmd
- * # Use a named environment from cli.yaml
- * pnpm exec powersync some-cloud-cmd --environment=staging
+ * # Use a named target from cli.yaml
+ * pnpm exec powersync some-cloud-cmd --target=staging
  * # Override with env
  * INSTANCE_ID=... pnpm exec powersync some-cloud-cmd
  * # Override with flags
@@ -64,11 +64,10 @@ export type CloudInstanceCommandFlags = Interfaces.InferredFlags<
 export abstract class CloudInstanceCommand extends InstanceCommand {
   static baseFlags = {
     /**
-     * Instance ID, org ID, and project ID are resolved in order: flags → cli.yaml (selected environment, then top-level fields) → INSTANCE_ID.
+     * Instance ID, org ID, and project ID are resolved in order: flags → cli.yaml (selected target, then top-level fields) → INSTANCE_ID.
      * Missing org/project IDs are resolved from the Cloud instance.
      */
     ...InstanceCommand.baseFlags,
-    environment: createEnvironmentFlag({ exclusive: ['instance-id'] }),
     'instance-id': Flags.string({
       description: 'PowerSync Cloud instance ID. Manually passed if the current context has not been linked.',
       helpGroup: HelpGroup.CLOUD_PROJECT,
@@ -91,7 +90,8 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
       helpGroup: HelpGroup.CLOUD_PROJECT,
       hidden: true,
       required: false
-    })
+    }),
+    target: createTargetFlag({ exclusive: ['instance-id'] })
   };
   static commandHelpGroup = CommandHelpGroup.CLOUD;
   protected _project: CloudProject | null = null;
@@ -168,29 +168,30 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
     }
 
     const instanceIdFlag = flags['instance-id'];
-    // --instance-id targets one instance directly, so a selected environment does not apply.
-    const environment = instanceIdFlag ? undefined : (flags.environment ?? env.POWERSYNC_ENVIRONMENT);
+    // --instance-id points at one instance directly, so a selected target does not apply.
+    const target = instanceIdFlag ? undefined : (flags.target ?? env.POWERSYNC_TARGET);
 
-    let target: CloudLinkTarget;
+    let link: CloudLink;
     try {
-      target = selectCloudLinkTarget(cliConfig, environment);
+      link = selectCloudLink(cliConfig, target);
     } catch (error) {
       this.styledError({ message: error instanceof Error ? error.message : String(error) });
     }
 
-    const instance_id = instanceIdFlag ?? target.instance_id ?? env.INSTANCE_ID;
+    const instance_id = instanceIdFlag ?? link.instance_id ?? env.INSTANCE_ID;
     if (!instance_id) {
-      this.styledError({ message: LINK_MISSING_ERROR_MESSAGE, suggestions: suggestEnvironments(cliConfig) });
+      this.styledError({ message: LINK_MISSING_ERROR_MESSAGE, suggestions: suggestTargets(cliConfig) });
     }
 
-    const linkField = (field: string) =>
-      `${environment ? `environments.${environment}.${field}` : field} in ${CLI_FILENAME}`;
-    this.ensureObjectIdIfPresent(
-      instance_id,
-      instanceIdFlag ? '--instance-id' : target.instance_id ? linkField('instance_id') : 'INSTANCE_ID'
-    );
-    this.ensureObjectIdIfPresent(target.org_id, linkField('org_id'));
-    this.ensureObjectIdIfPresent(target.project_id, linkField('project_id'));
+    const linkField = (field: string) => `${target ? `targets.${target}.${field}` : field} in ${CLI_FILENAME}`;
+    const instanceIdSource = instanceIdFlag
+      ? '--instance-id'
+      : link.instance_id
+        ? linkField('instance_id')
+        : 'INSTANCE_ID';
+    this.ensureObjectIdIfPresent(instance_id, instanceIdSource);
+    this.ensureObjectIdIfPresent(link.org_id, linkField('org_id'));
+    this.ensureObjectIdIfPresent(link.project_id, linkField('project_id'));
 
     let linked: ResolvedCloudCLIConfig;
     try {
@@ -198,8 +199,8 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
         await resolveCloudInstanceLink({
           client: this.client,
           instanceId: instance_id,
-          orgId: target.org_id,
-          projectId: target.project_id
+          orgId: link.org_id,
+          projectId: link.project_id
         })
       );
     } catch (error) {
@@ -209,10 +210,10 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
     const syncRulesContent = resolveSyncRulesContent({ projectDirectory: projectDir });
 
     this._project = await this._loadProjectHook(flags, {
-      environment: target.environment,
       linked,
       projectDirectory: projectDir,
-      syncRulesContent
+      syncRulesContent,
+      target: link.target
     });
 
     return this._project;

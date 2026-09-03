@@ -43,21 +43,21 @@ powersync deploy service-config --directory=powersync   # service.yaml only (kee
 powersync deploy sync-config --directory=powersync      # sync-config.yaml only
 ```
 
-**Named environments in one `cli.yaml`**
+**Named targets in one `cli.yaml`**
 
-Environments let one config directory point at several Cloud instances, for example staging and production. Each environment is an entry under `environments` in `cli.yaml` with its own instance, org and project IDs. The top-level fields stay the default target when no environment is selected.
+Targets let one config directory point at several Cloud instances, for example staging and production. Each target is an entry under `targets` in `cli.yaml` with its own instance, org and project IDs. The top-level fields stay the default when no target is selected.
 
-Create an environment by linking an existing instance to a name:
+Create a target by linking an existing instance to a name:
 
 ```bash
 powersync fetch instances # find the instance ID
-powersync link cloud --environment=staging --instance-id=<staging instance id>
+powersync link cloud --target=staging --instance-id=<staging instance id>
 ```
 
 Or create a new instance and link it in one step. The instance name and region come from `service.yaml`:
 
 ```bash
-powersync link cloud --create --environment=staging --project-id=<project id>
+powersync link cloud --create --target=staging --project-id=<project id>
 ```
 
 Either way, `cli.yaml` ends up like this:
@@ -67,27 +67,27 @@ type: cloud
 instance_id: <production instance id> # default target
 org_id: <org id>
 project_id: <project id>
-environments:
+targets:
   staging:
     instance_id: <staging instance id>
     org_id: <org id>
     project_id: <project id>
 ```
 
-Use an environment by passing `--environment` to any cloud command, or set `POWERSYNC_ENVIRONMENT` for scripts and CI:
+Use a target by passing `--target` to any cloud command, or set `POWERSYNC_TARGET` for scripts and CI:
 
 ```bash
-powersync pull instance --environment=staging # download its service.yaml and sync-config.yaml
-powersync deploy --environment=staging
-powersync status --environment=staging
-POWERSYNC_ENVIRONMENT=staging powersync deploy sync-config
+powersync pull instance --target=staging # download its service.yaml and sync-config.yaml
+powersync deploy --target=staging
+powersync status --target=staging
+POWERSYNC_TARGET=staging powersync deploy sync-config
 ```
 
-Commands without `--environment` or `POWERSYNC_ENVIRONMENT` use the top-level fields. `--instance-id` overrides both. Every cloud command prints the target instance name, IDs and environment before it makes changes, and `powersync fetch instances` lists the environments of each linked directory.
+Commands without `--target` or `POWERSYNC_TARGET` use the top-level fields. `--instance-id` overrides both. Every cloud command prints the target instance name and IDs, and the selected target, before it makes changes, and `powersync fetch instances` lists the targets of each linked directory.
 
 Two things to keep in mind:
 
-- Older CLI versions ignore `environments` and `POWERSYNC_ENVIRONMENT` and use the top-level fields, so pin the CLI version in CI jobs that rely on them.
+- Older CLI versions ignore `targets` and `POWERSYNC_TARGET` and use the top-level fields, so pin the CLI version in CI jobs that rely on them.
 - Deploy writes the `name` from `service.yaml` to the instance, so instances deployed from one `service.yaml` end up with the same name in the dashboard.
 
 **Alternate sync config file**
@@ -273,11 +273,11 @@ If you decline this prompt, login exits without storing a token. Use `PS_ADMIN_T
 Cloud and self-hosted commands need an instance identifier. **Cloud only:** `powersync deploy`, `powersync deploy service-config`, `powersync deploy sync-config`, `powersync destroy`, `powersync stop`, `powersync fetch config`, `powersync pull instance`. **Both:** `powersync status`, `powersync generate schema`, `powersync generate token`, `powersync validate`. The same three methods apply: the CLI uses the first that is available (flags override the link file, and the link file overrides environment variables). For Cloud commands, the org and project are resolved automatically from the instance.
 
 1. **Flags**
-   - **Cloud:** `--instance-id`, or `--environment` to pick a named environment from `cli.yaml`
+   - **Cloud:** `--instance-id`, or `--target` to pick a named target from `cli.yaml`
    - **Self-hosted:** `--api-url` only (API key from env or link file only)
 2. **cli.yaml** — a `powersync/cli.yaml` file in the project (written by `powersync link cloud` or `powersync link self-hosted`)
 3. **Environment variables**
-   - **Cloud:** `INSTANCE_ID`, or `POWERSYNC_ENVIRONMENT` to pick a named environment from `cli.yaml`
+   - **Cloud:** `INSTANCE_ID`, or `POWERSYNC_TARGET` to pick a named target from `cli.yaml`
    - **Self-hosted:** `API_URL`, `PS_ADMIN_TOKEN` (API key)
 
 ---
@@ -294,8 +294,8 @@ powersync login
 # Stop a specific instance without linking the directory (overrides cli.yaml if present)
 powersync stop --confirm=yes --instance-id=688736sdfcfb46688f509bd0
 
-# Or pick a named environment from cli.yaml
-powersync stop --confirm=yes --environment=staging
+# Or pick a named target from cli.yaml
+powersync stop --confirm=yes --target=staging
 ```
 
 **Self-hosted:** Set `PS_ADMIN_TOKEN` (or use a linked project with API key in cli.yaml), then:
@@ -352,8 +352,8 @@ export INSTANCE_ID=688736sdfcfb46688f509bd0
 powersync stop --confirm=yes
 powersync fetch config --output=json
 
-# Or pick a named environment from cli.yaml
-POWERSYNC_ENVIRONMENT=staging powersync deploy
+# Or pick a named target from cli.yaml
+POWERSYNC_TARGET=staging powersync deploy
 ```
 
 **Self-hosted:**

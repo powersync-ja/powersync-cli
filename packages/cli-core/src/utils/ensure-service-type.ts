@@ -32,12 +32,12 @@ export function ensureServiceTypeMatches(options: EnsureServiceTypeMatchesOption
       const linkedCloud = expectedType === ServiceType.CLOUD && existsSync(join(projectDir, CLI_FILENAME));
       command.styledError({
         message: `${SERVICE_FILENAME} in "./${directoryLabel}/" is missing. Ensure it exists and has \`_type: ${expectedType}\`.`,
-        suggestions: linkedCloud
-          ? [
-              `Run ${ux.colorize('blue', 'powersync pull instance')} to download the linked instance's config. Add --environment=<name> to pull a named environment.`,
-              `Or run ${ux.colorize('blue', 'powersync init cloud')} to start a new project.`
-            ]
-          : [`Use ${ux.colorize('blue', `powersync init ${expectedType}`)} to create a project of the correct type.`]
+        suggestions: [
+          ...(linkedCloud
+            ? [`Run ${ux.colorize('blue', 'powersync pull instance')} to download the linked instance's config.`]
+            : []),
+          `Use ${ux.colorize('blue', `powersync init ${expectedType}`)} to create a project of the correct type.`
+        ]
       });
     }
 
