@@ -15,7 +15,7 @@ export default class DeployAll extends WithSyncConfigFilePath(BaseDeployCommand)
     'Validates connections and sync config before deploying.',
     `See also ${ux.colorize('blue', 'powersync deploy sync-config')} to deploy only sync config changes.`,
     `See also ${ux.colorize('blue', 'powersync deploy service-config')} to deploy only service config changes.`,
-    'Use --dry-run to show the target instance and the validation results without deploying.'
+    'Use --dry-run to show the target instance, the validation results and what would change, without deploying.'
   ].join('\n');
   static examples = [
     '<%= config.bin %> <%= command.id %>',
@@ -104,10 +104,7 @@ export default class DeployAll extends WithSyncConfigFilePath(BaseDeployCommand)
       }
 
       if (dryRun) {
-        this.log(
-          `The instance is ${ux.colorize('yellow', 'not currently provisioned')}. Deploying would first provision it, then validate and deploy the sync config.`
-        );
-        this.logDryRun(dryRunSummary);
+        this.logDryRun({ ...dryRunSummary, provisionFirst: true });
         return;
       }
 

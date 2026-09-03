@@ -18,7 +18,7 @@ const SYNC_CONFIG_VALIDATION_FLAGS = generateValidationTestFlags({
 
 export default class DeploySyncConfig extends WithSyncConfigFilePath(BaseDeployCommand) {
   static description =
-    'Deploy only sync config changes. Use --dry-run to show the target instance and the validation results without deploying.';
+    'Deploy only sync config changes. Use --dry-run to show the target instance, the validation results and what would change, without deploying.';
   static examples = [
     '<%= config.bin %> <%= command.id %>',
     '<%= config.bin %> <%= command.id %> --dry-run',
@@ -128,10 +128,7 @@ export default class DeploySyncConfig extends WithSyncConfigFilePath(BaseDeployC
 
     if (!instanceStatus.provisioned) {
       if (dryRun) {
-        this.log(
-          `\nThe instance is ${ux.colorize('yellow', 'not currently provisioned')}. Deploying would first provision it, then validate and deploy the sync config.`
-        );
-        this.logDryRun(dryRunSummary);
+        this.logDryRun({ ...dryRunSummary, provisionFirst: true });
         return;
       }
 
