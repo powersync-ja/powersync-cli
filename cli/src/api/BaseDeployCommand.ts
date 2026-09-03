@@ -9,6 +9,7 @@ import { routes } from '@powersync/management-types';
 import ora from 'ora';
 
 import { DEFAULT_DEPLOY_TIMEOUT_MS, waitForOperationStatusChange } from './cloud/wait-for-operation.js';
+import { changedServiceConfigSections, formatSyncConfigDiff } from './dry-run.js';
 import { parseLocalCloudServiceConfig } from './parse-local-cloud-service-config.js';
 
 export default abstract class BaseDeployCommand extends CloudInstanceCommand {
@@ -25,6 +26,11 @@ export default abstract class BaseDeployCommand extends CloudInstanceCommand {
 
         return value;
       }
+    }),
+    'dry-run': Flags.boolean({
+      default: false,
+      description:
+        'Show the target instance, run the validations and print what would change, then exit without deploying.'
     }),
     ...CloudInstanceCommand.baseFlags
   };
@@ -75,6 +81,22 @@ export default abstract class BaseDeployCommand extends CloudInstanceCommand {
     });
   }
 
+  protected describeServiceConfigChanges(cloudConfigState: routes.InstanceConfigResponse): string {
+    const summary = `would deploy ${SERVICE_FILENAME}.`;
+    if (!cloudConfigState.config) {
+      return `${summary} No config is deployed yet.`;
+    }
+
+    const sections = changedServiceConfigSections(this.serviceConfig!, cloudConfigState);
+    if (!sections) {
+      return `${summary} Could not compare with the deployed config.`;
+    }
+
+    return sections.length > 0
+      ? `${summary} Changes in: ${sections.join(', ')}.`
+      : `${summary} No changes compared to the deployed config.`;
+  }
+
   protected async loadCloudConfigState(): Promise<routes.InstanceConfigResponse> {
     const { client, project } = this;
     const { linked } = project;
@@ -90,6 +112,45 @@ export default abstract class BaseDeployCommand extends CloudInstanceCommand {
           message: `Failed to get existing config for instance ${linked.instance_id} in project ${linked.project_id} in org ${linked.org_id}. Ensure the instance has been created before deploying.`
         });
       });
+  }
+
+  /**
+   * Ends a --dry-run once the target and validation results are shown: reports what a real run would deploy.
+   * Set provisionFirst when the instance is deprovisioned, since a real run would provision it before deploying.
+   */
+  protected logDryRun(params: {
+    cloudConfigState: routes.InstanceConfigResponse;
+    provisionFirst?: boolean;
+    /** Whether the command sends service.yaml. */
+    serviceConfig: boolean;
+    /** Whether the command sends the local sync config. */
+    syncConfig: boolean;
+  }): void {
+    const { cloudConfigState, provisionFirst = false, serviceConfig, syncConfig } = params;
+    const { syncRulesContent } = this.project;
+
+    this.log('');
+    if (provisionFirst) {
+      this.log(
+        `The instance is ${ux.colorize('yellow', 'not currently provisioned')}. Deploying would first provision it, then validate and deploy the sync config.`
+      );
+    }
+
+    this.log(ux.colorize('yellow', 'Dry run: nothing was deployed.'));
+    this.log(
+      `\tService config: ${serviceConfig ? this.describeServiceConfigChanges(cloudConfigState) : 'not changed by this command.'}`
+    );
+
+    if (!syncConfig) {
+      this.log('\tSync config: not changed by this command.');
+    } else if (syncRulesContent === cloudConfigState.sync_rules) {
+      this.log('\tSync config: matches the deployed sync config, nothing to update.');
+    } else {
+      this.log('\tSync config: would deploy the local sync config. Diff against the deployed sync config:');
+      for (const line of formatSyncConfigDiff(cloudConfigState.sync_rules ?? '', syncRulesContent ?? '')) {
+        this.log(`\t\t${line}`);
+      }
+    }
   }
 
   override parseLocalConfig(projectDirectory: string, useRawConfig?: boolean): ServiceCloudConfigDecoded {
@@ -270,6 +331,21 @@ export default abstract class BaseDeployCommand extends CloudInstanceCommand {
         message: `Deploy failed. Check instance diagnostics for details, for example: ${ux.colorize('blue', 'powersync status')}`
       });
     }
+  }
+
+  /**
+   * Deploying sends the local service.yaml `name` as the instance name, so a deploy renames the
+   * instance if the two differ. Warn so users targeting several instances from one config notice.
+   */
+  protected warnIfDeployRenamesInstance(cloudConfigState: routes.InstanceConfigResponse): void {
+    const localName = this.serviceConfig?.name;
+    if (!localName || localName === cloudConfigState.name) {
+      return;
+    }
+
+    this.warn(
+      `Deploying will rename the instance from "${cloudConfigState.name}" to "${localName}" because ${SERVICE_FILENAME} has name: ${localName}.`
+    );
   }
 
   protected async withDeploy(timeoutMs: number, fn: () => Promise<routes.DeployInstanceResponse>): Promise<void> {
