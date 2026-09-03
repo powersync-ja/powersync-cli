@@ -12,14 +12,6 @@ import { DEFAULT_DEPLOY_TIMEOUT_MS, waitForOperationStatusChange } from './cloud
 import { changedServiceConfigSections, formatSyncConfigDiff } from './dry-run.js';
 import { parseLocalCloudServiceConfig } from './parse-local-cloud-service-config.js';
 
-const DRY_RUN_SYNC_CONFIG_LABELS = {
-  changed: 'would deploy the local sync config. Diff against the deployed sync config:',
-  skipped: 'not changed by this command.',
-  unchanged: 'matches the deployed sync config, nothing to update.'
-};
-
-export type DryRunSyncConfig = keyof typeof DRY_RUN_SYNC_CONFIG_LABELS;
-
 export default abstract class BaseDeployCommand extends CloudInstanceCommand {
   static baseFlags = {
     'deploy-timeout': Flags.integer({
@@ -129,10 +121,14 @@ export default abstract class BaseDeployCommand extends CloudInstanceCommand {
   protected logDryRun(params: {
     cloudConfigState: routes.InstanceConfigResponse;
     provisionFirst?: boolean;
+    /** Whether the command sends service.yaml. */
     serviceConfig: boolean;
-    syncConfig: DryRunSyncConfig;
+    /** Whether the command sends the local sync config. */
+    syncConfig: boolean;
   }): void {
     const { cloudConfigState, provisionFirst = false, serviceConfig, syncConfig } = params;
+    const { syncRulesContent } = this.project;
+
     this.log('');
     if (provisionFirst) {
       this.log(
@@ -144,9 +140,14 @@ export default abstract class BaseDeployCommand extends CloudInstanceCommand {
     this.log(
       `\tService config: ${serviceConfig ? this.describeServiceConfigChanges(cloudConfigState) : 'not changed by this command.'}`
     );
-    this.log(`\tSync config: ${DRY_RUN_SYNC_CONFIG_LABELS[syncConfig]}`);
-    if (syncConfig === 'changed') {
-      for (const line of formatSyncConfigDiff(cloudConfigState.sync_rules ?? '', this.project.syncRulesContent ?? '')) {
+
+    if (!syncConfig) {
+      this.log('\tSync config: not changed by this command.');
+    } else if (syncRulesContent === cloudConfigState.sync_rules) {
+      this.log('\tSync config: matches the deployed sync config, nothing to update.');
+    } else {
+      this.log('\tSync config: would deploy the local sync config. Diff against the deployed sync config:');
+      for (const line of formatSyncConfigDiff(cloudConfigState.sync_rules ?? '', syncRulesContent ?? '')) {
         this.log(`\t\t${line}`);
       }
     }
