@@ -107,6 +107,7 @@ Deploy command modes:
 - `powersync deploy` — deploy both service config and sync config.
 - `powersync deploy service-config` — deploy only service config changes, without updating sync config.
 - `powersync deploy sync-config` — deploy only sync config changes.
+- `--dry-run` on any deploy command — print the target instance, run the validations, and show what would change (a diff of the sync config and the changed service config sections), then stop without deploying. Use it to check which instance a shared config directory or a CI job points at. Connections that pass a password with `secret` always show `replication` as changed, because the value is sent again.
 
 The instance **name** and **region** are taken from your local `service.yaml`; set them before running `powersync link cloud --create` if you want a specific display name and region.
 
