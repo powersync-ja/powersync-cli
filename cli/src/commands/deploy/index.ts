@@ -68,11 +68,7 @@ export default class DeployAll extends WithSyncConfigFilePath(BaseDeployCommand)
 
     const requiresReprovision = instanceStatus.provisioned === false;
     const syncConfigHasChanges = project.syncRulesContent !== cloudConfigState.sync_rules;
-    const dryRunSummary = {
-      cloudConfigState,
-      serviceConfig: true,
-      syncConfig: syncConfigHasChanges ? 'changed' : 'unchanged'
-    } as const;
+    const dryRunSummary = { cloudConfigState, serviceConfig: true, syncConfig: true };
 
     let didReprovision = false;
 

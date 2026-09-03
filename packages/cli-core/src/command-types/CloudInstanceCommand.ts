@@ -212,15 +212,13 @@ export abstract class CloudInstanceCommand extends InstanceCommand {
 
   /**
    * Prints which Cloud instance the command is about to act on. Call this after loadProject().
-   * See {@link logTargetInstance} for details.
-   *
-   * @returns The instance name, or undefined if it could not be resolved.
+   * See {@link logTargetInstance} for details and the returned label.
    */
-  async logTargetInstance(options: { instanceName?: string } = {}): Promise<string | undefined> {
+  async logTargetInstance(options: { instanceName?: string } = {}): Promise<string> {
     return logTargetInstance({
       client: this.client,
+      command: this,
       instanceName: options.instanceName,
-      log: (message) => this.log(message),
       project: this.project
     });
   }

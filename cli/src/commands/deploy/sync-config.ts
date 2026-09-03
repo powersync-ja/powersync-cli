@@ -120,11 +120,7 @@ export default class DeploySyncConfig extends WithSyncConfigFilePath(BaseDeployC
         });
       });
 
-    const dryRunSummary = {
-      cloudConfigState,
-      serviceConfig: false,
-      syncConfig: project.syncRulesContent === cloudConfigState.sync_rules ? 'unchanged' : 'changed'
-    } as const;
+    const dryRunSummary = { cloudConfigState, serviceConfig: false, syncConfig: true };
 
     if (!instanceStatus.provisioned) {
       if (dryRun) {

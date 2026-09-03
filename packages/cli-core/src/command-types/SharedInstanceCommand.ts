@@ -249,8 +249,8 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
   }
 
   /** Prints which instance the command is about to act on. See {@link logTargetInstance}. */
-  async logTargetInstance(project: CloudProject | SelfHostedProject): Promise<string | undefined> {
-    return logTargetInstance({ client: this.cloudClient, log: (message) => this.log(message), project });
+  async logTargetInstance(project: CloudProject | SelfHostedProject): Promise<string> {
+    return logTargetInstance({ client: this.cloudClient, command: this, project });
   }
 
   parseCloudConfig(projectDirectory: string): ServiceCloudConfigDecoded {

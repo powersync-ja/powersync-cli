@@ -63,7 +63,7 @@ export default class DeployServiceConfig extends BaseDeployCommand {
     }
 
     if (flags['dry-run']) {
-      this.logDryRun({ cloudConfigState, serviceConfig: true, syncConfig: 'skipped' });
+      this.logDryRun({ cloudConfigState, serviceConfig: true, syncConfig: false });
       return;
     }
 
