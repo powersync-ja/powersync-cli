@@ -85,10 +85,7 @@ POWERSYNC_TARGET=staging powersync deploy sync-config
 
 Commands without `--target` or `POWERSYNC_TARGET` use the top-level fields. `--instance-id` overrides both. Every cloud command prints the target instance name and IDs, and the selected target, before it makes changes, and `powersync fetch instances` lists the targets of each linked directory.
 
-Two things to keep in mind:
-
-- Older CLI versions ignore `targets` and `POWERSYNC_TARGET` and use the top-level fields, so pin the CLI version in CI jobs that rely on them.
-- Deploy writes the `name` from `service.yaml` to the instance, so instances deployed from one `service.yaml` end up with the same name in the dashboard.
+Deploy writes the `name` from `service.yaml` to the instance, so instances deployed from one `service.yaml` end up with the same name in the dashboard.
 
 **Alternate sync config file**
 
