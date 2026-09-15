@@ -1,5 +1,18 @@
 # powersync
 
+## 0.10.1
+
+### Patch Changes
+
+- 0eaf362: fix `--directory` absolute path resolution in CLI
+- b2bd992: fix `powersync edit config` crashing with `Cannot find module 'minimatch'` by keeping `@oclif/core` external in the editor server build
+- Updated dependencies [0eaf362]
+- Updated dependencies [b2bd992]
+  - @powersync/cli-core@0.10.1
+  - @powersync/cli-plugin-config-edit@0.10.1
+  - @powersync/cli-plugin-docker@0.10.1
+  - @powersync/cli-schemas@0.10.1
+
 ## 0.10.0
 
 ### Minor Changes

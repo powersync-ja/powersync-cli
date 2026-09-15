@@ -1,5 +1,13 @@
 # @powersync/cli-plugin-config-edit
 
+## 0.10.1
+
+### Patch Changes
+
+- b2bd992: fix `powersync edit config` crashing with `Cannot find module 'minimatch'` by keeping `@oclif/core` external in the editor server build
+- Updated dependencies [0eaf362]
+  - @powersync/cli-core@0.10.1
+
 ## 0.10.0
 
 ### Patch Changes
