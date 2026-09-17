@@ -1,5 +1,19 @@
 # powersync
 
+## 0.10.2
+
+### Patch Changes
+
+- caabf52: Show the target instance name and IDs before `deploy`, `deploy sync-config`, `deploy service-config`, `stop`, `destroy` and `compact` do anything, so it is clear which instance is about to be changed. `status` shows the target first as well, with the API URL for self-hosted instances. `deploy` and `deploy service-config` now also warn when the local `service.yaml` `name` differs from the instance name, since deploying renames the instance.
+
+  All deploy commands accept `--dry-run`, which prints the target instance, runs the validations, shows a diff of the sync config and the changed service config sections, and stops without deploying.
+
+- Updated dependencies [caabf52]
+  - @powersync/cli-core@0.10.2
+  - @powersync/cli-plugin-config-edit@0.10.2
+  - @powersync/cli-plugin-docker@0.10.2
+  - @powersync/cli-schemas@0.10.2
+
 ## 0.10.1
 
 ### Patch Changes

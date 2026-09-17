@@ -1,5 +1,12 @@
 # @powersync/cli-plugin-config-edit
 
+## 0.10.2
+
+### Patch Changes
+
+- Updated dependencies [caabf52]
+  - @powersync/cli-core@0.10.2
+
 ## 0.10.1
 
 ### Patch Changes
