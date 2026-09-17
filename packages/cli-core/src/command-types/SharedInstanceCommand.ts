@@ -20,6 +20,7 @@ import { createCloudClient } from '../clients/create-cloud-client.js';
 import { ensureServiceTypeMatches, ServiceType } from '../utils/ensure-service-type.js';
 import { env } from '../utils/env.js';
 import { LINK_MISSING_ERROR_MESSAGE } from '../utils/errors.js';
+import { logTargetInstance } from '../utils/log-target-instance.js';
 import { CLI_FILENAME, SERVICE_FILENAME } from '../utils/project-config.js';
 import { resolveCloudInstanceLink } from '../utils/resolve-cloud-instance-link.js';
 import { resolveSyncRulesContent } from '../utils/resolve-sync-rules-content.js';
@@ -245,6 +246,11 @@ export abstract class SharedInstanceCommand extends InstanceCommand {
       projectDirectory: projectDir,
       syncRulesContent
     });
+  }
+
+  /** Prints which instance the command is about to act on. See {@link logTargetInstance}. */
+  async logTargetInstance(project: CloudProject | SelfHostedProject): Promise<string> {
+    return logTargetInstance({ client: this.cloudClient, command: this, project });
   }
 
   parseCloudConfig(projectDirectory: string): ServiceCloudConfigDecoded {

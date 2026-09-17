@@ -41,6 +41,7 @@ export const managementClientMock = {
   destroyInstance: vi.fn(),
   getInstance: vi.fn(),
   getInstanceConfig: vi.fn(),
+  getInstanceDiagnostics: vi.fn(),
   getInstanceStatus: vi.fn(),
   listRegions: vi.fn(),
   testConnection: vi.fn(),
@@ -57,6 +58,7 @@ export function resetManagementClientMocks(): void {
   managementClientMock.getInstance.mockResolvedValue({
     app_id: MOCK_CLOUD_IDS.projectId,
     id: MOCK_CLOUD_IDS.instanceId,
+    name: 'test-instance',
     org_id: MOCK_CLOUD_IDS.orgId
   });
   managementClientMock.destroyInstance.mockRejectedValue(new Error('mock destroy failure'));

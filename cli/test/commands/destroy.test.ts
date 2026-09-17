@@ -129,6 +129,13 @@ describe('destroy', () => {
       writeLinkYaml(projectDir, { instance_id: INSTANCE_ID, org_id: ORG_ID, project_id: PROJECT_ID });
     });
 
+    it('prints the target instance name and IDs before destroying', async () => {
+      const result = await runDestroyDirect(['--confirm=yes']);
+
+      expect(result.stdout).toContain('Target instance: test-instance');
+      expect(result.stdout).toContain(`id: ${INSTANCE_ID}`);
+    });
+
     it('calls destroyInstance on the management client', async () => {
       await runDestroyDirect(['--confirm=yes']);
 

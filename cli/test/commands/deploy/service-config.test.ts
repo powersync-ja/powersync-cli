@@ -188,6 +188,22 @@ describe('deploy:service-config', () => {
     });
   });
 
+  it('--dry-run validates and prints the target without deploying', async () => {
+    const projectDir = makeProjectDir(tmpDir);
+    writeServiceYaml(projectDir);
+    writeLinkYaml(projectDir);
+
+    const result = await runServiceConfigDirect(['--dry-run']);
+
+    expect(result.error).toBeUndefined();
+    expect(managementClientMock.testConnection).toHaveBeenCalled();
+    expect(managementClientMock.deployInstance).not.toHaveBeenCalled();
+    expect(result.stdout).toContain('Target instance: test-instance');
+    expect(result.stdout).toContain('Dry run: nothing was deployed.');
+    expect(result.stdout).toContain(`Service config: would deploy ${SERVICE_FILENAME}`);
+    expect(result.stdout).toContain('Sync config: not changed by this command');
+  });
+
   it('errors when service.yaml is missing', async () => {
     const projectDir = makeProjectDir(tmpDir);
     writeLinkYaml(projectDir);

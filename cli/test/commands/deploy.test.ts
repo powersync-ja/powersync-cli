@@ -60,7 +60,10 @@ describe('deploy', () => {
     process.chdir(tmpDir);
     process.env.PS_ADMIN_TOKEN = 'test-token';
     managementClientMock.getInstanceConfig.mockResolvedValue({
-      config: { region: 'us', replication: { connections: [{ name: 'default', type: 'postgresql' }] } },
+      config: {
+        region: 'us',
+        replication: { connections: [{ name: 'default', type: 'postgresql', uri: 'postgres://user:pass@host/db' }] }
+      },
       id: INSTANCE_ID,
       name: 'test-instance',
       sync_rules: ''
@@ -142,6 +145,83 @@ describe('deploy', () => {
       expect(result.error?.message).toMatch(
         new RegExp(`Failed to .* instance ${INSTANCE_ID} in project ${PROJECT_ID} in org ${ORG_ID}`)
       );
+    });
+
+    it('prints the target instance name and IDs before validating', async () => {
+      const result = await runDeployDirect();
+
+      // The name comes from the existing cloud config, no extra getInstance call is needed.
+      expect(managementClientMock.getInstance).not.toHaveBeenCalled();
+      expect(result.stdout).toContain('Target instance: test-instance');
+      expect(result.stdout).toContain(`id: ${INSTANCE_ID}`);
+      expect(result.stdout).toContain(`project: ${PROJECT_ID}`);
+      expect(result.stdout).toContain(`org: ${ORG_ID}`);
+      expect(result.stderr).not.toContain('rename');
+    });
+
+    it('warns when deploying would rename the instance', async () => {
+      const projectDir = join(tmpDir, PROJECT_DIR);
+      writeCloudServiceYaml(projectDir, {
+        _type: 'cloud',
+        name: 'instance-b',
+        region: 'us',
+        replication: {
+          connections: [{ name: 'default', type: 'postgresql', uri: 'postgres://user:pass@host/db' }]
+        }
+      });
+
+      const result = await runDeployDirect();
+
+      // oclif wraps warnings and prefixes each line with a marker (› on macOS/Linux, » on Windows), so normalise first.
+      const stderr = result.stderr.replaceAll(/[\s›»]+/g, ' ');
+      expect(stderr).toContain('Deploying will rename the instance from "test-instance" to "instance-b"');
+    });
+
+    it('--dry-run prints the target and validation results without deploying', async () => {
+      const result = await runDeployDirect({ args: ['--dry-run'] });
+
+      expect(result.error).toBeUndefined();
+      expect(managementClientMock.testConnection).toHaveBeenCalled();
+      expect(managementClientMock.validateSyncRules).toHaveBeenCalled();
+      expect(managementClientMock.deployInstance).not.toHaveBeenCalled();
+      expect(result.stdout).toContain('Target instance: test-instance');
+      expect(result.stdout).toContain('Dry run: nothing was deployed.');
+      expect(result.stdout).toContain(
+        `Service config: would deploy ${SERVICE_FILENAME}. No changes compared to the deployed config.`
+      );
+      expect(result.stdout).toContain('Sync config: would deploy the local sync config');
+      expect(result.stdout).toContain('+bucket_definitions:');
+    });
+
+    it('--dry-run names the service config sections that would change', async () => {
+      const projectDir = join(tmpDir, PROJECT_DIR);
+      writeCloudServiceYaml(projectDir, {
+        _type: 'cloud',
+        name: 'test-instance',
+        region: 'us',
+        replication: {
+          connections: [{ name: 'default', type: 'postgresql', uri: 'postgres://user:pass@other-host/db' }]
+        }
+      });
+
+      const result = await runDeployDirect({ args: ['--dry-run'] });
+
+      expect(result.error).toBeUndefined();
+      expect(result.stdout).toContain(`Service config: would deploy ${SERVICE_FILENAME}. Changes in: replication.`);
+    });
+
+    it('--dry-run does not provision a deprovisioned instance', async () => {
+      managementClientMock.getInstanceStatus.mockResolvedValue({ operations: [], provisioned: false });
+
+      const result = await runDeployDirect({ args: ['--dry-run'] });
+
+      expect(result.error).toBeUndefined();
+      expect(managementClientMock.testConnection).toHaveBeenCalled();
+      // Sync config validation needs a provisioned instance, and a dry run must not provision one.
+      expect(managementClientMock.validateSyncRules).not.toHaveBeenCalled();
+      expect(managementClientMock.deployInstance).not.toHaveBeenCalled();
+      expect(result.stdout).toContain('not currently provisioned');
+      expect(result.stdout).toContain('Dry run: nothing was deployed.');
     });
 
     it('validates sync config before deploying', async () => {

@@ -212,6 +212,51 @@ describe('deploy:sync-config', () => {
     expect(result.error?.message).toMatch(/nonexistent/);
   });
 
+  it('--dry-run validates and reports the sync config change without deploying', async () => {
+    const projectDir = makeProjectDir(tmpDir);
+    writeLinkYaml(projectDir);
+    writeFileSync(join(projectDir, SYNC_FILENAME), SYNC_CONFIG_CONTENT, 'utf8');
+
+    const result = await runSyncConfigDirect(['--dry-run']);
+
+    expect(result.error).toBeUndefined();
+    expect(managementClientMock.validateSyncRules).toHaveBeenCalled();
+    expect(managementClientMock.deployInstance).not.toHaveBeenCalled();
+    expect(result.stdout).toContain('Target instance: test-instance');
+    expect(result.stdout).toContain('Dry run: nothing was deployed.');
+    expect(result.stdout).toContain('Service config: not changed by this command');
+    expect(result.stdout).toContain('Sync config: would deploy the local sync config');
+    expect(result.stdout).toContain('+      - SELECT * FROM todos');
+  });
+
+  it('--dry-run reports when the local sync config matches the deployed one', async () => {
+    const projectDir = makeProjectDir(tmpDir);
+    writeLinkYaml(projectDir);
+    writeFileSync(join(projectDir, SYNC_FILENAME), SYNC_CONFIG_CONTENT, 'utf8');
+    managementClientMock.getInstanceConfig.mockResolvedValue({ ...MOCK_CLOUD_CONFIG, sync_rules: SYNC_CONFIG_CONTENT });
+
+    const result = await runSyncConfigDirect(['--dry-run']);
+
+    expect(result.error).toBeUndefined();
+    expect(managementClientMock.deployInstance).not.toHaveBeenCalled();
+    expect(result.stdout).toContain('Sync config: matches the deployed sync config, nothing to update');
+  });
+
+  it('--dry-run does not provision a deprovisioned instance', async () => {
+    const projectDir = makeProjectDir(tmpDir);
+    writeLinkYaml(projectDir);
+    writeFileSync(join(projectDir, SYNC_FILENAME), SYNC_CONFIG_CONTENT, 'utf8');
+    managementClientMock.getInstanceStatus.mockResolvedValue({ operations: [], provisioned: false });
+
+    const result = await runSyncConfigDirect(['--dry-run']);
+
+    expect(result.error).toBeUndefined();
+    expect(managementClientMock.validateSyncRules).not.toHaveBeenCalled();
+    expect(managementClientMock.deployInstance).not.toHaveBeenCalled();
+    expect(result.stdout).toContain('not currently provisioned');
+    expect(result.stdout).toContain('Dry run: nothing was deployed.');
+  });
+
   it('validates sync config before deploying', async () => {
     const projectDir = makeProjectDir(tmpDir);
     writeLinkYaml(projectDir);

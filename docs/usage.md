@@ -107,6 +107,7 @@ Deploy command modes:
 - `powersync deploy` — deploy both service config and sync config.
 - `powersync deploy service-config` — deploy only service config changes, without updating sync config.
 - `powersync deploy sync-config` — deploy only sync config changes.
+- `--dry-run` on any deploy command — print the target instance, run the validations, and show what would change (a diff of the sync config and the changed service config sections), then stop without deploying. Use it to check which instance a shared config directory or a CI job points at. Connections that pass a password with `secret` always show `replication` as changed, because the value is sent again.
 
 The instance **name** and **region** are taken from your local `service.yaml`; set them before running `powersync link cloud --create` if you want a specific display name and region.
 
@@ -222,15 +223,17 @@ If you decline this prompt, login exits without storing a token. Use `PS_ADMIN_T
 
 # Supplying Linking Information for Cloud and Self-Hosted Commands
 
-Cloud and self-hosted commands need an instance identifier. **Cloud only:** `powersync deploy`, `powersync deploy service-config`, `powersync deploy sync-config`, `powersync destroy`, `powersync stop`, `powersync fetch config`, `powersync pull instance`. **Both:** `powersync status`, `powersync generate schema`, `powersync generate token`, `powersync validate`. The same three methods apply: the CLI uses the first that is available (flags override environment variables, environment variables override link file). For Cloud commands, the org and project are resolved automatically from the instance.
+Cloud and self-hosted commands need an instance identifier. **Cloud only:** `powersync deploy`, `powersync deploy service-config`, `powersync deploy sync-config`, `powersync destroy`, `powersync stop`, `powersync fetch config`, `powersync pull instance`, `powersync compact`. **Both:** `powersync status`, `powersync generate schema`, `powersync generate token`, `powersync validate`. The same three methods apply: the CLI uses the first that is available (flags override `cli.yaml`, and `cli.yaml` overrides environment variables). For Cloud commands, the org and project are resolved automatically from the instance.
 
 1. **Flags**
    - **Cloud:** `--instance-id`
    - **Self-hosted:** `--api-url` only (API key from env or link file only)
-2. **Environment variables**
+2. **cli.yaml** — a `powersync/cli.yaml` file in the project (written by `powersync link cloud` or `powersync link self-hosted`)
+3. **Environment variables**
    - **Cloud:** `INSTANCE_ID`
    - **Self-hosted:** `API_URL`, `PS_ADMIN_TOKEN` (API key)
-3. **cli.yaml** — a `powersync/cli.yaml` file in the project (written by `powersync link cloud` or `powersync link self-hosted`)
+
+The self-hosted API key is the exception: `PS_ADMIN_TOKEN` is used ahead of `api_key` in `cli.yaml`.
 
 ---
 
@@ -321,4 +324,4 @@ INSTANCE_ID=... powersync stop --confirm=yes
 API_URL=https://... PS_ADMIN_TOKEN=... powersync status --output=json
 ```
 
-**Note:** Environment variables are only used when neither flags nor `cli.yaml` provide linking information.
+**Note:** Environment variables are only used when neither flags nor `cli.yaml` provide linking information, apart from `PS_ADMIN_TOKEN` as noted above.

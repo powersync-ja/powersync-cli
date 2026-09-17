@@ -17,8 +17,13 @@ const SYNC_CONFIG_VALIDATION_FLAGS = generateValidationTestFlags({
 });
 
 export default class DeploySyncConfig extends WithSyncConfigFilePath(BaseDeployCommand) {
-  static description = 'Deploy only sync config changes.';
-  static examples = ['<%= config.bin %> <%= command.id %>', '<%= config.bin %> <%= command.id %> --instance-id=<id>'];
+  static description =
+    'Deploy only sync config changes. Use --dry-run to show the target instance, the validation results and what would change, without deploying.';
+  static examples = [
+    '<%= config.bin %> <%= command.id %>',
+    '<%= config.bin %> <%= command.id %> --dry-run',
+    '<%= config.bin %> <%= command.id %> --instance-id=<id>'
+  ];
   static flags = {
     ...SYNC_CONFIG_VALIDATION_FLAGS.flags
   };
@@ -74,12 +79,7 @@ export default class DeploySyncConfig extends WithSyncConfigFilePath(BaseDeployC
 
     const { linked } = project;
     const deployTimeoutMs = (flags['deploy-timeout'] ?? DEFAULT_DEPLOY_TIMEOUT_MS / 1000) * 1000;
-
-    if (!project.syncRulesContent) {
-      this.styledError({
-        message: `Sync config content not loaded. Ensure sync config is present and valid.`
-      });
-    }
+    const dryRun = flags['dry-run'];
 
     if (!project.syncRulesContent) {
       this.styledError({
@@ -89,6 +89,7 @@ export default class DeploySyncConfig extends WithSyncConfigFilePath(BaseDeployC
 
     // The existing config is required to deploy changes. The instance should have been created already.
     const cloudConfigState = await this.loadCloudConfigState();
+    await this.logTargetInstance({ instanceName: cloudConfigState.name });
 
     if (!cloudConfigState.config) {
       this.styledError({
@@ -119,7 +120,14 @@ export default class DeploySyncConfig extends WithSyncConfigFilePath(BaseDeployC
         });
       });
 
+    const dryRunSummary = { cloudConfigState, serviceConfig: false, syncConfig: true };
+
     if (!instanceStatus.provisioned) {
+      if (dryRun) {
+        this.logDryRun({ ...dryRunSummary, provisionFirst: true });
+        return;
+      }
+
       this.log(
         `\nThe instance is not currently provisioned. Triggering a deploy in order to reprovision. This may take a few minutes.\n`
       );
@@ -146,6 +154,11 @@ export default class DeploySyncConfig extends WithSyncConfigFilePath(BaseDeployC
         message: 'Validation tests failed. Fix the issues and try deploying again.',
         suggestions: ['Review the validation test results above, fix any issues, and run deploy again.']
       });
+    }
+
+    if (dryRun) {
+      this.logDryRun(dryRunSummary);
+      return;
     }
 
     await this.deploySyncConfig({ cloudConfigState, timeout: deployTimeoutMs });
