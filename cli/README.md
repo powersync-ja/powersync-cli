@@ -875,13 +875,13 @@ Generate client schema file from instance schema and sync config.
 
 ```
 USAGE
-  $ powersync generate schema --output dart|dotNet|dotNetClass|js|jsLegacy|kotlin|swift|ts --output-path <value>
+  $ powersync generate schema --output dart|dotNet|dotNetClass|js|jsLegacy|kotlin|rust|swift|ts --output-path <value>
     [--api-url <value> | --instance-id <value> |  | ] [--directory <value>] [--sync-config-file-path <value>]
 
 FLAGS
-  --output=<option>      (required) [default: type] Output type: dart, dotNet, dotNetClass, js, jsLegacy, kotlin, swift,
-                         ts
-                         <options: dart|dotNet|dotNetClass|js|jsLegacy|kotlin|swift|ts>
+  --output=<option>      (required) [default: type] Output type: dart, dotNet, dotNetClass, js, jsLegacy, kotlin, rust,
+                         swift, ts
+                         <options: dart|dotNet|dotNetClass|js|jsLegacy|kotlin|rust|swift|ts>
   --output-path=<value>  (required) Path to output the schema file.
 
 SELF_HOSTED_PROJECT FLAGS
