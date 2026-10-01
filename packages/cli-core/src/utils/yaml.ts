@@ -67,10 +67,18 @@ const YAML_PARSE_OPTIONS = { customTags: [YamlEnvTag] };
 
 /**
  * Parses a YAML document, evaluating !env tags.
+ * Throws when substitution fails (missing or invalid env vars) so callers cannot
+ * treat the unresolved variable name as a real value.
  */
 export function parseYamlFile(filePath: string): yaml.Document {
   const content = readFileSync(filePath, 'utf8');
-  return yaml.parseDocument(content, YAML_PARSE_OPTIONS);
+  const doc = yaml.parseDocument(content, YAML_PARSE_OPTIONS);
+  if (doc.errors.length > 0) {
+    const details = doc.errors.map((error) => error.message.trim()).join('\n');
+    throw new Error(`Failed to parse ${filePath}:\n${details}`);
+  }
+
+  return doc;
 }
 
 /**

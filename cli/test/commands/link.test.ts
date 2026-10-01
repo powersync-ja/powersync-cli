@@ -331,6 +331,20 @@ type: self-hosted
       expect(linkYaml.api_key).toBe('!env PS_ADMIN_TOKEN');
     });
 
+    it('links when service.yaml has unresolved !env placeholders', async () => {
+      const projectDir = join(tmpDir, PROJECT_DIR);
+      mkdirSync(projectDir, { recursive: true });
+      writeFileSync(
+        join(projectDir, SERVICE_FILENAME),
+        '_type: self-hosted\nreplication:\n  connections:\n    - type: postgresql\n      uri: !env PS_DATA_SOURCE_URI\n',
+        'utf8'
+      );
+      process.env.PS_ADMIN_TOKEN = 'k';
+      const { error, stdout } = await runLinkSelfHostedDirect(['--api-url=https://sync.example.com']);
+      expect(error).toBeUndefined();
+      expect(stdout).toContain(`Updated ${PROJECT_DIR}/${CLI_FILENAME} with self-hosted link.`);
+    });
+
     it('respects --directory flag', async () => {
       const customDir = 'my-powersync';
       mkdirSync(join(tmpDir, customDir), { recursive: true });
