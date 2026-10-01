@@ -52,7 +52,7 @@ export default class MigrateSyncRules extends SharedInstanceCommand {
 
       case 'success': {
         const outputContent = output.result;
-        await writeFile(syncOutputPath, YAML_SYNC_RULES_SCHEMA + outputContent);
+        await writeFile(syncOutputPath, `${YAML_SYNC_RULES_SCHEMA}\n${outputContent}`);
         this.log(ux.colorize('green', `Wrote ${syncOutputPath} with migrated sync streams.`));
         break;
       }

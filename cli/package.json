@@ -24,7 +24,7 @@
     "@powersync/management-types": "catalog:",
     "@powersync/service-sync-rules": "catalog:",
     "@powersync/service-types": "catalog:",
-    "@powersync/sync-config-tools": "^0.1.2",
+    "@powersync/sync-config-tools": "^0.1.4",
     "bson": "^7.2.0",
     "diff": "^8.0.4",
     "fastify": "^5.8.5",
