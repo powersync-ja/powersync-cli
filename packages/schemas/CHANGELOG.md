@@ -1,5 +1,11 @@
 # @powersync/cli-schemas
 
+## 0.10.2
+
+### Patch Changes
+
+- 9ef2e53: Update YAML schema reference towards Sync Config definitions.
+
 ## 0.10.1
 
 ## 0.10.0
