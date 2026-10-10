@@ -67,8 +67,8 @@ const YAML_PARSE_OPTIONS = { customTags: [YamlEnvTag] };
 
 /**
  * Parses a YAML document, evaluating !env tags.
- * Throws when substitution fails (missing or invalid env vars) so callers cannot
- * treat the unresolved variable name as a real value.
+ * Throws on any YAML parse error, including failed !env substitution (missing or
+ * invalid env vars), so callers cannot treat an unresolved variable name as a real value.
  */
 export function parseYamlFile(filePath: string): yaml.Document {
   const content = readFileSync(filePath, 'utf8');
