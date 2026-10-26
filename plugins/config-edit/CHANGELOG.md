@@ -1,5 +1,13 @@
 # @powersync/cli-plugin-config-edit
 
+## 0.10.3
+
+### Patch Changes
+
+- Updated dependencies [8f72ea3]
+- Updated dependencies [3a51947]
+  - @powersync/cli-core@0.10.3
+
 ## 0.10.2
 
 ### Patch Changes

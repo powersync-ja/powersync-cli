@@ -1,5 +1,14 @@
 # @powersync/cli-core
 
+## 0.10.3
+
+### Patch Changes
+
+- 8f72ea3: fail `!env` substitution when the named environment variable is missing
+- 3a51947: Update `@powersync/*` dependencies.
+- Updated dependencies [3a51947]
+  - @powersync/cli-schemas@0.10.3
+
 ## 0.10.2
 
 ### Patch Changes

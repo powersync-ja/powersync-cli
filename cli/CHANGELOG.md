@@ -1,5 +1,20 @@
 # powersync
 
+## 0.10.3
+
+### Patch Changes
+
+- 8f72ea3: fail `!env` substitution when the named environment variable is missing
+- 3a51947: Update `@powersync/*` dependencies.
+- 3a51947: Update `@powersync/service-sync-rules@0.44.0` fixing import of types in TS generated `schemas.ts`.
+- Updated dependencies [8f72ea3]
+- Updated dependencies [3a51947]
+- Updated dependencies [3a51947]
+  - @powersync/cli-core@0.10.3
+  - @powersync/cli-plugin-docker@0.10.3
+  - @powersync/cli-schemas@0.10.3
+  - @powersync/cli-plugin-config-edit@0.10.3
+
 ## 0.10.2
 
 ### Patch Changes
