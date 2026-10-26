@@ -168,5 +168,65 @@ describe('validate', () => {
       expect(call.syncConfigContent).toContain('SELECT 1 FROM cloud_validate_override');
       expect(call.syncConfigContent).not.toContain('cloud_default_file_only');
     });
+
+    it('names a missing !env variable instead of testing connections with a bogus URI', async () => {
+      resetManagementClientMocks();
+      const origUri = process.env.PS_DATABASE_URI;
+      delete process.env.PS_DATABASE_URI;
+
+      try {
+        const { instanceId, orgId, projectId } = MOCK_CLOUD_IDS;
+        const projectDir = join(tmpRoot, 'powersync');
+        mkdirSync(projectDir, { recursive: true });
+
+        writeFileSync(
+          join(projectDir, CLI_FILENAME),
+          `type: cloud\ninstance_id: ${instanceId}\norg_id: ${orgId}\nproject_id: ${projectId}\n`,
+          'utf8'
+        );
+        env.PS_ADMIN_TOKEN = 'token';
+        env.INSTANCE_ID = undefined;
+
+        managementClientMock.getInstanceConfig.mockResolvedValue({
+          config: { region: 'us' },
+          id: instanceId,
+          name: 'test-instance',
+          sync_rules: ''
+        });
+
+        writeFileSync(
+          join(projectDir, SERVICE_FILENAME),
+          [
+            '_type: cloud',
+            'name: test-instance',
+            'region: us',
+            'replication:',
+            '  connections:',
+            '    - type: postgresql',
+            '      uri: !env PS_DATABASE_URI',
+            ''
+          ].join('\n'),
+          'utf8'
+        );
+
+        const config = await Config.load({ root });
+        const cmd = new Validate(
+          ['--directory', 'powersync', '--validate-only', 'connections', '--output', 'json'],
+          config
+        );
+        const result = await captureOutput(() => cmd.run());
+
+        expect(result.error).toBeDefined();
+        expect(result.error?.message).toMatch(/PS_DATABASE_URI/);
+        expect(result.error?.message).toMatch(/undefined/);
+        expect(managementClientMock.testConnection).not.toHaveBeenCalled();
+      } finally {
+        if (origUri === undefined) {
+          delete process.env.PS_DATABASE_URI;
+        } else {
+          process.env.PS_DATABASE_URI = origUri;
+        }
+      }
+    });
   });
 });

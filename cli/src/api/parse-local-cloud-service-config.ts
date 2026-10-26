@@ -21,17 +21,11 @@ export function parseLocalCloudServiceConfig(
   const servicePath = join(projectDirectory, SERVICE_FILENAME);
   if (!existsSync(servicePath)) return undefined;
 
-  let raw: ServiceCloudConfig | undefined;
-  try {
-    const doc = parseYamlFile(servicePath);
-    raw = doc.contents?.toJSON();
-    if (useRawConfig) {
-      return raw;
-    }
-
-    return ServiceCloudConfig.decode(raw as ServiceCloudConfig);
-  } catch (error) {
-    if (!useRawConfig) throw error;
+  const doc = parseYamlFile(servicePath);
+  const raw = doc.contents?.toJSON();
+  if (useRawConfig) {
     return raw;
   }
+
+  return ServiceCloudConfig.decode(raw as ServiceCloudConfig);
 }

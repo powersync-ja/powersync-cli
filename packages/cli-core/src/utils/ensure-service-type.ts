@@ -1,10 +1,10 @@
 import { ux } from '@oclif/core';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { PowerSyncCommand } from '../command-types/PowerSyncCommand.js';
 import { SERVICE_FILENAME } from './project-config.js';
-import { parseYamlFile } from './yaml.js';
+import { parseYamlDocumentPreserveTags } from './yaml.js';
 
 export enum ServiceType {
   CLOUD = 'cloud',
@@ -36,7 +36,9 @@ export function ensureServiceTypeMatches(options: EnsureServiceTypeMatchesOption
     return;
   }
 
-  const service = parseYamlFile(servicePath);
+  // Only `_type` is required here; skip !env resolution so templates with unset
+  // placeholders (e.g. `uri: !env PS_DATA_SOURCE_URI`) still type-check.
+  const service = parseYamlDocumentPreserveTags(readFileSync(servicePath, 'utf8'));
   const serviceJson = service.contents?.toJSON();
 
   if (serviceJson?._type == null) {
