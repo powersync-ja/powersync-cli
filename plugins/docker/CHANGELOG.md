@@ -1,5 +1,16 @@
 # @powersync/cli-plugin-docker
 
+## 0.10.3
+
+### Patch Changes
+
+- 3a51947: Update `@powersync/*` dependencies.
+- Updated dependencies [8f72ea3]
+- Updated dependencies [3a51947]
+- Updated dependencies [3a51947]
+  - @powersync/cli-core@0.10.3
+  - @powersync/cli-schemas@0.10.3
+
 ## 0.10.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @powersync/cli-schemas
 
+## 0.10.3
+
+### Patch Changes
+
+- 3a51947: Update `@powersync/service-sync-rules@0.44.0` fixing import of types in TS generated `schemas.ts`.
+
 ## 0.10.2
 
 ### Patch Changes
