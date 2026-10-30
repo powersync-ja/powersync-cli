@@ -3,7 +3,7 @@
   "description": "PowerSync CLI schema definitions and JSON Schema generation",
   "version": "0.10.3",
   "author": "POWERSYNC",
-  "license": "FSL-1.1-ALv2",
+  "license": "Apache-2.0",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
