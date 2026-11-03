@@ -2,7 +2,7 @@
   "name": "@powersync/cli-core",
   "description": "Core types and base commands for PowerSync CLI and plugins (shared by CLI and plugin-docker).",
   "version": "0.10.3",
-  "license": "FSL-1.1-ALv2",
+  "license": "Apache-2.0",
   "author": "POWERSYNC",
   "type": "module",
   "main": "dist/index.js",
