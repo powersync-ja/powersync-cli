@@ -1,5 +1,11 @@
 # @powersync/cli-schemas
 
+## 0.10.4
+
+### Patch Changes
+
+- 9c62937: Change license from FSL to Apache-2.0
+
 ## 0.10.3
 
 ### Patch Changes
