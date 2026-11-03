@@ -1,5 +1,16 @@
 # powersync
 
+## 0.10.4
+
+### Patch Changes
+
+- 9c62937: Change license from FSL to Apache-2.0
+- Updated dependencies [9c62937]
+  - @powersync/cli-plugin-config-edit@0.10.4
+  - @powersync/cli-core@0.10.4
+  - @powersync/cli-schemas@0.10.4
+  - @powersync/cli-plugin-docker@0.10.4
+
 ## 0.10.3
 
 ### Patch Changes
