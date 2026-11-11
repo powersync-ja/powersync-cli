@@ -49,7 +49,7 @@ export default class EditConfig extends SharedInstanceCommand {
     this.log(`Serving built editor from: ${targetDist}`);
 
     const child = spawn(
-      'node',
+      process.execPath,
       [path.join(targetDist, 'server/index.mjs'), '--host', flags.host, '--port', String(flags.port)],
       {
         cwd: editorDir,
