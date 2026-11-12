@@ -1,5 +1,14 @@
 # @powersync/cli-plugin-config-edit
 
+## 0.10.4
+
+### Patch Changes
+
+- 9c62937: Change license from FSL to Apache-2.0
+- 18da33c: Update the Node.js runtime bundled in standalone installers to 24.22.3. The configuration editor now uses the CLI's Node executable so standalone installations use their bundled runtime for the editor.
+- Updated dependencies [9c62937]
+  - @powersync/cli-core@0.10.4
+
 ## 0.10.3
 
 ### Patch Changes
