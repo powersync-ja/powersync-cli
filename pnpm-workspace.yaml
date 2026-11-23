@@ -28,10 +28,10 @@ catalog:
   '@oclif/core': ^4.10.6
   '@powersync/management-client': ^0.1.8
   '@powersync/management-types': ^0.3.3
-  '@powersync/service-client': ^0.0.12
+  '@powersync/service-client': ^0.0.13
   '@powersync/service-schema': ^1.29.1
-  '@powersync/service-sync-rules': ^0.44.0
-  '@powersync/service-types': ^0.20.0
+  '@powersync/service-sync-rules': ^0.45.1
+  '@powersync/service-types': ^0.21.0
   oclif: ^6.0.2
 
 patchedDependencies:

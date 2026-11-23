@@ -16,17 +16,17 @@ catalogs:
       specifier: ^0.3.3
       version: 0.3.3
     '@powersync/service-client':
-      specifier: ^0.0.12
-      version: 0.0.12
+      specifier: ^0.0.13
+      version: 0.0.13
     '@powersync/service-schema':
       specifier: ^1.29.1
       version: 1.29.1
     '@powersync/service-sync-rules':
-      specifier: ^0.44.0
-      version: 0.44.0
+      specifier: ^0.45.1
+      version: 0.45.1
     '@powersync/service-types':
-      specifier: ^0.20.0
-      version: 0.20.0
+      specifier: ^0.21.0
+      version: 0.21.0
     oclif:
       specifier: ^6.0.2
       version: 6.0.2
@@ -112,10 +112,10 @@ importers:
         version: 0.3.3
       '@powersync/service-sync-rules':
         specifier: 'catalog:'
-        version: 0.44.0
+        version: 0.45.1
       '@powersync/service-types':
         specifier: 'catalog:'
-        version: 0.20.0
+        version: 0.21.0
       '@powersync/sync-config-tools':
         specifier: ^0.1.4
         version: 0.1.4
@@ -197,7 +197,7 @@ importers:
         version: 0.3.3
       '@powersync/service-client':
         specifier: 'catalog:'
-        version: 0.0.12(@types/json-schema@7.0.15)
+        version: 0.0.13(@types/json-schema@7.0.15)
       keychain:
         specifier: ^1.5.0
         version: 1.5.0
@@ -346,7 +346,7 @@ importers:
         version: 1.29.1
       '@powersync/service-types':
         specifier: 'catalog:'
-        version: 0.20.0
+        version: 0.21.0
       ajv:
         specifier: ^8.20.0
         version: 8.20.0
@@ -359,7 +359,7 @@ importers:
     devDependencies:
       '@powersync/service-sync-rules':
         specifier: 'catalog:'
-        version: 0.44.0
+        version: 0.45.1
       '@types/node':
         specifier: ^24.12.2
         version: 24.12.4
@@ -417,7 +417,7 @@ importers:
         version: 1.29.1
       '@powersync/service-types':
         specifier: 'catalog:'
-        version: 0.20.0
+        version: 0.21.0
       yaml:
         specifier: ^2.8.3
         version: 2.9.0
@@ -1474,20 +1474,17 @@ packages:
   '@powersync/management-types@0.3.3':
     resolution: {integrity: sha512-kHGM8fHh8E3temtmldxVDE62D1Kcac1ifpamduhTYO47ZW0oPQxDGKC2N+/xUSu/wp7sriixj2zWwvNfZLQ/SQ==}
 
-  '@powersync/service-client@0.0.12':
-    resolution: {integrity: sha512-nQ8cxFdc9dGO7arZoivd0GQnC96i0naOyvaJItVIOj0e7KZRfc7C/8uFelnjSEqepohN2aW8LeDbqKS6nzYSFA==}
+  '@powersync/service-client@0.0.13':
+    resolution: {integrity: sha512-oIhU2kyz1kuUAJHpji/vYf3L4DrGnpE5N8al0ojcwH/Zl5f3BOvI68ODExC95Rj7VKqJvgcP9ggaeN+mH8yRWg==}
 
-  '@powersync/service-jsonbig@0.17.14':
-    resolution: {integrity: sha512-smF3Io5U/Sc2chfQmn8w+F60wT6x3BSxEm807x823hxH/aTFRMxEWwJBkqEDav7jAQb6isrtq7aaKWZbsOln/w==}
+  '@powersync/service-jsonbig@0.18.0':
+    resolution: {integrity: sha512-vjpSckI5dyPzDrrQhUaBM99x7m5VgNu3AyKA1c5iBn/q4qdH9KZOuPYJ2wZNMSqZX9hAPHBtT1fiEHkyuPrdtA==}
 
   '@powersync/service-schema@1.29.1':
     resolution: {integrity: sha512-vc3w7NUFFTRFBaNxyfEl+PlWdPQKAUFkHOqZFuN1qh8u08t5fxDSMtWEhCIOIU32MzZX3zaiuofaG5osn7yz7g==}
 
-  '@powersync/service-sync-rules@0.44.0':
-    resolution: {integrity: sha512-NW0z5DJ5icDbop3V+HxcgMskoSaFNYQYCJtTpLgAavfs0YqjsM41glspIZPA2jf/elgOv5Q6y6GiJCHTWfOdZQ==}
-
-  '@powersync/service-types@0.20.0':
-    resolution: {integrity: sha512-PCFW4CCh6JtebVyiPYW89YBL0WqBoM2VdX5jbhVBA/SvFNNNn7qr2WXLkAS3KZxY1xqFrq3+0qyiW3NUpZMXXA==}
+  '@powersync/service-sync-rules@0.45.1':
+    resolution: {integrity: sha512-fSGyjoGAWoOqtmbYWaJJdyFFJ04udkObSH6oEAMBG3uNAGEfBIWrD6JmMQjpWaNIQeCXDU+sdJuB5ZI61Jmz6w==}
 
   '@powersync/service-types@0.21.0':
     resolution: {integrity: sha512-jUAQyLfo4ori7z1yTl4RJQ3BKSlRAonBFP2UglHBSeIVMkGOGRrRCDZAiq0WSHd8lMKwg/updRiiSq8wZ56nVQ==}
@@ -7096,23 +7093,23 @@ snapshots:
     transitivePeerDependencies:
       - babel-plugin-macros
 
-  '@powersync/service-client@0.0.12(@types/json-schema@7.0.15)':
+  '@powersync/service-client@0.0.13(@types/json-schema@7.0.15)':
     dependencies:
       '@journeyapps-labs/common-sdk': 1.0.4(@types/json-schema@7.0.15)
-      '@powersync/service-types': 0.20.0
+      '@powersync/service-types': 0.21.0
     transitivePeerDependencies:
       - '@types/json-schema'
       - babel-plugin-macros
 
-  '@powersync/service-jsonbig@0.17.14':
+  '@powersync/service-jsonbig@0.18.0':
     dependencies:
       lossless-json: 2.0.11
 
   '@powersync/service-schema@1.29.1': {}
 
-  '@powersync/service-sync-rules@0.44.0':
+  '@powersync/service-sync-rules@0.45.1':
     dependencies:
-      '@powersync/service-jsonbig': 0.17.14
+      '@powersync/service-jsonbig': 0.18.0
       '@syncpoint/wkx': 0.5.2
       ajv: 8.20.0
       bson: 6.10.4
@@ -7121,14 +7118,6 @@ snapshots:
       uuid: 14.0.0
       yaml: 2.9.0
       zod: 4.6.7
-
-  '@powersync/service-types@0.20.0':
-    dependencies:
-      dedent: 1.7.2
-      ts-codec: 1.3.0
-      uri-js: 4.4.1
-    transitivePeerDependencies:
-      - babel-plugin-macros
 
   '@powersync/service-types@0.21.0':
     dependencies:
