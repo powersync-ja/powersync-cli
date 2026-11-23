@@ -10,17 +10,17 @@ catalogs:
       specifier: ^4.10.6
       version: 4.11.4
     '@powersync/management-client':
-      specifier: ^0.1.7
-      version: 0.1.7
+      specifier: ^0.1.8
+      version: 0.1.8
     '@powersync/management-types':
-      specifier: ^0.3.0
-      version: 0.3.0
+      specifier: ^0.3.3
+      version: 0.3.3
     '@powersync/service-client':
       specifier: ^0.0.12
       version: 0.0.12
     '@powersync/service-schema':
-      specifier: ^1.27.0
-      version: 1.27.0
+      specifier: ^1.29.1
+      version: 1.29.1
     '@powersync/service-sync-rules':
       specifier: ^0.44.0
       version: 0.44.0
@@ -106,10 +106,10 @@ importers:
         version: link:../packages/schemas
       '@powersync/management-client':
         specifier: 'catalog:'
-        version: 0.1.7(@types/json-schema@7.0.15)
+        version: 0.1.8(@types/json-schema@7.0.15)
       '@powersync/management-types':
         specifier: 'catalog:'
-        version: 0.3.0
+        version: 0.3.3
       '@powersync/service-sync-rules':
         specifier: 'catalog:'
         version: 0.44.0
@@ -191,10 +191,10 @@ importers:
         version: link:../schemas
       '@powersync/management-client':
         specifier: 'catalog:'
-        version: 0.1.7(@types/json-schema@7.0.15)
+        version: 0.1.8(@types/json-schema@7.0.15)
       '@powersync/management-types':
         specifier: 'catalog:'
-        version: 0.3.0
+        version: 0.3.3
       '@powersync/service-client':
         specifier: 'catalog:'
         version: 0.0.12(@types/json-schema@7.0.15)
@@ -340,10 +340,10 @@ importers:
     dependencies:
       '@powersync/management-types':
         specifier: 'catalog:'
-        version: 0.3.0
+        version: 0.3.3
       '@powersync/service-schema':
         specifier: 'catalog:'
-        version: 1.27.0
+        version: 1.29.1
       '@powersync/service-types':
         specifier: 'catalog:'
         version: 0.20.0
@@ -414,7 +414,7 @@ importers:
         version: link:../../packages/schemas
       '@powersync/service-schema':
         specifier: 'catalog:'
-        version: 1.27.0
+        version: 1.29.1
       '@powersync/service-types':
         specifier: 'catalog:'
         version: 0.20.0
@@ -1468,29 +1468,29 @@ packages:
     resolution: {integrity: sha512-h104Kh26rR8tm+a3Qkc5S4VLYint3FE48as7+/5oCEcKR2idC/pF1G6AhIXKI+eHPJa/3J9i5z0Al47IeGHPkA==}
     engines: {node: '>=12'}
 
-  '@powersync/management-client@0.1.7':
-    resolution: {integrity: sha512-j8WkHkYxEocM+rkcyqaf79flPZ+OGcSskoEZAEeOHw4to0zH1iYL5vc9i+Bfx6VGwx11qCwhZehI4LG8JFtwkw==}
+  '@powersync/management-client@0.1.8':
+    resolution: {integrity: sha512-q7chiEmFPQqtSHmzA82IuCV9NJik11abb/FJzIR2M94h4zVfbuIU0asC8ueaKt9hIUvaE502k5puQCbB4sSAOw==}
 
-  '@powersync/management-types@0.3.0':
-    resolution: {integrity: sha512-oweZ3vd3WcxPKvg7mWmoVpzC6/Axs/5cz2oBmYcBJCkKBkKq7aGJCjhoWN+zNO5wtPbywoGQ3IEuS1icG8jkXQ==}
+  '@powersync/management-types@0.3.3':
+    resolution: {integrity: sha512-kHGM8fHh8E3temtmldxVDE62D1Kcac1ifpamduhTYO47ZW0oPQxDGKC2N+/xUSu/wp7sriixj2zWwvNfZLQ/SQ==}
 
   '@powersync/service-client@0.0.12':
     resolution: {integrity: sha512-nQ8cxFdc9dGO7arZoivd0GQnC96i0naOyvaJItVIOj0e7KZRfc7C/8uFelnjSEqepohN2aW8LeDbqKS6nzYSFA==}
 
-  '@powersync/service-jsonbig@0.17.13':
-    resolution: {integrity: sha512-S90x8xgYYaiNBi6pnBbSxqiZlXUhEDb10HfTs5maLPVYIlDKXG5YlhP1DVv/csFNCuIuMC1F5ABXnN2rNjfajg==}
+  '@powersync/service-jsonbig@0.17.14':
+    resolution: {integrity: sha512-smF3Io5U/Sc2chfQmn8w+F60wT6x3BSxEm807x823hxH/aTFRMxEWwJBkqEDav7jAQb6isrtq7aaKWZbsOln/w==}
 
-  '@powersync/service-schema@1.27.0':
-    resolution: {integrity: sha512-vDoKc5Cu+X3ZaHV6dhQoKh19Cbq0qOT5cv7/xI5hIWMIhf54NLEPd4vFS8C751h7kFZNWe3XruSXU71Nf3rhAg==}
+  '@powersync/service-schema@1.29.1':
+    resolution: {integrity: sha512-vc3w7NUFFTRFBaNxyfEl+PlWdPQKAUFkHOqZFuN1qh8u08t5fxDSMtWEhCIOIU32MzZX3zaiuofaG5osn7yz7g==}
 
   '@powersync/service-sync-rules@0.44.0':
     resolution: {integrity: sha512-NW0z5DJ5icDbop3V+HxcgMskoSaFNYQYCJtTpLgAavfs0YqjsM41glspIZPA2jf/elgOv5Q6y6GiJCHTWfOdZQ==}
 
-  '@powersync/service-types@0.18.0':
-    resolution: {integrity: sha512-dOUJmez35zkuwKFuAEiE7uhs9RYHGjL4YzJCSIs32eCkoYfRBhEMuVDfpvRvD+6IUHqbQTl4+S+D1txwSKfqLA==}
-
   '@powersync/service-types@0.20.0':
     resolution: {integrity: sha512-PCFW4CCh6JtebVyiPYW89YBL0WqBoM2VdX5jbhVBA/SvFNNNn7qr2WXLkAS3KZxY1xqFrq3+0qyiW3NUpZMXXA==}
+
+  '@powersync/service-types@0.21.0':
+    resolution: {integrity: sha512-jUAQyLfo4ori7z1yTl4RJQ3BKSlRAonBFP2UglHBSeIVMkGOGRrRCDZAiq0WSHd8lMKwg/updRiiSq8wZ56nVQ==}
 
   '@powersync/sync-config-tools@0.1.4':
     resolution: {integrity: sha512-Ki0ImGMMrsNMABon1kISkoNbj4XAy9ZFcolEntcj9uZBj7e84mp0WgQO/ZpVpUlP35x7ndn90u+JJs7B1uWDag==}
@@ -1838,6 +1838,9 @@ packages:
   '@smithy/core@3.35.0':
     resolution: {integrity: sha512-zRMhfkByhT2snNdr1si24vJitU6Cr9ix2MikUfWmkAgp4jrNP0GcKSP5YvwQ+TlI8AZXER5QOGJn3JsVtSD9/A==}
     engines: {node: '>=18.0.0'}
+    deprecated: |-
+      Deprecated due to a bug in custom logger data redaction. Upgrade to the latest version. If you used a custom logger with this
+        version, review your logs and rotate any credentials or other secrets. See https://github.com/aws/aws-sdk-js-v3/issues/8393.
 
   '@smithy/credential-provider-imds@4.5.2':
     resolution: {integrity: sha512-A9uSdn72ozbRUSit0eib0TW7nXuNPlaeM0zcGkJ+nE6tFcSDbnmtwoxbTCFBukVQcszDAyvsd7+rTduPTXpygg==}
@@ -3754,6 +3757,7 @@ packages:
   http-call@5.3.0:
     resolution: {integrity: sha512-ahwimsC23ICE4kPl9xTBjKB4inbRaeLyZeRunC/1Jy/Z6X8tv22MEAjK+KBOMSVLaqXPTTmd8638waVIKLGx2w==}
     engines: {node: '>=8.0.0'}
+    deprecated: Renamed to @heroku/http-call — please install @heroku/http-call instead.
 
   http-proxy-agent@7.0.2:
     resolution: {integrity: sha512-T1gkAiYYDWYx3V5Bmyu7HcfcvL7mUrTWiM6yOfa3PIphViJ/gFPbvidQ+veqSOHci/PxBcDabeUNCzpOODJZig==}
@@ -5040,8 +5044,18 @@ packages:
     peerDependencies:
       seroval: ^1.0
 
+  seroval-plugins@1.5.6:
+    resolution: {integrity: sha512-HXuLAX2pu/UByPpaeo/TaMfvMIi+1QqIoPJYCcAtU8QkVNwgR6MPlGuCQTErV1JwraaMbYaWVIBX7mppzGLATQ==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      seroval: ^1.0
+
   seroval@1.5.4:
     resolution: {integrity: sha512-46uFvgrXTVxZcUorgSSRZ4y+ieqLLQRMlG4bnCZKW3qI6BZm7Rg4ntMW4p1mILEEBZWrFlcpp0AyIIlM6jD9iw==}
+    engines: {node: '>=10'}
+
+  seroval@1.5.6:
+    resolution: {integrity: sha512-rVQVWjjSvlINzaQPZH5JFqsqEsIWdTxY3iJZCnTL/5gQbXIRooVZKI60tVCkOVfzcRPejboxO2t0P89dg5mQaA==}
     engines: {node: '>=10'}
 
   set-cookie-parser@2.7.2:
@@ -5153,6 +5167,11 @@ packages:
 
   srvx@0.11.16:
     resolution: {integrity: sha512-bp07zRuycfTY43IjAvvTFnmnJi8ikW0VFiHwOhhYcVW/L4xQ1XY4PAd4Nuum1rsA17C39zL7x+CDhrn5AL32Rw==}
+    engines: {node: '>=20.16.0'}
+    hasBin: true
+
+  srvx@0.11.22:
+    resolution: {integrity: sha512-LqZxxBDMKuMAZzFzJnDCkFOrs9MZQZr0LvHiO/SuSZVdQaXD7xQ5UWTUxheJrQPve1qk9MG2B/yttUvJxw8egQ==}
     engines: {node: '>=20.16.0'}
     hasBin: true
 
@@ -7060,18 +7079,18 @@ snapshots:
       '@pnpm/network.ca-file': 1.0.2
       config-chain: 1.1.13
 
-  '@powersync/management-client@0.1.7(@types/json-schema@7.0.15)':
+  '@powersync/management-client@0.1.8(@types/json-schema@7.0.15)':
     dependencies:
       '@journeyapps-labs/common-sdk': 1.0.4(@types/json-schema@7.0.15)
-      '@powersync/management-types': 0.3.0
+      '@powersync/management-types': 0.3.3
     transitivePeerDependencies:
       - '@types/json-schema'
       - babel-plugin-macros
 
-  '@powersync/management-types@0.3.0':
+  '@powersync/management-types@0.3.3':
     dependencies:
       '@journeyapps-labs/micro-codecs': 1.0.3
-      '@powersync/service-types': 0.18.0
+      '@powersync/service-types': 0.21.0
       bson: 6.10.4
       ts-codec: 1.3.0
     transitivePeerDependencies:
@@ -7085,15 +7104,15 @@ snapshots:
       - '@types/json-schema'
       - babel-plugin-macros
 
-  '@powersync/service-jsonbig@0.17.13':
+  '@powersync/service-jsonbig@0.17.14':
     dependencies:
       lossless-json: 2.0.11
 
-  '@powersync/service-schema@1.27.0': {}
+  '@powersync/service-schema@1.29.1': {}
 
   '@powersync/service-sync-rules@0.44.0':
     dependencies:
-      '@powersync/service-jsonbig': 0.17.13
+      '@powersync/service-jsonbig': 0.17.14
       '@syncpoint/wkx': 0.5.2
       ajv: 8.20.0
       bson: 6.10.4
@@ -7103,7 +7122,7 @@ snapshots:
       yaml: 2.9.0
       zod: 4.6.7
 
-  '@powersync/service-types@0.18.0':
+  '@powersync/service-types@0.20.0':
     dependencies:
       dedent: 1.7.2
       ts-codec: 1.3.0
@@ -7111,7 +7130,7 @@ snapshots:
     transitivePeerDependencies:
       - babel-plugin-macros
 
-  '@powersync/service-types@0.20.0':
+  '@powersync/service-types@0.21.0':
     dependencies:
       dedent: 1.7.2
       ts-codec: 1.3.0
@@ -9424,7 +9443,7 @@ snapshots:
   h3@2.0.1-rc.20(crossws@0.4.5(srvx@0.11.16)):
     dependencies:
       rou3: 0.8.1
-      srvx: 0.11.16
+      srvx: 0.11.22
     optionalDependencies:
       crossws: 0.4.5(srvx@0.11.16)
 
@@ -10735,7 +10754,13 @@ snapshots:
     dependencies:
       seroval: 1.5.4
 
+  seroval-plugins@1.5.6(seroval@1.5.6):
+    dependencies:
+      seroval: 1.5.6
+
   seroval@1.5.4: {}
+
+  seroval@1.5.6: {}
 
   set-cookie-parser@2.7.2: {}
 
@@ -10823,8 +10848,8 @@ snapshots:
   solid-js@1.9.13:
     dependencies:
       csstype: 3.2.3
-      seroval: 1.5.4
-      seroval-plugins: 1.5.4(seroval@1.5.4)
+      seroval: 1.5.6
+      seroval-plugins: 1.5.6(seroval@1.5.6)
 
   sonic-boom@4.2.1:
     dependencies:
@@ -10863,6 +10888,8 @@ snapshots:
   sprintf-js@1.0.3: {}
 
   srvx@0.11.16: {}
+
+  srvx@0.11.22: {}
 
   stable-hash@0.0.5: {}
 
