@@ -1,7 +1,7 @@
 {
   "name": "@powersync/cli-plugin-docker",
   "description": "PowerSync CLI plugin: reset, start, and stop self-hosted instances using Docker Compose",
-  "version": "0.10.3",
+  "version": "0.10.4",
   "author": "POWERSYNC",
   "license": "Apache-2.0",
   "type": "module",

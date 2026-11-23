@@ -1,5 +1,12 @@
 # @powersync/cli-schemas
 
+## 0.10.4
+
+### Patch Changes
+
+- 42f71fa: Bump PowerSync service dependencies.
+- 9c62937: Change license from FSL to Apache-2.0
+
 ## 0.10.3
 
 ### Patch Changes
