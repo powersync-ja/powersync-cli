@@ -6,16 +6,18 @@ PowerSync CLI plugin that adds a **docker** topic for self-hosted instances: **c
 
 ## Commands
 
-All commands live under **`powersync docker`**:
+Opt in to the self-hosted dashboard during **`powersync docker configure`**, or pass **`--dashboard`** to enable it in a new or existing stack. The dashboard follows the stack lifecycle and reads URL and port overrides from **`docker/.env`**. [Dashboard configuration](../../docs/usage-docker.md#self-hosted-dashboard)
 
-- **`powersync docker configure`** – Create **powersync/docker/** with database and storage modules (see **Templates** below). Requires **`--database`** and **`--storage`**. Creates **docker-compose.yaml**, **.env** (with defaults), and merges service snippets into **service.yaml** (preserving `!env` so the container resolves vars from **.env**). Writes **cli.yaml** with `plugins.docker.project_name` for reset/start/stop.
+The stack commands live under **`powersync docker`**:
+
+- **`powersync docker configure`** – Create **powersync/docker/** with database and storage modules (see **Templates** below). Choose the modules interactively or pass **`--database`** and **`--storage`**. Creates **docker-compose.yaml**, **.env** (with defaults), and merges service snippets into **service.yaml** (preserving `!env` so the container resolves vars from **.env**). Writes **cli.yaml** with `plugins.docker.project_name` for reset/start/stop.
 - **`powersync docker start`** – Start the stack (`docker compose up -d --wait`). **Use this after configure** to bring up the stack.
 - **`powersync docker reset`** – Start from a clean state: stop and remove containers (`docker compose down`), then start (`docker compose up -d --wait`). Use **only when you need a clean state** (e.g. after config changes).
 - **`powersync docker stop`** – Stop the stack (`docker compose stop` by default; use `--remove` for `down`, `--remove-volumes` for `down -v`).
 
 Run **`powersync docker`** with no subcommand to see help.
 
-All commands use the same project and directory resolution as the main CLI (e.g. `--directory powersync`). They require a self-hosted PowerSync project (**service.yaml** with `_type: self-hosted`). Linking (**cli.yaml** / API_URL / PS_ADMIN_TOKEN) is optional.
+The stack commands use the same project and directory resolution as the main CLI (e.g. `--directory powersync`). They require a self-hosted PowerSync project (**service.yaml** with `_type: self-hosted`). Linking (**cli.yaml** / API_URL / PS_ADMIN_TOKEN) is optional.
 
 ## Templates (composable modules)
 

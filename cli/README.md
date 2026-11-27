@@ -199,6 +199,8 @@ Use `--directory` for a different config folder.
 
 We expose a [PowerSync Docker topic](../plugins/docker/README.md) for running a self-hosted stack locally. Use **`powersync docker configure`** then **`powersync docker start`** to run the stack. Use **`powersync docker reset`** only when you need to start from a clean state (stop and remove, then start).
 
+To include the self-hosted dashboard, opt in during `powersync docker configure` or pass `--dashboard`. Set URL and port overrides in the generated `docker/.env`. [Dashboard configuration](../docs/usage-docker.md#self-hosted-dashboard)
+
 ## Command support
 
 Only some CLI commands work with self-hosted instances. Supported commands include **`powersync status`**, **`powersync generate schema`**, **`powersync generate token`**, **`powersync validate`**, and **`powersync link self-hosted`**. Cloud-only commands such as **`powersync deploy`**, **`powersync destroy`**, **`powersync pull instance`**, **`powersync fetch config`**, and **`powersync fetch instances`** do not apply to self-hosted.
@@ -596,10 +598,11 @@ Configures a self hosted project with Docker Compose services.
 
 ```
 USAGE
-  $ powersync docker configure [--directory <value>] [--api-url <value>] [--database postgres|external|none]
-    [--storage postgres|external|none]
+  $ powersync docker configure [--directory <value>] [--api-url <value>] [--dashboard] [--database
+    postgres|external|none] [--storage postgres|external|none]
 
 FLAGS
+  --dashboard          Enable the dashboard in a new or existing Docker stack.
   --database=<option>  Database module for replication source. Omit to be prompted.
                        <options: postgres|external|none>
   --storage=<option>   Storage module for PowerSync bucket metadata. Omit to be prompted.

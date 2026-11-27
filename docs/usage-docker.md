@@ -45,7 +45,7 @@ This creates **powersync/docker/** with:
 - **.env** – Default values for DB credentials, URIs, port, etc.
 - **modules/database-postgres/** and/or **modules/storage-postgres/** – Compose partials and **init-scripts/** (e.g. publication and schema placeholders for postgres).
 
-It also merges replication and storage config into **powersync/service.yaml** and sets **plugins.docker.project_name** in **powersync/cli.yaml** (derived from the config directory name). If the directory already exists, remove it first or use a different **--directory**.
+It also merges replication and storage config into **powersync/service.yaml** and sets **plugins.docker.project_name** in **powersync/cli.yaml** (derived from the config directory name). To add the dashboard to an existing stack, run `powersync docker configure --dashboard`. To generate a stack with different database or storage modules, use a new **--directory**.
 
 ### 2. Start the stack
 
@@ -133,3 +133,24 @@ powersync generate schema --output=ts --output-path=./schema.ts
 ```
 
 You can override **--api-url** (and set **PS_ADMIN_TOKEN** in the environment) on individual commands if needed.
+
+## Self-hosted dashboard
+
+Choose **Yes** when `powersync docker configure` asks whether to include the dashboard. The default is **No**. You can also enable it in a new or existing stack with the flag:
+
+```sh
+powersync docker configure --dashboard
+powersync docker start
+```
+
+Open [the local dashboard](http://127.0.0.1:8090). Once enabled, it starts and stops with the Compose stack.
+
+To change the dashboard settings, edit the project’s `docker/.env` and run `powersync docker start` again. Leave either URL empty to use its default.
+
+| Variable                  | Default                             | Used by                                                                      |
+| ------------------------- | ----------------------------------- | ---------------------------------------------------------------------------- |
+| `PS_DASHBOARD_PORT`       | `8090`                              | Host port for the dashboard, bound to `127.0.0.1`                            |
+| `PS_DASHBOARD_ADMIN_URL`  | `http://powersync:${PS_PORT:-8080}` | Dashboard proxy inside Compose, which sends the admin token to this Service  |
+| `PS_DASHBOARD_CLIENT_URL` | `http://localhost:${PS_PORT:-8080}` | Browser, which needs a reachable Service URL for client setup and sync tests |
+
+The CLI generates a dedicated `PS_DASHBOARD_TOKEN` in `docker/.env`. Compose gives that value to the dashboard as `POWERSYNC_ADMIN_TOKEN`, and the Service accepts it through the `!env PS_DASHBOARD_TOKEN` entry in `service.yaml` under `api.tokens`. To rotate the token, change its value in `docker/.env` and run `powersync docker start`. Keep the env file out of version control.

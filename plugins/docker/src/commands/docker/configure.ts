@@ -1,17 +1,21 @@
-import { select } from '@inquirer/prompts';
+import { confirm, select } from '@inquirer/prompts';
 import { Flags, ux } from '@oclif/core';
 import {
   CLI_FILENAME,
+  ensureServiceTypeMatches,
   parseYamlDocumentPreserveTags,
   type SelfHostedInstanceCommandFlags,
-  SERVICE_FILENAME
+  SERVICE_FILENAME,
+  ServiceType
 } from '@powersync/cli-core';
 import fs, { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Document, isMap, isSeq, stringify } from 'yaml';
+import { Document, isMap, Scalar, stringify } from 'yaml';
 
+import { addServiceToken } from '../../add-service-token.js';
 import { DEV_TOKEN } from '../../constants.js';
+import { enableStackDashboard } from '../../dashboard/enable-stack-dashboard.js';
 import { DockerCommand } from '../../DockerCommand.js';
 import { TEMPLATES } from '../../templates/templates-index.js';
 import { DockerModuleContext, DockerModuleType } from '../../types.js';
@@ -36,6 +40,11 @@ function composeProjectName(projectDirectory: string): string {
   return `powersync_${sanitized}`;
 }
 
+async function shouldConfigureDashboard(enabled: boolean | undefined): Promise<boolean> {
+  if (enabled || !process.stdin.isTTY) return Boolean(enabled);
+  return confirm({ default: false, message: 'Also configure the self-hosted dashboard for this stack?' });
+}
+
 export default class DockerConfigure extends DockerCommand {
   static description = [
     'Configures a self hosted project with Docker Compose services.',
@@ -47,6 +56,7 @@ export default class DockerConfigure extends DockerCommand {
     '<%= config.bin %> <%= command.id %> --database=postgres --storage=postgres'
   ];
   static flags = {
+    dashboard: Flags.boolean({ description: 'Enable the dashboard in a new or existing Docker stack.' }),
     database: Flags.string({
       description: 'Database module for replication source. Omit to be prompted.',
       options: [...TEMPLATES[DockerModuleType.SOURCE_DATABASE].map((t) => t.name), NONE_OPTION],
@@ -68,14 +78,7 @@ export default class DockerConfigure extends DockerCommand {
     const modulesDir = path.join(targetDockerDir, 'modules');
     const dockerEnvFilePath = path.join(targetDockerDir, '.env');
 
-    if (existsSync(targetDockerDir)) {
-      this.error(
-        ux.colorize('red', [`Directory ${targetDockerDir} already exists.`, 'Remove it to re-configure.'].join('\n')),
-        {
-          exit: 1
-        }
-      );
-    }
+    if (existsSync(targetDockerDir)) return this.configureExistingStack(projectDirectory, flags);
 
     const databaseChoices = [
       ...TEMPLATES[DockerModuleType.SOURCE_DATABASE].map((t) => ({ name: t.name, value: t.name })),
@@ -92,10 +95,9 @@ export default class DockerConfigure extends DockerCommand {
         choices: databaseChoices,
         message: 'Select a database module for a replication source. Use external to configure an existing database.'
       });
-      if (database === NONE_OPTION) database = undefined;
-    } else if (database === NONE_OPTION) {
-      database = undefined;
     }
+
+    if (database === NONE_OPTION) database = undefined;
 
     let { storage } = flags;
     if (storage === undefined) {
@@ -104,9 +106,19 @@ export default class DockerConfigure extends DockerCommand {
         message:
           'Select a storage module for PowerSync bucket metadata. Use external to configure an existing database.'
       });
-      if (storage === NONE_OPTION) storage = undefined;
-    } else if (storage === NONE_OPTION) {
-      storage = undefined;
+    }
+
+    if (storage === NONE_OPTION) storage = undefined;
+
+    const dashboard = await shouldConfigureDashboard(flags.dashboard);
+    if (dashboard) {
+      ensureServiceTypeMatches({
+        command: this,
+        configRequired: true,
+        directoryLabel: flags.directory,
+        expectedType: ServiceType.SELF_HOSTED,
+        projectDir: projectDirectory
+      });
     }
 
     mkdirSync(targetDockerDir, { recursive: true });
@@ -172,22 +184,13 @@ export default class DockerConfigure extends DockerCommand {
     writeFileSync(dockerEnvFilePath, envFileContents, 'utf8');
 
     // Set api.tokens in service.yaml for local dev (same token as in link) without clobbering existing settings.
-    const apiNode = serviceConfigDocument.get('api');
-    if (isMap(apiNode)) {
-      const existingTokensNode = apiNode.get('tokens');
-      const existingTokens = isSeq(existingTokensNode)
-        ? existingTokensNode.toJSON()
-        : Array.isArray(existingTokensNode)
-          ? existingTokensNode
-          : [];
-      const mergedTokens = [...new Set([DEV_TOKEN, ...(existingTokens as string[])])];
-      apiNode.set('tokens', mergedTokens);
-    } else {
-      serviceConfigDocument.set('api', { tokens: [DEV_TOKEN] });
-    }
+    addServiceToken(serviceConfigDocument, new Scalar(DEV_TOKEN));
 
     writeFileSync(path.join(projectDirectory, SERVICE_FILENAME), stringify(serviceConfigDocument), 'utf8');
     updateLinkPluginsDocker(projectDirectory, projectName);
+    if (dashboard) {
+      this.enableDashboard(projectDirectory);
+    }
 
     this.log(ux.colorize('green', `Configured ${targetDockerDir}`));
     this.log(ux.colorize('gray', '  - docker-compose.yaml (includes modules, adds PowerSync service)'));
@@ -196,6 +199,32 @@ export default class DockerConfigure extends DockerCommand {
     this.log(ux.colorize('gray', `  - ${CLI_FILENAME} (plugins.docker.project_name: ${projectName})`));
     this.log('');
     this.log(`Next: run "${ux.colorize('blue', 'powersync docker start')}" to start the stack.`);
+  }
+
+  private async configureExistingStack(
+    projectDirectory: string,
+    flags: { dashboard?: boolean; database?: string; storage?: string }
+  ): Promise<void> {
+    if (flags.database !== undefined || flags.storage !== undefined || (!flags.dashboard && !process.stdin.isTTY)) {
+      this.error(
+        `Directory ${path.join(projectDirectory, 'docker')} already exists. Use --dashboard to add the dashboard to this stack.`
+      );
+    }
+
+    if (!(await shouldConfigureDashboard(flags.dashboard))) {
+      this.log('Kept the existing stack configuration.');
+      return;
+    }
+
+    this.enableDashboard(projectDirectory);
+    this.log('Run powersync docker start to start the stack.');
+  }
+
+  private enableDashboard(projectDirectory: string): void {
+    enableStackDashboard(projectDirectory);
+    this.log(
+      'Dashboard enabled. Set PS_DASHBOARD_PORT, PS_DASHBOARD_ADMIN_URL or PS_DASHBOARD_CLIENT_URL in docker/.env to override the defaults.'
+    );
   }
 }
 
@@ -211,7 +240,7 @@ function updateLinkPluginsDocker(projectDirectory: string, projectName: string):
 
   const rawNode = linkDocument.get('plugins');
   if (isMap(rawNode)) {
-    rawNode.set('docker', { project_name: projectName });
+    linkDocument.setIn(['plugins', 'docker', 'project_name'], projectName);
   } else {
     linkDocument.set('plugins', { docker: { project_name: projectName } });
   }
